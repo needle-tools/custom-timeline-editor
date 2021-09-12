@@ -1,5 +1,5 @@
 ﻿using System;
-using _Sample;
+using DefaultNamespace;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Playables;
@@ -9,9 +9,10 @@ namespace Needle.Timeline
 	[Serializable]
 	public class CodeControlBehaviour : PlayableBehaviour
 	{
-		// internal Type boundType { get; private set; }
-
+		
+		
 		internal AnimationClip clip;
+		internal CodeTrack.ClipInfo bindings;
 
 		public override void OnPlayableCreate(Playable playable)
 		{
@@ -32,17 +33,22 @@ namespace Needle.Timeline
 			if (clip != null)
 			{
 				// clip.SampleAnimation(go, (float)playable.GetTime());
-				if (playerData is AnimatedScript anim)
+				if (playerData is IAnimated anim)
 				{
-					var clipBindings = AnimationUtility.GetCurveBindings(clip);
-					foreach (var binding in clipBindings)
+				}
+
+
+				var clipBindings = AnimationUtility.GetCurveBindings(clip);
+				for (var index = 0; index < clipBindings.Length; index++)
+				{
+					var binding = clipBindings[index];
+					var curve = AnimationUtility.GetEditorCurve(clip, binding);
+					if (curve != null)
 					{
-						var curve = AnimationUtility.GetEditorCurve(clip, binding);
-						if (curve != null)
-						{
-							// Debug.Log(binding.propertyName);
-							anim.MyValue = curve.Evaluate((float)playable.GetTime());
-						}
+						// Debug.Log(binding.propertyName);
+						var value = curve.Evaluate((float)playable.GetTime());
+						// Debug.Log(value);
+						bindings.values[index]?.SetValue(value);
 					}
 				}
 			}

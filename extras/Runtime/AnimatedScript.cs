@@ -8,5 +8,8 @@ namespace _Sample
 	{
 		[Animate]
 		public float MyValue;
+		
+		[Animate]
+		private float MyOthervalue;
 	}
 }

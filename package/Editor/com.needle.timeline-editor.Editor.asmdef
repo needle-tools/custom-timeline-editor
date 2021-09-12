@@ -2,7 +2,7 @@
     "name": "com.needle.timeline-editor.Editor",
     "rootNamespace": "",
     "references": [
-        "com.needle.timeline-editor"
+        "Unity.Timeline"
     ],
     "includePlatforms": [
         "Editor"

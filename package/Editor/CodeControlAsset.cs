@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Data;
-using _Sample;
-using UnityEngine;
-using UnityEngine.Animations;
+﻿using UnityEngine;
 using UnityEngine.Playables;
 using UnityEngine.Timeline;
 
@@ -15,13 +11,14 @@ namespace Needle.Timeline
 
 		internal CodeControlBehaviour instance;
 		public AnimationClip clip;
+		public CodeTrack.ClipInfo info;
 		
 		public override Playable CreatePlayable(PlayableGraph graph, GameObject owner)
 		{
 			var scriptPlayable = ScriptPlayable<CodeControlBehaviour>.Create(graph, template);
 			instance = scriptPlayable.GetBehaviour();
 			instance.clip = clip;
-			
+			instance.bindings = info;
 			return scriptPlayable;
 		}
 
