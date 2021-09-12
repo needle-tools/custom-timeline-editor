@@ -9,40 +9,17 @@ namespace Needle.Timeline
 	[Serializable]
 	public class CodeControlBehaviour : PlayableBehaviour
 	{
+		internal ClipInfoModel bindings;
 		
-		
-		internal AnimationClip clip;
-		internal CodeTrack.ClipInfo bindings;
-
-		public override void OnPlayableCreate(Playable playable)
-		{
-			base.OnPlayableCreate(playable);
-		}
-
 		public override void ProcessFrame(Playable playable, FrameData info, object playerData)
 		{
-			// boundType = playerData?.GetType();
-			// if (clip != null)
-			// var go = GameObject.Find("GameObject");
-
-			// if (clip)
-			// {
-			// 	clip.SetCurve("GameObject", typeof(AnimatedScript), "MyValue", curve);
-			// }
-
-			if (clip != null)
+			if (bindings != null)
 			{
-				// clip.SampleAnimation(go, (float)playable.GetTime());
-				if (playerData is IAnimated anim)
-				{
-				}
-
-
-				var clipBindings = AnimationUtility.GetCurveBindings(clip);
+				var clipBindings = AnimationUtility.GetCurveBindings(bindings.clip);
 				for (var index = 0; index < clipBindings.Length; index++)
 				{
 					var binding = clipBindings[index];
-					var curve = AnimationUtility.GetEditorCurve(clip, binding);
+					var curve = AnimationUtility.GetEditorCurve(bindings.clip, binding);
 					if (curve != null)
 					{
 						// Debug.Log(binding.propertyName);

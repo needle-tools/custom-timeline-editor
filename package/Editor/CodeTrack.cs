@@ -1,61 +1,79 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Net;
 using System.Reflection;
 using DefaultNamespace;
 using Editor;
 using UnityEditor;
 using UnityEditor.Build.Content;
-using UnityEditor.UIElements;
+using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.Playables;
 using UnityEngine.Timeline;
 
 namespace Needle.Timeline
 {
+	[Serializable]
+	public class ClipInfoModel
+	{
+		public string id;
+		public AnimationClip clip;
+			
+		[NonSerialized]
+		public List<IValueHandler> values;
+	}
+	
 	[TrackClipType(typeof(CodeControlAsset))]
 	[TrackBindingType(typeof(MonoBehaviour))]
 	public class CodeTrack : TrackAsset
 	{
-		[SerializeField] private List<ClipInfo> clips = new List<ClipInfo>();
-
-		[Serializable]
-		public class ClipInfo
-		{
-			public string id;
-			public AnimationClip clip;
-			
-			[NonSerialized]
-			public List<IValueHandler> values;
-		}
+		[SerializeField] private List<ClipInfoModel> clips = new List<ClipInfoModel>();
+		
+		
+		// public override Playable CreateTrackMixer(PlayableGraph graph, GameObject go, int inputCount)
+		// {
+		// 	return ScriptPlayable<CodeControlTrackMixer>.Create(graph, inputCount);
+		// }
 
 		private static BindingFlags DefaultFlags => BindingFlags.Default | BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
 
-		protected override Playable CreatePlayable(PlayableGraph graph, GameObject gameObject, TimelineClip clip)
+		protected override Playable CreatePlayable(PlayableGraph graph, GameObject gameObject, TimelineClip timelineClip)
 		{
-			Debug.Log("<b>Create Playable</b>");
+			var dir = gameObject.GetComponent<PlayableDirector>();
+			var boundObject = dir.GetGenericBinding(this) as MonoBehaviour;
+
+			Debug.Log("<b>Create Playable</b> " + graph, timelineClip.asset);
+			
+			timelineClip.CreateCurves("Procedural");
+			
+			if(!boundObject) return Playable.Null;
 
 
-			clip.CreateCurves("Procedural");
-			var asset = clip.asset as CodeControlAsset;
+			var asset = timelineClip.asset as CodeControlAsset;
 			if (!asset) throw new NullReferenceException("Missing code control asset");
+			
+			
 			ObjectIdentifier.TryGetObjectIdentifier(asset, out var objectIdentifier);
 			var id = objectIdentifier.guid + "@" + objectIdentifier.localIdentifierInFile;
 
-			foreach (var anim in gameObject.GetComponents<IAnimated>())
+			foreach (var anim in boundObject.GetComponents<IAnimated>())
 			{
 				var model = clips.FirstOrDefault(clipInfo => clipInfo.id == id);
-				if (model == null) model = new ClipInfo();
+				if (model == null) model = new ClipInfoModel();
 				if (model.id == null)
 				{
 					// Debug.Log("CREATE " + id);
 					model.id = id;
-					model.clip = clip.curves;
-					clip.displayName += "\n" + id;
-					clips.Add(model);
+					model.clip = timelineClip.curves;
+					timelineClip.displayName += "\n" + id;
+					clips.Add(model); 
 				}
 
-				asset.clip = clip.curves;
+				var transform = gameObject.transform;
+
+				var animationClip = timelineClip.curves;
 				asset.info = model;
 
 				if (model.values == null) model.values = new List<IValueHandler>();
@@ -63,23 +81,27 @@ namespace Needle.Timeline
 
 				var fields = anim.GetType().GetFields(DefaultFlags);
 				var type = anim.GetType();
-				var clipBindings = AnimationUtility.GetCurveBindings(asset.clip);
-				var path = AnimationUtility.CalculateTransformPath(gameObject.transform, null);
+				var clipBindings = AnimationUtility.GetCurveBindings(animationClip);
+				var path = AnimationUtility.CalculateTransformPath(boundObject.transform, null);
 				Debug.Log(path);
+
+				
 				foreach (var field in fields)
 				{
 					if (field.FieldType != typeof(float)) continue;
 
-					var handler = new FloatField(field, anim);
+					object Resolve() => dir.GetGenericBinding(this);
+					var handler = new FloatField(field, Resolve);
 					model.values.Add(handler);
 					
+
 					var binding = clipBindings.FirstOrDefault(b => b.propertyName == field.Name);
 					if (field.GetCustomAttribute<AnimateAttribute>() == null)
 					{
 						if (binding.propertyName != null)
 						{
 							Debug.Log("Remove " + binding.propertyName);
-							AnimationUtility.SetEditorCurve(clip.curves, binding, null);
+							AnimationUtility.SetEditorCurve(timelineClip.curves, binding, null);
 						}
 
 						continue;
@@ -94,23 +116,26 @@ namespace Needle.Timeline
 			}
 
 			// var curve = AnimationCurve.Linear(0, 0, 1, 1);
-			return base.CreatePlayable(graph, gameObject, clip);
+			var playable = base.CreatePlayable(graph, gameObject, timelineClip);
+			return playable;
 		}
 		
 		public class FloatField : IValueHandler
 		{
 			private readonly FieldInfo field;
-			private readonly object instance;
+			private readonly Func<object> getTarget;
 
-			public FloatField(FieldInfo field, object instance)
+			public FloatField(FieldInfo field, Func<object> getTarget)
 			{
 				this.field = field;
-				this.instance = instance;
+				this.getTarget = getTarget;
 			}
 			
 			public void SetValue(object value)
 			{
-				field.SetValue(instance, value);
+				var target = getTarget();
+				if (target == null) return;
+				field.SetValue(target, value);
 			}
 		}
 	}
