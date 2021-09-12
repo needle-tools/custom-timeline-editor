@@ -5,19 +5,19 @@ using UnityEngine.Timeline;
 
 namespace Needle.Timeline
 {
-	[System.Serializable]
+	[Serializable]
 	public class CodeControlAsset : PlayableAsset, ITimelineClipAsset
 	{
 		[SerializeField, HideInInspector]
 		private CodeControlBehaviour template;
 
-		internal ClipInfoModel info;
+		internal ClipInfoModel model;
 		
 		public override Playable CreatePlayable(PlayableGraph graph, GameObject owner)
 		{
 			var scriptPlayable = ScriptPlayable<CodeControlBehaviour>.Create(graph, template);
 			var b = scriptPlayable.GetBehaviour();
-			b.bindings = info;
+			b.bindings = model;
 			return scriptPlayable;
 		}
 

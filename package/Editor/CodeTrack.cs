@@ -27,6 +27,7 @@ namespace Needle.Timeline
 	
 	[TrackClipType(typeof(CodeControlAsset))]
 	[TrackBindingType(typeof(MonoBehaviour))]
+	[TrackColor(.2f, .5f, 1f)]
 	public class CodeTrack : TrackAsset
 	{
 		[SerializeField] private List<ClipInfoModel> clips = new List<ClipInfoModel>();
@@ -70,11 +71,9 @@ namespace Needle.Timeline
 					timelineClip.displayName += "\n" + id;
 					clips.Add(model); 
 				}
-
-				var transform = gameObject.transform;
-
+				
 				var animationClip = timelineClip.curves;
-				asset.info = model;
+				asset.model = model;
 
 				if (model.values == null) model.values = new List<IValueHandler>();
 				model.values.Clear();
