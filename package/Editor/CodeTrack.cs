@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Net;
 using System.Reflection;
 using DefaultNamespace;
 using Editor;
 using UnityEditor;
 using UnityEditor.Build.Content;
-using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.Playables;
 using UnityEngine.Timeline;
@@ -78,13 +75,13 @@ namespace Needle.Timeline
 				if (model.values == null) model.values = new List<IValueHandler>();
 				model.values.Clear();
 
-				var fields = anim.GetType().GetFields(DefaultFlags);
 				var type = anim.GetType();
 				var clipBindings = AnimationUtility.GetCurveBindings(animationClip);
 				var path = AnimationUtility.CalculateTransformPath(boundObject.transform, null);
-				Debug.Log(path);
+				// Debug.Log(path);
 
 				
+				var fields = anim.GetType().GetFields(DefaultFlags);
 				foreach (var field in fields)
 				{
 					if (field.FieldType != typeof(float)) continue;
@@ -99,7 +96,7 @@ namespace Needle.Timeline
 					{
 						if (binding.propertyName != null)
 						{
-							Debug.Log("Remove " + binding.propertyName);
+							Debug.Log("Remove curve: " + binding.propertyName);
 							AnimationUtility.SetEditorCurve(timelineClip.curves, binding, null);
 						}
 
@@ -108,7 +105,7 @@ namespace Needle.Timeline
 
 					if (binding.propertyName == null)
 					{
-						Debug.Log("Create " + field.Name);
+						Debug.Log("Create curve: " + field.Name);
 						model.clip.SetCurve(path, type, field.Name, new AnimationCurve());
 					}
 				}

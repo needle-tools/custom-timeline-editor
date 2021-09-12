@@ -5,7 +5,6 @@ namespace Needle.Timeline
 {
 	public class CodeControlTrackMixer : PlayableBehaviour
 	{
-		
 		// NOTE: This function is called at runtime and edit time.  Keep that in mind when setting the values of properties.
 		public override void ProcessFrame(Playable playable, FrameData info, object playerData)
 		{
@@ -17,9 +16,9 @@ namespace Needle.Timeline
 			if (!trackBinding)
 				return;
 
-			int inputCount = playable.GetInputCount (); //get the number of all clips on this track
+			var inputCount = playable.GetInputCount ();
 
-			for (int i = 0; i < inputCount; i++)
+			for (var i = 0; i < inputCount; i++)
 			{
 				// float inputWeight = playable.GetInputWeight(i);
 				// ScriptPlayable<LightControlBehaviour> inputPlayable = (ScriptPlayable<LightControlBehaviour>)playable.GetInput(i);

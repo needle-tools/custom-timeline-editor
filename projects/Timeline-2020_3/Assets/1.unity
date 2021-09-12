@@ -166,7 +166,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1f40515ecb6bf3f4bbc7c83128ba793b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MyValue: 8.519131
+  MyValue: 1.9173554
+  points: []
 --- !u!1 &1454001225
 GameObject:
   m_ObjectHideFlags: 0
@@ -280,6 +281,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MyValue: 12
+  points: []
 --- !u!4 &1465270415
 Transform:
   m_ObjectHideFlags: 0
@@ -363,7 +365,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1f40515ecb6bf3f4bbc7c83128ba793b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MyValue: 0.8377753
+  MyValue: 4.5006847
+  points: []
 --- !u!1 &2120823459
 GameObject:
   m_ObjectHideFlags: 0
