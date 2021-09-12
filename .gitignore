@@ -1,0 +1,14 @@
+bin/
+obj/
+/packages/
+riderModule.iml
+/_ReSharper.Caches/
+**/projects/**/Library
+**/projects/**/Logs
+**/projects/**/Temp
+**/projects/**/obj
+**/projects/**/*.csproj
+**/projects/**/*.sln
+**/projects/**/.idea
+projects/**/Assets/Samples/Timeline
+projects/**/Assets/TextMesh Pro

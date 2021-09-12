@@ -1,0 +1,17 @@
+{
+    "name": "com.needle.timeline-editor-extras",
+    "rootNamespace": "",
+    "references": [
+        "GUID:e53c5c0980b0c9a499846daeca9c2de4",
+        "GUID:f06555f75b070af458a003d92f9efb00"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

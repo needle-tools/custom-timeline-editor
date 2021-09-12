@@ -1,0 +1,8 @@
+{
+  "name": "com.needle.timeline-editor",
+  "displayName": "Timeline Editor",
+  "version": "0.0.1-pre",
+  "dependencies": {
+    "com.unity.timeline": ""
+  }
+}
