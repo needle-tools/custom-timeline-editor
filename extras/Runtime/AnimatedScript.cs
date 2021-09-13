@@ -14,6 +14,12 @@ namespace _Sample
 		[Animate] 
 		private float MyOthervalue;
 		
+		[Animate]
+		public int MyInt;
+		
+		[Animate]
+		public double MyDouble;
+		
 		[NonSerialized]
 		public List<Vector3> points = new List<Vector3>();
 

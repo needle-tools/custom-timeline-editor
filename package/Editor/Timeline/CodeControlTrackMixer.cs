@@ -15,12 +15,15 @@ namespace Needle.Timeline
 			for (var i = 0; i < inputCount; i++)
 			{
 				var inputWeight = playable.GetInputWeight(i);
-				if (inputWeight <= 0.01f) continue;
-				Debug.Log(i + ", " + inputWeight.ToString("0.0"));
+				if (inputWeight <= 0.0001f) continue;
+				
+				// Debug.Log(i + ", " + inputWeight.ToString("0.0"));
 
 				var inputPlayable = (ScriptPlayable<CodeControlBehaviour>)playable.GetInput(i);
-				var behaviour = inputPlayable.GetBehaviour(); 
+				var behaviour = inputPlayable.GetBehaviour();
 				if (behaviour.viewModel == null) continue;
+				
+				Debug.Log("Mix frame " + info.frameId);
 				var viewModel = behaviour.viewModel;
 				for (var index = 0; index < viewModel.clips.Count; index++)
 				{
@@ -36,16 +39,7 @@ namespace Needle.Timeline
 
 					viewModel.values[index].SetValue(val);
 				}
-
-
-				// Use the above variables to process each frame of this playable.
-				// finalIntensity += input.intensity * inputWeight;
-				// finalColor += input.color * inputWeight;
 			}
-
-			//assign the result to the bound object
-			// trackBinding.intensity = finalIntensity;
-			// trackBinding.color = finalColor;
 		}
 	}
 }

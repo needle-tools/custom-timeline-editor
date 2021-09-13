@@ -69,15 +69,15 @@ AnimationClip:
       - serializedVersion: 3
         time: 4.6
         value: 2
-        inSlope: 0.23952095
-        outSlope: 0.23952095
+        inSlope: 0
+        outSlope: 0
         tangentMode: 136
         weightedMode: 0
         inWeight: 0.33333334
         outWeight: 0.33333334
       - serializedVersion: 3
-        time: 8.583333
-        value: 3
+        time: 8.383333
+        value: -10
         inSlope: 0
         outSlope: 0
         tangentMode: 136
@@ -105,7 +105,7 @@ AnimationClip:
     m_AdditiveReferencePoseClip: {fileID: 0}
     m_AdditiveReferencePoseTime: 0
     m_StartTime: 0
-    m_StopTime: 8.583333
+    m_StopTime: 8.383333
     m_OrientationOffsetY: 0
     m_Level: 0
     m_CycleOffset: 0
@@ -173,15 +173,15 @@ AnimationClip:
       - serializedVersion: 3
         time: 4.6
         value: 2
-        inSlope: 0.23952095
-        outSlope: 0.23952095
+        inSlope: 0
+        outSlope: 0
         tangentMode: 136
         weightedMode: 0
         inWeight: 0.33333334
         outWeight: 0.33333334
       - serializedVersion: 3
-        time: 8.583333
-        value: 3
+        time: 8.383333
+        value: -10
         inSlope: 0
         outSlope: 0
         tangentMode: 136
@@ -211,7 +211,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 48f060644c554507a7ce922fce767b2e, type: 3}
   m_Name: CodeControlAsset(Clone)(Clone)
   m_EditorClassIdentifier: 
-  val: 37
+  val: 48
 --- !u!114 &-1404062175998448903
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -224,7 +224,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 48f060644c554507a7ce922fce767b2e, type: 3}
   m_Name: CodeControlAsset
   m_EditorClassIdentifier: 
-  val: 37
+  val: 48
 --- !u!74 &-621326822199311738
 AnimationClip:
   m_ObjectHideFlags: 1
@@ -241,7 +241,45 @@ AnimationClip:
   m_EulerCurves: []
   m_PositionCurves: []
   m_ScaleCurves: []
-  m_FloatCurves: []
+  m_FloatCurves:
+  - curve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 136
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 21.2
+        value: 100
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 136
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    attribute: MyValue
+    path: GameObject
+    classID: 114
+    script: {fileID: 11500000, guid: 1f40515ecb6bf3f4bbc7c83128ba793b, type: 3}
+  - curve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    attribute: MyOthervalue
+    path: GameObject
+    classID: 114
+    script: {fileID: 11500000, guid: 1f40515ecb6bf3f4bbc7c83128ba793b, type: 3}
   m_PPtrCurves: []
   m_SampleRate: 60
   m_WrapMode: 0
@@ -256,7 +294,7 @@ AnimationClip:
     m_AdditiveReferencePoseClip: {fileID: 0}
     m_AdditiveReferencePoseTime: 0
     m_StartTime: 0
-    m_StopTime: 1
+    m_StopTime: 21.2
     m_OrientationOffsetY: 0
     m_Level: 0
     m_CycleOffset: 0
@@ -271,7 +309,45 @@ AnimationClip:
     m_KeepOriginalPositionXZ: 0
     m_HeightFromFeet: 0
     m_Mirror: 0
-  m_EditorCurves: []
+  m_EditorCurves:
+  - curve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 136
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 21.2
+        value: 100
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 136
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    attribute: MyValue
+    path: GameObject
+    classID: 114
+    script: {fileID: 11500000, guid: 1f40515ecb6bf3f4bbc7c83128ba793b, type: 3}
+  - curve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    attribute: MyOthervalue
+    path: GameObject
+    classID: 114
+    script: {fileID: 11500000, guid: 1f40515ecb6bf3f4bbc7c83128ba793b, type: 3}
   m_EulerEditorCurves: []
   m_HasGenericRootTransform: 0
   m_HasMotionFloatCurves: 0
@@ -379,7 +455,7 @@ MonoBehaviour:
     m_EaseInDuration: 0
     m_EaseOutDuration: 0
     m_BlendInDuration: -1
-    m_BlendOutDuration: 1.2833333333333332
+    m_BlendOutDuration: 0.8166666666666664
     m_MixInCurve:
       serializedVersion: 2
       m_Curve:
@@ -441,7 +517,7 @@ MonoBehaviour:
 
       cf04200b669495446bde90fec691c7be@-1404062175998448903'
   - m_Version: 1
-    m_Start: 8.716666666666667
+    m_Start: 9.183333333333334
     m_ClipIn: 0
     m_Asset: {fileID: -4170315055516257459}
     m_Duration: 10
@@ -449,7 +525,7 @@ MonoBehaviour:
     m_ParentTrack: {fileID: 8979958234073275806}
     m_EaseInDuration: 0
     m_EaseOutDuration: 0
-    m_BlendInDuration: 1.2833333333333332
+    m_BlendInDuration: 0.8166666666666664
     m_BlendOutDuration: -1
     m_MixInCurve:
       serializedVersion: 2
@@ -459,25 +535,7 @@ MonoBehaviour:
       m_RotationOrder: 4
     m_MixOutCurve:
       serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      - serializedVersion: 3
-        time: 1
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
+      m_Curve: []
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
@@ -546,3 +604,5 @@ MonoBehaviour:
     clip: {fileID: -5050091694384191345}
   - id: cf04200b669495446bde90fec691c7be@-4170315055516257459
     clip: {fileID: -621326822199311738}
+  - id: cf04200b669495446bde90fec691c7be@5706475240138014428
+    clip: {fileID: 0}

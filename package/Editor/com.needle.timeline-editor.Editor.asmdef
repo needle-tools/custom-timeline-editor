@@ -1,6 +1,6 @@
 {
     "name": "com.needle.timeline-editor.Editor",
-    "rootNamespace": "",
+    "rootNamespace": "Needle.Timeline",
     "references": [
         "Unity.Timeline"
     ],

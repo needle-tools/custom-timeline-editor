@@ -12,14 +12,12 @@ namespace Needle.Timeline
 		private CodeControlBehaviour template;
 
 		internal ClipInfoViewModel viewModel;
-		public float val;
 		
 		public override Playable CreatePlayable(PlayableGraph graph, GameObject owner)
 		{
 			var scriptPlayable = ScriptPlayable<CodeControlBehaviour>.Create(graph, template);
 			var b = scriptPlayable.GetBehaviour();
 			b.viewModel = viewModel;
-			val += 1;
 			return scriptPlayable; 
 		}
 
