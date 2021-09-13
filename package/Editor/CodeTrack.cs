@@ -51,10 +51,10 @@ namespace Needle.Timeline
 		[NonSerialized] private List<ClipInfoViewModel> viewModels = new List<ClipInfoViewModel>();
 
 
-		// public override Playable CreateTrackMixer(PlayableGraph graph, GameObject go, int inputCount)
-		// {
-		// 	return ScriptPlayable<CodeControlTrackMixer>.Create(graph, inputCount);
-		// }
+		public override Playable CreateTrackMixer(PlayableGraph graph, GameObject go, int inputCount)
+		{
+			return ScriptPlayable<CodeControlTrackMixer>.Create(graph, inputCount);
+		}
 
 		private static BindingFlags DefaultFlags => BindingFlags.Default | BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
 

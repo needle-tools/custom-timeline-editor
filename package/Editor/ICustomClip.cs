@@ -29,7 +29,6 @@ namespace Needle.Timeline
 		new T Evaluate(float time);
 	}
 
-
 	[Serializable]
 	public class PointsKeyframe : ICustomKeyframe<List<Vector3>>
 	{

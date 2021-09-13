@@ -241,10 +241,6 @@ PlayableDirector:
   m_SceneBindings:
   - key: {fileID: 8979958234073275806, guid: cf04200b669495446bde90fec691c7be, type: 2}
     value: {fileID: 1849834650}
-  - key: {fileID: -5167192453209823431, guid: cf04200b669495446bde90fec691c7be, type: 2}
-    value: {fileID: 0}
-  - key: {fileID: 1791998094863905204, guid: cf04200b669495446bde90fec691c7be, type: 2}
-    value: {fileID: 0}
   m_ExposedReferences:
     m_References:
     - 82060ca0554b4f7468f4e51add23033f: {fileID: 0}
@@ -274,7 +270,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1f40515ecb6bf3f4bbc7c83128ba793b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MyValue: 3.2877364
+  MyValue: 1.274488
 --- !u!1 &2120823459
 GameObject:
   m_ObjectHideFlags: 0

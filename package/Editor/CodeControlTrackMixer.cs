@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using UnityEditor.Profiling;
+using UnityEngine;
 using UnityEngine.Playables;
 
 namespace Needle.Timeline
@@ -8,21 +9,34 @@ namespace Needle.Timeline
 		// NOTE: This function is called at runtime and edit time.  Keep that in mind when setting the values of properties.
 		public override void ProcessFrame(Playable playable, FrameData info, object playerData)
 		{
-			// Debug.Log(playerData);
-			var trackBinding = playerData as Light;
-			// float finalIntensity = 0f;
-			// Color finalColor = Color.black;
-
-			if (!trackBinding)
-				return;
-
-			var inputCount = playable.GetInputCount ();
+			var inputCount = playable.GetInputCount();
+			var time = (float)playable.GetTime();
 
 			for (var i = 0; i < inputCount; i++)
 			{
-				// float inputWeight = playable.GetInputWeight(i);
-				// ScriptPlayable<LightControlBehaviour> inputPlayable = (ScriptPlayable<LightControlBehaviour>)playable.GetInput(i);
-				// LightControlBehaviour input = inputPlayable.GetBehaviour();
+				var inputWeight = playable.GetInputWeight(i);
+				if (inputWeight <= 0.01f) continue;
+				Debug.Log(i + ", " + inputWeight.ToString("0.0"));
+
+				var inputPlayable = (ScriptPlayable<CodeControlBehaviour>)playable.GetInput(i);
+				var behaviour = inputPlayable.GetBehaviour(); 
+				if (behaviour.viewModel == null) continue;
+				var viewModel = behaviour.viewModel;
+				for (var index = 0; index < viewModel.clips.Count; index++)
+				{
+					var curve = viewModel.clips[index];
+					var val = curve.Evaluate(time);
+
+					switch (val)
+					{
+						case float fl:
+							val = fl * inputWeight;
+							break;
+					}
+
+					viewModel.values[index].SetValue(val);
+				}
+
 
 				// Use the above variables to process each frame of this playable.
 				// finalIntensity += input.intensity * inputWeight;
