@@ -6,10 +6,12 @@ using JetBrains.Annotations;
 using Needle.Timeline.Interpolators;
 using Unity.Collections;
 using Unity.Mathematics;
+using Unity.Profiling;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Playables;
 using UnityEngine.Timeline;
+using Random = System.Random;
 
 namespace Needle.Timeline
 {
@@ -57,15 +59,20 @@ namespace Needle.Timeline
 			Failed = 3,
 		}
 
+		private static ProfilerMarker CreateMarker = new ProfilerMarker("CurveBuilder Create");
+
 		public static CreationResult Create(Data data)
 		{
-			var attribute = data.Member.GetCustomAttribute<AnimateAttribute>();
-			var res = CreateAnimationCurve(attribute, data);
-			if (res == CreationResult.Successful) return res;
+			using (CreateMarker.Auto())
+			{
+				var attribute = data.Member.GetCustomAttribute<AnimateAttribute>();
+				var res = CreateAnimationCurve(attribute, data);
+				if (res == CreationResult.Successful) return res;
 
-			res = CreateCustomAnimationCurve(attribute, data);
+				res = CreateCustomAnimationCurve(attribute, data);
 
-			return res;
+				return res;
+			}
 		}
 
 		private static CreationResult CreateCustomAnimationCurve([CanBeNull] AnimateAttribute attribute, Data data)
@@ -95,7 +102,7 @@ namespace Needle.Timeline
 							0
 						),
 						new CustomKeyframe<List<Vector3>>(
-							new List<Vector3>() { Vector3.one, Vector3.one*10 },
+							GetPointsList(100),
 							5
 						)
 					});
@@ -155,6 +162,17 @@ namespace Needle.Timeline
 			var animationCurve = new AnimationCurveWrapper(() => AnimationUtility.GetEditorCurve(clip, binding), data.Member.Name);
 			data.ViewModel.Register(handler, animationCurve);
 			return CreationResult.Successful;
+		}
+
+		private static List<Vector3> GetPointsList(int count)
+		{
+			var list = new List<Vector3>();
+			for (var i = 0; i < count; i++)
+			{
+				list.Add(UnityEngine.Random.insideUnitSphere);
+			}
+
+			return list;
 		}
 	}
 }
