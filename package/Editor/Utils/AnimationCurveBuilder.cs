@@ -4,12 +4,14 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Needle.Timeline.Interpolators;
+using Unity.Collections;
+using Unity.Mathematics;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Playables;
 using UnityEngine.Timeline;
 
-namespace Needle.Timeline.Utils
+namespace Needle.Timeline
 {
 	public static class AnimationCurveBuilder
 	{
@@ -62,28 +64,44 @@ namespace Needle.Timeline.Utils
 			if (res == CreationResult.Successful) return res;
 
 			res = CreateCustomAnimationCurve(attribute, data);
-			
+
 			return res;
 		}
 
 		private static CreationResult CreateCustomAnimationCurve([CanBeNull] AnimateAttribute attribute, Data data)
 		{
 			if (attribute == null) return CreationResult.NotMarked;
-			
+
 			ICustomClip curve = default;
 
 			if (data.MemberType == typeof(string))
 			{
 				Debug.Log("Create string");
-				curve = new CustomAnimationCurve<string>(new StringInterpolator(), new List<ICustomKeyframe<string>>()
-				{
-					new CustomKeyframe<string>("Hello", 0),
-					new CustomKeyframe<string>("World", 1),
-					new CustomKeyframe<string>("This is a very long string", 10)
-				});
+				curve = new CustomAnimationCurve<string>(new StringInterpolator(),
+					new List<ICustomKeyframe<string>>()
+					{
+						new CustomKeyframe<string>("Hello", 0),
+						new CustomKeyframe<string>("World", 1),
+						new CustomKeyframe<string>("This is a very long string", 10)
+					});
+			}
+			else if (data.MemberType == typeof(List<Vector3>))
+			{
+				curve = new CustomAnimationCurve<List<Vector3>>(new ListInterpolator(),
+					new List<ICustomKeyframe<List<Vector3>>>()
+					{
+						new CustomKeyframe<List<Vector3>>(
+							new List<Vector3>() { Vector3.zero },
+							0
+						),
+						new CustomKeyframe<List<Vector3>>(
+							new List<Vector3>() { Vector3.one, Vector3.one*10 },
+							5
+						)
+					});
 			}
 			else return CreationResult.Failed;
-			
+
 			object Resolve() => data.Director.GetGenericBinding(data.Track);
 			var handler = new MemberWrapper(data.Member, Resolve, data.MemberType);
 			data.ViewModel.Register(handler, curve);
@@ -91,14 +109,14 @@ namespace Needle.Timeline.Utils
 		}
 
 
-
-		private static readonly Type[] animationCurveTypes = {
+		private static readonly Type[] animationCurveTypes =
+		{
 			typeof(float),
 			typeof(int),
 			typeof(double),
 			typeof(uint),
 		};
-		
+
 		private static CreationResult CreateAnimationCurve([CanBeNull] AnimateAttribute attribute, Data data)
 		{
 			if (!animationCurveTypes.Contains(data.MemberType))
@@ -106,7 +124,7 @@ namespace Needle.Timeline.Utils
 				if (attribute == null) return CreationResult.NotMarked;
 				return CreationResult.Failed;
 			}
-			
+
 			var binding = data.Bindings.FirstOrDefault(b => b.propertyName == data.Member.Name);
 			// if the attribute has been removed
 			if (attribute == null)

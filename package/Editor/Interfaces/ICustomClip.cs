@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using DefaultNamespace;
 using JetBrains.Annotations;
 using UnityEditor.Build;
 using UnityEngine;

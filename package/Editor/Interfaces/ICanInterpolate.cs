@@ -1,4 +1,4 @@
-﻿namespace Editor.Interfaces
+﻿namespace Needle.Timeline
 {
 	public interface ICanInterpolate<T>
 	{

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using DefaultNamespace;
 using Needle.Timeline;
 using UnityEngine;
 
@@ -23,7 +22,7 @@ namespace _Sample
 		[Animate]
 		public string MyString;
 		
-		[NonSerialized]
+		[Animate]
 		public List<Vector3> points = new List<Vector3>();
 
 		private void OnDrawGizmosSelected()
