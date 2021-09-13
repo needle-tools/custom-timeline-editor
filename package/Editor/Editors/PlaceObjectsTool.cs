@@ -25,7 +25,7 @@ public class PlaceObjectsTool : EditorTool
 
     private bool HasPlaceableObject => _prefabObjectField?.value != null;
 
-    public override GUIContent toolbarIcon => _iconContent;
+    public override GUIContent toolbarIcon => _iconContent; 
 
     public override void OnActivated()
     {

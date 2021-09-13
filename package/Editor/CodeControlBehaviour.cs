@@ -15,19 +15,27 @@ namespace Needle.Timeline
 		{
 			if (bindings != null)
 			{
-				var clipBindings = AnimationUtility.GetCurveBindings(bindings.clip);
-				for (var index = 0; index < clipBindings.Length; index++)
+				var time = (float)playable.GetTime();
+				for (var index = 0; index < bindings.clips.Count; index++)
 				{
-					var binding = clipBindings[index];
-					var curve = AnimationUtility.GetEditorCurve(bindings.clip, binding);
-					if (curve != null)
-					{
-						// Debug.Log(binding.propertyName);
-						var value = curve.Evaluate((float)playable.GetTime());
-						// Debug.Log(value);
-						bindings.values[index]?.SetValue(value);
-					}
+					var curve = bindings.clips[index];
+					var val = curve.Evaluate(time);
+					bindings.values[index].SetValue(val);
 				}
+
+				// var clipBindings = AnimationUtility.GetCurveBindings(bindings.clip);
+				// for (var index = 0; index < clipBindings.Length; index++)
+				// {
+				// 	var binding = clipBindings[index];
+				// 	var curve = AnimationUtility.GetEditorCurve(bindings.clip, binding);
+				// 	if (curve != null)
+				// 	{
+				// 		// Debug.Log(binding.propertyName);
+				// 		var value = curve.Evaluate((float)playable.GetTime());
+				// 		// Debug.Log(value);
+				// 		bindings.values[index]?.SetValue(value);
+				// 	}
+				// }
 			}
 
 

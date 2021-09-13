@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using DefaultNamespace;
 using UnityEngine;
 
 namespace Needle.Timeline
@@ -18,6 +19,7 @@ namespace Needle.Timeline
 	public interface ICustomClip
 	{
 		object Evaluate(float time);
+		// T Evaluate<T>(float time);
 	}
 
 	public interface ICustomClip<out T> : ICustomClip
@@ -45,6 +47,27 @@ namespace Needle.Timeline
 
 		public List<Vector3> value { get; set; }
 		public float time { get; set; }
+	}
+
+	public struct AnimationCurveWrapper : ICustomClip<float>
+	{
+		private readonly AnimationCurve curve;
+
+		public AnimationCurveWrapper(AnimationCurve curve)
+		{
+			this.curve = curve;
+		}
+
+		public float Evaluate(float time)
+		{
+			return curve.Evaluate(time);
+		}
+
+		object ICustomClip.Evaluate(float time)
+		{
+			Debug.Log("Boxing??");
+			return Evaluate(time);
+		}
 	}
 
 	public class PointClip : ICustomClip<List<Vector3>>
