@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using DefaultNamespace;
 using Editor;
+using Unity.Jobs;
 using UnityEditor;
 using UnityEditor.Build.Content;
 using UnityEngine;
@@ -17,9 +18,27 @@ namespace Needle.Timeline
 	{
 		public string id;
 		public AnimationClip clip;
+	}
 
-		[NonSerialized] public List<IValueHandler> values = new List<IValueHandler>();
-		[NonSerialized] public List<ICustomClip> clips = new List<ICustomClip>();
+	public class ClipInfoViewModel
+	{
+		private ClipInfoModel model;
+
+		public ClipInfoViewModel(ClipInfoModel model)
+		{
+			this.model = model;
+		}
+
+		internal void Register(IValueHandler handler, ICustomClip clip)
+		{
+			values.Add(handler);
+			clips.Add(clip);
+		}
+
+		internal AnimationClip AnimationClip => model.clip;
+
+		public List<IValueHandler> values = new List<IValueHandler>();
+		public List<ICustomClip> clips = new List<ICustomClip>();
 	}
 
 	[TrackClipType(typeof(CodeControlAsset))]
@@ -28,6 +47,8 @@ namespace Needle.Timeline
 	public class CodeTrack : TrackAsset
 	{
 		[SerializeField] private List<ClipInfoModel> clips = new List<ClipInfoModel>();
+
+		[NonSerialized] private List<ClipInfoViewModel> viewModels = new List<ClipInfoViewModel>();
 
 
 		// public override Playable CreateTrackMixer(PlayableGraph graph, GameObject go, int inputCount)
@@ -45,7 +66,7 @@ namespace Needle.Timeline
 
 			var asset = timelineClip.asset as CodeControlAsset;
 			if (!asset) throw new NullReferenceException("Missing code control asset");
-			
+
 			var animationComponents = boundObject.GetComponents<IAnimated>();
 			if (animationComponents.Length <= 0) return Playable.Null;
 
@@ -54,7 +75,7 @@ namespace Needle.Timeline
 
 			if (!ObjectIdentifier.TryGetObjectIdentifier(asset, out var objectIdentifier))
 				throw new Exception("Failed getting object identifier for track asset: " + asset);
-			
+
 			var id = objectIdentifier.guid + "@" + objectIdentifier.localIdentifierInFile;
 			foreach (var anim in animationComponents)
 			{
@@ -67,57 +88,26 @@ namespace Needle.Timeline
 					timelineClip.displayName += "\n" + id;
 					clips.Add(model);
 				}
-
-				var animationClip = timelineClip.curves;
-				asset.model = model;
-
-				if (model.values == null) 
-					model.values = new List<IValueHandler>();
-				model.values.Clear();
-				if (model.clips == null) 
-					model.clips = new List<ICustomClip>();
-				model.clips.Clear();
+				
+				var viewModel = new ClipInfoViewModel(model);
+				asset.viewModel = viewModel;
+				viewModels.Add(viewModel);
 
 				var type = anim.GetType();
+				var animationClip = timelineClip.curves;
 				var clipBindings = AnimationUtility.GetCurveBindings(animationClip);
 				var path = AnimationUtility.CalculateTransformPath(boundObject.transform, null);
-				// Debug.Log(path);
-
-
-				var fields = anim.GetType().GetFields(DefaultFlags);
+				
+				var fields = type.GetFields(DefaultFlags);
 				foreach (var field in fields)
 				{
-					if (field.FieldType != typeof(float)) continue;
-
-					var binding = clipBindings.FirstOrDefault(b => b.propertyName == field.Name);
-					if (field.GetCustomAttribute<AnimateAttribute>() == null)
-					{
-						if (binding.propertyName != null)
-						{
-							Debug.Log("Remove curve: " + binding.propertyName);
-							AnimationUtility.SetEditorCurve(timelineClip.curves, binding, null);
-						}
-
-						continue;
-					}
-
-					AnimationCurve curve;
-					if (binding.propertyName == null)
-					{
-						Debug.Log("Create curve: " + field.Name);
-						curve = new AnimationCurve();
-						model.clip.SetCurve(path, type, field.Name, curve);
-					}
-					else
-					{
-						curve = AnimationUtility.GetEditorCurve(timelineClip.curves, binding);
-					}
-
-
-					object Resolve() => dir.GetGenericBinding(this);
-					var handler = new FloatField(field, Resolve);
-					model.values.Add(handler);
-					model.clips.Add(new AnimationCurveWrapper(curve));
+					Create(dir, viewModel, type, clipBindings, timelineClip, path, field, field.FieldType);
+				}
+				
+				var properties = type.GetProperties(DefaultFlags);
+				foreach (var prop in properties)
+				{
+					Create(dir, viewModel, type, clipBindings, timelineClip, path, prop, prop.PropertyType);
 				}
 			}
 
@@ -126,22 +116,80 @@ namespace Needle.Timeline
 			return playable;
 		}
 
-		public struct FloatField : IValueHandler
+		private void Create(PlayableDirector director,
+			ClipInfoViewModel viewModel,
+			Type type,
+			EditorCurveBinding[] bindings,
+			TimelineClip timelineClip,
+			string path,
+			MemberInfo member,
+			Type memberType)
 		{
-			private readonly FieldInfo field;
+			if (memberType != typeof(float)) return;
+
+			var binding = bindings.FirstOrDefault(b => b.propertyName == member.Name);
+			
+			// if the attribute has been removed
+			if (member.GetCustomAttribute<AnimateAttribute>() == null)
+			{
+				if (binding.propertyName != null)
+				{
+					Debug.Log("Remove curve: " + binding.propertyName);
+					AnimationUtility.SetEditorCurve(timelineClip.curves, binding, null);
+				}
+
+				return;
+			}
+
+			// if the binding does not exist yet
+			if (binding.propertyName == null)
+			{
+				Debug.Log("Create curve: " + member.Name);
+				var curve = new AnimationCurve();
+				viewModel.AnimationClip.SetCurve(path, type, member.Name, curve);
+				binding.propertyName = member.Name;
+				binding.type = type;
+				binding.path = path;
+			}
+			
+			object Resolve() => director.GetGenericBinding(this);
+			var handler = new MemberWrapper(member, Resolve);
+			var clip = timelineClip.curves;
+			var animationCurve = new AnimationCurveWrapper(() => AnimationUtility.GetEditorCurve(clip, binding), member.Name);
+			viewModel.Register(handler, animationCurve);
+		}
+
+
+		public readonly struct MemberWrapper : IValueHandler
+		{
+			private readonly MemberInfo member;
 			private readonly Func<object> getTarget;
 
-			public FloatField(FieldInfo field, Func<object> getTarget)
+			public MemberWrapper(MemberInfo member, Func<object> getTarget)
 			{
-				this.field = field;
-				this.getTarget = getTarget;
+				this.member = member;
+				this.getTarget = getTarget; 
 			}
 
 			public void SetValue(object value)
 			{
 				var target = getTarget();
-				if (target == null) return;
-				field.SetValue(target, value);
+				if (target == null)
+				{
+					// Debug.Log("Target is null, not setting " + value);
+					return;
+				}
+				// Debug.Log("set " + value + " on " + target, target as UnityEngine.Object);
+				switch (member)
+				{
+					case FieldInfo field:
+						field.SetValue(target, value);
+						break;
+					case PropertyInfo property:
+						if (property.CanWrite)
+							property.SetValue(target, value);
+						break;
+				}
 			}
 		}
 	}

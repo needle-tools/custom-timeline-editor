@@ -11,14 +11,16 @@ namespace Needle.Timeline
 		[SerializeField, HideInInspector]
 		private CodeControlBehaviour template;
 
-		internal ClipInfoModel model;
+		internal ClipInfoViewModel viewModel;
+		public float val;
 		
 		public override Playable CreatePlayable(PlayableGraph graph, GameObject owner)
 		{
 			var scriptPlayable = ScriptPlayable<CodeControlBehaviour>.Create(graph, template);
 			var b = scriptPlayable.GetBehaviour();
-			b.bindings = model;
-			return scriptPlayable;
+			b.viewModel = viewModel;
+			val += 1;
+			return scriptPlayable; 
 		}
 
 		public ClipCaps clipCaps => ClipCaps.All;

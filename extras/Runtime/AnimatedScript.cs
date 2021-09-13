@@ -11,7 +11,8 @@ namespace _Sample
 		[Animate]
 		public float MyValue;
 
-		[Animate] private float MyOthervalue;
+		[Animate] 
+		private float MyOthervalue;
 		
 		[NonSerialized]
 		public List<Vector3> points = new List<Vector3>();

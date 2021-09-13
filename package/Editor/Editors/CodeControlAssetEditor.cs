@@ -39,7 +39,6 @@ public class CodeControlAssetEditor : UnityEditor.Editor
 		public override void OnToolGUI(EditorWindow window)
 		{
 			base.OnToolGUI(window);
-			Debug.Log("HELLO");
 		}
 	}
 	public override void OnInspectorGUI()
@@ -48,11 +47,11 @@ public class CodeControlAssetEditor : UnityEditor.Editor
 		var asset = target as CodeControlAsset;
 		if (!asset) return;
 
-		if (asset.model != null && asset.model.clip != null)
+		if (asset.viewModel != null && asset.viewModel.AnimationClip != null)
 		{
 			if (GUILayout.Button("Add keyframe"))
 			{
-				var clip = asset.model.clip;
+				var clip = asset.viewModel.AnimationClip;
 				var clipBindings = AnimationUtility.GetCurveBindings(clip);
 				for (var index = 0; index < clipBindings.Length; index++)
 				{
