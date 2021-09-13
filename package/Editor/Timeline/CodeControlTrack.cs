@@ -10,6 +10,12 @@ using UnityEngine.Timeline;
 
 namespace Needle.Timeline
 {
+	/*
+	 *	TODO: where to serialize keyframe data?
+	 *	TODO: real mixer interpolation
+	 * 
+	 */
+	
 	[TrackClipType(typeof(CodeControlAsset))]
 	[TrackBindingType(typeof(MonoBehaviour))]
 	[TrackColor(.2f, .5f, 1f)]

@@ -49,15 +49,16 @@ namespace _Sample._Sample
 			Shader.Dispatch(0, Mathf.CeilToInt(points.Count / 32f), 1, 1);
 		}
 		
-		private void OnDrawGizmosSelected()
+		private void OnDrawGizmos()
 		{
 			var size = Vector3.up * .01f;
 			Gizmos.color = Color.yellow;
 			// Gizmos.DrawWireSphere();
-			for (var index = 1; index < points.Count; index++) 
+			for (var index = 0; index < points.Count; index++) 
 			{ 
 				var pt = points[index];
 				Gizmos.DrawLine(pt, pt + size);
+				Gizmos.DrawWireCube(pt, Vector3.one * .1f);
 			}
 		}
 	}

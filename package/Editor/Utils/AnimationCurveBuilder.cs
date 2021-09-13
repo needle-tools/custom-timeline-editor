@@ -4,14 +4,11 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Needle.Timeline.Interpolators;
-using Unity.Collections;
-using Unity.Mathematics;
 using Unity.Profiling;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Playables;
 using UnityEngine.Timeline;
-using Random = System.Random;
 
 namespace Needle.Timeline
 {

@@ -374,7 +374,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: da143bb0ddcd33949ac33ce6f7332d23, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pointsCount: 100
+  pointsCount: 80
   Shader: {fileID: 7200000, guid: b1f3f0b97c9050c4fb6c115254c58a0b, type: 3}
   Output: {fileID: 1099171608}
 --- !u!84 &791328477
@@ -642,6 +642,8 @@ PlayableDirector:
     value: {fileID: 1849834650}
   - key: {fileID: -5284434381933997732, guid: cf04200b669495446bde90fec691c7be, type: 2}
     value: {fileID: 243997460}
+  - key: {fileID: 0}
+    value: {fileID: 243997460}
   m_ExposedReferences:
     m_References:
     - 82060ca0554b4f7468f4e51add23033f: {fileID: 0}
@@ -671,10 +673,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1f40515ecb6bf3f4bbc7c83128ba793b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MyValue: 4.3398046
-  MyInt: 12
+  MyValue: 1.709011
+  MyInt: 7
   MyDouble: 22
-  MyString: Wo very long string
+  MyString: Worlg string
 --- !u!1 &2120823459
 GameObject:
   m_ObjectHideFlags: 0

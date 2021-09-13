@@ -25,5 +25,17 @@ namespace Needle.Timeline
 		{
 			return Evaluate(time);
 		}
+
+		public bool CanInterpolate(Type type)
+		{
+			return true;
+		}
+
+		public object Interpolate(object v0, object v1, float t)
+		{
+			var float0 = (float)v0;
+			var float1 = (float)v1;
+			return Mathf.Lerp(float0, float1, t);
+		}
 	}
 }

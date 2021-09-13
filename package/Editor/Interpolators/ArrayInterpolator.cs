@@ -12,21 +12,37 @@ namespace Needle.Timeline
 	{
 		// private ArrayInterpolator arrayInterpolator = new ArrayInterpolator();
 		private List<Vector3> result;
+		private List<Vector3> secondaryBuffer;
 
 		public List<Vector3> Interpolate(List<Vector3> v0, List<Vector3> v1, float t)
 		{
+			// TODO: via timeline mixer it can currently happen that one of the inputs is the output list of a previous interpolation, maybe we need some buffer cache to get temporary result buffers?
+			// if (v0 == result)
+			// {
+			// 	
+			// }
+			//
+			// if (v1 == result)
+			// {
+			// 	
+			// }
+			
 			if (result == null) result = new List<Vector3>();
 			else result.Clear();
 			var count = Mathf.RoundToInt(Mathf.Lerp(v0.Count, v1.Count, t));
 			for (var i = 0; i < count; i++)
 			{
-				var val0 = v0[i % v0.Count];
-				var val1 = v1[i % v1.Count];
+				var val0 = v0.Count > 0 ? v0[i % v0.Count] : v1[i];
+				var val1 = v1.Count > 0 ? v1[i % v1.Count] : v0[i];
 				var res = Vector3.Lerp(val0, val1, t);
 				result.Add(res);
 			}
 
-			return result;
+			//
+			if (secondaryBuffer == null) secondaryBuffer = new List<Vector3>(result.Count);
+			secondaryBuffer.Clear();
+			secondaryBuffer.AddRange(result);
+			return secondaryBuffer;
 		}
 	}
 
