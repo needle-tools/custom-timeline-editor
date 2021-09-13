@@ -3,11 +3,16 @@ using Unity.Profiling;
 
 namespace Needle.Timeline
 {
-	public class CustomAnimationCurve<T> : ICustomClip<T>
+	public class CustomAnimationCurve<T> : ICustomClip<T>, ICanInterpolate<T>
 	{
 		private readonly ICanInterpolate<T> _interpolator;
 		private readonly List<ICustomKeyframe<T>> _keyframes;
 		private readonly ProfilerMarker _profilerMarker = new ProfilerMarker("CustomAnimationCurve " + typeof(T));
+
+		public T Interpolate(T v0, T v1, float t)
+		{
+			return _interpolator.Interpolate(v0, v1, t);
+		}
 
 		public CustomAnimationCurve(ICanInterpolate<T> interpolator, List<ICustomKeyframe<T>> keyframes = null)
 		{
