@@ -1,20 +1,32 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Unity.Profiling;
 
 namespace Needle.Timeline
 {
-	public class CustomAnimationCurve<T> : ICustomClip<T>, ICanInterpolate<T>
+	public class CustomAnimationCurve<T> : ICustomClip<T>, IInterpolator<T>, IInterpolator
 	{
-		private readonly ICanInterpolate<T> _interpolator;
+		private readonly IInterpolator<T> _interpolator;
 		private readonly List<ICustomKeyframe<T>> _keyframes;
-		private readonly ProfilerMarker _profilerMarker = new ProfilerMarker("CustomAnimationCurve " + typeof(T));
+		private readonly ProfilerMarker _evaluateMarker = new ProfilerMarker("CustomAnimationCurve Evaluate " + typeof(T));
+		private readonly ProfilerMarker _interpolationMarker = new ProfilerMarker("CustomAnimationCurve Interpolate " + typeof(T));
 
 		public T Interpolate(T v0, T v1, float t)
 		{
 			return _interpolator.Interpolate(v0, v1, t);
 		}
+		
+		public bool CanInterpolate(Type type)
+		{
+			return type == typeof(T);
+		}
 
-		public CustomAnimationCurve(ICanInterpolate<T> interpolator, List<ICustomKeyframe<T>> keyframes = null)
+		object IInterpolator.Interpolate(object v0, object v1, float t)
+		{
+			return Interpolate((T)v0, (T)v1, t);
+		}
+
+		public CustomAnimationCurve(IInterpolator<T> interpolator, List<ICustomKeyframe<T>> keyframes = null)
 		{
 			this._interpolator = interpolator;
 			this._keyframes = keyframes ?? new List<ICustomKeyframe<T>>();
@@ -22,7 +34,7 @@ namespace Needle.Timeline
 
 		public T Evaluate(float time)
 		{
-			using (_profilerMarker.Auto())
+			using (_evaluateMarker.Auto())
 			{
 				for (var index = 0; index < _keyframes.Count; index++)
 				{
@@ -36,7 +48,8 @@ namespace Needle.Timeline
 						if (next.time < time) continue;
 						// interpolate between this and the next keyframe
 						var t = GetPosition(time, current.time, next.time);
-						return _interpolator.Interpolate(current.value, next.value, t);
+						using(_interpolationMarker.Auto())
+							return _interpolator.Interpolate(current.value, next.value, t);
 					}
 
 					// if no keyframe was found that is <= time

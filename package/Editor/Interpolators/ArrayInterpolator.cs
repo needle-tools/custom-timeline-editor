@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace Needle.Timeline
 {
-	public class ListInterpolator : ICanInterpolate<List<Vector3>>
+	public class ListInterpolator : IInterpolator<List<Vector3>>
 	{
 		// private ArrayInterpolator arrayInterpolator = new ArrayInterpolator();
 		private List<Vector3> result;
@@ -30,7 +30,7 @@ namespace Needle.Timeline
 		}
 	}
 
-	public class ArrayInterpolator : ICanInterpolate<NativeArray<float3>>, IDisposable
+	public class ArrayInterpolator : IInterpolator<NativeArray<float3>>, IDisposable
 	{
 		public NativeArray<float3> TargetBuffer;
 

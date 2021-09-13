@@ -2,7 +2,7 @@
 
 namespace Needle.Timeline.Interpolators
 {
-	public class StringInterpolator : ICanInterpolate<string>
+	public class StringInterpolator : IInterpolator<string>
 	{
 		private readonly StringBuilder sb = new StringBuilder();
 		
