@@ -53,20 +53,32 @@ namespace Needle.Timeline.Utils
 			typeof(uint),
 		};
 
-		public static bool Create(Data data)
+		public enum CreationResult
 		{
-			if (CreateAnimationCurve(data)) return true;
-			return false;
+			None = 0,
+			Successful = 1,
+			NotMarked = 2,
+			Failed = 3,
 		}
 
-		private static bool CreateAnimationCurve(Data data)
+		public static CreationResult Create(Data data)
 		{
-			if (!animationCurveTypes.Contains(data.MemberType)) return false;
+			var attribute = data.Member.GetCustomAttribute<AnimateAttribute>();
+			var res = CreateAnimationCurve(attribute, data);
+			return res;
+		}
 
+		private static CreationResult CreateAnimationCurve(AnimateAttribute attribute, Data data)
+		{
+			if (!animationCurveTypes.Contains(data.MemberType))
+			{
+				if (attribute == null) return CreationResult.NotMarked;
+				return CreationResult.Failed;
+			}
+			
 			var binding = data.Bindings.FirstOrDefault(b => b.propertyName == data.Member.Name);
-
 			// if the attribute has been removed
-			if (data.Member.GetCustomAttribute<AnimateAttribute>() == null)
+			if (attribute == null)
 			{
 				if (binding.propertyName != null)
 				{
@@ -74,7 +86,7 @@ namespace Needle.Timeline.Utils
 					AnimationUtility.SetEditorCurve(data.TimelineClip.curves, binding, null);
 				}
 
-				return false;
+				return CreationResult.NotMarked;
 			}
 
 			// if the binding does not exist yet
@@ -93,7 +105,7 @@ namespace Needle.Timeline.Utils
 			var clip = data.TimelineClip.curves;
 			var animationCurve = new AnimationCurveWrapper(() => AnimationUtility.GetEditorCurve(clip, binding), data.Member.Name);
 			data.ViewModel.Register(handler, animationCurve);
-			return true;
+			return CreationResult.Successful;
 		}
 	}
 }

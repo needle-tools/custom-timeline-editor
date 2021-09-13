@@ -76,7 +76,8 @@ namespace Needle.Timeline
 				{
 					var data = new AnimationCurveBuilder.Data(this, dir, viewModel, type, clipBindings, timelineClip, path, 
 						field, field.FieldType);
-					AnimationCurveBuilder.Create(data);
+					if(AnimationCurveBuilder.Create(data) == AnimationCurveBuilder.CreationResult.Failed)
+						OnFailedCreatingCurves(field.FieldType);
 				}
 
 				var properties = type.GetProperties(DefaultFlags);
@@ -84,7 +85,8 @@ namespace Needle.Timeline
 				{
 					var data = new AnimationCurveBuilder.Data(this, dir, viewModel, type, clipBindings, timelineClip, path,
 						prop, prop.PropertyType);
-					AnimationCurveBuilder.Create(data);
+					if(AnimationCurveBuilder.Create(data) == AnimationCurveBuilder.CreationResult.Failed)
+						OnFailedCreatingCurves(prop.PropertyType);
 				}
 			}
 
@@ -93,6 +95,9 @@ namespace Needle.Timeline
 			return playable;
 		}
 
-		
+		private void OnFailedCreatingCurves(Type type)
+		{
+			Debug.LogWarning("<b>Failed creating curves for</b> " + type);
+		}
 	}
 }

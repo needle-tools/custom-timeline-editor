@@ -23,7 +23,7 @@ namespace Needle.Timeline
 				var behaviour = inputPlayable.GetBehaviour();
 				if (behaviour.viewModel == null) continue;
 				
-				Debug.Log("Mix frame " + info.frameId);
+				// Debug.Log("Mix frame " + info.frameId);
 				var viewModel = behaviour.viewModel;
 				for (var index = 0; index < viewModel.clips.Count; index++)
 				{

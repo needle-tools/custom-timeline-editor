@@ -20,6 +20,9 @@ namespace _Sample
 		[Animate]
 		public double MyDouble;
 		
+		// [Animate]
+		// public string MyString;
+		
 		[NonSerialized]
 		public List<Vector3> points = new List<Vector3>();
 
