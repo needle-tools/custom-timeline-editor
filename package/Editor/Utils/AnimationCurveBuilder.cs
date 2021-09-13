@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using JetBrains.Annotations;
+using Needle.Timeline.Interpolators;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Playables;
@@ -44,15 +47,6 @@ namespace Needle.Timeline.Utils
 			}
 		}
 
-
-		private static readonly Type[] animationCurveTypes = new[]
-		{
-			typeof(float),
-			typeof(int),
-			typeof(double),
-			typeof(uint),
-		};
-
 		public enum CreationResult
 		{
 			None = 0,
@@ -65,10 +59,47 @@ namespace Needle.Timeline.Utils
 		{
 			var attribute = data.Member.GetCustomAttribute<AnimateAttribute>();
 			var res = CreateAnimationCurve(attribute, data);
+			if (res == CreationResult.Successful) return res;
+
+			res = CreateCustomAnimationCurve(attribute, data);
+			
 			return res;
 		}
 
-		private static CreationResult CreateAnimationCurve(AnimateAttribute attribute, Data data)
+		private static CreationResult CreateCustomAnimationCurve([CanBeNull] AnimateAttribute attribute, Data data)
+		{
+			if (attribute == null) return CreationResult.NotMarked;
+			
+			ICustomClip curve = default;
+
+			if (data.MemberType == typeof(string))
+			{
+				Debug.Log("Create string");
+				curve = new CustomAnimationCurve<string>(new StringInterpolator(), new List<ICustomKeyframe<string>>()
+				{
+					new CustomKeyframe<string>("Hello", 0),
+					new CustomKeyframe<string>("World", 1),
+					new CustomKeyframe<string>("This is a very long string", 10)
+				});
+			}
+			else return CreationResult.Failed;
+			
+			object Resolve() => data.Director.GetGenericBinding(data.Track);
+			var handler = new MemberWrapper(data.Member, Resolve, data.MemberType);
+			data.ViewModel.Register(handler, curve);
+			return CreationResult.Successful;
+		}
+
+
+
+		private static readonly Type[] animationCurveTypes = {
+			typeof(float),
+			typeof(int),
+			typeof(double),
+			typeof(uint),
+		};
+		
+		private static CreationResult CreateAnimationCurve([CanBeNull] AnimateAttribute attribute, Data data)
 		{
 			if (!animationCurveTypes.Contains(data.MemberType))
 			{

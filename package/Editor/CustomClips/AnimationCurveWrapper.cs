@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Needle.Timeline
 {
-	public struct AnimationCurveWrapper : ICustomClip<float>
+	public readonly struct AnimationCurveWrapper : ICustomClip<float>
 	{
 		private readonly Func<AnimationCurve> curve;
 		private readonly string m_Name;
