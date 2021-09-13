@@ -12,7 +12,7 @@ namespace Needle.Timeline
 		
 		public override void ProcessFrame(Playable playable, FrameData info, object playerData)
 		{
-			if (CodeTrack.IsUsingMixer) return;
+			if (CodeControlTrack.IsUsingMixer) return;
 			
 			Debug.Log("Process frame " + info.frameId);
 			if (viewModel != null)

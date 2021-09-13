@@ -19,7 +19,7 @@ namespace Needle.Timeline
 	{
 		public readonly struct Data
 		{
-			public readonly CodeTrack Track;
+			public readonly CodeControlTrack Track;
 			public readonly PlayableDirector Director;
 			public readonly ClipInfoViewModel ViewModel;
 			public readonly Type Type;
@@ -29,7 +29,7 @@ namespace Needle.Timeline
 			public readonly MemberInfo Member;
 			public readonly Type MemberType;
 
-			public Data(CodeTrack track,
+			public Data(CodeControlTrack track,
 				PlayableDirector director,
 				ClipInfoViewModel viewModel,
 				Type type,
@@ -99,11 +99,11 @@ namespace Needle.Timeline
 					{
 						new CustomKeyframe<List<Vector3>>(
 							new List<Vector3>() { Vector3.zero },
-							0
+							(float)data.TimelineClip.start
 						),
 						new CustomKeyframe<List<Vector3>>(
 							GetPointsList(100),
-							5
+							(float)data.TimelineClip.start + 5
 						)
 					});
 			}

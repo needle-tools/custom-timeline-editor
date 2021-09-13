@@ -13,7 +13,7 @@ namespace Needle.Timeline
 	[TrackClipType(typeof(CodeControlAsset))]
 	[TrackBindingType(typeof(MonoBehaviour))]
 	[TrackColor(.2f, .5f, 1f)]
-	public class CodeTrack : TrackAsset
+	public class CodeControlTrack : TrackAsset
 	{
 		[SerializeField] private List<ClipInfoModel> clips = new List<ClipInfoModel>();
 		[NonSerialized] private readonly List<ClipInfoViewModel> viewModels = new List<ClipInfoViewModel>();
