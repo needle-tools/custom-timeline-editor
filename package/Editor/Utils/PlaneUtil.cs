@@ -18,21 +18,16 @@ namespace Needle.Timeline
 #endif
 
 			ray = cam.ScreenPointToRay(mp);
-			return GetPointOnPlane(ray, out plane, out dist);
+			return GetPointOnPlane(ray, out plane, out dist, cam.transform.forward);
 		}
 
-		public static Vector3? GetPointOnPlane(Ray ray, out Plane plane, out float distance)
+		public static Vector3? GetPointOnPlane(Ray ray, out Plane plane, out float distance, Vector3? viewDirection = null)
 		{
-			return GetPointOnPlane(ray.direction, ray.origin, out plane, out distance);
-		}
-
-		public static Vector3? GetPointOnPlane(Vector3 viewDirection, Vector3 origin, out Plane plane, out float distance)
-		{
-			plane = GetPlane(viewDirection);
-			if (plane.Raycast(new Ray(origin, viewDirection), out var center))
+			plane = GetPlane(viewDirection ?? ray.direction);
+			if (plane.Raycast(ray, out var center))
 			{
 				distance = center;
-				return origin + viewDirection * center;
+				return ray.origin + ray.direction * center;
 			}
 
 			distance = 0;
