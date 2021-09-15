@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using Needle.Timeline;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace _Sample
 {
@@ -13,6 +15,8 @@ namespace _Sample
 		private Vector3? point;
 		private Plane plane;
 		private float dist;
+
+		private Queue<Vector3> points = new Queue<Vector3>();
 
 		private void Start()
 		{
@@ -37,6 +41,18 @@ namespace _Sample
 				Gizmos.matrix = Matrix4x4.identity;
 				Gizmos.DrawLine(ray.origin, pt);
 				Gizmos.DrawSphere(pt, .01f * dist);
+
+				if (!Freeze)
+					points.Enqueue(Random.insideUnitSphere * .2f + pt);
+			}
+
+			while (points.Count > 300) points.Dequeue();
+
+			Gizmos.matrix = Matrix4x4.identity;
+			Gizmos.color = Color.yellow;
+			foreach (var pt in points)
+			{
+				Gizmos.DrawWireSphere(pt, .02f * dist);
 			}
 		}
 	}

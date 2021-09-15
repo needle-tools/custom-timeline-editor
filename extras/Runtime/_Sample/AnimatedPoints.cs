@@ -20,9 +20,9 @@ namespace _Sample._Sample
 		public RawImage Output;
 
 		private RenderTexture texture;
-		
-		
-		void Update()
+
+
+		private void Update()
 		{
 			pointsCount = points.Count;
 			if (points.Count <= 0) return;
