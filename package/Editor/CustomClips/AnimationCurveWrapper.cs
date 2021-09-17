@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Needle.Timeline
@@ -7,7 +8,7 @@ namespace Needle.Timeline
 	{
 		private readonly Func<AnimationCurve> curve;
 		private readonly string m_Name;
-
+		
 		public AnimationCurveWrapper(Func<AnimationCurve> curve, string name)
 		{
 			this.curve = curve;

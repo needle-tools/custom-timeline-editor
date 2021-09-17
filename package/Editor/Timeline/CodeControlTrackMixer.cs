@@ -18,7 +18,6 @@ namespace Needle.Timeline
 			{
 				valuesToMix.Clear();
 				var inputCount = playable.GetInputCount();
-				var time = (float)playable.GetTime();
 
 				for (var i = 0; i < inputCount; i++)
 				{
@@ -28,6 +27,8 @@ namespace Needle.Timeline
 					var inputPlayable = (ScriptPlayable<CodeControlBehaviour>)playable.GetInput(i);
 					var behaviour = inputPlayable.GetBehaviour();
 					if (behaviour.viewModel == null) continue;
+
+					var time = (float)((playable.GetTime() - behaviour.viewModel.startTime) * behaviour.viewModel.timeScale);
 				
 					// Debug.Log("Mix frame " + info.frameId);
 					var viewModel = behaviour.viewModel;

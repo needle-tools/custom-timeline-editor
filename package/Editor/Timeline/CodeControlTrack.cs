@@ -5,6 +5,7 @@ using System.Reflection;
 using Unity.Profiling;
 using UnityEditor;
 using UnityEditor.Build.Content;
+using UnityEditor.Timeline;
 using UnityEngine;
 using UnityEngine.Playables;
 using UnityEngine.Timeline;
@@ -20,11 +21,13 @@ namespace Needle.Timeline
 	[TrackClipType(typeof(CodeControlAsset))]
 	[TrackBindingType(typeof(MonoBehaviour))]
 	[TrackColor(.2f, .5f, 1f)]
-	public class CodeControlTrack : TrackAsset
+	public class CodeControlTrack : TrackAsset, ICanDrawInlineCurve
 	{
 		[SerializeField] private List<ClipInfoModel> clips = new List<ClipInfoModel>();
 		[NonSerialized] private readonly List<ClipInfoViewModel> viewModels = new List<ClipInfoViewModel>();
 		internal static readonly bool IsUsingMixer = true;
+
+		public bool CanDraw() => true;
 
 		public override Playable CreateTrackMixer(PlayableGraph graph, GameObject go, int inputCount)
 		{
@@ -73,6 +76,9 @@ namespace Needle.Timeline
 					timelineClip.displayName = "Code Track";
 
 					var viewModel = new ClipInfoViewModel(model);
+					viewModel.startTime = timelineClip.start;
+					viewModel.endTime = timelineClip.end;
+					viewModel.timeScale = timelineClip.timeScale;
 					asset.viewModel = viewModel;
 					viewModels.Add(viewModel);
 

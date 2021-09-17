@@ -96,11 +96,11 @@ namespace Needle.Timeline
 					{
 						new CustomKeyframe<List<Vector3>>(
 							new List<Vector3>() { Vector3.zero },
-							(float)data.TimelineClip.start
+							(float)0
 						),
 						new CustomKeyframe<List<Vector3>>(
 							GetPointsList(100),
-							(float)data.TimelineClip.start + 5
+							(float)5
 						)
 					});
 			}

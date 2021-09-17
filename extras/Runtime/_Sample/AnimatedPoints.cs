@@ -10,7 +10,7 @@ namespace _Sample._Sample
 	public class AnimatedPoints : MonoBehaviour, IAnimated
 	{
 		[Animate, NonSerialized]
-		public List<Vector3> points = new List<Vector3>();
+		public List<Vector3> points = new List<Vector3>(); 
 
 		public int pointsCount;
 

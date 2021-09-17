@@ -4,12 +4,14 @@ using Unity.Profiling;
 
 namespace Needle.Timeline
 {
-	public class CustomAnimationCurve<T> : ICustomClip<T>, IInterpolator<T>, IInterpolator
+	public class CustomAnimationCurve<T> : ICustomClip<T>, IInterpolator<T>, IInterpolator, IKeyframesProvider
 	{
 		private readonly IInterpolator<T> _interpolator;
 		private readonly List<ICustomKeyframe<T>> _keyframes;
 		private readonly ProfilerMarker _evaluateMarker = new ProfilerMarker("CustomAnimationCurve Evaluate " + typeof(T));
 		private readonly ProfilerMarker _interpolationMarker = new ProfilerMarker("CustomAnimationCurve Interpolate " + typeof(T));
+
+		public IEnumerable<ICustomKeyframe> Keyframes => _keyframes;
 
 		public T Interpolate(T v0, T v1, float t)
 		{

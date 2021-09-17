@@ -198,6 +198,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 162866933}
+  - component: {fileID: 162866934}
   m_Layer: 0
   m_Name: GameObject
   m_TagString: Untagged
@@ -219,6 +220,22 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &162866934
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 162866932}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f40515ecb6bf3f4bbc7c83128ba793b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  MyValue: 0.7551048
+  MyInt: 1
+  MyDouble: 0.8045225143432617
+  MyString: Hello
 --- !u!1 &227500309
 GameObject:
   m_ObjectHideFlags: 0
@@ -291,6 +308,42 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 227500309}
   m_CullTransparentMesh: 1
+--- !u!84 &240433832
+RenderTexture:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  m_ImageContentsHash:
+    serializedVersion: 2
+    Hash: 00000000000000000000000000000000
+  m_ForcedFallbackFormat: 4
+  m_DownscaleFallback: 0
+  m_IsAlphaChannelOptional: 0
+  serializedVersion: 3
+  m_Width: 32
+  m_Height: 32
+  m_AntiAliasing: 1
+  m_MipCount: -1
+  m_DepthFormat: 0
+  m_ColorFormat: 8
+  m_MipMap: 0
+  m_GenerateMips: 1
+  m_SRGB: 0
+  m_UseDynamicScale: 0
+  m_BindMS: 0
+  m_EnableCompatibleFormat: 1
+  m_TextureSettings:
+    serializedVersion: 2
+    m_FilterMode: 1
+    m_Aniso: 1
+    m_MipBias: 0
+    m_WrapU: 1
+    m_WrapV: 1
+    m_WrapW: 1
+  m_Dimension: 2
+  m_VolumeDepth: 1
 --- !u!1 &243997455
 GameObject:
   m_ObjectHideFlags: 0
@@ -404,45 +457,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: da143bb0ddcd33949ac33ce6f7332d23, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pointsCount: 37
+  pointsCount: 1
   Shader: {fileID: 7200000, guid: b1f3f0b97c9050c4fb6c115254c58a0b, type: 3}
   Output: {fileID: 1099171608}
---- !u!84 &716738000
-RenderTexture:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: 
-  m_ImageContentsHash:
-    serializedVersion: 2
-    Hash: 00000000000000000000000000000000
-  m_ForcedFallbackFormat: 4
-  m_DownscaleFallback: 0
-  m_IsAlphaChannelOptional: 0
-  serializedVersion: 3
-  m_Width: 32
-  m_Height: 32
-  m_AntiAliasing: 1
-  m_MipCount: -1
-  m_DepthFormat: 0
-  m_ColorFormat: 8
-  m_MipMap: 0
-  m_GenerateMips: 1
-  m_SRGB: 0
-  m_UseDynamicScale: 0
-  m_BindMS: 0
-  m_EnableCompatibleFormat: 1
-  m_TextureSettings:
-    serializedVersion: 2
-    m_FilterMode: 1
-    m_Aniso: 1
-    m_MipBias: 0
-    m_WrapU: 1
-    m_WrapV: 1
-    m_WrapW: 1
-  m_Dimension: 2
-  m_VolumeDepth: 1
 --- !u!1 &1099171607
 GameObject:
   m_ObjectHideFlags: 0
@@ -481,7 +498,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Texture: {fileID: 716738000}
+  m_Texture: {fileID: 240433832}
   m_UVRect:
     serializedVersion: 2
     x: 0
@@ -720,12 +737,12 @@ PlayableDirector:
   m_SceneBindings:
   - key: {fileID: 8979958234073275806, guid: cf04200b669495446bde90fec691c7be, type: 2}
     value: {fileID: 1849834650}
-  - key: {fileID: -5284434381933997732, guid: cf04200b669495446bde90fec691c7be, type: 2}
-    value: {fileID: 243997460}
   - key: {fileID: 0}
     value: {fileID: 243997460}
-  - key: {fileID: -1472923513620429470, guid: cf04200b669495446bde90fec691c7be, type: 2}
-    value: {fileID: 1535738747}
+  - key: {fileID: -3766698667777046457, guid: cf04200b669495446bde90fec691c7be, type: 2}
+    value: {fileID: 162866934}
+  - key: {fileID: 7563117043417603788, guid: cf04200b669495446bde90fec691c7be, type: 2}
+    value: {fileID: 243997460}
   m_ExposedReferences:
     m_References:
     - 82060ca0554b4f7468f4e51add23033f: {fileID: 0}
@@ -755,10 +772,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1f40515ecb6bf3f4bbc7c83128ba793b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MyValue: 13.106343
-  MyInt: 5
-  MyDouble: 10.625064849853516
-  MyString: Woery long string
+  MyValue: 1
+  MyInt: 1
+  MyDouble: 0
+  MyString: Hello
 --- !u!1 &2120823459
 GameObject:
   m_ObjectHideFlags: 0

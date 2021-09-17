@@ -14,5 +14,11 @@ namespace Needle.Timeline
 			var anim = go.TryGetComponent(out IAnimated _);
 			return anim;
 		}
+
+		public override Object GetBindingFrom(Object candidate, TrackAsset track)
+		{
+			if (candidate is GameObject go) return go.GetComponent<IAnimated>() as Object;
+			return candidate;
+		}
 	}
 }
