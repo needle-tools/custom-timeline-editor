@@ -80,7 +80,7 @@ namespace Needle.Timeline
 
 			if (data.MemberType == typeof(string))
 			{
-				Debug.Log("Create string");
+				// Debug.Log("Create string");
 				curve = new CustomAnimationCurve<string>(new StringInterpolator(),
 					new List<ICustomKeyframe<string>>()
 					{

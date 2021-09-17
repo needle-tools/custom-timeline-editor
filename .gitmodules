@@ -1,0 +1,3 @@
+[submodule "modules/com.unity.timeline"]
+	path = modules/com.unity.timeline
+	url = https://github.com/needle-tools/com.unity.timeline

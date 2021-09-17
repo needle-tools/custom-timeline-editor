@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "com.unity.collections" : "1.0.0-pre.5",
+    "com.unity.collections": "1.0.0-pre.5",
     "com.needle.timeline-editor": "file:../../../package",
     "com.needle.timeline-editor-extras": "file:../../../extras",
     "com.unity.burst": "1.6.0",
@@ -10,7 +10,7 @@
     "com.unity.ide.vscode": "1.2.3",
     "com.unity.test-framework": "1.1.27",
     "com.unity.textmeshpro": "3.0.6",
-    "com.unity.timeline": "1.6.2",
+    "com.unity.timeline": "file:C:/git/timeline-editor/modules/com.unity.timeline",
     "com.unity.ugui": "1.0.0",
     "com.unity.modules.ai": "1.0.0",
     "com.unity.modules.androidjni": "1.0.0",
