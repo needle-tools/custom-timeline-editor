@@ -18,4 +18,18 @@ namespace _Sample._Sample
 			}
 		}
 	}
+	
+	[CustomKeyframeEditor(typeof(ICustomKeyframe<string>))]
+	public class StringKeyframeEditor : CustomTimelineEditor
+	{
+		public override void OnInspectorGUI()
+		{
+			base.OnInspectorGUI();
+			GUILayout.Space(10);
+			if (Target is ICustomKeyframe<string> keyframe)
+			{
+				EditorGUILayout.LabelField(keyframe.value, EditorStyles.boldLabel);
+			}
+		}
+	}
 }

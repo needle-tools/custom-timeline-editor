@@ -54,7 +54,7 @@ namespace Needle.Timeline
 									{
 										if (r.Contains(Event.current.mousePosition))
 										{
-											Debug.Log("Select " + kf.time);
+											// Debug.Log("Select " + kf.time);
 											Event.current.Use();
 											KeyframeInspectorHelper.Select(kf);
 										}
