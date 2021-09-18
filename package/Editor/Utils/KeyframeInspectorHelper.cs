@@ -17,10 +17,13 @@ namespace Needle.Timeline
 				_instance.hideFlags = HideFlags.DontSaveInEditor | HideFlags.DontSaveInBuild;
 			}
 
+			if (_instance.keyframe == keyframe) return true;
 			_instance.keyframe = keyframe;
+			var wasSelected = Selection.activeObject = _instance;
 			Selection.activeObject = _instance;
 			UnityEditor.Editor.CreateCachedEditor(_instance, typeof(KeyframeInspectorHelperEditor), ref _editor);
 			_editor.Repaint();
+			if(wasSelected && _editor is KeyframeInspectorHelperEditor ed) ed.InternalOnEnable();
 			return true;
 		}
 

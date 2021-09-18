@@ -36,7 +36,7 @@ namespace Needle.Timeline
 							{
 								foreach (var kf in prov.Keyframes)
 								{
-									Debug.Log(clip.start.ToString("0.0") + ": " + kf.time.ToString("0.0"));
+									// Debug.Log(clip.start.ToString("0.0") + ": " + kf.time.ToString("0.0"));
 									var r = new Rect();
 									r.x = TimeToPixel(clip.start + kf.time / clip.timeScale);
 									r.width = 8;
