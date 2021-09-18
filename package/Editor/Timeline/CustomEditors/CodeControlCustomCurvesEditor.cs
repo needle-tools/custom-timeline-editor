@@ -1,8 +1,10 @@
 ﻿using System.Linq;
 using System.Net.Configuration;
 using NUnit.Framework;
+using UnityEditor;
 using UnityEditor.Timeline;
 using UnityEngine;
+using UnityEngine.Assertions.Must;
 
 namespace Needle.Timeline
 {
@@ -14,6 +16,7 @@ namespace Needle.Timeline
 			GUI.Label(rect, "Custom header");
 		}
 
+		private UnityEditor.Editor ed;
 		protected override void OnDrawTrack(Rect rect)
 		{
 			// GUI.Label(rect, "Custom track");
@@ -36,14 +39,26 @@ namespace Needle.Timeline
 									Debug.Log(clip.start.ToString("0.0") + ": " + kf.time.ToString("0.0"));
 									var r = new Rect();
 									r.x = TimeToPixel(clip.start + kf.time / clip.timeScale);
-									r.width = 5;
+									r.width = 8;
 									r.x -= r.width * .5f;
 									r.height = r.width;
 									r.y = rect.y + r.height;
 									r.y += row * r.height * 1.2f;
-									var col = SelectedClip == null || clip == SelectedClip ? Color.yellow : Color.gray;
+									var highlight = SelectedClip == null || clip == SelectedClip;
+									highlight &= !kf.AnySelected();
+									highlight |= kf.IsSelected();
+									var col = highlight ? Color.yellow : Color.gray;
 									GUI.DrawTexture(r, Texture2D.whiteTexture, ScaleMode.StretchToFill, true,
 										1, col, 0, 4);
+									if (Event.current.button == 0 && Event.current.type == EventType.MouseDown)
+									{
+										if (r.Contains(Event.current.mousePosition))
+										{
+											Debug.Log("Select " + kf.time);
+											Event.current.Use();
+											KeyframeInspectorHelper.Select(kf);
+										}
+									}
 								}
 
 								++row;
