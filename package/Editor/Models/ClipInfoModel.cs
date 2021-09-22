@@ -1,4 +1,7 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
+using JetBrains.Annotations;
 using UnityEngine;
 
 namespace Needle.Timeline
@@ -7,6 +10,12 @@ namespace Needle.Timeline
 	public class ClipInfoModel
 	{
 		public string id;
-		public AnimationClip clip;
+		public AnimationClip? clip;
+
+		public ClipInfoModel(string id, AnimationClip? clip)
+		{
+			this.id = id;
+			this.clip = clip;
+		}
 	}
 }

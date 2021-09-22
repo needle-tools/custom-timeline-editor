@@ -19,6 +19,7 @@ namespace Needle.Timeline
 
 			if (_instance.keyframe == keyframe) return true;
 			_instance.keyframe = keyframe;
+			_instance.name = "Keyframe " + keyframe.time.ToString("0.00");
 			var wasSelected = Selection.activeObject = _instance;
 			Selection.activeObject = _instance;
 			UnityEditor.Editor.CreateCachedEditor(_instance, typeof(KeyframeInspectorHelperEditor), ref _editor);

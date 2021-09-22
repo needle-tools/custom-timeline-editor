@@ -1154,14 +1154,14 @@ MonoBehaviour:
     m_PostExtrapolationMode: 0
     m_PreExtrapolationMode: 0
     m_PostExtrapolationTime: Infinity
-    m_PreExtrapolationTime: 4.066666666666653
+    m_PreExtrapolationTime: 3.0666666666666664
     m_DisplayName: Code Track
   - m_Version: 1
     m_Start: 0
     m_ClipIn: 0.351
     m_Asset: {fileID: 7484764743721428818}
-    m_Duration: 5.000000000000013
-    m_TimeScale: 1
+    m_Duration: 6
+    m_TimeScale: 1.0000000000000024
     m_ParentTrack: {fileID: 7563117043417603788}
     m_EaseInDuration: 0
     m_EaseOutDuration: 0
@@ -1222,7 +1222,7 @@ MonoBehaviour:
     m_Recordable: 0
     m_PostExtrapolationMode: 0
     m_PreExtrapolationMode: 0
-    m_PostExtrapolationTime: 4.066666666666653
+    m_PostExtrapolationTime: 3.0666666666666664
     m_PreExtrapolationTime: 0
     m_DisplayName: Code Track
   m_Markers:

@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Needle.Timeline
 {
-	public interface ICustomClip : IInterpolator
+	public interface ICustomClip : IInterpolator, ISerializable
 	{
 		object Evaluate(float time);
 	}

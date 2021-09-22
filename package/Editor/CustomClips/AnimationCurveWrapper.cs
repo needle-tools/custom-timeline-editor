@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Needle.Timeline
 {
-	public readonly struct AnimationCurveWrapper : ICustomClip<float>
+	public readonly struct AnimationCurveWrapper : ICustomClip<float>, ISerializable
 	{
 		private readonly Func<AnimationCurve> curve;
 		private readonly string m_Name;
@@ -37,6 +37,15 @@ namespace Needle.Timeline
 			var float0 = (float)v0;
 			var float1 = (float)v1;
 			return Mathf.Lerp(float0, float1, t);
+		}
+
+		public string Serialize(ISerializer serializer)
+		{
+			return null;
+		}
+
+		public void Deserialize(ISerializer serializer, string data)
+		{
 		}
 	}
 }

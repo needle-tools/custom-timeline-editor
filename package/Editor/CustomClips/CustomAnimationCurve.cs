@@ -1,15 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 using Unity.Profiling;
 
 namespace Needle.Timeline
 {
-	public class CustomAnimationCurve<T> : ICustomClip<T>, IInterpolator<T>, IInterpolator, IKeyframesProvider
+	public class CustomAnimationCurve<T> : ICustomClip<T>, IInterpolator<T>, IKeyframesProvider, ISerializable
 	{
 		private readonly IInterpolator<T> _interpolator;
-		private readonly List<ICustomKeyframe<T>> _keyframes;
+		private List<ICustomKeyframe<T>> _keyframes;
 		private readonly ProfilerMarker _evaluateMarker = new ProfilerMarker("CustomAnimationCurve Evaluate " + typeof(T));
 		private readonly ProfilerMarker _interpolationMarker = new ProfilerMarker("CustomAnimationCurve Interpolate " + typeof(T));
+
+		public string Serialize(ISerializer serializer)
+		{
+			return JsonConvert.SerializeObject(_keyframes);
+		}
+
+		public void Deserialize(ISerializer serializer, string data)
+		{
+			_keyframes = JsonConvert.DeserializeObject<List<ICustomKeyframe<T>>>(data);
+		}
 
 		public IEnumerable<ICustomKeyframe> Keyframes => _keyframes;
 

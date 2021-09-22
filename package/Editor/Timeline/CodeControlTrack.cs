@@ -24,6 +24,20 @@ namespace Needle.Timeline
 	public class CodeControlTrack : TrackAsset, ICanDrawInlineCurve
 	{
 		[SerializeField] private List<ClipInfoModel> clips = new List<ClipInfoModel>();
+		
+		
+
+		protected override void OnBeforeTrackSerialize()
+		{
+			base.OnBeforeTrackSerialize();
+		}
+
+		protected override void OnAfterTrackDeserialize()
+		{
+			base.OnAfterTrackDeserialize();
+		}
+		
+		
 		[NonSerialized] private readonly List<ClipInfoViewModel> viewModels = new List<ClipInfoViewModel>();
 		internal static readonly bool IsUsingMixer = true;
 
@@ -64,11 +78,9 @@ namespace Needle.Timeline
 				foreach (var anim in animationComponents)
 				{
 					var model = clips.FirstOrDefault(clipInfo => clipInfo.id == id);
-					if (model == null) model = new ClipInfoModel();
-					if (model.id == null)
+					if (model == null)
 					{
-						model.id = id;
-						model.clip = timelineClip.curves;
+						model = new ClipInfoModel(id, timelineClip.curves);
 						// timelineClip.displayName += "\n" + id;
 						clips.Add(model);
 					}
@@ -112,7 +124,7 @@ namespace Needle.Timeline
 			}
 		}
 
-		private void OnFailedCreatingCurves(Type type)
+		private static void OnFailedCreatingCurves(Type type)
 		{
 			Debug.LogWarning("<b>Failed creating curves for</b> " + type);
 		}

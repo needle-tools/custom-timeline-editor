@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
-using Needle.Timeline.Interpolators;
 using Unity.Profiling;
 using UnityEditor;
 using UnityEngine;
@@ -78,6 +77,11 @@ namespace Needle.Timeline
 
 			ICustomClip curve = default;
 
+			if (Interpolators.TryFindInterpolator(attribute, data.MemberType, out var interpolator))
+			{
+				
+			}
+			
 			if (data.MemberType == typeof(string))
 			{
 				// Debug.Log("Create string");
@@ -103,6 +107,12 @@ namespace Needle.Timeline
 							(float)5
 						)
 					});
+				// var json = curve.Serialize(null);
+				// Debug.Log(json);
+			}
+			else if (data.Member == typeof(ComputeBuffer))
+			{
+				curve = new CustomAnimationCurve<ComputeBuffer>(new ComputeBufferInterpolator(typeof(float)));
 			}
 			else return CreationResult.Failed;
 

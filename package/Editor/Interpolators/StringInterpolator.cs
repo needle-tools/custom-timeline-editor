@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace Needle.Timeline.Interpolators
+namespace Needle.Timeline
 {
 	public class StringInterpolator : IInterpolator<string>
 	{
