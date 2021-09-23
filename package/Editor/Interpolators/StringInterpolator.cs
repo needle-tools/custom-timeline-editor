@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 
 namespace Needle.Timeline
 {
@@ -24,6 +25,16 @@ namespace Needle.Timeline
 			}
 			
 			return sb.ToString();
+		}
+
+		public bool CanInterpolate(Type type)
+		{
+			return type == typeof(string);
+		}
+
+		public object Interpolate(object v0, object v1, float t)
+		{
+			return Interpolate((string)v0, (string)v1, t);
 		}
 	}
 }

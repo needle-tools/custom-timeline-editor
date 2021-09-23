@@ -14,6 +14,16 @@ namespace Needle.Timeline
 		private List<Vector3> result;
 		private List<Vector3> secondaryBuffer;
 
+		public bool CanInterpolate(Type type)
+		{
+			return typeof(List<Vector3>).IsAssignableFrom(type);
+		}
+
+		public object Interpolate(object v0, object v1, float t)
+		{
+			return Interpolate(v0 as List<Vector3>, v1 as List<Vector3>, t);
+		}
+
 		public List<Vector3> Interpolate(List<Vector3> v0, List<Vector3> v1, float t)
 		{
 			// TODO: via timeline mixer it can currently happen that one of the inputs is the output list of a previous interpolation, maybe we need some buffer cache to get temporary result buffers?
@@ -46,50 +56,50 @@ namespace Needle.Timeline
 		}
 	}
 
-	public class ArrayInterpolator : IInterpolator<NativeArray<float3>>, IDisposable
-	{
-		public NativeArray<float3> TargetBuffer;
-
-		public NativeArray<float3> Interpolate(NativeArray<float3> v0, NativeArray<float3> v1, float t)
-		{
-			var max = Mathf.Max(v0.Length, v1.Length);
-
-			if (TargetBuffer.Length < max)
-			{
-				if (TargetBuffer.IsCreated) TargetBuffer.Dispose();
-				TargetBuffer = new NativeArray<float3>(max, Allocator.Persistent);
-			}
-
-			var job = new InterpolatorJob<float3>();
-			job.I0 = v0;
-			job.I1 = v1;
-			job.t = t;
-			job.Target = TargetBuffer;
-			var handle = job.Schedule(max, 32);
-			handle.Complete();
-			return TargetBuffer.GetSubArray(0, max);
-		}
-
-		public struct InterpolatorJob<T> : IJobParallelFor where T : struct
-		{
-			public NativeSlice<float3> I0;
-			public NativeSlice<float3> I1;
-			public float t;
-			public NativeSlice<float3> Target;
-
-			public void Execute(int index)
-			{
-				var v0 = I0[index % I0.Length];
-				var v1 = I1[index % I1.Length];
-				var res = math.lerp(v0, v1, t);
-				Target[index] = res;
-			}
-		}
-
-		public void Dispose()
-		{
-			if (TargetBuffer.IsCreated)
-				TargetBuffer.Dispose();
-		}
-	}
+	// public class ArrayInterpolator : IInterpolator<NativeArray<float3>>, IDisposable
+	// {
+	// 	public NativeArray<float3> TargetBuffer;
+	//
+	// 	public NativeArray<float3> Interpolate(NativeArray<float3> v0, NativeArray<float3> v1, float t)
+	// 	{
+	// 		var max = Mathf.Max(v0.Length, v1.Length);
+	//
+	// 		if (TargetBuffer.Length < max)
+	// 		{
+	// 			if (TargetBuffer.IsCreated) TargetBuffer.Dispose();
+	// 			TargetBuffer = new NativeArray<float3>(max, Allocator.Persistent);
+	// 		}
+	//
+	// 		var job = new InterpolatorJob<float3>();
+	// 		job.I0 = v0;
+	// 		job.I1 = v1;
+	// 		job.t = t;
+	// 		job.Target = TargetBuffer;
+	// 		var handle = job.Schedule(max, 32);
+	// 		handle.Complete();
+	// 		return TargetBuffer.GetSubArray(0, max);
+	// 	}
+	//
+	// 	public struct InterpolatorJob<T> : IJobParallelFor where T : struct
+	// 	{
+	// 		public NativeSlice<float3> I0;
+	// 		public NativeSlice<float3> I1;
+	// 		public float t;
+	// 		public NativeSlice<float3> Target;
+	//
+	// 		public void Execute(int index)
+	// 		{
+	// 			var v0 = I0[index % I0.Length];
+	// 			var v1 = I1[index % I1.Length];
+	// 			var res = math.lerp(v0, v1, t);
+	// 			Target[index] = res;
+	// 		}
+	// 	}
+	//
+	// 	public void Dispose()
+	// 	{
+	// 		if (TargetBuffer.IsCreated)
+	// 			TargetBuffer.Dispose();
+	// 	}
+	// }
 }

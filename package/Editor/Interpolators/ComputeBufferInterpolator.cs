@@ -27,6 +27,16 @@ namespace Needle.Timeline
 			}
 		}
 
+		public bool CanInterpolate(Type type)
+		{
+			return false;
+		}
+
+		public object Interpolate(object v0, object v1, float t)
+		{
+			throw new NotImplementedException();
+		}
+
 		public ComputeBuffer Interpolate(ComputeBuffer v0, ComputeBuffer v1, float t)
 		{
 			var count = Mathf.Max(v0.count, v1.count);

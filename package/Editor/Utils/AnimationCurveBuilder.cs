@@ -101,9 +101,9 @@ namespace Needle.Timeline
 				var content = SaveUtil.Load("test");
 				if (content != null)
 				{
-					Debug.Log("Need to add keyframe converter");
 					var type = typeof(CustomAnimationCurve<>).MakeGenericType(data.MemberType);
-					curve = ser.Deserialize(content, type) as ICustomClip; 
+					curve = ser.Deserialize(content, type) as ICustomClip;
+					if (curve is IHasInterpolator i) i.Interpolator = new ListInterpolator();
 				}
 
 				if (curve == null)

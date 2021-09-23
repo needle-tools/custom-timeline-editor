@@ -17,7 +17,9 @@ namespace Needle.Timeline.Serialization
 					{
 						new Vec2Conv(),
 						new Vec3Conv(),
-						new Vec4Conv()
+						new Vec4Conv(),
+						
+						new KeyframeConverter(),
 					}
 				};
 			}
