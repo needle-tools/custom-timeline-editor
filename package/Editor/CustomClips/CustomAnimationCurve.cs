@@ -5,23 +5,13 @@ using Unity.Profiling;
 
 namespace Needle.Timeline
 {
-	public class CustomAnimationCurve<T> : ICustomClip<T>, IInterpolator<T>, IKeyframesProvider, ISerializable
+	public class CustomAnimationCurve<T> : ICustomClip<T>, IInterpolator<T>, IKeyframesProvider
 	{
 		private readonly IInterpolator<T> _interpolator;
 		private List<ICustomKeyframe<T>> _keyframes;
 		private readonly ProfilerMarker _evaluateMarker = new ProfilerMarker("CustomAnimationCurve Evaluate " + typeof(T));
 		private readonly ProfilerMarker _interpolationMarker = new ProfilerMarker("CustomAnimationCurve Interpolate " + typeof(T));
-
-		public string Serialize(ISerializer serializer)
-		{
-			return JsonConvert.SerializeObject(_keyframes);
-		}
-
-		public void Deserialize(ISerializer serializer, string data)
-		{
-			_keyframes = JsonConvert.DeserializeObject<List<ICustomKeyframe<T>>>(data);
-		}
-
+		
 		public IEnumerable<ICustomKeyframe> Keyframes => _keyframes;
 
 		public T Interpolate(T v0, T v1, float t)

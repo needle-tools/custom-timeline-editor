@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
+using Needle.Timeline.Serialization;
 using Unity.Profiling;
 using UnityEditor;
 using UnityEngine;
@@ -107,8 +108,10 @@ namespace Needle.Timeline
 							(float)5
 						)
 					});
-				// var json = curve.Serialize(null);
-				// Debug.Log(json);
+
+				var ser = new JsonSerializer();
+				var json = ser.Serialize(curve);
+				Debug.Log(json);
 			}
 			else if (data.Member == typeof(ComputeBuffer))
 			{

@@ -1,13 +1,10 @@
-﻿namespace Needle.Timeline
+﻿using System;
+
+namespace Needle.Timeline
 {
 	public interface ISerializer
 	{
-		
-	}
-	
-	public interface ISerializable
-	{
-		string Serialize(ISerializer serializer);
-		void Deserialize(ISerializer serializer, string data);
+		object Serialize(object obj);
+		object Deserialize(Type type, object value);
 	}
 }
