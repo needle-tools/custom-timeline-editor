@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -96,22 +97,36 @@ namespace Needle.Timeline
 			}
 			else if (data.MemberType == typeof(List<Vector3>))
 			{
-				curve = new CustomAnimationCurve<List<Vector3>>(new ListInterpolator(),
-					new List<ICustomKeyframe<List<Vector3>>>()
-					{
-						new CustomKeyframe<List<Vector3>>(
-							new List<Vector3>() { Vector3.zero },
-							(float)0
-						),
-						new CustomKeyframe<List<Vector3>>(
-							GetPointsList(100),
-							(float)5
-						)
-					});
-
 				var ser = new JsonSerializer();
-				var json = ser.Serialize(curve);
-				Debug.Log(json);
+				var content = SaveUtil.Load("test");
+				if (content != null)
+				{
+					Debug.Log("Need to add keyframe converter");
+					var type = typeof(CustomAnimationCurve<>).MakeGenericType(data.MemberType);
+					curve = ser.Deserialize(content, type) as ICustomClip; 
+				}
+
+				if (curve == null)
+				{
+					curve = new CustomAnimationCurve<List<Vector3>>(new ListInterpolator(),
+						new List<ICustomKeyframe<List<Vector3>>>()
+						{
+							new CustomKeyframe<List<Vector3>>(
+								new List<Vector3>() { Vector3.zero },
+								(float)0
+							),
+							new CustomKeyframe<List<Vector3>>(
+								GetPointsList(100),
+								(float)5
+							)
+						});
+
+					var json = (string)ser.Serialize(curve);
+					SaveUtil.Save("test", json);
+					json = SaveUtil.Load("test");
+					Debug.Log("Loaded: " + json);
+					curve = ser.Deserialize<CustomAnimationCurve<List<Vector3>>>(json);
+				}
 			}
 			else if (data.Member == typeof(ComputeBuffer))
 			{

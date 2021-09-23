@@ -28,7 +28,12 @@ namespace Needle.Timeline.Serialization
 			return JsonConvert.SerializeObject(obj, Settings);
 		}
 
-		public object Deserialize(Type type, object value)
+		public T Deserialize<T>(object value)
+		{
+			return JsonConvert.DeserializeObject<T>((string)value, Settings);
+		}
+
+		public object Deserialize(object value, Type type)
 		{
 			return JsonConvert.DeserializeObject((string)value, type, Settings);
 		}
