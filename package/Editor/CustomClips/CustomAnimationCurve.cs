@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using Unity.Profiling;
+using UnityEngine;
 
 namespace Needle.Timeline
 {
@@ -12,6 +13,7 @@ namespace Needle.Timeline
 		private readonly ProfilerMarker _evaluateMarker = new ProfilerMarker("CustomAnimationCurve Evaluate " + typeof(T));
 		private readonly ProfilerMarker _interpolationMarker = new ProfilerMarker("CustomAnimationCurve Interpolate " + typeof(T));
 
+		public string Name { get; set; }
 
 		public IInterpolator Interpolator
 		{
@@ -36,14 +38,24 @@ namespace Needle.Timeline
 			return Interpolate((T)v0, (T)v1, t);
 		}
 
-		public CustomAnimationCurve(IInterpolator<T> interpolator, List<ICustomKeyframe<T>> keyframes = null)
+		public CustomAnimationCurve(string name, IInterpolator<T> interpolator, List<ICustomKeyframe<T>> keyframes = null)
 		{
+			this.Name = name;
 			this._interpolator = interpolator;
 			this._keyframes = keyframes ?? new List<ICustomKeyframe<T>>();
 		}
 
+
 		public T Evaluate(float time)
 		{
+			if (!didRegisterKeyframeEvents) RegisterKeyframeEvents();
+			
+			if (keyframesTimeChanged)
+			{
+				keyframesTimeChanged = false;
+				_keyframes.Sort((k1, k2) => Mathf.RoundToInt((k1.time - k2.time) * 100_00));
+			}
+			
 			using (_evaluateMarker.Auto())
 			{
 				for (var index = 0; index < _keyframes.Count; index++)
@@ -78,6 +90,26 @@ namespace Needle.Timeline
 			return Evaluate(time);
 		}
 
+		private bool keyframesTimeChanged;
+		private bool didRegisterKeyframeEvents;
+
+		private void RegisterKeyframeEvents()
+		{
+			didRegisterKeyframeEvents = true;
+			foreach (var kf in _keyframes)
+				RegisterKeyframeEvents(kf);
+		}
+
+		private void RegisterKeyframeEvents(ICustomKeyframe kf)
+		{
+			kf.TimeChanged -= OnKeyframeTimeChanged;
+			kf.TimeChanged += OnKeyframeTimeChanged;
+		}
+
+		private void OnKeyframeTimeChanged()
+		{
+			keyframesTimeChanged = true;
+		}
 
 		private static float GetPosition(float current, float start, float end)
 		{

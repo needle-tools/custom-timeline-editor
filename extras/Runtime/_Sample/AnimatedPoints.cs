@@ -11,6 +11,9 @@ namespace _Sample._Sample
 	{
 		[Animate, NonSerialized]
 		public List<Vector3> points = new List<Vector3>(); 
+		
+		[Animate, NonSerialized]
+		public List<Vector3> list = new List<Vector3>(); 
 
 		public int pointsCount;
 

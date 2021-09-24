@@ -1,4 +1,5 @@
 ﻿using UnityEditor;
+using UnityEditorInternal;
 using UnityEngine;
 
 namespace Needle.Timeline
@@ -8,7 +9,7 @@ namespace Needle.Timeline
 		internal static KeyframeInspectorHelper _instance;
 		private static UnityEditor.Editor _editor;
 
-		public static bool Select(ICustomKeyframe keyframe)
+		public static bool Select(string name, ICustomKeyframe keyframe)
 		{
 			if (keyframe == null) return false;
 			if (!_instance)
@@ -18,8 +19,9 @@ namespace Needle.Timeline
 			}
 
 			if (_instance.keyframe == keyframe) return true;
+			_instance.name = "Keyframe";
+			_instance.fieldName = name;
 			_instance.keyframe = keyframe;
-			_instance.name = "Keyframe " + keyframe.time.ToString("0.00");
 			var wasSelected = Selection.activeObject = _instance;
 			Selection.activeObject = _instance;
 			UnityEditor.Editor.CreateCachedEditor(_instance, typeof(KeyframeInspectorHelperEditor), ref _editor);
@@ -28,6 +30,8 @@ namespace Needle.Timeline
 			return true;
 		}
 
+		internal string fieldName;
+		internal ICustomClip clip;
 		internal ICustomKeyframe keyframe;
 	}
 		

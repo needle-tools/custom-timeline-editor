@@ -8,6 +8,7 @@ namespace Needle.Timeline
 {
 	public interface ICustomClip : IInterpolator
 	{
+		string Name { get; set; }
 		object Evaluate(float time);
 	}
 

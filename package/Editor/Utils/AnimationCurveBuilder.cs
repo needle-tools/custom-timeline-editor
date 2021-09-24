@@ -77,6 +77,7 @@ namespace Needle.Timeline
 		{
 			if (attribute == null) return CreationResult.NotMarked;
 
+			var name = data.Member.Name;
 			ICustomClip curve = default;
 
 			if (Interpolators.TryFindInterpolator(attribute, data.MemberType, out var interpolator))
@@ -87,7 +88,7 @@ namespace Needle.Timeline
 			if (data.MemberType == typeof(string))
 			{
 				// Debug.Log("Create string");
-				curve = new CustomAnimationCurve<string>(new StringInterpolator(),
+				curve = new CustomAnimationCurve<string>(name, new StringInterpolator(),
 					new List<ICustomKeyframe<string>>()
 					{
 						new CustomKeyframe<string>("Hello", 0),
@@ -103,12 +104,16 @@ namespace Needle.Timeline
 				{
 					var type = typeof(CustomAnimationCurve<>).MakeGenericType(data.MemberType);
 					curve = ser.Deserialize(content, type) as ICustomClip;
-					if (curve is IHasInterpolator i) i.Interpolator = new ListInterpolator();
+					if (curve != null)
+					{
+						curve.Name = name;
+						if (curve is IHasInterpolator i) i.Interpolator = new ListInterpolator();
+					}
 				}
 
 				if (curve == null)
 				{
-					curve = new CustomAnimationCurve<List<Vector3>>(new ListInterpolator(),
+					curve = new CustomAnimationCurve<List<Vector3>>(name, new ListInterpolator(),
 						new List<ICustomKeyframe<List<Vector3>>>()
 						{
 							new CustomKeyframe<List<Vector3>>(
@@ -130,7 +135,7 @@ namespace Needle.Timeline
 			}
 			else if (data.Member == typeof(ComputeBuffer))
 			{
-				curve = new CustomAnimationCurve<ComputeBuffer>(new ComputeBufferInterpolator(typeof(float)));
+				curve = new CustomAnimationCurve<ComputeBuffer>(name, new ComputeBufferInterpolator(typeof(float)));
 			}
 			else return CreationResult.Failed;
 

@@ -1,15 +1,10 @@
-﻿using System.Linq;
-using System.Net.Configuration;
-using NUnit.Framework;
-using UnityEditor;
-using UnityEditor.Timeline;
+﻿using UnityEditor.Timeline;
 using UnityEngine;
-using UnityEngine.Assertions.Must;
 
 namespace Needle.Timeline
 {
 	[CustomTimelineEditor(typeof(CodeControlTrack))]
-	public class CodeControlCustomCurvesEditor : CustomCurvesEditor
+	public class CustomCurvesEditor : UnityEditor.Timeline.CustomCurvesEditor
 	{
 		protected override void OnDrawHeader(Rect rect)
 		{
@@ -19,9 +14,6 @@ namespace Needle.Timeline
 		private UnityEditor.Editor ed;
 		protected override void OnDrawTrack(Rect rect)
 		{
-			// GUI.Label(rect, "Custom track");
-			// GUI.DrawTexture(GetRangeRect(rect.y + rect.height - 2, 2), Texture2D.redTexture, ScaleMode.StretchToFill, false);
-
 			foreach (var clip in EnumerateClips())
 			{
 				if (clip.asset is CodeControlAsset code)
@@ -36,7 +28,6 @@ namespace Needle.Timeline
 							{
 								foreach (var kf in prov.Keyframes)
 								{
-									// Debug.Log(clip.start.ToString("0.0") + ": " + kf.time.ToString("0.0"));
 									var r = new Rect();
 									r.x = TimeToPixel(clip.start + kf.time / clip.timeScale);
 									r.width = 8;
@@ -56,7 +47,7 @@ namespace Needle.Timeline
 										{
 											// Debug.Log("Select " + kf.time);
 											Event.current.Use();
-											KeyframeInspectorHelper.Select(kf);
+											KeyframeInspectorHelper.Select(curves.Name, kf);
 										}
 									}
 								}

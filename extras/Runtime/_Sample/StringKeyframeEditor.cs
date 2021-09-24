@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿#if UNITY_EDITOR
+using System.Collections.Generic;
 using Needle.Timeline;
 using UnityEditor;
 using UnityEngine;
@@ -6,7 +7,7 @@ using UnityEngine;
 namespace _Sample._Sample
 {
 	[CustomKeyframeEditor(typeof(ICustomKeyframe<List<Vector3>>))]
-	public class PointsListKeyframeEditor : CustomTimelineEditor
+	public class PointsListKeyframeEditor : CustomKeyframeEditorBase
 	{
 		public override void OnInspectorGUI()
 		{
@@ -20,7 +21,7 @@ namespace _Sample._Sample
 	}
 	
 	[CustomKeyframeEditor(typeof(ICustomKeyframe<string>))]
-	public class StringKeyframeEditor : CustomTimelineEditor
+	public class StringKeyframeEditor : CustomKeyframeEditorBase
 	{
 		public override void OnInspectorGUI()
 		{
@@ -33,3 +34,4 @@ namespace _Sample._Sample
 		}
 	}
 }
+#endif

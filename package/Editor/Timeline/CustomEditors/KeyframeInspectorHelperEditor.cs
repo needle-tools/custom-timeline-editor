@@ -30,27 +30,28 @@ namespace Needle.Timeline
 			{
 				if (_customEditor != null)
 				{
+					_customEditor.Name = helper.fieldName;
 					_customEditor.Target = helper.keyframe;
 					_customEditor.OnInspectorGUI();
 				}
 				else
 				{
-					CustomTimelineEditor.DrawDefaultInspector(helper.keyframe);
+					CustomKeyframeEditorBase.DrawDefaultInspector(helper.fieldName, helper.keyframe);
 				}
 			}
 		}
 
-		private CustomTimelineEditor _customEditor;
+		private CustomKeyframeEditorBase _customEditor;
 
-		private static readonly Dictionary<Type, CustomTimelineEditor> _customEditorsCache
-			= new Dictionary<Type, CustomTimelineEditor>();
+		private static readonly Dictionary<Type, CustomKeyframeEditorBase> _customEditorsCache
+			= new Dictionary<Type, CustomKeyframeEditorBase>();
 
 		private bool TryFindEditorWith(ICustomKeyframe currentKeyframe)
 		{
 			var keyframeType = currentKeyframe.GetType();
 			if (!_customEditorsCache.TryGetValue(keyframeType, out var existing))
 			{
-				var editorType = typeof(CustomTimelineEditor);
+				var editorType = typeof(CustomKeyframeEditorBase);
 				var types = TypeCache.GetTypesWithAttribute<CustomKeyframeEditorAttribute>();
 				foreach (var type in types)
 				{
@@ -59,7 +60,7 @@ namespace Needle.Timeline
 					{
 						if (att.Type.IsAssignableFrom(keyframeType))
 						{
-							var editor = Activator.CreateInstance(type) as CustomTimelineEditor;
+							var editor = Activator.CreateInstance(type) as CustomKeyframeEditorBase;
 							_customEditorsCache.Add(keyframeType, editor);
 							_customEditor = editor;
 							return _customEditor != null;

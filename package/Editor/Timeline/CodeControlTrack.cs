@@ -29,6 +29,7 @@ namespace Needle.Timeline
 
 		protected override void OnBeforeTrackSerialize()
 		{
+			Debug.Log("TODO: save state");
 			base.OnBeforeTrackSerialize();
 		}
 
@@ -64,6 +65,8 @@ namespace Needle.Timeline
 
 				var asset = timelineClip.asset as CodeControlAsset;
 				if (!asset) throw new NullReferenceException("Missing code control asset");
+				
+				Debug.Log("Create " + asset);
 
 				var animationComponents = boundObject.GetComponents<IAnimated>();
 				if (animationComponents.Length <= 0) return Playable.Null;

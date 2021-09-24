@@ -3,20 +3,22 @@ using UnityEngine;
 
 namespace Needle.Timeline
 {
-	public abstract class CustomTimelineEditor
+	public abstract class CustomKeyframeEditorBase
 	{
+		public string Name { get; internal set; }
 		public object Target { get; internal set; }
 		
 		public virtual void OnInspectorGUI()
 		{
-			DrawDefaultInspector(Target);
+			DrawDefaultInspector(Name, Target);
 		}
 
-		internal static void DrawDefaultInspector(object obj)
+		internal static void DrawDefaultInspector(string name, object obj)
 		{
 			if (obj is ICustomKeyframe kf)
 			{
-				EditorGUILayout.LabelField(kf.time.ToString("0.00"));
+				EditorGUILayout.LabelField(name);
+				kf.time = EditorGUILayout.FloatField("Time", kf.time);
 				var valStr = kf.value?.ToString() ?? "null"; 
 				EditorGUILayout.LabelField(new GUIContent(valStr, valStr));
 				// TypeCache.GetTypesWithAttribute<>()

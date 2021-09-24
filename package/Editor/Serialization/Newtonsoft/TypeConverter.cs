@@ -20,7 +20,7 @@ namespace Needle.Timeline.Serialization
 		public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, Newtonsoft.Json.JsonSerializer serializer)
 		{
 			var type = typeof(CustomKeyframe<>).MakeGenericType(objectType.GenericTypeArguments);
-			return serializer.Deserialize(reader, type);
+			return serializer.Deserialize(reader, type); 
 		}
 	}
 }

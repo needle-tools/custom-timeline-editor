@@ -4,16 +4,18 @@ using UnityEngine;
 
 namespace Needle.Timeline
 {
-	public readonly struct AnimationCurveWrapper : ICustomClip<float>
+	public struct AnimationCurveWrapper : ICustomClip<float>
 	{
 		private readonly Func<AnimationCurve> curve;
-		private readonly string m_Name;
+		
+		public string Name { get; set; }
 		
 		public AnimationCurveWrapper(Func<AnimationCurve> curve, string name)
 		{
 			this.curve = curve;
-			m_Name = name;
+			Name = name;
 		}
+
 
 		public float Evaluate(float time)
 		{

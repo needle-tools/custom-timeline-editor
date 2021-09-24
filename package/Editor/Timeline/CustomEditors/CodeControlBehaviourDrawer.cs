@@ -6,7 +6,6 @@ namespace Needle.Timeline
 	[CustomPropertyDrawer(typeof(CodeControlAsset))]
 	public class CodeControlBehaviourDrawer : PropertyDrawer
 	{
-		 
 		public override float GetPropertyHeight (SerializedProperty property, GUIContent label)
 		{
 			int fieldCount = 1;
