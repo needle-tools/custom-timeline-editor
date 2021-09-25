@@ -90,8 +90,20 @@ namespace Needle.Timeline
 			if (kf == null || kf.value == null || !(kf is ICustomKeyframe<T> keyframe))
 				return false;
 			_keyframes.Add(keyframe);
+			RegisterKeyframeEvents(keyframe);
 			Changed?.Invoke();
 			return true;
+		}
+
+		public void Remove(ICustomKeyframe kf)
+		{
+			if (kf == null || kf.value == null || !(kf is ICustomKeyframe<T> keyframe))
+				return;
+			if (_keyframes.Remove(keyframe))
+			{
+				UnregisterKeyframeEvents(keyframe);
+				Changed?.Invoke();
+			}
 		}
 
 		public event Action Changed;
@@ -113,14 +125,19 @@ namespace Needle.Timeline
 
 		private void RegisterKeyframeEvents(ICustomKeyframe kf)
 		{
-			kf.TimeChanged -= OnKeyframeTimeChanged;
 			kf.TimeChanged += OnKeyframeTimeChanged;
-			kf.ValueChanged -= OnKeyframeValueChanged;
 			kf.ValueChanged += OnKeyframeValueChanged;
+		}
+
+		private void UnregisterKeyframeEvents(ICustomKeyframe kf)
+		{
+			kf.TimeChanged -= OnKeyframeTimeChanged;
+			kf.ValueChanged -= OnKeyframeValueChanged;
 		}
 
 		private void OnKeyframeValueChanged()
 		{
+			Debug.Log("Keyframe changed");
 			Changed?.Invoke();
 		}
 

@@ -51,7 +51,7 @@ namespace Needle.Timeline
 		{
 			var useEvent = false;
 			var clickedKeyframe = false;
-			var isClick = Event.current.type == EventType.KeyUp;
+			var isClick = Event.current.type == EventType.MouseUp;
 			foreach (var clip in EnumerateClips())
 			{
 				if (clip.asset is CodeControlAsset code)
@@ -81,7 +81,7 @@ namespace Needle.Timeline
 										1, col, 0, 4);
 									#endregion
 
-									if (Event.current.button == 0)
+									if (Event.current.button == 0 || Event.current.isKey)
 									{
 										switch (Event.current.type)
 										{
@@ -115,6 +115,18 @@ namespace Needle.Timeline
 													kf.Select(curves);
 												}
 
+												break;
+											
+											case EventType.KeyDown:
+												var delete = Event.current.keyCode == KeyCode.Delete;
+												if (delete && kf.IsSelected())
+												{
+													Debug.Log("DELETE");
+													curves.Remove(kf);
+													Repaint();
+													UpdatePreview();
+													return;
+												}
 												break;
 										}
 									}

@@ -8,7 +8,15 @@ namespace Needle.Timeline
 	public class DrawPointsTool : CustomClipToolBase
 	{
 		private List<Vector3> currentList;
-		
+		private ICustomKeyframe keyframe;
+
+		public override void OnActivated()
+		{
+			base.OnActivated();
+			currentList = null;
+			keyframe = null;
+		}
+
 		protected override void OnToolGUI()
 		{
 			// var pos = GetCurrentMousePositionInScene();
@@ -25,16 +33,18 @@ namespace Needle.Timeline
 							if (currentList == null)
 							{
 								currentList = new List<Vector3>() { Vector3.zero };
-								pointsClip.Add(new CustomKeyframe<List<Vector3>>(currentList, (float)CurrentTime));
+								keyframe = new CustomKeyframe<List<Vector3>>(currentList, (float)CurrentTime);
+								pointsClip.Add(keyframe);
 							}
 						}
-						UseEvent();
+						UseEvent(); 
 						break;
 						
 					case EventType.MouseDrag:
 						if (currentList != null)
 						{
 							currentList.Add(Random.insideUnitSphere + pos);
+							keyframe.RaiseValueChangedEvent();
 							UseEvent();
 						}
 						break;

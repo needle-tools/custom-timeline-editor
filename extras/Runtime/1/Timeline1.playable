@@ -45,7 +45,7 @@ MonoBehaviour:
   - m_Version: 1
     m_Start: 0
     m_ClipIn: 0
-    m_Asset: {fileID: 8469510165854301362}
+    m_Asset: {fileID: 7984741650846536449}
     m_Duration: 5
     m_TimeScale: 1
     m_ParentTrack: {fileID: 1299525714294156642}
@@ -104,7 +104,7 @@ MonoBehaviour:
     m_BlendInCurveMode: 0
     m_BlendOutCurveMode: 0
     m_ExposedParameterNames: []
-    m_AnimationCurves: {fileID: 7280480613854085375}
+    m_AnimationCurves: {fileID: 8590354600050457229}
     m_Recordable: 0
     m_PostExtrapolationMode: 0
     m_PreExtrapolationMode: 0
@@ -113,11 +113,25 @@ MonoBehaviour:
     m_DisplayName: Code Track
   m_Markers:
     m_Objects: []
-  dirtyCount: 1489
+  dirtyCount: 2071
   clips:
   - id: 8b9ba6d584bac124f8d46aab450c96df@8469510165854301362
-    clip: {fileID: 7280480613854085375}
---- !u!74 &7280480613854085375
+    clip: {fileID: 0}
+  - id: 8b9ba6d584bac124f8d46aab450c96df@7984741650846536449
+    clip: {fileID: 8590354600050457229}
+--- !u!114 &7984741650846536449
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 48f060644c554507a7ce922fce767b2e, type: 3}
+  m_Name: CodeControlAsset
+  m_EditorClassIdentifier: 
+--- !u!74 &8590354600050457229
 AnimationClip:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -138,14 +152,14 @@ AnimationClip:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
-        time: 0
+        time: 3.7166667
         value: 0.2
         inSlope: 0
         outSlope: 0
         tangentMode: 136
         weightedMode: 0
-        inWeight: 0.33333334
-        outWeight: 0.33333334
+        inWeight: 0
+        outWeight: 0
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
@@ -167,7 +181,7 @@ AnimationClip:
     m_AdditiveReferencePoseClip: {fileID: 0}
     m_AdditiveReferencePoseTime: 0
     m_StartTime: 0
-    m_StopTime: 0
+    m_StopTime: 3.7166667
     m_OrientationOffsetY: 0
     m_Level: 0
     m_CycleOffset: 0
@@ -187,14 +201,14 @@ AnimationClip:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
-        time: 0
+        time: 3.7166667
         value: 0.2
         inSlope: 0
         outSlope: 0
         tangentMode: 136
         weightedMode: 0
-        inWeight: 0.33333334
-        outWeight: 0.33333334
+        inWeight: 0
+        outWeight: 0
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
@@ -206,15 +220,3 @@ AnimationClip:
   m_HasGenericRootTransform: 0
   m_HasMotionFloatCurves: 0
   m_Events: []
---- !u!114 &8469510165854301362
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 48f060644c554507a7ce922fce767b2e, type: 3}
-  m_Name: CodeControlAsset
-  m_EditorClassIdentifier: 

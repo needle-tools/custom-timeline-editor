@@ -30,6 +30,11 @@ namespace Needle.Timeline
 			return false;
 		}
 
+		public void Remove(ICustomKeyframe kf)
+		{
+			
+		}
+
 		public event Action Changed;
 
 		object ICustomClip.Evaluate(float time)

@@ -1,4 +1,5 @@
 ﻿using System;
+using UnityEngine;
 
 namespace Needle.Timeline
 {
@@ -7,6 +8,7 @@ namespace Needle.Timeline
 		object value { get; set; }
 		float time { get; set; }
 		event Action TimeChanged, ValueChanged;
+		void RaiseValueChangedEvent();
 	}
 	
 	public interface ICustomKeyframe<T> : ICustomKeyframe
@@ -18,6 +20,7 @@ namespace Needle.Timeline
 	{
 		private float time1;
 		private T value1;
+		private int lastHash;
 
 		object ICustomKeyframe.value
 		{
@@ -53,6 +56,11 @@ namespace Needle.Timeline
 
 		public event Action TimeChanged;
 		public event Action ValueChanged;
+		
+		public void RaiseValueChangedEvent()
+		{
+			ValueChanged?.Invoke();
+		}
 
 		public CustomKeyframe(T value, float time)
 		{
