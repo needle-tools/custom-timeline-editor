@@ -17,8 +17,7 @@ namespace Needle.Timeline
 				_instance = CreateInstance<KeyframeInspectorHelper>();
 				_instance.hideFlags = HideFlags.DontSaveInEditor | HideFlags.DontSaveInBuild;
 			}
-
-			if (_instance.keyframe == keyframe) return true;
+			
 			_instance.name = "Keyframe";
 			_instance.fieldName = name;
 			_instance.keyframe = keyframe;
@@ -30,10 +29,10 @@ namespace Needle.Timeline
 			return true;
 		}
 
-		public static void Deselect(ICustomKeyframe keyframe)
+		public static void Deselect(ICustomKeyframe keyframe = null)
 		{
-			if (keyframe == null || !_instance) return;
-			if (_instance.keyframe == keyframe)
+			if (!_instance) return;
+			if (keyframe == null || _instance.keyframe == keyframe)
 			{
 				_instance.keyframe = null;
 				if (Selection.activeObject == _instance)

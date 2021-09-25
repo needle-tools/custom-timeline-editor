@@ -64,7 +64,7 @@ namespace _Sample._Sample
 			{ 
 				var pt = points[index];
 				Gizmos.DrawLine(pt, pt + size);
-				Gizmos.DrawWireCube(pt, Vector3.one * .1f * gizmoSizeFactor);
+				Gizmos.DrawSphere(pt, .1f * gizmoSizeFactor);
 			}
 		}
 	}

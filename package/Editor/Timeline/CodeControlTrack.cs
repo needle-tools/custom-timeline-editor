@@ -35,7 +35,7 @@ namespace Needle.Timeline
 		// 	base.OnAfterTrackDeserialize();
 		// }
 
-		internal void SaveCustomClips()
+		internal void Save()
 		{
 			var baseId = GetHashCode().ToString(); 
 			var ser = new JsonSerializer();
@@ -50,21 +50,20 @@ namespace Needle.Timeline
 				}
 			}
 		}
-
-		[SerializeField]
-		internal int dirtyCount;
 		
-		[SerializeField] private List<ClipInfoModel> clips = new List<ClipInfoModel>();
+		internal const bool IsUsingMixer = true;
+
+		[SerializeField, HideInInspector] internal int dirtyCount;
+		[SerializeField, HideInInspector] private List<ClipInfoModel> clips = new List<ClipInfoModel>();
 		[NonSerialized] private readonly List<ClipInfoViewModel> viewModels = new List<ClipInfoViewModel>();
-		internal static readonly bool IsUsingMixer = true;
+
+		internal IReadOnlyList<ClipInfoViewModel> ViewModels => viewModels;
 
 		public bool CanDraw() => true;
 
 		public override Playable CreateTrackMixer(PlayableGraph graph, GameObject go, int inputCount)
 		{
-			if (IsUsingMixer)
-				return ScriptPlayable<CodeControlTrackMixer>.Create(graph, inputCount);
-			return Playable.Null;
+			return ScriptPlayable<CodeControlTrackMixer>.Create(graph, inputCount);
 		}
 
 		private static ProfilerMarker CreateTrackMarker = new ProfilerMarker("Create Playable Track");
@@ -111,6 +110,7 @@ namespace Needle.Timeline
 					timelineClip.displayName = "Code Track";
 
 					var viewModel = existing ?? new ClipInfoViewModel(model);
+					viewModel.director = dir;
 					viewModel.startTime = timelineClip.start;
 					viewModel.endTime = timelineClip.end;
 					viewModel.timeScale = timelineClip.timeScale;

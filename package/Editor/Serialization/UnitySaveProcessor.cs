@@ -16,7 +16,7 @@ namespace Needle.Timeline.Serialization
 					Debug.Log("Track changed: " + ch);
 					foreach (var track in list)
 					{
-						track.SaveCustomClips();
+						track.Save();
 					}
 				}
 				else Debug.Log(ch);
