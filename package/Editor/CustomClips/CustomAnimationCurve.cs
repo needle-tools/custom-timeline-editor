@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 using Unity.Profiling;
 using UnityEngine;
 
@@ -14,6 +15,7 @@ namespace Needle.Timeline
 
 		public string Name { get; set; }
 		
+		[JsonIgnore]
 		public IInterpolator Interpolator
 		{
 			get => (IInterpolator)_interpolator;
@@ -88,8 +90,11 @@ namespace Needle.Timeline
 			if (kf == null || kf.value == null || !(kf is ICustomKeyframe<T> keyframe))
 				return false;
 			_keyframes.Add(keyframe);
+			Changed?.Invoke();
 			return true;
 		}
+
+		public event Action Changed;
 
 		object ICustomClip.Evaluate(float time)
 		{
@@ -115,6 +120,7 @@ namespace Needle.Timeline
 		private void OnKeyframeTimeChanged()
 		{
 			keyframesTimeChanged = true;
+			Changed?.Invoke();
 		}
 
 		private static float GetPosition(float current, float start, float end)

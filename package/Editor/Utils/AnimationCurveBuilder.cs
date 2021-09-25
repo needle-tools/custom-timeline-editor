@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -27,9 +26,9 @@ namespace Needle.Timeline
 			public readonly string Path;
 			public readonly MemberInfo Member;
 			public readonly Type MemberType;
+			public readonly PlayableAsset Asset;
 
 			public Data(
-				string id,
 				CodeControlTrack track,
 				PlayableDirector director,
 				ClipInfoViewModel viewModel,
@@ -38,9 +37,11 @@ namespace Needle.Timeline
 				TimelineClip timelineClip,
 				string path,
 				MemberInfo member,
-				Type memberType)
+				Type memberType,
+				PlayableAsset asset
+			)
 			{
-				this.Id = id;
+				this.Id = track.GetHashCode() + "-" + member.Name;
 				Track = track;
 				Director = director;
 				ViewModel = viewModel;
@@ -50,6 +51,7 @@ namespace Needle.Timeline
 				Path = path;
 				Member = member;
 				MemberType = memberType;
+				this.Asset = asset;
 			}
 		}
 
@@ -70,29 +72,33 @@ namespace Needle.Timeline
 				var attribute = data.Member.GetCustomAttribute<AnimateAttribute>();
 				var res = CreateAnimationCurve(attribute, data);
 				if (res == CreationResult.Successful) return res;
-
-				res = CreateCustomAnimationCurve(attribute, data);
-
+				
+				res = CreateCustomAnimationCurve(attribute, data, out var clip);
+				if (clip != null) clip.Changed += () =>
+				{
+					EditorUtility.SetDirty(data.Track);
+					data.Track.dirtyCount += 1; 
+				};
 				return res;
 			}
 		}
 
-		private static CreationResult CreateCustomAnimationCurve([CanBeNull] AnimateAttribute attribute, Data data)
+		private static CreationResult CreateCustomAnimationCurve([CanBeNull] AnimateAttribute attribute, Data data, out ICustomClip curve)
 		{
+			curve = default;
 			if (attribute == null) return CreationResult.NotMarked;
 
 			var name = data.Member.Name;
-			ICustomClip curve = default;
 			var ser = new JsonSerializer();
 
-			var type = typeof(CustomAnimationCurve<>).MakeGenericType(data.MemberType);
+			var curveType = typeof(CustomAnimationCurve<>).MakeGenericType(data.MemberType);
 			try
 			{
 				var content = SaveUtil.Load(data.Id);
 				if (content != null)
 				{
 					Debug.Log("Loaded " + data.Id);
-					curve = ser.Deserialize(content, type) as ICustomClip;
+					curve = ser.Deserialize(content, curveType) as ICustomClip;
 				}
 			}
 			catch (Exception e)
@@ -103,7 +109,7 @@ namespace Needle.Timeline
 
 			if (curve == null)
 			{
-				curve = Activator.CreateInstance(type) as ICustomClip;
+				curve = Activator.CreateInstance(curveType) as ICustomClip;
 
 				if(curve != null && data.MemberType == typeof(List<Vector3>))
 				{

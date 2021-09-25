@@ -14,6 +14,7 @@ namespace Needle.Timeline
 		{
 			this.curve = curve;
 			Name = name;
+			Changed = default; 
 		}
 
 
@@ -28,6 +29,8 @@ namespace Needle.Timeline
 		{
 			return false;
 		}
+
+		public event Action Changed;
 
 		object ICustomClip.Evaluate(float time)
 		{

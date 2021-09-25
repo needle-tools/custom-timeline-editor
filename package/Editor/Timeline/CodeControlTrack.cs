@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Needle.Timeline.Serialization;
 using Unity.Profiling;
 using UnityEditor;
 using UnityEditor.Build.Content;
@@ -23,19 +24,34 @@ namespace Needle.Timeline
 	[TrackColor(.2f, .5f, 1f)]
 	public class CodeControlTrack : TrackAsset, ICanDrawInlineCurve
 	{
-		
-		protected override void OnBeforeTrackSerialize()
+		// protected override void OnBeforeTrackSerialize()
+		// {
+		// 	Debug.Log("TODO: save state " + EditorUtility.IsDirty(this)); 
+		// 	base.OnBeforeTrackSerialize();
+		// }
+		//
+		// protected override void OnAfterTrackDeserialize()
+		// {
+		// 	base.OnAfterTrackDeserialize();
+		// }
+
+		internal void SaveCustomClips()
 		{
-			// Debug.Log("TODO: save state");
-			base.OnBeforeTrackSerialize();
+			var id = GetHashCode().ToString(); 
+			var ser = new JsonSerializer();
+			foreach (var viewModel in viewModels)
+			{
+				foreach (var clip in viewModel.clips)
+				{
+					var json = (string)ser.Serialize(clip);
+					SaveUtil.Save(id + "-" + clip.Name, json); 
+					Debug.Log("saved " + id);
+				}
+			}
 		}
 
-		protected override void OnAfterTrackDeserialize()
-		{
-			base.OnAfterTrackDeserialize();
-		}
-
-
+		[SerializeField]
+		internal int dirtyCount;
 		
 		[SerializeField] private List<ClipInfoModel> clips = new List<ClipInfoModel>();
 		[NonSerialized] private readonly List<ClipInfoViewModel> viewModels = new List<ClipInfoViewModel>();
@@ -59,13 +75,16 @@ namespace Needle.Timeline
 			using (CreateTrackMarker.Auto())
 			{
 				var dir = gameObject.GetComponent<PlayableDirector>();
+				var assetPath = AssetDatabase.GetAssetPath(dir.playableAsset);
+				UnitySaveProcessor.Register(this, assetPath);
+				
 				var boundObject = dir.GetGenericBinding(this) as MonoBehaviour;
 				if (!boundObject) return Playable.Null;
 
 				var asset = timelineClip.asset as CodeControlAsset;
 				if (!asset) throw new NullReferenceException("Missing code control asset");
 				
-				Debug.Log("Create " + asset + ", " + viewModels.Count);
+				// Debug.Log("Create " + asset + ", " + viewModels.Count);
 
 				var animationComponents = boundObject.GetComponents<IAnimated>();
 				if (animationComponents.Length <= 0) return Playable.Null;
@@ -104,10 +123,10 @@ namespace Needle.Timeline
 					var path = AnimationUtility.CalculateTransformPath(boundObject.transform, null);
 
 					var fields = type.GetFields(DefaultFlags);
-					foreach (var field in fields)
+					foreach (var field in fields) 
 					{
-						var data = new AnimationCurveBuilder.Data(GetHashCode().ToString(),this, dir, viewModel, type, clipBindings, timelineClip, path,
-							field, field.FieldType);
+						var data = new AnimationCurveBuilder.Data(this, dir, viewModel, type, clipBindings, timelineClip, path,
+							field, field.FieldType, dir.playableAsset);
 						if (AnimationCurveBuilder.Create(data) == AnimationCurveBuilder.CreationResult.Failed)
 							OnFailedCreatingCurves(field.FieldType);
 					}
@@ -115,8 +134,8 @@ namespace Needle.Timeline
 					var properties = type.GetProperties(DefaultFlags);
 					foreach (var prop in properties)
 					{
-						var data = new AnimationCurveBuilder.Data(GetHashCode().ToString(), this, dir, viewModel, type, clipBindings, timelineClip, path,
-							prop, prop.PropertyType);
+						var data = new AnimationCurveBuilder.Data(this, dir, viewModel, type, clipBindings, timelineClip, path,
+							prop, prop.PropertyType, dir.playableAsset);
 						if (AnimationCurveBuilder.Create(data) == AnimationCurveBuilder.CreationResult.Failed)
 							OnFailedCreatingCurves(prop.PropertyType);
 					}

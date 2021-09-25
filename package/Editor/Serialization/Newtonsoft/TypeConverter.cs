@@ -10,7 +10,7 @@ namespace Needle.Timeline.Serialization
 		public override bool CanConvert(Type objectType)
 		{
 			return objectType.IsInterface && typeof(ICustomKeyframe).IsAssignableFrom(objectType);
-		}
+		} 
 		
 		public override void WriteJson(JsonWriter writer, object? value, Newtonsoft.Json.JsonSerializer serializer)
 		{

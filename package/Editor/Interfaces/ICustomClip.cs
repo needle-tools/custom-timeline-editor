@@ -11,6 +11,7 @@ namespace Needle.Timeline
 		string Name { get; set; }
 		object Evaluate(float time);
 		bool Add(ICustomKeyframe kf);
+		event Action Changed;
 	}
 
 	public interface ICustomClip<out T> : ICustomClip
