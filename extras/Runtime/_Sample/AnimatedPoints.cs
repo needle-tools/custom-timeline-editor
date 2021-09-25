@@ -13,7 +13,10 @@ namespace _Sample._Sample
 		public List<Vector3> points = new List<Vector3>(); 
 		
 		[Animate, NonSerialized]
-		public List<Vector3> list = new List<Vector3>(); 
+		public List<Vector3> list = new List<Vector3>();
+
+		[Animate]
+		public float gizmoSizeFactor = 1;
 
 		public int pointsCount;
 
@@ -61,7 +64,7 @@ namespace _Sample._Sample
 			{ 
 				var pt = points[index];
 				Gizmos.DrawLine(pt, pt + size);
-				Gizmos.DrawWireCube(pt, Vector3.one * .1f);
+				Gizmos.DrawWireCube(pt, Vector3.one * .1f * gizmoSizeFactor);
 			}
 		}
 	}

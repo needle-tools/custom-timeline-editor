@@ -1,5 +1,7 @@
-﻿using UnityEditor.Timeline;
+﻿using UnityEditor.Experimental.TerrainAPI;
+using UnityEditor.Timeline;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace Needle.Timeline
 {
@@ -11,7 +13,8 @@ namespace Needle.Timeline
 			GUI.Label(rect, "Custom header");
 		}
 
-		private UnityEditor.Editor ed;
+		private ICustomKeyframe _dragging;
+		
 		protected override void OnDrawTrack(Rect rect)
 		{
 			foreach (var clip in EnumerateClips())
@@ -35,19 +38,41 @@ namespace Needle.Timeline
 									r.height = r.width;
 									r.y = rect.y + r.height;
 									r.y += row * r.height * 1.2f;
-									var highlight = SelectedClip == null || clip == SelectedClip;
-									highlight &= !kf.AnySelected();
-									highlight |= kf.IsSelected();
+									var highlight = kf.IsSelected();
 									var col = highlight ? Color.yellow : Color.gray;
+									col.a = .7f;
 									GUI.DrawTexture(r, Texture2D.whiteTexture, ScaleMode.StretchToFill, true,
 										1, col, 0, 4);
-									if (Event.current.button == 0 && Event.current.type == EventType.MouseDown)
+
+									if (Event.current.button == 0)
 									{
-										if (r.Contains(Event.current.mousePosition))
+										switch (Event.current.type)
 										{
-											// Debug.Log("Select " + kf.time);
-											Event.current.Use();
-											KeyframeInspectorHelper.Select(curves.Name, kf);
+											case EventType.MouseDown:
+												if (r.Contains(Event.current.mousePosition))
+												{
+													Event.current.Use();
+													_dragging = kf;
+												}
+												break;
+											case EventType.MouseDrag:
+												if (_dragging == kf)
+												{
+													var timeDelta = PixelDeltaToDeltaTime(Event.current.delta.x * (float)clip.timeScale);
+													kf.time += timeDelta;
+													Repaint();
+													UpdatePreview();
+												}
+												break;
+											case EventType.MouseUp:
+												_dragging = null;
+												if (r.Contains(Event.current.mousePosition))
+												{
+													Event.current.Use();
+													if(!kf.IsSelected())
+														KeyframeInspectorHelper.Select(curves.Name, kf);
+												}
+												break;
 										}
 									}
 								}

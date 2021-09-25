@@ -23,10 +23,7 @@ namespace Needle.Timeline
 	[TrackColor(.2f, .5f, 1f)]
 	public class CodeControlTrack : TrackAsset, ICanDrawInlineCurve
 	{
-		[SerializeField] private List<ClipInfoModel> clips = new List<ClipInfoModel>();
 		
-		
-
 		protected override void OnBeforeTrackSerialize()
 		{
 			Debug.Log("TODO: save state");
@@ -37,8 +34,10 @@ namespace Needle.Timeline
 		{
 			base.OnAfterTrackDeserialize();
 		}
+
+
 		
-		
+		[SerializeField] private List<ClipInfoModel> clips = new List<ClipInfoModel>();
 		[NonSerialized] private readonly List<ClipInfoViewModel> viewModels = new List<ClipInfoViewModel>();
 		internal static readonly bool IsUsingMixer = true;
 
@@ -66,7 +65,7 @@ namespace Needle.Timeline
 				var asset = timelineClip.asset as CodeControlAsset;
 				if (!asset) throw new NullReferenceException("Missing code control asset");
 				
-				Debug.Log("Create " + asset);
+				Debug.Log("Create " + asset + ", " + viewModels.Count);
 
 				var animationComponents = boundObject.GetComponents<IAnimated>();
 				if (animationComponents.Length <= 0) return Playable.Null;
@@ -88,13 +87,15 @@ namespace Needle.Timeline
 						clips.Add(model);
 					}
 
+					var existing = viewModels.FirstOrDefault(v => v.AnimationClip == timelineClip.curves);
 					timelineClip.displayName = "Code Track";
 
-					var viewModel = new ClipInfoViewModel(model);
+					var viewModel = existing ?? new ClipInfoViewModel(model);
 					viewModel.startTime = timelineClip.start;
 					viewModel.endTime = timelineClip.end;
 					viewModel.timeScale = timelineClip.timeScale;
 					asset.viewModel = viewModel;
+					if (existing != null) continue;
 					viewModels.Add(viewModel);
 
 					var type = anim.GetType();

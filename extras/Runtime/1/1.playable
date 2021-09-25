@@ -1106,7 +1106,7 @@ MonoBehaviour:
   m_Children: []
   m_Clips:
   - m_Version: 1
-    m_Start: 9.066666666666666
+    m_Start: 5.483333333333333
     m_ClipIn: 0
     m_Asset: {fileID: -3597593143731546207}
     m_Duration: 5
@@ -1154,14 +1154,14 @@ MonoBehaviour:
     m_PostExtrapolationMode: 0
     m_PreExtrapolationMode: 0
     m_PostExtrapolationTime: Infinity
-    m_PreExtrapolationTime: 3.0666666666666664
+    m_PreExtrapolationTime: 0.4833333333333334
     m_DisplayName: Code Track
   - m_Version: 1
     m_Start: 0
     m_ClipIn: 0.351
     m_Asset: {fileID: 7484764743721428818}
-    m_Duration: 6
-    m_TimeScale: 1.0000000000000024
+    m_Duration: 5
+    m_TimeScale: 1.2000000000000037
     m_ParentTrack: {fileID: 7563117043417603788}
     m_EaseInDuration: 0
     m_EaseOutDuration: 0
@@ -1193,25 +1193,7 @@ MonoBehaviour:
       m_RotationOrder: 4
     m_MixOutCurve:
       serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      - serializedVersion: 3
-        time: 1
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
+      m_Curve: []
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
@@ -1222,7 +1204,7 @@ MonoBehaviour:
     m_Recordable: 0
     m_PostExtrapolationMode: 0
     m_PreExtrapolationMode: 0
-    m_PostExtrapolationTime: 3.0666666666666664
+    m_PostExtrapolationTime: 0.4833333333333334
     m_PreExtrapolationTime: 0
     m_DisplayName: Code Track
   m_Markers:

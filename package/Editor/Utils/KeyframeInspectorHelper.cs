@@ -30,6 +30,18 @@ namespace Needle.Timeline
 			return true;
 		}
 
+		public static void Deselect(ICustomKeyframe keyframe)
+		{
+			if (keyframe == null || !_instance) return;
+			if (_instance.keyframe == keyframe)
+			{
+				_instance.keyframe = null;
+				if (Selection.activeObject == _instance)
+					Selection.activeObject = null;
+			}
+		}
+
+
 		internal string fieldName;
 		internal ICustomClip clip;
 		internal ICustomKeyframe keyframe;
