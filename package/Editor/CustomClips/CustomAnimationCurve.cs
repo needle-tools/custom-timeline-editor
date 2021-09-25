@@ -115,6 +115,13 @@ namespace Needle.Timeline
 		{
 			kf.TimeChanged -= OnKeyframeTimeChanged;
 			kf.TimeChanged += OnKeyframeTimeChanged;
+			kf.ValueChanged -= OnKeyframeValueChanged;
+			kf.ValueChanged += OnKeyframeValueChanged;
+		}
+
+		private void OnKeyframeValueChanged()
+		{
+			Changed?.Invoke();
 		}
 
 		private void OnKeyframeTimeChanged()

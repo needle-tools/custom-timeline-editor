@@ -37,14 +37,15 @@ namespace Needle.Timeline
 
 		internal void SaveCustomClips()
 		{
-			var id = GetHashCode().ToString(); 
+			var baseId = GetHashCode().ToString(); 
 			var ser = new JsonSerializer();
 			foreach (var viewModel in viewModels)
 			{
 				foreach (var clip in viewModel.clips)
 				{
 					var json = (string)ser.Serialize(clip);
-					SaveUtil.Save(id + "-" + clip.Name, json); 
+					var id = baseId + "-" + clip.Name;
+					SaveUtil.Save(id, json); 
 					Debug.Log("saved " + id);
 				}
 			}

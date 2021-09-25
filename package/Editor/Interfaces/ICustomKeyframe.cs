@@ -6,7 +6,7 @@ namespace Needle.Timeline
 	{
 		object value { get; set; }
 		float time { get; set; }
-		event Action TimeChanged;
+		event Action TimeChanged, ValueChanged;
 	}
 	
 	public interface ICustomKeyframe<T> : ICustomKeyframe
@@ -17,6 +17,7 @@ namespace Needle.Timeline
 	public class CustomKeyframe<T> : ICustomKeyframe<T>
 	{
 		private float time1;
+		private T value1;
 
 		object ICustomKeyframe.value
 		{
@@ -28,7 +29,16 @@ namespace Needle.Timeline
 			}
 		}
 
-		public T value { get; set; }
+		public T value
+		{
+			get => value1;
+			set
+			{
+				if (value == null && value1 == null || (value?.Equals(value1) ?? false)) return;
+				value1 = value;
+				ValueChanged?.Invoke();
+			}
+		}
 
 		public float time
 		{
@@ -42,6 +52,7 @@ namespace Needle.Timeline
 		}
 
 		public event Action TimeChanged;
+		public event Action ValueChanged;
 
 		public CustomKeyframe(T value, float time)
 		{
