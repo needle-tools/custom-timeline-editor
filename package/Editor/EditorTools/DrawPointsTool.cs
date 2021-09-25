@@ -30,7 +30,7 @@ namespace Needle.Timeline
 					case EventType.MouseDown:
 						if (ActiveClip is ICustomClip<List<Vector3>> pointsClip)
 						{
-							if (currentList == null)
+							if (keyframe == null || Mathf.Abs((float)CurrentTime - keyframe.time) > .1f)
 							{
 								currentList = new List<Vector3>() { Vector3.zero };
 								keyframe = new CustomKeyframe<List<Vector3>>(currentList, (float)CurrentTime);
