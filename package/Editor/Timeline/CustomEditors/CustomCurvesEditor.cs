@@ -14,9 +14,10 @@ namespace Needle.Timeline
 		}
 
 		private ICustomKeyframe _dragging;
-		
+
 		protected override void OnDrawTrack(Rect rect)
 		{
+			var useEvent = false;
 			foreach (var clip in EnumerateClips())
 			{
 				if (clip.asset is CodeControlAsset code)
@@ -24,13 +25,14 @@ namespace Needle.Timeline
 					var viewModel = code.viewModel;
 					if (viewModel?.clips != null)
 					{
-						int row = 0;
+						var row = 0;
 						foreach (var curves in viewModel.clips)
 						{
 							if (curves is IKeyframesProvider prov)
 							{
 								foreach (var kf in prov.Keyframes)
 								{
+									#region Draw
 									var r = new Rect();
 									r.x = TimeToPixel(clip.start + kf.time / clip.timeScale);
 									r.width = 8;
@@ -43,6 +45,7 @@ namespace Needle.Timeline
 									col.a = .7f;
 									GUI.DrawTexture(r, Texture2D.whiteTexture, ScaleMode.StretchToFill, true,
 										1, col, 0, 4);
+									#endregion
 
 									if (Event.current.button == 0)
 									{
@@ -51,9 +54,10 @@ namespace Needle.Timeline
 											case EventType.MouseDown:
 												if (r.Contains(Event.current.mousePosition))
 												{
-													Event.current.Use();
+													useEvent = true;
 													_dragging = kf;
 												}
+
 												break;
 											case EventType.MouseDrag:
 												if (_dragging == kf)
@@ -62,16 +66,19 @@ namespace Needle.Timeline
 													kf.time += timeDelta;
 													Repaint();
 													UpdatePreview();
+													useEvent = true;
 												}
+
 												break;
 											case EventType.MouseUp:
 												_dragging = null;
 												if (r.Contains(Event.current.mousePosition))
 												{
-													Event.current.Use();
-													if(!kf.IsSelected())
+													useEvent = true;
+													if (!kf.IsSelected())
 														KeyframeInspectorHelper.Select(curves.Name, kf);
 												}
+
 												break;
 										}
 									}
@@ -83,6 +90,9 @@ namespace Needle.Timeline
 					}
 				}
 			}
+
+			if (useEvent)
+				Event.current.Use();
 		}
 	}
 }
