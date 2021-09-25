@@ -27,7 +27,7 @@ namespace Needle.Timeline
 				return;
 			}
 
-			if (value.GetType() != targetType)
+			if (value?.GetType() != targetType)
 			{
 				value = Convert.ChangeType(value, targetType);
 			}

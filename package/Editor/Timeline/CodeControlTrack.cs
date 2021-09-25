@@ -106,7 +106,7 @@ namespace Needle.Timeline
 					var fields = type.GetFields(DefaultFlags);
 					foreach (var field in fields)
 					{
-						var data = new AnimationCurveBuilder.Data(this, dir, viewModel, type, clipBindings, timelineClip, path,
+						var data = new AnimationCurveBuilder.Data(GetHashCode().ToString(),this, dir, viewModel, type, clipBindings, timelineClip, path,
 							field, field.FieldType);
 						if (AnimationCurveBuilder.Create(data) == AnimationCurveBuilder.CreationResult.Failed)
 							OnFailedCreatingCurves(field.FieldType);
@@ -115,7 +115,7 @@ namespace Needle.Timeline
 					var properties = type.GetProperties(DefaultFlags);
 					foreach (var prop in properties)
 					{
-						var data = new AnimationCurveBuilder.Data(this, dir, viewModel, type, clipBindings, timelineClip, path,
+						var data = new AnimationCurveBuilder.Data(GetHashCode().ToString(), this, dir, viewModel, type, clipBindings, timelineClip, path,
 							prop, prop.PropertyType);
 						if (AnimationCurveBuilder.Create(data) == AnimationCurveBuilder.CreationResult.Failed)
 							OnFailedCreatingCurves(prop.PropertyType);

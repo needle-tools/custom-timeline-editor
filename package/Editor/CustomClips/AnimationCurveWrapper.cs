@@ -24,6 +24,11 @@ namespace Needle.Timeline
 			return res;
 		}
 
+		public bool Add(ICustomKeyframe kf)
+		{
+			return false;
+		}
+
 		object ICustomClip.Evaluate(float time)
 		{
 			return Evaluate(time);

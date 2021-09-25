@@ -30,8 +30,8 @@ namespace _Sample._Sample
 
 		private void Update()
 		{
-			pointsCount = points.Count;
-			if (points.Count <= 0) return;
+			pointsCount = points?.Count ?? 0;
+			if (pointsCount <= 0) return;
 			if (buffer == null || !buffer.IsValid() || buffer.count < points.Count)
 			{
 				if(buffer?.IsValid() ?? false) buffer.Release();
@@ -59,7 +59,7 @@ namespace _Sample._Sample
 		{
 			var size = Vector3.up * .01f;
 			Gizmos.color = Color.yellow;
-			// Gizmos.DrawWireSphere();
+			if (points == null) return;
 			for (var index = 0; index < points.Count; index++) 
 			{ 
 				var pt = points[index];

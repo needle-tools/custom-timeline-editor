@@ -13,7 +13,7 @@ namespace Needle.Timeline
 		private readonly ProfilerMarker _interpolationMarker = new ProfilerMarker("CustomAnimationCurve Interpolate " + typeof(T));
 
 		public string Name { get; set; }
-
+		
 		public IInterpolator Interpolator
 		{
 			get => (IInterpolator)_interpolator;
@@ -35,13 +35,6 @@ namespace Needle.Timeline
 		object IInterpolator.Interpolate(object v0, object v1, float t)
 		{
 			return Interpolate((T)v0, (T)v1, t);
-		}
-
-		public CustomAnimationCurve(string name, IInterpolator<T> interpolator, List<ICustomKeyframe<T>> keyframes = null)
-		{
-			this.Name = name;
-			this._interpolator = interpolator;
-			this._keyframes = keyframes ?? new List<ICustomKeyframe<T>>();
 		}
 
 		public CustomAnimationCurve()
@@ -88,6 +81,14 @@ namespace Needle.Timeline
 
 				return default;
 			}
+		}
+
+		public bool Add(ICustomKeyframe kf)
+		{
+			if (kf == null || kf.value == null || !(kf is ICustomKeyframe<T> keyframe))
+				return false;
+			_keyframes.Add(keyframe);
+			return true;
 		}
 
 		object ICustomClip.Evaluate(float time)

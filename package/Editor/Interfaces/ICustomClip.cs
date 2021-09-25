@@ -10,6 +10,7 @@ namespace Needle.Timeline
 	{
 		string Name { get; set; }
 		object Evaluate(float time);
+		bool Add(ICustomKeyframe kf);
 	}
 
 	public interface ICustomClip<out T> : ICustomClip

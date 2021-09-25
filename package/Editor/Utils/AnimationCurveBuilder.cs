@@ -17,6 +17,7 @@ namespace Needle.Timeline
 	{
 		public readonly struct Data
 		{
+			public readonly string Id;
 			public readonly CodeControlTrack Track;
 			public readonly PlayableDirector Director;
 			public readonly ClipInfoViewModel ViewModel;
@@ -27,7 +28,9 @@ namespace Needle.Timeline
 			public readonly MemberInfo Member;
 			public readonly Type MemberType;
 
-			public Data(CodeControlTrack track,
+			public Data(
+				string id,
+				CodeControlTrack track,
 				PlayableDirector director,
 				ClipInfoViewModel viewModel,
 				Type type,
@@ -37,6 +40,7 @@ namespace Needle.Timeline
 				MemberInfo member,
 				Type memberType)
 			{
+				this.Id = id;
 				Track = track;
 				Director = director;
 				ViewModel = viewModel;
@@ -79,65 +83,48 @@ namespace Needle.Timeline
 
 			var name = data.Member.Name;
 			ICustomClip curve = default;
+			var ser = new JsonSerializer();
 
-			if (Interpolators.TryFindInterpolator(attribute, data.MemberType, out var interpolator))
+			var type = typeof(CustomAnimationCurve<>).MakeGenericType(data.MemberType);
+			try
 			{
-				Debug.Log("Found interpolator " + interpolator + " for " + data.MemberType);
-			}
-			
-			if (data.MemberType == typeof(string))
-			{
-				// Debug.Log("Create string");
-				curve = new CustomAnimationCurve<string>(name, new StringInterpolator(),
-					new List<ICustomKeyframe<string>>()
-					{
-						new CustomKeyframe<string>("Hello", 0),
-						new CustomKeyframe<string>("World", 1),
-						new CustomKeyframe<string>("This is a very long string", 10)
-					});
-			}
-			else if (data.MemberType == typeof(List<Vector3>))
-			{
-				var ser = new JsonSerializer();
-				var content = SaveUtil.Load("test");
+				var content = SaveUtil.Load(data.Id);
 				if (content != null)
 				{
-					var type = typeof(CustomAnimationCurve<>).MakeGenericType(data.MemberType);
+					Debug.Log("Loaded " + data.Id);
 					curve = ser.Deserialize(content, type) as ICustomClip;
-					if (curve != null)
-					{
-						curve.Name = name;
-						if (curve is IHasInterpolator i) i.Interpolator = new ListInterpolator();
-					}
-				}
-
-				if (curve == null)
-				{
-					curve = new CustomAnimationCurve<List<Vector3>>(name, new ListInterpolator(),
-						new List<ICustomKeyframe<List<Vector3>>>()
-						{
-							new CustomKeyframe<List<Vector3>>(
-								new List<Vector3>() { Vector3.zero },
-								(float)0
-							),
-							new CustomKeyframe<List<Vector3>>(
-								GetPointsList(100),
-								(float)5
-							)
-						});
-
-					var json = (string)ser.Serialize(curve);
-					SaveUtil.Save("test", json);
-					json = SaveUtil.Load("test");
-					Debug.Log("Loaded: " + json);
-					curve = ser.Deserialize<CustomAnimationCurve<List<Vector3>>>(json);
 				}
 			}
-			else if (data.Member == typeof(ComputeBuffer))
+			catch (Exception e)
 			{
-				curve = new CustomAnimationCurve<ComputeBuffer>(name, new ComputeBufferInterpolator(typeof(float)));
+				Debug.LogError(data.Member + ", " + data.MemberType);
+				Debug.LogException(e);
 			}
-			else return CreationResult.Failed;
+
+			if (curve == null)
+			{
+				curve = Activator.CreateInstance(type) as ICustomClip;
+
+				if(curve != null && data.MemberType == typeof(List<Vector3>))
+				{
+					curve.Add(new CustomKeyframe<List<Vector3>>(GetPointsList(1), 0));
+					curve.Add(new CustomKeyframe<List<Vector3>>(GetPointsList(100), 2));
+					SaveUtil.Save(data.Id, (string)ser.Serialize(curve));
+				}
+			}
+			
+			if(curve != null)
+			{
+				if (curve is IHasInterpolator i && Interpolators.TryFindInterpolator(attribute, data.MemberType, out var interpolator))
+				{
+					i.Interpolator = interpolator;
+				}
+			}
+			
+			if(curve == null)
+				return CreationResult.Failed;
+
+			curve.Name = name;
 
 			object Resolve() => data.Director.GetGenericBinding(data.Track);
 			var handler = new MemberWrapper(data.Member, Resolve, data.MemberType);
@@ -146,7 +133,7 @@ namespace Needle.Timeline
 		}
 
 
-		private static readonly Type[] animationCurveTypes =
+		private static readonly Type[] animationCurveTypes = 
 		{
 			typeof(float),
 			typeof(int),
