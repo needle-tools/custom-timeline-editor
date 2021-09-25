@@ -62,6 +62,7 @@ namespace Needle.Timeline
 											case EventType.MouseDrag:
 												if (_dragging == kf)
 												{
+													kf.Select(curves);
 													var timeDelta = PixelDeltaToDeltaTime(Event.current.delta.x * (float)clip.timeScale);
 													kf.time += timeDelta;
 													Repaint();
@@ -75,8 +76,7 @@ namespace Needle.Timeline
 												if (r.Contains(Event.current.mousePosition))
 												{
 													useEvent = true;
-													if (!kf.IsSelected())
-														KeyframeInspectorHelper.Select(curves.Name, kf);
+													kf.Select(curves);
 												}
 
 												break;

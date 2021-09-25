@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Newtonsoft.Json;
 using Unity.Profiling;
 using UnityEngine;
 
@@ -9,7 +8,7 @@ namespace Needle.Timeline
 	public class CustomAnimationCurve<T> : ICustomClip<T>, IInterpolator<T>, IKeyframesProvider, IHasInterpolator
 	{
 		private IInterpolator<T> _interpolator;
-		private List<ICustomKeyframe<T>> _keyframes;
+		private readonly List<ICustomKeyframe<T>> _keyframes;
 		private readonly ProfilerMarker _evaluateMarker = new ProfilerMarker("CustomAnimationCurve Evaluate " + typeof(T));
 		private readonly ProfilerMarker _interpolationMarker = new ProfilerMarker("CustomAnimationCurve Interpolate " + typeof(T));
 
@@ -45,6 +44,12 @@ namespace Needle.Timeline
 			this._keyframes = keyframes ?? new List<ICustomKeyframe<T>>();
 		}
 
+		public CustomAnimationCurve()
+		{
+			this.Name = "unnamed";
+			this._interpolator = null;
+			this._keyframes = new List<ICustomKeyframe<T>>();
+		}
 
 		public T Evaluate(float time)
 		{

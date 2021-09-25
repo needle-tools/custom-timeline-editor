@@ -49,6 +49,12 @@ namespace Needle.Timeline
 		
 	public static class KeyframeExtensions
 	{
+		public static bool Select(this ICustomKeyframe kf, ICustomClip owner)
+		{
+			if (kf.IsSelected()) return true;
+			return KeyframeInspectorHelper.Select(owner.Name, kf);
+		}
+		
 		public static bool IsSelected(this ICustomKeyframe kf) => 
 			KeyframeInspectorHelper._instance && KeyframeInspectorHelper._instance.keyframe == kf && 
 			Selection.activeObject == KeyframeInspectorHelper._instance;

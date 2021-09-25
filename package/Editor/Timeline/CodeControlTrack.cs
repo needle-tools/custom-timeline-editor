@@ -26,7 +26,7 @@ namespace Needle.Timeline
 		
 		protected override void OnBeforeTrackSerialize()
 		{
-			Debug.Log("TODO: save state");
+			// Debug.Log("TODO: save state");
 			base.OnBeforeTrackSerialize();
 		}
 

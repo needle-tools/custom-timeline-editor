@@ -82,7 +82,7 @@ namespace Needle.Timeline
 
 			if (Interpolators.TryFindInterpolator(attribute, data.MemberType, out var interpolator))
 			{
-				
+				Debug.Log("Found interpolator " + interpolator + " for " + data.MemberType);
 			}
 			
 			if (data.MemberType == typeof(string))
