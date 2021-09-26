@@ -66,6 +66,7 @@ namespace Needle.Timeline
 		private readonly Color _keySelectedColor = new Color(1, 1, 0, .7f);
 		private readonly Color _normalColor = new Color(.8f, .8f, .8f, .4f);
 		private readonly Color _assetSelectedColor = new Color(.8f, .8f, .8f, .9f);
+		private ICustomKeyframe _copy;
 
 		protected override void OnDrawTrack(Rect rect)
 		{
@@ -99,7 +100,7 @@ namespace Needle.Timeline
 									GUI.DrawTexture(r, Texture2D.whiteTexture, ScaleMode.StretchToFill, true,
 										1, col, 0, 4);
 									#endregion
-
+									
 									if (Event.current.button == 0 || Event.current.isKey)
 									{
 										switch (Event.current.type)
@@ -146,14 +147,41 @@ namespace Needle.Timeline
 												break;
 											
 											case EventType.KeyDown:
-												var delete = Event.current.keyCode == KeyCode.Delete;
-												if (delete && kf.IsSelected())
+												if (kf.IsSelected())
 												{
-													Debug.Log("DELETE");
-													curves.Remove(kf);
-													Repaint();
-													UpdatePreview();
-													return;
+													switch (Event.current.keyCode)
+													{
+														case KeyCode.Delete:
+															curves.Remove(kf);
+															Repaint();
+															UpdatePreview();
+															return;
+														
+														case KeyCode.C:
+															if ((Event.current.modifiers & EventModifiers.Control) != 0)
+															{
+																_copy = kf;
+															}
+															break;
+														case KeyCode.V:
+															if ((Event.current.modifiers & EventModifiers.Control) != 0)
+															{
+																if (_copy != null && _copy is ICloneable cloneable)
+																{
+																	var copy = cloneable.Clone() as ICustomKeyframe;
+																	if (copy != null)
+																	{
+																		copy.time = (float)viewModel.director.time - (float)clip.start;
+																		curves.Add(copy);
+																		Repaint();
+																		UpdatePreview();
+																		return;
+																	}
+																}
+															}
+															break;
+															
+													}
 												}
 												break;
 										}
