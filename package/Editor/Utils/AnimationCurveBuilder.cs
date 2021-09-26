@@ -99,7 +99,6 @@ namespace Needle.Timeline
 				var content = SaveUtil.Load(data.Id);
 				if (content != null)
 				{
-					Debug.Log("Loaded " + data.Id);
 					curve = ser.Deserialize(content, curveType) as ICustomClip;
 				}
 			}

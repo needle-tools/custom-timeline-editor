@@ -50,8 +50,9 @@ namespace Needle.Timeline
 		{
 			if (!didRegisterKeyframeEvents) RegisterKeyframeEvents();
 			
-			if (keyframesTimeChanged)
+			if (keyframesTimeChanged || keyframeAdded)
 			{
+				keyframeAdded = false;
 				keyframesTimeChanged = false;
 				_keyframes.Sort((k1, k2) => Mathf.RoundToInt((k1.time - k2.time) * 100_00));
 			}
@@ -90,6 +91,7 @@ namespace Needle.Timeline
 			if (kf == null || kf.value == null || !(kf is ICustomKeyframe<T> keyframe))
 				return false;
 			_keyframes.Add(keyframe);
+			keyframeAdded = true;
 			RegisterKeyframeEvents(keyframe);
 			Changed?.Invoke();
 			return true;
@@ -113,7 +115,7 @@ namespace Needle.Timeline
 			return Evaluate(time);
 		}
 
-		private bool keyframesTimeChanged;
+		private bool keyframesTimeChanged, keyframeAdded;
 		private bool didRegisterKeyframeEvents;
 
 		private void RegisterKeyframeEvents()
