@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Needle.Timeline
 {
@@ -9,6 +10,9 @@ namespace Needle.Timeline
 		bool Add(ICustomKeyframe kf);
 		void Remove(ICustomKeyframe kf);
 		event Action Changed;
+		IReadOnlyCollection<IReadonlyCustomKeyframe> Keyframes { get; }
+		ICustomKeyframe GetPrevious(float time);
+		ICustomKeyframe GetClosest(float time);
 	}
 
 	public interface ICustomClip<out T> : ICustomClip

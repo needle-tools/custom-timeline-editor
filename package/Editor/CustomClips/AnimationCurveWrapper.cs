@@ -14,7 +14,8 @@ namespace Needle.Timeline
 		{
 			this.curve = curve;
 			Name = name;
-			Changed = default; 
+			Changed = default;
+			Keyframes = null;
 		}
 
 
@@ -36,6 +37,16 @@ namespace Needle.Timeline
 		}
 
 		public event Action Changed;
+		public IReadOnlyCollection<IReadonlyCustomKeyframe> Keyframes { get; }
+		public ICustomKeyframe GetPrevious(float time)
+		{
+			return null;
+		}
+
+		public ICustomKeyframe GetClosest(float time)
+		{
+			return null;
+		}
 
 		object ICustomClip.Evaluate(float time)
 		{

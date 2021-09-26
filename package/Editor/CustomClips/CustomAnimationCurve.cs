@@ -23,6 +23,16 @@ namespace Needle.Timeline
 		}
 		
 		public IEnumerable<ICustomKeyframe> Keyframes => _keyframes;
+		
+		public ICustomKeyframe GetPrevious(float time)
+		{
+			return FindKeyframe(time, true);
+		}
+
+		public ICustomKeyframe GetClosest(float time)
+		{
+			return FindKeyframe(time, false);
+		}
 
 		public T Interpolate(T v0, T v1, float t)
 		{
@@ -109,6 +119,7 @@ namespace Needle.Timeline
 		}
 
 		public event Action Changed;
+		IReadOnlyCollection<IReadonlyCustomKeyframe> ICustomClip.Keyframes => _keyframes;
 
 		object ICustomClip.Evaluate(float time)
 		{
@@ -147,6 +158,24 @@ namespace Needle.Timeline
 		{
 			keyframesTimeChanged = true;
 			Changed?.Invoke();
+		}
+
+
+		private ICustomKeyframe FindKeyframe(float time, bool onlyPrevious)
+		{
+			ICustomKeyframe closest = default;
+			var closestDelta = double.MaxValue;
+			foreach (var kf in _keyframes)
+			{
+				if (onlyPrevious && kf.time > time) continue;
+				var delta = Mathf.Abs(time - kf.time);
+				if (delta < closestDelta)
+				{
+					closest = kf;
+					closestDelta = delta;
+				}
+			}
+			return closest;
 		}
 
 		private static float GetPosition(float current, float start, float end)

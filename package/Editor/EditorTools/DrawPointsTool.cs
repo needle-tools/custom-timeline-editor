@@ -1,19 +1,16 @@
 ﻿using System.Collections.Generic;
 using UnityEditor;
-using UnityEditor.UIElements;
 using UnityEngine;
 
 namespace Needle.Timeline
 {
 	public class DrawPointsTool : CustomClipToolBase
 	{
-		private List<Vector3> currentList;
-		private ICustomKeyframe keyframe;
+		private ICustomKeyframe<List<Vector3>> keyframe;
 
 		public override void OnActivated()
 		{
 			base.OnActivated();
-			currentList = null;
 			keyframe = null;
 		}
 
@@ -28,22 +25,26 @@ namespace Needle.Timeline
 				switch (Event.current.type)
 				{
 					case EventType.MouseDown:
-						if (ActiveClip is ICustomClip<List<Vector3>> pointsClip)
+						if (ActiveClip is ICustomClip<List<Vector3>> clip)
 						{
+							var closest = clip.GetClosest((float)CurrentTime);
+							if (closest != null &&  Mathf.Abs((float)CurrentTime - closest.time) < .1f && closest is ICustomKeyframe<List<Vector3>> kf)
+							{
+								keyframe = kf;
+							}
 							if (keyframe == null || Mathf.Abs((float)CurrentTime - keyframe.time) > .1f)
 							{
-								currentList = new List<Vector3>() { Vector3.zero };
-								keyframe = new CustomKeyframe<List<Vector3>>(currentList, (float)CurrentTime);
-								pointsClip.Add(keyframe);
+								keyframe = new CustomKeyframe<List<Vector3>>(new List<Vector3>(), (float)CurrentTime);
+								clip.Add(keyframe);
 							}
 						}
 						UseEvent(); 
 						break;
 						
 					case EventType.MouseDrag:
-						if (currentList != null)
+						if (keyframe != null)
 						{
-							currentList.Add(Random.insideUnitSphere + pos);
+							keyframe.value.Add(Random.insideUnitSphere + pos);
 							keyframe.RaiseValueChangedEvent();
 							UseEvent();
 						}

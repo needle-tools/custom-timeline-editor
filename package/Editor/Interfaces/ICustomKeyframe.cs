@@ -3,10 +3,16 @@ using UnityEngine;
 
 namespace Needle.Timeline
 {
-	public interface ICustomKeyframe
+	public interface IReadonlyCustomKeyframe
 	{
-		object value { get; set; }
-		float time { get; set; }
+		object value { get; }
+		float time { get; }
+	}
+	
+	public interface ICustomKeyframe : IReadonlyCustomKeyframe
+	{
+		new object value { get; set; }
+		new float time { get; set; }
 		event Action TimeChanged, ValueChanged;
 		void RaiseValueChangedEvent();
 	}
@@ -42,6 +48,8 @@ namespace Needle.Timeline
 				ValueChanged?.Invoke();
 			}
 		}
+
+		object IReadonlyCustomKeyframe.value => value;
 
 		public float time
 		{
