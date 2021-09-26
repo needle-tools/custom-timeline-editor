@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using System.Text;
 using UnityEditor;
 using UnityEditor.Timeline;
 using UnityEngine;
@@ -9,9 +11,16 @@ namespace Needle.Timeline
 	public class CustomCurvesEditor : UnityEditor.Timeline.CustomCurvesEditor
 	{
 		private readonly float lineHeight = EditorGUIUtility.singleLineHeight * 1.1f;
+		private readonly StringBuilder builder = new StringBuilder();
+		private GUIStyle typeStyle;
 
 		protected override void OnDrawHeader(Rect rect)
 		{
+			if (typeStyle == null)
+			{
+				typeStyle = new GUIStyle(EditorStyles.label);
+				typeStyle.alignment = TextAnchor.MiddleRight;
+			}
 			foreach (var clip in EnumerateClips())
 			{
 				if (clip.asset is CodeControlAsset code)
@@ -34,11 +43,17 @@ namespace Needle.Timeline
 							var col = new Color(0, 0, 0, .1f);
 							GUI.DrawTexture(backgroundRect, Texture2D.whiteTexture, ScaleMode.StretchToFill, true, 1, col, 0, 0);
 
-							var textRect = new Rect(r);
-							textRect.y -= 1.5f;
-							textRect.x += 5;
-							textRect.width -= 5;
-							GUI.Label(textRect, ObjectNames.NicifyVariableName(curves.Name));
+							var tr = new Rect(r);
+							tr.y -= 1.5f;
+							tr.x += 5;
+							tr.width = r.width * .5f;
+							GUI.Label(tr, ObjectNames.NicifyVariableName(curves.Name));
+							
+							tr.width = rect.width - 25;
+							tr.x += rect.x;
+							builder.Clear();
+							StringHelper.GetGenericsString(curves.GetType(), builder);
+							GUI.Label(tr, builder.ToString(), typeStyle);
 							++row;
 						}
 					}
