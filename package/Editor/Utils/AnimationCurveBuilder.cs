@@ -121,8 +121,7 @@ namespace Needle.Timeline
 						i.Interpolator = interpolator;
 					else
 					{
-						Debug.LogError("Failed finding interpolator for " + data.MemberType);
-						return CreationResult.Failed;
+						i.Interpolator = new NoInterpolator();
 					}
 				}
 			}

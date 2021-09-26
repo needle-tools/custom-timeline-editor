@@ -72,10 +72,10 @@ namespace Needle.Timeline
 			if (!ToolManager.IsActiveTool(this))
 				return;
 			if (ActiveClip == null) return;
-			OnToolGUI();
+			OnToolInput();
 		}
 
-		protected abstract void OnToolGUI();
+		protected abstract void OnToolInput();
 
 		protected Vector3 GetCurrentMousePositionInScene()
 		{

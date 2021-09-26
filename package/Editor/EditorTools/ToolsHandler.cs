@@ -53,7 +53,7 @@ namespace Needle.Timeline
 				if (GUILayout.Button(name, GUILayout.Height(30)))
 				{
 					tool.ViewModel = viewModel;
-					tool.ActiveClip = clips.FirstOrDefault();
+					tool.ActiveClip = clips[1];
 					if (tool is EditorTool et)
 					{
 						ToolManager.SetActiveTool(et);

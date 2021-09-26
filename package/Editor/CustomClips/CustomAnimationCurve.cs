@@ -9,7 +9,7 @@ namespace Needle.Timeline
 {
 	public class CustomAnimationCurve<T> : ICustomClip<T>, IInterpolator<T>, IKeyframesProvider, IHasInterpolator
 	{
-		private IInterpolator<T> _interpolator;
+		private IInterpolator _interpolator;
 		private readonly List<ICustomKeyframe<T>> _keyframes;
 		private readonly ProfilerMarker _evaluateMarker = new ProfilerMarker("CustomAnimationCurve Evaluate " + typeof(T));
 		private readonly ProfilerMarker _interpolationMarker = new ProfilerMarker("CustomAnimationCurve Interpolate " + typeof(T));
@@ -20,7 +20,7 @@ namespace Needle.Timeline
 		public IInterpolator Interpolator
 		{
 			get => (IInterpolator)_interpolator;
-			set => _interpolator = (IInterpolator<T>)value;
+			set => _interpolator = value;
 		}
 		
 		public IEnumerable<ICustomKeyframe> Keyframes => _keyframes;
@@ -37,7 +37,7 @@ namespace Needle.Timeline
 
 		public T Interpolate(T v0, T v1, float t)
 		{
-			return _interpolator.Interpolate(v0, v1, t);
+			return (T)_interpolator.Interpolate(v0, v1, t);
 		}
 		
 		public bool CanInterpolate(Type type)
@@ -60,13 +60,7 @@ namespace Needle.Timeline
 		public T Evaluate(float time)
 		{
 			if (!didRegisterKeyframeEvents) RegisterKeyframeEvents();
-			
-			if (keyframesTimeChanged || keyframeAdded)
-			{
-				keyframeAdded = false;
-				keyframesTimeChanged = false;
-				_keyframes.Sort((k1, k2) => Mathf.RoundToInt((k1.time - k2.time) * 100_00));
-			}
+			SortKeyframesIfNecessary();
 			
 			using (_evaluateMarker.Auto())
 			{
@@ -85,7 +79,7 @@ namespace Needle.Timeline
 						// interpolate between this and the next keyframe
 						var t = GetPosition(time, current.time, next.time);
 						using(_interpolationMarker.Auto())
-							return _interpolator.Interpolate(current.value, next.value, t);
+							return (T)_interpolator.Interpolate(current.value, next.value, t);
 					}
 
 					// if no keyframe was found that is <= time
@@ -104,12 +98,18 @@ namespace Needle.Timeline
 			}
 		}
 
+		public bool CanAdd(Type type)
+		{
+			return typeof(T).IsAssignableFrom(type);
+		}
+
 		public bool Add(ICustomKeyframe kf)
 		{
 			if (kf == null || kf.value == null || !(kf is ICustomKeyframe<T> keyframe))
 				return false;
 			_keyframes.Add(keyframe);
 			keyframeAdded = true;
+			SortKeyframesIfNecessary();
 			RegisterKeyframeEvents(keyframe);
 			Changed?.Invoke();
 			return true;
@@ -184,6 +184,14 @@ namespace Needle.Timeline
 				}
 			}
 			return closest;
+		}
+
+		private void SortKeyframesIfNecessary()
+		{
+			if (!keyframesTimeChanged && !keyframeAdded) return;
+			keyframeAdded = false;
+			keyframesTimeChanged = false;
+			_keyframes.Sort((k1, k2) => Mathf.RoundToInt((k1.time - k2.time) * 100_00));
 		}
 
 		private static float GetPosition(float current, float start, float end)

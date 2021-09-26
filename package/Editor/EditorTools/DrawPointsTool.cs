@@ -14,7 +14,7 @@ namespace Needle.Timeline
 			keyframe = null;
 		}
 
-		protected override void OnToolGUI()
+		protected override void OnToolInput()
 		{
 			// var pos = GetCurrentMousePositionInScene();
 			var pos = PlaneUtils.GetPointOnPlane(Camera.current, out _, out _, out _);
