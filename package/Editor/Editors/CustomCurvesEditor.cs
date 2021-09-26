@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using System;
+using UnityEditor;
 using UnityEditor.Timeline;
 using UnityEngine;
 
@@ -45,7 +46,11 @@ namespace Needle.Timeline
 			}
 		}
 
-		private ICustomKeyframe _dragging;
+		private ICustomKeyframe _dragging, _lastClicked;
+		private double _lastKeyframeClickedTime;
+		private readonly Color _keySelectedColor = new Color(1, 1, 0, .7f);
+		private readonly Color _normalColor = new Color(.8f, .8f, .8f, .4f);
+		private readonly Color _assetSelectedColor = new Color(.8f, .8f, .8f, .9f);
 
 		protected override void OnDrawTrack(Rect rect)
 		{
@@ -74,9 +79,8 @@ namespace Needle.Timeline
 									r.height = r.width;
 									r.y = rect.y + r.height;
 									r.y += row * lineHeight;
-									var highlight = kf.IsSelected();
-									var col = highlight ? Color.yellow : Color.gray;
-									col.a = .7f;
+									var col = SelectedClip == clip ? _assetSelectedColor : _normalColor;
+									if (kf.IsSelected()) col = _keySelectedColor;
 									GUI.DrawTexture(r, Texture2D.whiteTexture, ScaleMode.StretchToFill, true,
 										1, col, 0, 4);
 									#endregion
@@ -90,6 +94,15 @@ namespace Needle.Timeline
 												{
 													useEvent = true;
 													_dragging = kf;
+													
+													var time = DateTime.Now.TimeOfDay.TotalSeconds;
+													if (time - _lastKeyframeClickedTime < 1 && _lastClicked == kf)
+													{
+														viewModel.director.time = kf.time / clip.timeScale + clip.start;
+														UpdatePreview();
+													}
+													_lastKeyframeClickedTime = time;
+													_lastClicked = kf;
 												}
 
 												break;
