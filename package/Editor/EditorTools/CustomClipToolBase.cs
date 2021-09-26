@@ -16,6 +16,7 @@ namespace Needle.Timeline
 			set => viewModel = value;
 		}
 
+		// TODO: need to factor in clip asset offset
 		protected double CurrentTime => viewModel.currentTime;
 
 		private static Texture2D _toolIcon;

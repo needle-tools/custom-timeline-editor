@@ -23,6 +23,7 @@ namespace Needle.Timeline
 
 		internal AnimationClip AnimationClip => model.clip;
 
+		public string Id => model.id;
 		public readonly List<IValueHandler> values = new List<IValueHandler>();
 		public readonly List<ICustomClip> clips = new List<ICustomClip>();
 		public double startTime, endTime, timeScale;

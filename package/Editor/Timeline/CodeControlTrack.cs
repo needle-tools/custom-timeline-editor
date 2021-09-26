@@ -37,14 +37,13 @@ namespace Needle.Timeline
 
 		internal void Save()
 		{
-			var baseId = GetHashCode().ToString(); 
 			var ser = new JsonSerializer();
 			foreach (var viewModel in viewModels)
 			{
 				foreach (var clip in viewModel.clips)
 				{
 					var json = (string)ser.Serialize(clip);
-					var id = baseId + "-" + clip.Name;
+					var id = viewModel.Id + "_" + clip.Name;
 					SaveUtil.Save(id, json); 
 					Debug.Log("saved " + id);
 				}
@@ -88,14 +87,14 @@ namespace Needle.Timeline
 
 				var animationComponents = boundObject.GetComponents<IAnimated>();
 				if (animationComponents.Length <= 0) return Playable.Null;
+				
+				
+				AssetDatabase.TryGetGUIDAndLocalFileIdentifier(asset.GetInstanceID(), out var guid, out long _id);
+				var id = guid + "@" + _id;
 
 				// Debug.Log("<b>Create Playable</b> " + graph, timelineClip.asset);
-				timelineClip.CreateCurves("Procedural");
-
-				if (!ObjectIdentifier.TryGetObjectIdentifier(asset, out var objectIdentifier))
-					throw new Exception("Failed getting object identifier for track asset: " + asset);
-
-				var id = objectIdentifier.guid + "@" + objectIdentifier.localIdentifierInFile;
+				timelineClip.CreateCurves(id);
+				
 				foreach (var anim in animationComponents)
 				{
 					var model = clips.FirstOrDefault(clipInfo => clipInfo.id == id);
@@ -122,7 +121,9 @@ namespace Needle.Timeline
 					var animationClip = timelineClip.curves;
 					var clipBindings = AnimationUtility.GetCurveBindings(animationClip);
 					var path = AnimationUtility.CalculateTransformPath(boundObject.transform, null);
-
+					
+					// TODO: handle formerly serialized name
+					
 					var fields = type.GetFields(DefaultFlags);
 					foreach (var field in fields) 
 					{

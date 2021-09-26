@@ -41,7 +41,7 @@ namespace Needle.Timeline
 				PlayableAsset asset
 			)
 			{
-				this.Id = track.GetHashCode() + "-" + member.Name;
+				this.Id = viewModel.Id + "_" + member.Name;
 				Track = track;
 				Director = director;
 				ViewModel = viewModel;
@@ -111,20 +111,19 @@ namespace Needle.Timeline
 			if (curve == null)
 			{
 				curve = Activator.CreateInstance(curveType) as ICustomClip;
-
-				if(curve != null && data.MemberType == typeof(List<Vector3>))
-				{
-					curve.Add(new CustomKeyframe<List<Vector3>>(GetPointsList(1), 0));
-					curve.Add(new CustomKeyframe<List<Vector3>>(GetPointsList(100), 2));
-					SaveUtil.Save(data.Id, (string)ser.Serialize(curve));
-				}
 			}
 			
 			if(curve != null)
 			{
-				if (curve is IHasInterpolator i && Interpolators.TryFindInterpolator(attribute, data.MemberType, out var interpolator))
+				if (curve is IHasInterpolator i)
 				{
-					i.Interpolator = interpolator;
+					if (Interpolators.TryFindInterpolator(attribute, data.MemberType, out var interpolator))
+						i.Interpolator = interpolator;
+					else
+					{
+						Debug.LogError("Failed finding interpolator for " + data.MemberType);
+						return CreationResult.Failed;
+					}
 				}
 			}
 			
