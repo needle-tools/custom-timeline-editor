@@ -168,8 +168,7 @@ namespace Needle.Timeline
 															{
 																if (_copy != null && _copy is ICloneable cloneable)
 																{
-																	var copy = cloneable.Clone() as ICustomKeyframe;
-																	if (copy != null)
+																	if (cloneable.Clone() is ICustomKeyframe copy)
 																	{
 																		copy.time = (float)viewModel.director.time - (float)clip.start;
 																		curves.Add(copy);
