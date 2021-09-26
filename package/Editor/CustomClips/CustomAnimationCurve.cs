@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Newtonsoft.Json;
 using Unity.Profiling;
 using UnityEngine;
@@ -69,11 +70,13 @@ namespace Needle.Timeline
 			
 			using (_evaluateMarker.Auto())
 			{
+				var anyBefore = false;
 				for (var index = 0; index < _keyframes.Count; index++)
 				{
 					var current = _keyframes[index];
 					if (current.time <= time)
 					{
+						anyBefore = true;
 						// if this is the last keyframe return its value
 						if (index + 1 >= _keyframes.Count) return current.value;
 						var next = _keyframes[index + 1];
@@ -88,6 +91,11 @@ namespace Needle.Timeline
 					// if no keyframe was found that is <= time
 					if (index + 1 >= _keyframes.Count)
 					{
+						if (!anyBefore)
+						{
+							var first = _keyframes.FirstOrDefault();
+							if (first != null) return first.value;
+						}
 						return current.value;
 					}
 				}
