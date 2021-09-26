@@ -20,5 +20,11 @@ namespace Needle.Timeline
 			if (candidate is GameObject go) return go.GetComponent<IAnimated>() as Object;
 			return candidate;
 		}
+
+		public override void OnCreate(TrackAsset track, TrackAsset copiedFrom)
+		{
+			base.OnCreate(track, copiedFrom);
+			Debug.Log("copied track from " + copiedFrom);
+		}
 	}
 }
