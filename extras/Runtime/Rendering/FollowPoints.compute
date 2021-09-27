@@ -1,0 +1,18 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+
+RWStructuredBuffer<float3> Input;
+int CurrentCount;
+RWStructuredBuffer<float4> Positions;
+float DeltaTime;
+
+float ScaleFactor, SpeedFactor;
+
+[numthreads(32,1,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    float3 target = Input[id.x % CurrentCount];
+    float4 pos = Positions[id.x];
+    float scale = length(target - pos) * ScaleFactor;
+    Positions[id.x] = lerp(pos, float4(target, scale), DeltaTime * SpeedFactor);
+}
