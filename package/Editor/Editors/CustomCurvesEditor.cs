@@ -90,24 +90,23 @@ namespace Needle.Timeline
 			var controlId = GUIUtility.GetControlID(FocusType.Passive);
 			var evt = Event.current;
 			var evtType = evt.GetTypeForControl(controlId);
+			var mousePos = Event.current.mousePosition;
 
 			switch (evtType)
 			{
 				case EventType.MouseDown:
 					GUIUtility.hotControl = controlId;
-					if (_isMultiSelectDragging)
+					// first deselect
+					if (rect.Contains(mousePos))
 					{
-						// first deselect
-						var pos = Event.current.mousePosition;
-						if (rect.Contains(pos))
+						if (_isMultiSelectDragging)
 						{
 							_dragTrack = Track;
 							KeyframeSelector.Deselect();
 						}
 					}
 					break;
-
-				case EventType.MouseUp:
+			case EventType.MouseUp:
 					for (var index = modifyTimeActions.Count - 1; index >= 0; index--)
 					{
 						var mod = modifyTimeActions[index];
@@ -124,11 +123,10 @@ namespace Needle.Timeline
 				case EventType.MouseDrag:
 					if (_isMultiSelectDragging)
 					{
-						var pos = Event.current.mousePosition;
-						_dragRect.xMin = Mathf.Min(pos.x, _startDragPoint.x);
-						_dragRect.yMin = Mathf.Min(pos.y, _startDragPoint.y);
-						_dragRect.xMax = Mathf.Max(pos.x, _startDragPoint.x);
-						_dragRect.yMax = Mathf.Max(pos.y, _startDragPoint.y);
+						_dragRect.xMin = Mathf.Min(mousePos.x, _startDragPoint.x);
+						_dragRect.yMin = Mathf.Min(mousePos.y, _startDragPoint.y);
+						_dragRect.xMax = Mathf.Max(mousePos.x, _startDragPoint.x);
+						_dragRect.yMax = Mathf.Max(mousePos.y, _startDragPoint.y);
 						useEvent = true;
 					}
 					break;
@@ -183,6 +181,10 @@ namespace Needle.Timeline
 													mouseDownOnKeyframe = true;
 													useEvent = true;
 													_dragging = kf;
+													
+													if(!kf.IsSelected())
+														KeyframeSelector.Deselect();
+													kf.Select(clip);
 
 													// double click keyframe?
 													var time = DateTime.Now.TimeOfDay.TotalSeconds;
