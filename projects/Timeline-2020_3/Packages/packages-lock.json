@@ -1,5 +1,11 @@
 {
   "dependencies": {
+    "com.needle.custom-undo-integration": {
+      "version": "file:../../../modules/Unity-Custom-Undo/package",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {}
+    },
     "com.needle.timeline-editor": {
       "version": "file:../../../package",
       "depth": 0,
@@ -108,7 +114,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.timeline": {
-      "version": "file:C:/git/timeline-editor/modules/com.unity.timeline",
+      "version": "file:../../../modules/com.unity.timeline",
       "depth": 0,
       "source": "local",
       "dependencies": {

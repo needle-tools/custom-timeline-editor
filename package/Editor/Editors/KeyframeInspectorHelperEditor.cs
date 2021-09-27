@@ -25,6 +25,10 @@ namespace Needle.Timeline
 
 		public override void OnInspectorGUI()
 		{
+			if(KeyframeSelector.selectedKeyframes.Count != _currentEditors.Count)
+				InternalOnEnable();
+			
+			
 			if (KeyframeSelector.selectedKeyframes?.Count > 0)
 			{
 				for (var i = 0; i < KeyframeSelector.selectedKeyframes.Count; i++)

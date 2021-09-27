@@ -19,7 +19,7 @@ namespace Needle.Timeline.Serialization
 						track.Save();
 					}
 				}
-				else Debug.Log(ch);
+				// else Debug.Log(ch); 
 			}
 		}
 

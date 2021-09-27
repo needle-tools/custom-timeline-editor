@@ -1,21 +1,25 @@
-﻿namespace Needle.Timeline
+﻿using System.Collections.Generic;
+
+namespace Needle.Timeline
 {
 	public class ModifyTime : Command
 	{
-		private readonly ICustomKeyframe keyframe;
-		private readonly float previousTime;
-		private readonly float newTime;
+		internal readonly float previousTime;
+		internal readonly ICustomKeyframe keyframe;
+		internal float? newTime;
 
-		public ModifyTime(ICustomKeyframe keyframe, float newTime)
+		public override bool IsValid => newTime != null;
+
+		public ModifyTime(ICustomKeyframe keyframe)
 		{
 			this.keyframe = keyframe;
 			this.previousTime = keyframe.time;
-			this.newTime = newTime;
 		}
 
-		protected override void OnExecute()
+		protected override void OnRedo()
 		{
-			keyframe.time = newTime;
+			if (newTime != null)
+				keyframe.time = newTime.Value;
 		}
 
 		protected override void OnUndo()

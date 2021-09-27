@@ -1,5 +1,6 @@
 using System;
 using _Sample._Sample;
+using Needle.Timeline;
 using UnityEngine;
 
 [ExecuteAlways]
@@ -22,6 +23,14 @@ public class FollowPoints : MonoBehaviour
 	private ComputeBuffer args;
 	private uint[] argsData;
 
+	private void OnDisable()
+	{
+		input.SafeDispose();
+		positions.SafeDispose();
+		velocities.SafeDispose();
+		args.SafeDispose();
+	}
+
 	private void Update()
 	{
 		if (!Shader || !Points || Count <= 0) return;
@@ -32,22 +41,12 @@ public class FollowPoints : MonoBehaviour
 			Debug.LogWarning("Material does not support instancing", InstancedMaterial);
 			return;
 		}
+
+		ComputeBufferUtils.SafeCreate(ref input, Points.pointsCount, sizeof(float) * 3);
+		ComputeBufferUtils.SafeCreate(ref positions, Count, sizeof(float)*4);
+		ComputeBufferUtils.SafeCreate(ref velocities, Count, sizeof(float)*3);
 		
-		if (input == null || !input.IsValid() || input.count < Points.pointsCount)
-		{
-			input = new ComputeBuffer(Points.pointsCount, sizeof(float) * 3);
-		}
 		input.SetData(Points.points);
-
-		if (positions == null || !positions.IsValid() || positions.count != Count)
-		{
-			positions = new ComputeBuffer(Count, sizeof(float) * 4);
-		}
-
-		if (velocities == null || velocities.count != positions.count)
-		{
-			velocities = new ComputeBuffer(Count, sizeof(float) * 3);
-		}
 
 		if (args == null)
 		{

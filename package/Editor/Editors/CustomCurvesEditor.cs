@@ -76,29 +76,46 @@ namespace Needle.Timeline
 		private Rect _dragRect;
 		private TrackAsset _dragTrack;
 
+		private readonly List<ModifyTime> modifyTimeActions = new List<ModifyTime>();
+
 		private static readonly List<(ICustomClip clip, ICustomKeyframe keyframe)> deletionList = new List<(ICustomClip, ICustomKeyframe)>();
+		// private static int? controlId;
 
 		protected override void OnDrawTrack(Rect rect)
 		{
 			// GUI.DrawTexture(rect, Texture2D.whiteTexture, ScaleMode.StretchToFill, true);
 			var useEvent = false;
 			var mouseDownOnKeyframe = false;
-			var mouseUpOnKeyframe = false;
 			var didApplyDeltaToSelectedKeyframes = false;
+			var controlId = GUIUtility.GetControlID(FocusType.Passive);
+			var evt = Event.current;
+			var evtType = evt.GetTypeForControl(controlId);
 
-			switch (Event.current.type)
+			switch (evtType)
 			{
 				case EventType.MouseDown:
+					GUIUtility.hotControl = controlId;
 					if (_isMultiSelectDragging)
 					{
 						// first deselect
 						var pos = Event.current.mousePosition;
-						if (rect.Contains(pos)) 
+						if (rect.Contains(pos))
 						{
 							_dragTrack = Track;
 							KeyframeSelector.Deselect();
 						}
 					}
+					break;
+
+				case EventType.MouseUp:
+					foreach (var mod in modifyTimeActions)
+					{
+						mod.IsDone = true;
+						if (!Mathf.Approximately(mod.keyframe.time, mod.previousTime))
+							mod.newTime = mod.keyframe.time;
+					}
+					CustomUndo.Register(new CompoundCommand(modifyTimeActions) { Name = "Modify Keyframe(s) time", IsDone = true });
+					modifyTimeActions.Clear();
 					break;
 
 				case EventType.MouseDrag:
@@ -153,17 +170,18 @@ namespace Needle.Timeline
 									}
 									#endregion
 
-									if (Event.current.button == 0 || Event.current.isKey)
+									if (evt.button == 0 || evt.isKey)
 									{
-										switch (Event.current.type)
+										switch (evtType)
 										{
 											case EventType.MouseDown:
-												if (r.Contains(Event.current.mousePosition))
+												if (r.Contains(evt.mousePosition))
 												{
 													mouseDownOnKeyframe = true;
 													useEvent = true;
 													_dragging = kf;
 
+													// double click keyframe?
 													var time = DateTime.Now.TimeOfDay.TotalSeconds;
 													if (time - _lastKeyframeClickedTime < 1 && _lastClicked == kf)
 													{
@@ -178,17 +196,19 @@ namespace Needle.Timeline
 											case EventType.MouseDrag:
 												if (_dragging == kf)
 												{
-													var timeDelta = PixelDeltaToDeltaTime(Event.current.delta.x * (float)timelineClip.timeScale);
-													if (KeyframeSelector.SelectionCount > 0)
+													var timeDelta = PixelDeltaToDeltaTime(evt.delta.x * (float)timelineClip.timeScale);
+													if (KeyframeSelector.SelectionCount > 0 && KeyframeSelector.selectedKeyframes.Any(s => s.Keyframe == kf))
 													{
 														if (!didApplyDeltaToSelectedKeyframes)
 														{
 															didApplyDeltaToSelectedKeyframes = true;
 															foreach (var entry in KeyframeSelector.EnumerateSelected())
 															{
+																if(!modifyTimeActions.Any(e => e.keyframe == entry))
+																	modifyTimeActions.Add(new ModifyTime(entry));
 																entry.time += timeDelta;
 																if (kf.time < 0) kf.time = 0;
-																Repaint(); 
+																Repaint();
 																UpdatePreview();
 																useEvent = true;
 															}
@@ -196,10 +216,12 @@ namespace Needle.Timeline
 													}
 													else
 													{
+														if(!modifyTimeActions.Any(e => e.keyframe == kf))
+															modifyTimeActions.Add(new ModifyTime(kf));
 														kf.Select(clip);
 														kf.time += timeDelta;
 														if (kf.time < 0) kf.time = 0;
-														Repaint(); 
+														Repaint();
 														UpdatePreview();
 														useEvent = true;
 													}
@@ -211,17 +233,16 @@ namespace Needle.Timeline
 
 												if (_dragRect.Contains(r.position))
 												{
-													if(_isMultiSelectDragging)
+													if (_isMultiSelectDragging)
 														kf.Select(clip);
 												}
-												else if (r.Contains(Event.current.mousePosition))
+												else if (r.Contains(evt.mousePosition))
 												{
 													// Debug.Log("Up on keyframe");
 													// deselect previously selected
 													KeyframeSelector.Deselect();
 													kf.Select(clip);
 													useEvent = true;
-													mouseUpOnKeyframe = true;
 												}
 
 												break;
@@ -229,23 +250,23 @@ namespace Needle.Timeline
 											case EventType.KeyDown:
 												if (kf.IsSelected())
 												{
-													switch (Event.current.keyCode)
+													switch (evt.keyCode)
 													{
 														case KeyCode.Delete:
 															deletionList.Add((clip, kf));
 															break;
 
 														case KeyCode.C:
-															if ((Event.current.modifiers & EventModifiers.Control) != 0)
+															if ((evt.modifiers & EventModifiers.Control) != 0)
 															{
 																_copy = kf;
 															}
 															break;
 														case KeyCode.V:
-															if ((Event.current.modifiers & EventModifiers.Control) != 0)
+															if ((evt.modifiers & EventModifiers.Control) != 0)
 															{
 																if (_copy != null && _copy is ICloneable cloneable)
-																{ 
+																{
 																	if (cloneable.Clone() is ICustomKeyframe copy)
 																	{
 																		copy.time = (float)viewModel.director.time - (float)timelineClip.start;
@@ -282,8 +303,8 @@ namespace Needle.Timeline
 				UpdatePreview();
 			}
 
-			switch (Event.current.type)
-			{ 
+			switch (evtType)
+			{
 				case EventType.MouseDown:
 					if (!mouseDownOnKeyframe && !_isMultiSelectDragging)
 					{
@@ -296,15 +317,8 @@ namespace Needle.Timeline
 
 				case EventType.MouseUp:
 					var wasDragging = _isMultiSelectDragging && (_dragRect.width > 5 || _dragRect.height > 5) && Track == _dragTrack;
-					// if(_isMultiSelectDragging > 0 && _dragTrack == Track)
-					if (wasDragging && _isMultiSelectDragging)
-					{
-						useEvent = true;
-					}
-					if (_dragTrack == Track)
-					{
-						_dragTrack = null;
-					}
+					if (wasDragging && _isMultiSelectDragging) useEvent = true;
+					if (_dragTrack == Track) _dragTrack = null;
 					break;
 			}
 

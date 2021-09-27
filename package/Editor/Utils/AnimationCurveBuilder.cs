@@ -80,6 +80,7 @@ namespace Needle.Timeline
 					EditorUtility.SetDirty(data.Track);
 					data.Track.dirtyCount += 1; 
 					data.Director.Evaluate();
+					TimelineWindowUtil.TryRepaint();
 				};
 				return res;
 			}
