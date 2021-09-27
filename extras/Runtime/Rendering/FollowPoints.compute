@@ -15,7 +15,8 @@ void CSMain(uint3 id : SV_DispatchThreadID)
     float3 target = Input[id.x % CurrentCount];
     float3 pos = Positions[id.x].xyz;
     float3 vel = Velocities[id.x];
-    const float3 dir = target - pos;
+    float3 dir = target - pos;
+    const float dist = length(dir);
     const float3 step = dir * DeltaTime * SpeedFactor;
     vel += step;
     float scale = ScaleFactor;
