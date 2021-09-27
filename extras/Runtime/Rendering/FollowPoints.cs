@@ -65,8 +65,8 @@ public class FollowPoints : MonoBehaviour
 		Shader.SetFloat("DeltaTime", Time.deltaTime);
 
 		Shader.SetBuffer(0, "Velocities", velocities);
-		Shader.SetFloat("ScaleFactor", Scale);
-		Shader.SetFloat("SpeedFactor", Speed);
+		Shader.SetFloat("ScaleFactor", Scale * Points.Factor);
+		Shader.SetFloat("SpeedFactor", Speed * Points.Factor);
 		Shader.SetFloat("DampFactor", Damping);
 		
 		var tx = Mathf.CeilToInt(positions.count / 32f);

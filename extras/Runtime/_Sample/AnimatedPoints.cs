@@ -62,6 +62,9 @@ namespace _Sample._Sample
 
 		[Animate] public float gizmoSizeFactor = 1;
 
+		[Animate]
+		public float Factor = 1;
+
 		public int pointsCount => points?.Count ?? 0;
 
 		private void OnDrawGizmos()
