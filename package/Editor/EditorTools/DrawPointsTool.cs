@@ -45,7 +45,7 @@ namespace Needle.Timeline
 							if (keyframe == null || Mathf.Abs(time - keyframe.time) > .1f)
 							{
 								keyframe = new CustomKeyframe<List<Vector3>>(new List<Vector3>(), time);
-								clip.Add(keyframe);
+								CustomUndo.Register(new CreateKeyframe(keyframe, clip));
 							}
 						}
 						UseEvent(); 
