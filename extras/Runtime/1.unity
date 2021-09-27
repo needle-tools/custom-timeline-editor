@@ -441,6 +441,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gizmoSizeFactor: 1
+  Factor: 0.68084335
 --- !u!1 &960015122
 GameObject:
   m_ObjectHideFlags: 0
@@ -470,7 +471,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ee044f5d6be3c334291a960b22e4fb1e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Count: 178
+  Count: 20000
   Shader: {fileID: 7200000, guid: 67018010f7a3e524f8d7a4b0688fbb06, type: 3}
   Points: {fileID: 343292042}
   Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
