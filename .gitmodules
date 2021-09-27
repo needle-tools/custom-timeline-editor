@@ -1,3 +1,6 @@
 [submodule "modules/com.unity.timeline"]
 	path = modules/com.unity.timeline
 	url = https://github.com/needle-tools/com.unity.timeline
+[submodule "modules/Unity-Custom-Undo"]
+	path = modules/Unity-Custom-Undo
+	url = https://github.com/needle-tools/Unity-Custom-Undo
