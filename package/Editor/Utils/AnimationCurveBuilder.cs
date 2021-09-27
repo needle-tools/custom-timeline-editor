@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using JetBrains.Annotations;
 using Needle.Timeline.Serialization;
 using Unity.Profiling;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Playables;
+using UnityEngine.Serialization;
 using UnityEngine.Timeline;
 
 namespace Needle.Timeline
@@ -27,6 +29,23 @@ namespace Needle.Timeline
 			public readonly MemberInfo Member;
 			public readonly Type MemberType;
 			public readonly PlayableAsset Asset;
+
+			public IEnumerable<string> EnumerateFormerNames(bool id)
+			{
+				var formerly = Member.GetCustomAttributes<FormerlySerializedAsAttribute>();
+				var str = default(StringBuilder);
+				foreach(var form in formerly)
+				{
+					if (!id) yield return form.oldName;
+					else
+					{
+						str ??= new StringBuilder();
+						str.Clear();
+						str.Append(ViewModel.Id).Append("_").Append(form.oldName);
+						yield return str.ToString();
+					}
+				}
+			}
 
 			public Data(
 				CodeControlTrack track,
@@ -97,7 +116,24 @@ namespace Needle.Timeline
 			var curveType = typeof(CustomAnimationCurve<>).MakeGenericType(data.MemberType);
 			try
 			{
-				var content = SaveUtil.Load(data.Id);
+				var content = SaveUtil.Load(data.Id); 
+				if (content == null)
+				{
+					foreach (var former in data.EnumerateFormerNames(true))
+					{
+						content = SaveUtil.Load(former);
+						if (content != null)
+						{
+							Debug.Log("FOUND: " + data.Member.Name + " as " + former);
+							if (!SaveUtil.Replace(former, data.Id))
+							{
+								Debug.LogError("Failed updating former name for " + data.Member.Name + ", is this Id already assigned?");
+							}
+							break;
+						}
+					}
+				}
+				
 				if (content != null)
 				{
 					curve = ser.Deserialize(content, curveType) as ICustomClip;
@@ -156,6 +192,7 @@ namespace Needle.Timeline
 			}
 
 			var binding = data.Bindings.FirstOrDefault(b => b.propertyName == data.Member.Name);
+			
 			// if the attribute has been removed
 			if (attribute == null)
 			{
@@ -166,6 +203,24 @@ namespace Needle.Timeline
 				}
 
 				return CreationResult.NotMarked;
+			}
+
+			if (binding.propertyName == null)
+			{
+				foreach (var former in data.EnumerateFormerNames(false))
+				{
+					binding = data.Bindings.FirstOrDefault(b => b.propertyName == former);
+					if (binding.propertyName != null)
+					{
+						// handle rename
+						var curve = AnimationUtility.GetEditorCurve(data.TimelineClip.curves, binding);
+						AnimationUtility.SetEditorCurve(data.TimelineClip.curves, binding, null);
+						binding.propertyName = data.Member.Name;
+						AnimationUtility.SetEditorCurve(data.TimelineClip.curves, binding, curve);
+						Debug.Log("FOUND: " + data.Member.Name + " as " + former);
+						break;
+					}
+				}
 			}
 
 			// if the binding does not exist yet

@@ -45,5 +45,23 @@ namespace Needle.Timeline.Serialization
 			var json = File.ReadAllText(filePath);
 			return json;
 		}
+
+
+		public static bool Replace(string oldId, string newId)
+		{
+			var oldPath = Path.Combine(FullSaveDirectory, oldId + ".json");
+			if (File.Exists(oldPath))
+			{
+				var newPath = Path.Combine(FullSaveDirectory, newId + ".json");
+				if (File.Exists(newPath))
+				{
+					return false;
+				}
+				Debug.Log("Replacing " + oldId + " with " + newId);
+				File.Move(oldPath, newPath);
+				return true;
+			}
+			return false;
+		}
 	}
 }
