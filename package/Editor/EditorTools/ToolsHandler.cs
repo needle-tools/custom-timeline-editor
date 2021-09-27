@@ -4,67 +4,125 @@ using System.Linq;
 using UnityEditor;
 using UnityEditor.EditorTools;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace Needle.Timeline
 {
 	public static class ToolsHandler
 	{
-		private static ClipInfoViewModel viewModel;
-		private static IReadOnlyList<ICustomClip> clips;
-
-		private static List<ICustomClipTool> tools;
-		private static readonly List<ICustomClipTool> availableTools = new List<ICustomClipTool>();
-
-		internal static void OnEnable(CodeControlAsset track)
+		[InitializeOnLoadMethod]
+		private static void Init()
 		{
-			clips = track?.viewModel?.clips;
-			viewModel = track?.viewModel;
+			OnSetupTools();
+			ClipInfoViewModel.Created += OnCreated;
+			SceneView.beforeSceneGui += OnSceneGui;
+		}
 
-			if (tools == null)
+		private static void OnCreated(ClipInfoViewModel obj)
+		{
+			_recreateTools = true;
+		}
+
+		private static VisualElement _root, _tools;
+		private static bool _recreateTools;
+		private static List<ICustomClipTool> _toolInstances;
+		private static readonly List<SceneView> _scenes = new List<SceneView>();
+
+		private static void OnSetupTools()
+		{
+			if (_toolInstances != null) return;
+			_toolInstances = new List<ICustomClipTool>();
+			var toolTypes = TypeCache.GetTypesDerivedFrom<ICustomClipTool>();
+			foreach (var tool in toolTypes)
 			{
-				tools = new List<ICustomClipTool>();
-				var toolTypes = TypeCache.GetTypesDerivedFrom<ICustomClipTool>();
-				foreach (var tool in toolTypes)
-				{
-					if (tool.IsAbstract || tool.IsInterface) continue;
-					var instance = (ICustomClipTool) Activator.CreateInstance(tool);
-					tools.Add(instance);
-				}
+				if (tool.IsAbstract || tool.IsInterface) continue;
+				var instance = (ICustomClipTool)Activator.CreateInstance(tool);
+				_toolInstances.Add(instance);
 			}
-			
-			availableTools.Clear();
-			availableTools.AddRange(tools);
 		}
 
-		internal static void OnDisable()
+		private static void OnSceneGui(SceneView obj)
 		{
-			clips = null;
-			viewModel = null;
-			// if(typeof(ICustomClipTool).IsAssignableFrom(ToolManager.activeToolType))
-			// 	ToolManager.RestorePreviousTool();
-		}
+			OnBuildGUIIfNecessary();
+			CreateButtonsIfNecessary();
 
-		internal static void OnInspectorGUI()
-		{
-			if (clips == null) return;
-			foreach (var tool in tools)
+			if (!_scenes.Contains(obj))
 			{
-				var name = tool.GetType().Name;
-				if (GUILayout.Button(name, GUILayout.Height(30)))
+				_scenes.Add(obj);
+				obj.rootVisualElement.Add(_root);
+				obj.rootVisualElement.style.flexDirection = FlexDirection.ColumnReverse;
+			}
+		}
+
+		private static void OnBuildGUIIfNecessary()
+		{
+			if (_root != null) return;
+			_root = new VisualElement();
+			_root.style.minWidth = 20;
+			_root.style.maxWidth = new StyleLength(new Length(50, LengthUnit.Percent));
+			var backgroundColor = EditorGUIUtility.isProSkin
+				? new Color(0.21f, 0.21f, 0.21f, 0.8f)
+				: new Color(0.8f, 0.8f, 0.8f, 0.8f);
+			_root.style.backgroundColor = backgroundColor;
+			_root.style.marginLeft = 10f;
+			_root.style.marginBottom = 10f;
+			_root.style.paddingTop = 5f;
+			_root.style.paddingRight = 5f;
+			_root.style.paddingLeft = 5f;
+			_root.style.paddingBottom = 5f;
+
+			_tools = new VisualElement();
+			_root.Add(_tools);
+		}
+
+		private static void CreateButtonsIfNecessary()
+		{
+			if (!_recreateTools) return;
+			_tools.Clear();
+			_recreateTools = false;
+
+			foreach (var inst in ClipInfoViewModel.Instances)
+			{
+				var vm = new VisualElement();
+				vm.name = inst.Name;
+				vm.style.paddingBottom = 5;
+				_tools.Add(vm);
+				
+				var title = new Label(inst.Script.ToString());
+				vm.Add(title);
+
+				var toolsElement = new VisualElement();
+				toolsElement.style.alignItems = new StyleEnum<Align>(Align.FlexStart);
+				toolsElement.style.flexDirection = new StyleEnum<FlexDirection>(FlexDirection.Row);
+				vm.Add(toolsElement);
+				
+				foreach (var clip in inst.clips)
 				{
-					tool.ViewModel = viewModel;
-					tool.ActiveClip = clips[1];
-					if (tool is EditorTool et)
+					var hasToolSupport = false;
+					foreach (var tool in _toolInstances)
 					{
-						ToolManager.SetActiveTool(et);
+						if (!clip.SupportedTypes.Any(tool.Supports)) continue;
+						if (!hasToolSupport)
+						{
+						}
+						hasToolSupport = true;
+						var name = tool.GetType().Name;
+						var toolButton = new Button();
+						toolButton.text = name;
+						toolButton.style.flexGrow = 0;
+						toolsElement.Add(toolButton);
+						toolButton.clicked += () =>
+						{
+							tool.ViewModel = inst;
+							tool.ActiveClip = clip;
+							if (tool is EditorTool et)
+							{
+								ToolManager.SetActiveTool(et);
+							}
+						};
 					}
 				}
 			}
-		}
-
-		internal static void OnSceneGUI()
-		{
-			
 		}
 	}
 }

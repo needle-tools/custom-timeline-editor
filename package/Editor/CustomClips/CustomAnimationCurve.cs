@@ -19,7 +19,7 @@ namespace Needle.Timeline
 		[JsonIgnore]
 		public IInterpolator Interpolator
 		{
-			get => (IInterpolator)_interpolator;
+			get => _interpolator;
 			set => _interpolator = value;
 		}
 		
@@ -34,6 +34,8 @@ namespace Needle.Timeline
 		{
 			return FindKeyframe(time, false);
 		}
+
+		public Type[] SupportedTypes { get; } = { typeof(T) };
 
 		public T Interpolate(T v0, T v1, float t)
 		{
@@ -77,7 +79,7 @@ namespace Needle.Timeline
 						// if the next keyframe is also <= time we have not found the closest keyframe yet
 						if (next.time < time) continue;
 						// interpolate between this and the next keyframe
-						var t = GetPosition(time, current.time, next.time);
+						var t = GetPosition01(time, current.time, next.time);
 						using(_interpolationMarker.Auto())
 							return (T)_interpolator.Interpolate(current.value, next.value, t);
 					}
@@ -158,7 +160,7 @@ namespace Needle.Timeline
 
 		private void OnKeyframeValueChanged()
 		{
-			Debug.Log("Keyframe changed");
+			// Debug.Log("Keyframe changed");
 			Changed?.Invoke();
 		}
 
@@ -194,7 +196,7 @@ namespace Needle.Timeline
 			_keyframes.Sort((k1, k2) => Mathf.RoundToInt((k1.time - k2.time) * 100_00));
 		}
 
-		private static float GetPosition(float current, float start, float end)
+		private static float GetPosition01(float current, float start, float end)
 		{
 			var diff = end - start;
 			current -= start;

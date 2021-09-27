@@ -1,4 +1,6 @@
-﻿using UnityEditor;
+﻿using System.Collections.Generic;
+using System.Linq;
+using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
 
@@ -16,11 +18,13 @@ namespace Needle.Timeline
 			{
 				_instance = CreateInstance<KeyframeInspectorHelper>();
 				_instance.hideFlags = HideFlags.DontSaveInEditor | HideFlags.DontSaveInBuild;
+				_instance.name = "Keyframe";
 			}
 			
-			_instance.name = "Keyframe";
-			_instance.fieldName = name;
-			_instance.keyframe = keyframe;
+			if (!IsSelected(keyframe))
+			{
+				selectedKeyframes.Add((keyframe, null, name));
+			}
 			var wasSelected = Selection.activeObject = _instance;
 			Selection.activeObject = _instance;
 			UnityEditor.Editor.CreateCachedEditor(_instance, typeof(KeyframeInspectorHelperEditor), ref _editor);
@@ -32,18 +36,33 @@ namespace Needle.Timeline
 		public static void Deselect(ICustomKeyframe keyframe = null)
 		{
 			if (!_instance) return;
-			if (keyframe == null || _instance.keyframe == keyframe)
+			
+			if (selectedKeyframes.Any(s => s.keyframe == keyframe))
 			{
-				_instance.keyframe = null;
-				if (Selection.activeObject == _instance)
-					Selection.activeObject = null;
+				selectedKeyframes.RemoveAll(e => e.keyframe == keyframe);
 			}
+			else if(keyframe == null) 
+				selectedKeyframes.Clear();
+			
+			if (Selection.activeObject == _instance && selectedKeyframes.Count <= 0)
+				Selection.activeObject = null;
 		}
 
+		public static bool IsSelected(ICustomKeyframe keyframe)
+		{
+			return selectedKeyframes.Any(s => s.keyframe == keyframe);
+		}
 
-		internal string fieldName;
-		internal ICustomClip clip;
-		internal ICustomKeyframe keyframe;
+		public static bool HasAnySelected() => selectedKeyframes.Count > 0;
+		public static int SelectionCount => selectedKeyframes.Count;
+
+		public static IEnumerable<ICustomKeyframe> EnumerateSelected()
+		{
+			foreach (var sel in selectedKeyframes) yield return sel.keyframe;
+		}
+
+		internal static readonly List<(ICustomKeyframe keyframe, ICustomClip clip, string field)> selectedKeyframes 
+			= new List<(ICustomKeyframe keyframe, ICustomClip clip, string field)>();
 	}
 		
 	public static class KeyframeExtensions
@@ -55,12 +74,14 @@ namespace Needle.Timeline
 		}
 		
 		public static bool IsSelected(this ICustomKeyframe kf) => 
-			KeyframeInspectorHelper._instance && KeyframeInspectorHelper._instance.keyframe == kf && 
+			KeyframeInspectorHelper._instance && KeyframeInspectorHelper.IsSelected(kf) && 
 			Selection.activeObject == KeyframeInspectorHelper._instance;
 		
-		public static bool AnySelected(this ICustomKeyframe _) => KeyframeInspectorHelper._instance && KeyframeInspectorHelper._instance.keyframe != null && Selection.activeObject == KeyframeInspectorHelper._instance;
+		public static bool AnySelected(this ICustomKeyframe _) => 
+			KeyframeInspectorHelper._instance && KeyframeInspectorHelper.selectedKeyframes != null && Selection.activeObject == KeyframeInspectorHelper._instance;
 		
-		public static bool AnySelected() => KeyframeInspectorHelper._instance && KeyframeInspectorHelper._instance.keyframe != null && Selection.activeObject == KeyframeInspectorHelper._instance;
+		public static bool AnySelected() => 
+			KeyframeInspectorHelper._instance && KeyframeInspectorHelper.selectedKeyframes != null && Selection.activeObject == KeyframeInspectorHelper._instance;
 	}
 
 }

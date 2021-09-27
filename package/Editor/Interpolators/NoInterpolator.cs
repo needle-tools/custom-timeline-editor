@@ -11,7 +11,7 @@ namespace Needle.Timeline
 
 		public object Interpolate(object v0, object v1, float t)
 		{
-			if (t > 0.99999f) return v1;
+			if (t > 0.99f) return v1;
 			return v0;
 		}
 	}

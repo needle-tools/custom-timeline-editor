@@ -18,31 +18,32 @@ namespace Needle.Timeline
 		{
 			var helper = target as KeyframeInspectorHelper;
 			if (helper == null) return;
-			if (helper.keyframe != null)
-				TryFindEditorWith(helper.keyframe);
+			// if (helper.selectedKeyframes != null)
+			// 	TryFindEditorWith(helper.selectedKeyframes);
 		}
 
 		public override void OnInspectorGUI()
 		{
-			var helper = target as KeyframeInspectorHelper;
-			if (helper == null) return;
-			if (helper.keyframe != null)
-			{
-				if (_customEditor != null)
-				{
-					_customEditor.Name = helper.fieldName;
-					_customEditor.Target = helper.keyframe;
-					_customEditor.OnInspectorGUI();
-				}
-				else
-				{
-					CustomKeyframeEditorBase.DrawDefaultInspector(helper.fieldName, helper.keyframe);
-				}
-			}
+			// var helper = target as KeyframeInspectorHelper;
+			// if (helper == null) return;
+			// if (helper.selectedKeyframes != null)
+			// {
+			// 	if (_customEditor != null)
+			// 	{
+			// 		_customEditor.Name = helper.fieldName;
+			// 		_customEditor.Target = helper.selectedKeyframes;
+			// 		_customEditor.OnInspectorGUI();
+			// 	}
+			// 	else
+			// 	{
+			// 		CustomKeyframeEditorBase.DrawDefaultInspector(helper.fieldName, helper.selectedKeyframes);
+			// 	}
+			// }
 		}
 
 		private CustomKeyframeEditorBase _customEditor;
 
+		#region Editors
 		private static readonly Dictionary<Type, CustomKeyframeEditorBase> _customEditorsCache
 			= new Dictionary<Type, CustomKeyframeEditorBase>();
 
@@ -74,5 +75,6 @@ namespace Needle.Timeline
 			_customEditor = existing;
 			return _customEditor != null;
 		}
+		#endregion
 	}
 }

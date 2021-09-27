@@ -3,6 +3,7 @@
   "displayName": "Timeline Editor",
   "version": "0.0.1-pre",
   "dependencies": {
-    "com.unity.timeline": ""
+    "com.unity.timeline": "",
+    "com.unity.nuget.newtonsoft-json": "2.0.0"
   }
 }

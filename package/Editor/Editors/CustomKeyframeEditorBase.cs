@@ -1,16 +1,28 @@
-﻿using UnityEditor;
+﻿using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 namespace Needle.Timeline
 {
+	public struct KeyframeSelection
+	{
+		public ICustomClip Clip;
+		public ICustomKeyframe Keyframe;
+		public KeyframeMeta Meta;
+
+		public struct KeyframeMeta
+		{
+			
+		}
+	}
+	
 	public abstract class CustomKeyframeEditorBase
 	{
-		public string Name { get; internal set; }
-		public object Target { get; internal set; }
+		public IList<KeyframeSelection> Target { get; internal set; }
 		
 		public virtual void OnInspectorGUI()
 		{
-			DrawDefaultInspector(Name, Target);
+			// DrawDefaultInspector(Target);
 		}
 
 		internal static void DrawDefaultInspector(string name, object obj)

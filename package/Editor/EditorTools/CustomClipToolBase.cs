@@ -1,6 +1,6 @@
-﻿using UnityEditor;
+﻿using System;
+using UnityEditor;
 using UnityEditor.EditorTools;
-using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -16,12 +16,13 @@ namespace Needle.Timeline
 			set => viewModel = value;
 		}
 
+		public abstract bool Supports(Type type);
+
 		// TODO: need to factor in clip asset offset
 		protected double CurrentTime => viewModel.currentTime;
 
 		private static Texture2D _toolIcon;
 		private VisualElement _toolRootElement;
-		private ObjectField _prefabObjectField;
 		private bool _receivedClickDownEvent;
 		private bool _receivedClickUpEvent;
 		private float currentTime;
@@ -40,28 +41,11 @@ namespace Needle.Timeline
 			_toolRootElement.style.paddingRight = 5f;
 			_toolRootElement.style.paddingLeft = 5f;
 			_toolRootElement.style.paddingBottom = 5f;
-			// var titleLabel = new Label("Place Objects Tool 123");
-			// titleLabel.style.unityTextAlign = TextAnchor.UpperCenter;
-			// _prefabObjectField = new ObjectField { allowSceneObjects = true, objectType = typeof(GameObject) };
-			// _toolRootElement.Add(titleLabel);
-			// _toolRootElement.Add(_prefabObjectField);
-
-			var sv = SceneView.lastActiveSceneView;
-			sv.rootVisualElement.Add(_toolRootElement);
-			sv.rootVisualElement.style.flexDirection = FlexDirection.ColumnReverse;
-        
-			SceneView.beforeSceneGui += BeforeSceneGUI;
 		}
 
 		public override void OnWillBeDeactivated()
 		{
 			_toolRootElement?.RemoveFromHierarchy();
-			SceneView.beforeSceneGui -= BeforeSceneGUI;
-		}
-
-		private void BeforeSceneGUI(SceneView obj)
-		{
-			
 		}
 
 		public override void OnToolGUI(EditorWindow window)
@@ -71,13 +55,17 @@ namespace Needle.Timeline
 				return;
 			if (!ToolManager.IsActiveTool(this))
 				return;
-			if (ActiveClip == null) return;
+			if (ActiveClip == null)
+			{
+				ToolManager.RestorePreviousTool();
+				return;
+			}
 			OnToolInput();
 		}
 
 		protected abstract void OnToolInput();
 
-		protected Vector3 GetCurrentMousePositionInScene()
+		protected static Vector3 GetCurrentMousePositionInScene()
 		{
 			Vector3 mousePosition = Event.current.mousePosition;
 			var placeObject = HandleUtility.PlaceObject(mousePosition, out var newPosition, out var normal);

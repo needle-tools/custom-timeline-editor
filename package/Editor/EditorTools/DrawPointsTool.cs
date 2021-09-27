@@ -1,12 +1,19 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace Needle.Timeline
 {
 	public class DrawPointsTool : CustomClipToolBase
 	{
 		private ICustomKeyframe<List<Vector3>> keyframe;
+		
+		public override bool Supports(Type type)
+		{
+			return typeof(List<Vector3>).IsAssignableFrom(type);
+		}
 
 		public override void OnActivated()
 		{

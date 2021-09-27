@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Needle.Timeline;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -12,9 +13,15 @@ namespace _Sample._Sample
 		public Vector3 End;
 	}
 
+#if UNITY_EDITOR
 	public class GuideTool : CustomClipToolBase
 	{
 		private Vector3? lastPt = null;
+		
+		public override bool Supports(Type type)
+		{
+			return typeof(List<Guide>).IsAssignableFrom(type);
+		}
 
 		protected override void OnToolInput()
 		{
@@ -44,6 +51,7 @@ namespace _Sample._Sample
 			}
 		}
 	}
+#endif
 
 	[ExecuteAlways]
 	public class AnimatedPoints : MonoBehaviour, IAnimated
@@ -67,28 +75,28 @@ namespace _Sample._Sample
 		private void Update()
 		{
 			pointsCount = points?.Count ?? 0;
-			if (pointsCount <= 0) return;
-			if (buffer == null || !buffer.IsValid() || buffer.count < points.Count)
-			{
-				if (buffer?.IsValid() ?? false) buffer.Release();
-				buffer = new ComputeBuffer(points.Count, sizeof(float) * 3, ComputeBufferType.Structured);
-			}
-
-			if (!texture)
-			{
-				if (texture) texture.Release();
-				texture = new RenderTexture(32, 32, 0);
-				texture.enableRandomWrite = true;
-				texture.Create();
-			}
-			Graphics.Blit(Texture2D.blackTexture, texture);
-
-			Output.texture = texture;
-
-			buffer.SetData(points);
-			Shader.SetBuffer(0, "_Points", buffer);
-			Shader.SetTexture(0, "_Result", texture);
-			Shader.Dispatch(0, Mathf.CeilToInt(points.Count / 32f), 1, 1);
+			// if (pointsCount <= 0) return;
+			// if (buffer == null || !buffer.IsValid() || buffer.count < points.Count)
+			// {
+			// 	if (buffer?.IsValid() ?? false) buffer.Release();
+			// 	buffer = new ComputeBuffer(points.Count, sizeof(float) * 3, ComputeBufferType.Structured);
+			// }
+			//
+			// if (!texture)
+			// {
+			// 	if (texture) texture.Release();
+			// 	texture = new RenderTexture(32, 32, 0);
+			// 	texture.enableRandomWrite = true;
+			// 	texture.Create();
+			// }
+			// Graphics.Blit(Texture2D.blackTexture, texture);
+			//
+			// Output.texture = texture;
+			//
+			// buffer.SetData(points);
+			// Shader.SetBuffer(0, "_Points", buffer);
+			// Shader.SetTexture(0, "_Result", texture);
+			// Shader.Dispatch(0, Mathf.CeilToInt(points.Count / 32f), 1, 1);
 		}
 
 		private void OnDrawGizmos()

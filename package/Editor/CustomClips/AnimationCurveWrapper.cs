@@ -16,6 +16,7 @@ namespace Needle.Timeline
 			Name = name;
 			Changed = default;
 			Keyframes = null;
+			SupportedTypes = new[] { typeof(float) };
 		}
 
 
@@ -52,6 +53,8 @@ namespace Needle.Timeline
 		{
 			return null;
 		}
+
+		public Type[] SupportedTypes { get; private set; }
 
 		object ICustomClip.Evaluate(float time)
 		{

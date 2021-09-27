@@ -14,6 +14,7 @@ namespace Needle.Timeline
 		IReadOnlyCollection<IReadonlyCustomKeyframe> Keyframes { get; }
 		ICustomKeyframe GetPrevious(float time);
 		ICustomKeyframe GetClosest(float time);
+		Type[] SupportedTypes { get; }
 	}
 
 	public interface ICustomClip<out T> : ICustomClip
