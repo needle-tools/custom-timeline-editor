@@ -28,10 +28,13 @@ namespace Needle.Timeline
 					var behaviour = inputPlayable.GetBehaviour();
 					if (behaviour.viewModel == null) continue;
 
+					var viewModel = behaviour.viewModel;
+					var length = (float)viewModel.director.duration;
 					var time = (float)((playable.GetTime() - behaviour.viewModel.startTime) * behaviour.viewModel.timeScale);
+					// looping support:
+					time %= length;
 				
 					// Debug.Log("Mix frame " + info.frameId);
-					var viewModel = behaviour.viewModel;
 					var saveToMix = inputWeight < 1f && valuesToMix.Count <= 0;
 					for (var index = 0; index < viewModel.clips.Count; index++)
 					{
@@ -44,18 +47,11 @@ namespace Needle.Timeline
 						else if (inputWeight < 1f && valuesToMix.Count > index)
 						{
 							var prev = valuesToMix[index];
-							// Debug.Log("MIX " + inputWeight);
 							var final = curve.Interpolate(prev, val, inputWeight);
-							// if (prev is List<Vector3> list0 && val is List<Vector3> list1 && final is List<Vector3> res)
-							// {
-							// 	Debug.Log(list0.Count + " > " + list1.Count + ", " + res.Count + ", " + inputWeight.ToString("0.0"));
-							// }
 							viewModel.values[index].SetValue(final);
 						}
 						else
 						{
-							// if (val is List<Vector3> list1)
-							// 	Debug.Log(list1.Count);
 							viewModel.values[index].SetValue(val);
 						}
 					}
