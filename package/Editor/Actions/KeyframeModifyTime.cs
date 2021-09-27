@@ -2,7 +2,7 @@
 
 namespace Needle.Timeline
 {
-	public class ModifyTime : Command
+	public class KeyframeModifyTime : Command
 	{
 		internal readonly float previousTime;
 		internal readonly ICustomKeyframe keyframe;
@@ -10,7 +10,7 @@ namespace Needle.Timeline
 
 		public override bool IsValid => newTime != null;
 
-		public ModifyTime(ICustomKeyframe keyframe)
+		public KeyframeModifyTime(ICustomKeyframe keyframe)
 		{
 			this.keyframe = keyframe;
 			this.previousTime = keyframe.time;

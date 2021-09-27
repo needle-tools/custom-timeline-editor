@@ -76,7 +76,7 @@ namespace Needle.Timeline
 		private Rect _dragRect;
 		private TrackAsset _dragTrack;
 
-		private readonly List<ModifyTime> modifyTimeActions = new List<ModifyTime>();
+		private readonly List<KeyframeModifyTime> modifyTimeActions = new List<KeyframeModifyTime>();
 
 		private static readonly List<(ICustomClip clip, ICustomKeyframe keyframe)> deletionList = new List<(ICustomClip, ICustomKeyframe)>();
 		// private static int? controlId;
@@ -108,13 +108,16 @@ namespace Needle.Timeline
 					break;
 
 				case EventType.MouseUp:
-					foreach (var mod in modifyTimeActions)
+					for (var index = modifyTimeActions.Count - 1; index >= 0; index--)
 					{
+						var mod = modifyTimeActions[index];
 						mod.IsDone = true;
-						if (!Mathf.Approximately(mod.keyframe.time, mod.previousTime))
-							mod.newTime = mod.keyframe.time;
+						if (Mathf.Approximately(mod.keyframe.time, mod.previousTime))
+							modifyTimeActions.RemoveAt(index);
+						else mod.newTime = mod.keyframe.time;
 					}
-					CustomUndo.Register(new CompoundCommand(modifyTimeActions) { Name = "Modify Keyframe(s) time", IsDone = true });
+					if (modifyTimeActions.Count > 0)
+						CustomUndo.Register(new CompoundCommand(modifyTimeActions) { Name = "Modify Keyframe(s) time", IsDone = true });
 					modifyTimeActions.Clear();
 					break;
 
@@ -185,7 +188,8 @@ namespace Needle.Timeline
 													var time = DateTime.Now.TimeOfDay.TotalSeconds;
 													if (time - _lastKeyframeClickedTime < 1 && _lastClicked == kf)
 													{
-														viewModel.director.time = kf.time / timelineClip.timeScale + timelineClip.start;
+														var newTime = kf.time / timelineClip.timeScale + timelineClip.start;
+														CustomUndo.Register(new TimelineModifyTime(viewModel.director, newTime));
 														UpdatePreview();
 													}
 													_lastKeyframeClickedTime = time;
@@ -202,12 +206,21 @@ namespace Needle.Timeline
 														if (!didApplyDeltaToSelectedKeyframes)
 														{
 															didApplyDeltaToSelectedKeyframes = true;
+															var canPerform = true;
 															foreach (var entry in KeyframeSelector.EnumerateSelected())
 															{
-																if(!modifyTimeActions.Any(e => e.keyframe == entry))
-																	modifyTimeActions.Add(new ModifyTime(entry));
+																if (!canPerform) break;
+																if (entry.time + timeDelta < 0)
+																{
+																	canPerform = false;
+																}
+															}
+															foreach (var entry in KeyframeSelector.EnumerateSelected())
+															{
+																if (!canPerform) break;
+																if (!modifyTimeActions.Any(e => e.keyframe == entry))
+																	modifyTimeActions.Add(new KeyframeModifyTime(entry));
 																entry.time += timeDelta;
-																if (kf.time < 0) kf.time = 0;
 																Repaint();
 																UpdatePreview();
 																useEvent = true;
@@ -216,8 +229,8 @@ namespace Needle.Timeline
 													}
 													else
 													{
-														if(!modifyTimeActions.Any(e => e.keyframe == kf))
-															modifyTimeActions.Add(new ModifyTime(kf));
+														if (!modifyTimeActions.Any(e => e.keyframe == kf))
+															modifyTimeActions.Add(new KeyframeModifyTime(kf));
 														kf.Select(clip);
 														kf.time += timeDelta;
 														if (kf.time < 0) kf.time = 0;
