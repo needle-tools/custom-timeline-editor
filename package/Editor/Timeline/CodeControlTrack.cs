@@ -112,6 +112,7 @@ namespace Needle.Timeline
 					viewModel.director = dir;
 					viewModel.startTime = timelineClip.start;
 					viewModel.endTime = timelineClip.end;
+					viewModel.length = viewModel.endTime - viewModel.startTime;
 					viewModel.timeScale = timelineClip.timeScale;
 					asset.viewModel = viewModel;
 					if (existing != null) continue;

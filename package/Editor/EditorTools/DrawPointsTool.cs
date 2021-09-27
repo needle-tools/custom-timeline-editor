@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
 using UnityEditor;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -34,14 +35,15 @@ namespace Needle.Timeline
 					case EventType.MouseDown:
 						if (ActiveClip is ICustomClip<List<Vector3>> clip)
 						{
-							var closest = clip.GetClosest((float)CurrentTime);
-							if (closest != null &&  Mathf.Abs((float)CurrentTime - closest.time) < .1f && closest is ICustomKeyframe<List<Vector3>> kf)
+							var time = (float)CurrentTime;
+							var closest = clip.GetClosest(time);
+							if (closest != null &&  Mathf.Abs(time - closest.time) < .1f && closest is ICustomKeyframe<List<Vector3>> kf)
 							{
 								keyframe = kf;
 							}
-							if (keyframe == null || Mathf.Abs((float)CurrentTime - keyframe.time) > .1f)
+							if (keyframe == null || Mathf.Abs(time - keyframe.time) > .1f)
 							{
-								keyframe = new CustomKeyframe<List<Vector3>>(new List<Vector3>(), (float)CurrentTime);
+								keyframe = new CustomKeyframe<List<Vector3>>(new List<Vector3>(), time);
 								clip.Add(keyframe);
 							}
 						}

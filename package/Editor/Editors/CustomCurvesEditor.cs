@@ -85,7 +85,6 @@ namespace Needle.Timeline
 			var mouseDownOnKeyframe = false;
 			var mouseUpOnKeyframe = false;
 			var didApplyDeltaToSelectedKeyframes = false;
-			var isClick = Event.current.type == EventType.MouseUp;
 
 			switch (Event.current.type)
 			{
@@ -94,7 +93,7 @@ namespace Needle.Timeline
 					{
 						// first deselect
 						var pos = Event.current.mousePosition;
-						if (rect.Contains(pos))
+						if (rect.Contains(pos)) 
 						{
 							_dragTrack = Track;
 							KeyframeInspectorHelper.Deselect();
@@ -217,7 +216,7 @@ namespace Needle.Timeline
 												}
 												else if (r.Contains(Event.current.mousePosition))
 												{
-													Debug.Log("Up on keyframe");
+													// Debug.Log("Up on keyframe");
 													// deselect previously selected
 													KeyframeInspectorHelper.Deselect();
 													kf.Select(clip);
@@ -314,7 +313,7 @@ namespace Needle.Timeline
 
 			if (useEvent)
 			{
-				Debug.Log("Use " + Event.current.type);
+				// Debug.Log("Use " + Event.current.type);
 				Event.current.Use();
 			}
 		}

@@ -42,7 +42,7 @@ namespace Needle.Timeline
 		public readonly IAnimated Script;
 		public readonly List<IValueHandler> values = new List<IValueHandler>();
 		public readonly List<ICustomClip> clips = new List<ICustomClip>();
-		public double startTime, endTime, timeScale;
+		public double startTime, endTime, length, timeScale;
 		public double currentTime => director.time;
 	}
 }
