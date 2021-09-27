@@ -77,8 +77,7 @@ namespace Needle.Timeline
 		private TrackAsset _dragTrack;
 
 		private readonly List<KeyframeModifyTime> modifyTimeActions = new List<KeyframeModifyTime>();
-
-		private static readonly List<(ICustomClip clip, ICustomKeyframe keyframe)> deletionList = new List<(ICustomClip, ICustomKeyframe)>();
+		private static readonly List<DeleteKeyframe> deletionList = new List<DeleteKeyframe>();
 		// private static int? controlId;
 
 		protected override void OnDrawTrack(Rect rect)
@@ -116,7 +115,7 @@ namespace Needle.Timeline
 						else mod.newTime = mod.keyframe.time;
 					}
 					if (modifyTimeActions.Count > 0)
-						CustomUndo.Register(new CompoundCommand(modifyTimeActions) { Name = "Modify Keyframe(s) time", IsDone = true });
+						CustomUndo.Register(modifyTimeActions.ToCompound("Modify Keyframe(s) time", true));
 					modifyTimeActions.Clear();
 					break;
 
@@ -268,7 +267,7 @@ namespace Needle.Timeline
 													switch (evt.keyCode)
 													{
 														case KeyCode.Delete:
-															deletionList.Add((clip, kf));
+															deletionList.Add(new DeleteKeyframe(kf, clip));
 															break;
 
 														case KeyCode.C:
@@ -309,10 +308,8 @@ namespace Needle.Timeline
 
 			if (deletionList.Count > 0)
 			{
-				foreach (var (clip, keyframe) in deletionList)
-				{
-					clip.Remove(keyframe);
-				}
+				if(deletionList.Any(c => c.IsValid))
+					CustomUndo.Register(deletionList.ToCompound("Delete Keyframes"));
 				deletionList.Clear();
 				Repaint();
 				UpdatePreview();
