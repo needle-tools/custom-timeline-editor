@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Net;
 using UnityEditor;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -27,6 +26,8 @@ namespace Needle.Timeline
 			// var pos = GetCurrentMousePositionInScene();
 			var pos = PlaneUtils.GetPointOnPlane(Camera.current, out _, out _, out _);
 			Handles.DrawWireDisc(pos, Vector3.up, 0.5f);
+			Handles.DrawWireDisc(pos, Vector3.forward, 0.5f);
+			Handles.DrawWireDisc(pos, Vector3.right, 0.5f);
 			
 			if (Event.current.button == 0 && Event.current.modifiers == EventModifiers.None)
 			{
@@ -53,7 +54,7 @@ namespace Needle.Timeline
 					case EventType.MouseDrag:
 						if (keyframe != null)
 						{
-							keyframe.value.Add(Random.insideUnitSphere + pos);
+							keyframe.value.Add(Random.insideUnitSphere * .5f + pos);
 							keyframe.RaiseValueChangedEvent();
 							UseEvent();
 						}

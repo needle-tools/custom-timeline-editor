@@ -108,6 +108,7 @@ namespace Needle.Timeline
 						hasToolSupport = true;
 						var name = tool.GetType().Name;
 						var toolButton = new Button();
+						toolButton.style.height = 24f;
 						toolButton.text = name;
 						toolButton.style.flexGrow = 0;
 						toolsElement.Add(toolButton);

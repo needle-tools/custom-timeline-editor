@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
+using System.Text;
 using UnityEditor;
 using UnityEngine;
 
 namespace Needle.Timeline
 {
-	public struct KeyframeSelection
+	public struct SelectedKeyframe
 	{
 		public ICustomClip Clip;
 		public ICustomKeyframe Keyframe;
@@ -18,21 +19,40 @@ namespace Needle.Timeline
 	
 	public abstract class CustomKeyframeEditorBase
 	{
-		public IList<KeyframeSelection> Target { get; internal set; }
+		public IList<SelectedKeyframe> Target { get; } = new List<SelectedKeyframe>();
 		
 		public virtual void OnInspectorGUI()
 		{
-			// DrawDefaultInspector(Target);
+			DrawDefaultInspector(Target);
 		}
 
-		internal static void DrawDefaultInspector(string name, object obj)
+		private static void DrawDefaultInspector(IList<SelectedKeyframe> keyframes)
 		{
-			if (obj is ICustomKeyframe kf)
+			foreach (var sel in keyframes)
 			{
-				EditorGUILayout.LabelField(name);
+				DrawDefaultInspector(sel);
+			}
+		}
+
+		private static StringBuilder _stringBuilder = new StringBuilder();
+		internal static void DrawDefaultInspector(SelectedKeyframe selected)
+		{
+			if (selected.Keyframe != null)
+			{
+				var kf = selected.Keyframe;
+				// EditorGUILayout.LabelField(name);
 				kf.time = EditorGUILayout.FloatField("Time", kf.time);
-				var valStr = kf.value?.ToString() ?? "null"; 
-				EditorGUILayout.LabelField(new GUIContent(valStr, valStr));
+				if (kf.value == null)
+				{
+					EditorGUILayout.LabelField("NULL");
+				}
+				else
+				{
+					_stringBuilder.Clear();
+					StringHelper.GetTypeStringWithGenerics(kf.value.GetType(), _stringBuilder);
+					var valStr = _stringBuilder.ToString();
+					EditorGUILayout.LabelField("Value", valStr);
+				}
 				// TypeCache.GetTypesWithAttribute<>()
 			}
 		}

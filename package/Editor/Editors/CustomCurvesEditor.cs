@@ -96,7 +96,7 @@ namespace Needle.Timeline
 						if (rect.Contains(pos)) 
 						{
 							_dragTrack = Track;
-							KeyframeInspectorHelper.Deselect();
+							KeyframeSelector.Deselect();
 						}
 					}
 					break;
@@ -179,12 +179,12 @@ namespace Needle.Timeline
 												if (_dragging == kf)
 												{
 													var timeDelta = PixelDeltaToDeltaTime(Event.current.delta.x * (float)timelineClip.timeScale);
-													if (KeyframeInspectorHelper.SelectionCount > 0)
+													if (KeyframeSelector.SelectionCount > 0)
 													{
 														if (!didApplyDeltaToSelectedKeyframes)
 														{
 															didApplyDeltaToSelectedKeyframes = true;
-															foreach (var entry in KeyframeInspectorHelper.EnumerateSelected())
+															foreach (var entry in KeyframeSelector.EnumerateSelected())
 															{
 																entry.time += timeDelta;
 																if (kf.time < 0) kf.time = 0;
@@ -218,7 +218,7 @@ namespace Needle.Timeline
 												{
 													// Debug.Log("Up on keyframe");
 													// deselect previously selected
-													KeyframeInspectorHelper.Deselect();
+													KeyframeSelector.Deselect();
 													kf.Select(clip);
 													useEvent = true;
 													mouseUpOnKeyframe = true;
@@ -290,7 +290,7 @@ namespace Needle.Timeline
 						_startDragPoint = Event.current.mousePosition;
 						_dragRect = Rect.zero;
 						_dragTrack = Track;
-						KeyframeInspectorHelper.Deselect();
+						KeyframeSelector.Deselect();
 					}
 					break;
 
