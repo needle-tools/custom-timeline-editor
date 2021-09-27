@@ -14,9 +14,11 @@ public class FollowPoints : MonoBehaviour
 	[Header("Settings")]
 	public float Scale = 1;
 	public float Speed = 1;
+	public float Damping = 1;
 
 	private ComputeBuffer input;
 	private ComputeBuffer positions;
+	private ComputeBuffer velocities;
 	private ComputeBuffer args;
 	private uint[] argsData;
 
@@ -42,6 +44,11 @@ public class FollowPoints : MonoBehaviour
 			positions = new ComputeBuffer(Count, sizeof(float) * 4);
 		}
 
+		if (velocities == null || velocities.count != positions.count)
+		{
+			velocities = new ComputeBuffer(Count, sizeof(float) * 3);
+		}
+
 		if (args == null)
 		{
 			args = new ComputeBuffer(5, sizeof(uint), ComputeBufferType.IndirectArguments);
@@ -53,13 +60,15 @@ public class FollowPoints : MonoBehaviour
 		argsData[3] = (uint)Mesh.GetBaseVertex(0);
 		args.SetData(argsData);
 
-		Shader.SetBuffer(0, "Input", input); 
+		Shader.SetBuffer(0, "Input", input);  
 		Shader.SetInt("CurrentCount", Points.pointsCount);
 		Shader.SetBuffer(0, "Positions", positions);
 		Shader.SetFloat("DeltaTime", Time.deltaTime);
-		
+
+		Shader.SetBuffer(0, "Velocities", velocities);
 		Shader.SetFloat("ScaleFactor", Scale);
 		Shader.SetFloat("SpeedFactor", Speed);
+		Shader.SetFloat("DampFactor", Damping);
 		
 		var tx = Mathf.CeilToInt(positions.count / 32f);
 		Shader.Dispatch(0, tx, 1, 1);
