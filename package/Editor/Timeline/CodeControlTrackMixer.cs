@@ -30,9 +30,10 @@ namespace Needle.Timeline
 
 					var viewModel = behaviour.viewModel;
 					var length = (float)viewModel.director.duration;
-					var time = (float)((playable.GetTime() - behaviour.viewModel.startTime) * behaviour.viewModel.timeScale);
+					var time = (float)behaviour.viewModel.ToClipTime(playable.GetTime()); //((playable.GetTime() - behaviour.viewModel.startTime) * behaviour.viewModel.timeScale);
+					// Debug.Log(time.ToString("0.0") + ", " + length.ToString("0.0"));
 					// looping support:
-					time %= length;
+					time %= (length * (float)behaviour.viewModel.timeScale);
 				
 					// Debug.Log("Mix frame " + info.frameId);
 					var saveToMix = inputWeight < 1f && valuesToMix.Count <= 0;

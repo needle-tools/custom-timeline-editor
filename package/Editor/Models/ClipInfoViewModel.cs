@@ -45,5 +45,6 @@ namespace Needle.Timeline
 		public double startTime, endTime, length, timeScale;
 		public double currentTime => director.time;
 		public double clipTime => (currentTime - startTime) * timeScale;
+		public double ToClipTime(double time) => (time - startTime) * timeScale;
 	}
 }
