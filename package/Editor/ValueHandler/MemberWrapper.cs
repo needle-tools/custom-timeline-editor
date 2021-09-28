@@ -25,7 +25,7 @@ namespace Needle.Timeline
 		public void SetValue(object value)
 		{
 			var target = getTarget();
-			Debug.Log("Set " + member.Name + " on " + target?.GetType());
+			// Debug.Log("Set " + member.Name + " on " + target?.GetType());
 			if (target == null)
 			{
 				// Debug.Log("Target is null, not setting " + value);
