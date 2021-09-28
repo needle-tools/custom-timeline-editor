@@ -11,6 +11,21 @@ namespace Needle.Timeline
 
 	public static class CloneUtil
 	{
+		public static T TryClone<T>(T value)
+		{
+			if (value is null)
+			{
+				return default!;
+			}
+
+			if (value?.GetType().IsValueType ?? false)
+			{
+				return value;
+			}
+
+			return (T)TryClone((object)value!);
+		}
+
 		public static object TryClone(object? value)
 		{
 			if (value is null)

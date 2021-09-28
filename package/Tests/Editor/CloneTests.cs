@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Needle.Timeline;
@@ -7,6 +8,17 @@ using UnityEngine.TestTools;
 
 public class CloneTests
 {
+    [Test]
+    public void ValueClone()
+    {
+        var val = 42f;
+
+        var cloned = CloneUtil.TryClone(val);
+
+        Assert.AreNotSame(val, cloned);
+        Assert.IsTrue(Mathf.Approximately(val, cloned));
+    }
+
     [Test]
     public void CloneComputeBuffer()
     {
