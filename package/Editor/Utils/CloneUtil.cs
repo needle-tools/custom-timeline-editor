@@ -1,6 +1,7 @@
 ﻿#nullable enable
 using System;
 using System.Collections;
+using UnityEngine;
 
 namespace Needle.Timeline
 {
@@ -31,6 +32,15 @@ namespace Needle.Timeline
 			if (value is IList col)
 			{
 				return Activator.CreateInstance(value.GetType(), col);
+			}
+
+			if (value is ComputeBuffer buffer)
+			{
+				var copy = new ComputeBuffer(buffer.count, buffer.stride);
+				var arr = new byte[buffer.count * buffer.stride];
+				buffer.GetData(arr);
+				copy.SetData(arr);
+				return copy;
 			}
 
 			throw new CouldNotCloneException();
