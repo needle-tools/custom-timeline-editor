@@ -63,28 +63,14 @@ namespace Needle.Timeline
 		public object Clone()
 		{
 			T clonedValue = default;
-			if(value?.GetType().IsValueType ?? false)
+			try
 			{
-				clonedValue = value;
+				clonedValue = (T)CloneUtil.TryClone(value);
 			}
-			else if (value is null)
-			{
-				// nothing to clone
-			}
-			else if (value is ICloneable cloneable)
-			{
-				object? res = cloneable.Clone();
-				if (res != null) clonedValue = (T)res;
-			}
-			else if (value is IList col)
-			{
-				clonedValue = (T)Activator.CreateInstance(value.GetType(), col);
-			}
-			else
+			catch (CouldNotCloneException)
 			{
 				Debug.LogError("Can not clone keyframe with " + value + ", " + time);
 			}
-
 			return new CustomKeyframe<T>(clonedValue!, time);
 		}
 	}

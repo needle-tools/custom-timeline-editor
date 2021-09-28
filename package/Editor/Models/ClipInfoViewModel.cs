@@ -44,5 +44,6 @@ namespace Needle.Timeline
 		public readonly List<ICustomClip> clips = new List<ICustomClip>();
 		public double startTime, endTime, length, timeScale;
 		public double currentTime => director.time;
+		public double clipTime => (currentTime - startTime) * timeScale;
 	}
 }

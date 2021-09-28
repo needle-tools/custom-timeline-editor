@@ -77,6 +77,7 @@ namespace Needle.Timeline
 		private TrackAsset _dragTrack;
 
 		private readonly List<KeyframeModifyTime> modifyTimeActions = new List<KeyframeModifyTime>();
+
 		private static readonly List<DeleteKeyframe> deletionList = new List<DeleteKeyframe>();
 		// private static int? controlId;
 
@@ -105,7 +106,7 @@ namespace Needle.Timeline
 						}
 					}
 					break;
-			case EventType.MouseUp:
+				case EventType.MouseUp:
 					for (var index = modifyTimeActions.Count - 1; index >= 0; index--)
 					{
 						var mod = modifyTimeActions[index];
@@ -180,8 +181,8 @@ namespace Needle.Timeline
 													mouseDownOnKeyframe = true;
 													useEvent = true;
 													_dragging = kf;
-													
-													if(!kf.IsSelected())
+
+													if (!kf.IsSelected())
 														KeyframeSelector.Deselect();
 													kf.Select(clip);
 
@@ -262,37 +263,35 @@ namespace Needle.Timeline
 												break;
 
 											case EventType.KeyDown:
-												if (kf.IsSelected())
+												switch (evt.keyCode)
 												{
-													switch (evt.keyCode)
-													{
-														case KeyCode.Delete:
+													case KeyCode.Delete:
+														if (kf.IsSelected())
 															deletionList.Add(new DeleteKeyframe(kf, clip));
-															break;
+														break;
 
-														case KeyCode.C:
-															if ((evt.modifiers & EventModifiers.Control) != 0)
+													case KeyCode.C:
+														if (kf.IsSelected() && (evt.modifiers & EventModifiers.Control) != 0)
+														{
+															_copy = kf;
+														}
+														break;
+													case KeyCode.V:
+														if ((evt.modifiers & EventModifiers.Control) != 0)
+														{
+															if (_copy != null && _copy is ICloneable cloneable)
 															{
-																_copy = kf;
-															}
-															break;
-														case KeyCode.V:
-															if ((evt.modifiers & EventModifiers.Control) != 0)
-															{
-																if (_copy != null && _copy is ICloneable cloneable)
+																if (cloneable.Clone() is ICustomKeyframe copy)
 																{
-																	if (cloneable.Clone() is ICustomKeyframe copy)
-																	{
-																		copy.time = (float)viewModel.director.time - (float)timelineClip.start;
-																		clip.Add(copy);
-																		Repaint();
-																		UpdatePreview();
-																		return;
-																	}
+																	copy.time = (float)viewModel.clipTime;
+																	CustomUndo.Register(new CreateKeyframe(copy, clip));
+																	Repaint();
+																	UpdatePreview();
+																	return;
 																}
 															}
-															break;
-													}
+														}
+														break;
 												}
 												break;
 										}
@@ -308,7 +307,7 @@ namespace Needle.Timeline
 
 			if (deletionList.Count > 0)
 			{
-				if(deletionList.Any(c => c.IsValid))
+				if (deletionList.Any(c => c.IsValid))
 					CustomUndo.Register(deletionList.ToCompound("Delete Keyframes"));
 				deletionList.Clear();
 				Repaint();

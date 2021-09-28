@@ -19,15 +19,7 @@ namespace Needle.Timeline
 
 		public abstract bool Supports(Type type);
 
-		protected double CurrentTime
-		{
-			get
-			{
-				var clipTime = viewModel.currentTime - viewModel.startTime;
-				clipTime *= viewModel.timeScale;
-				return clipTime;
-			}
-		}
+		protected double CurrentTime => viewModel.clipTime;
 
 		private static Texture2D _toolIcon;
 		private VisualElement _toolRootElement;
