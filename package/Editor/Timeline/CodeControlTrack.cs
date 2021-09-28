@@ -92,12 +92,12 @@ namespace Needle.Timeline
 				AssetDatabase.TryGetGUIDAndLocalFileIdentifier(asset.GetInstanceID(), out var guid, out long _id);
 				var id = guid + "@" + _id; 
 
-				Debug.Log("<b>Create Playable</b> " + boundObject, timelineClip.asset);
+				// Debug.Log("<b>Create Playable</b> " + boundObject, timelineClip.asset);
 				timelineClip.CreateCurves(id);
 				
 				foreach (var script in animationComponents)
 				{
-					Debug.Log(script);
+					// Debug.Log(script);
 					var model = clips.FirstOrDefault(clipInfo => clipInfo.id == id);
 					if (model == null)
 					{

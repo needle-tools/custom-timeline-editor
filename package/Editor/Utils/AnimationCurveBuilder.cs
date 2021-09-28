@@ -234,7 +234,7 @@ namespace Needle.Timeline
 				binding.path = data.Path;
 			}
 
-			Debug.Log(data.Member.Name + " on <b>" + data.ViewModel.Script?.GetType() + "</b>");
+			// Debug.Log(data.Member.Name + " on <b>" + data.ViewModel.Script?.GetType() + "</b>");
 			object Resolve() => data.ViewModel.Script;// data.Director.GetGenericBinding(data.Track);
 			var handler = new MemberWrapper(data.Member, Resolve, data.MemberType);
 			var clip = data.TimelineClip.curves;
