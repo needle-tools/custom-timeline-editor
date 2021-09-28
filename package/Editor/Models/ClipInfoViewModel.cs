@@ -37,7 +37,7 @@ namespace Needle.Timeline
 
 		internal AnimationClip AnimationClip => model.clip;
 
-		public bool IsValid => director && director.playableGraph.IsValid();
+		public bool IsValid => director;
 		public string Name { get; set; }
 		public string Id => model.id;
 		public readonly IAnimated Script;

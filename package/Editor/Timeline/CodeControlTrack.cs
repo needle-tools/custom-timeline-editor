@@ -40,6 +40,7 @@ namespace Needle.Timeline
 			var ser = new JsonSerializer();
 			foreach (var viewModel in viewModels)
 			{
+				if (!viewModel.IsValid) continue;
 				foreach (var clip in viewModel.clips)
 				{
 					var json = (string)ser.Serialize(clip);
@@ -73,6 +74,12 @@ namespace Needle.Timeline
 		{
 			using (CreateTrackMarker.Auto())
 			{
+				for (var i = viewModels.Count - 1; i >= 0; i--)
+				{
+					var vm = viewModels[i];
+					if (!vm.IsValid) viewModels.RemoveAt(i);
+				}
+				
 				var dir = gameObject.GetComponent<PlayableDirector>();
 				var assetPath = AssetDatabase.GetAssetPath(dir.playableAsset);
 				UnitySaveProcessor.Register(this, assetPath);

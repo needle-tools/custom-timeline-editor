@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.EditorTools;
+using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 
 namespace Needle.Timeline
@@ -16,6 +18,12 @@ namespace Needle.Timeline
 			OnSetupTools();
 			ClipInfoViewModel.Created += OnCreated;
 			SceneView.beforeSceneGui += OnSceneGui;
+			EditorSceneManager.sceneClosing += OnUnload;
+		}
+
+		private static void OnUnload(Scene scene, bool rem)
+		{
+			_recreateTools = true;
 		}
 
 		private static void OnCreated(ClipInfoViewModel obj)
@@ -78,8 +86,9 @@ namespace Needle.Timeline
 		private static void CreateButtonsIfNecessary()
 		{
 			if (!_recreateTools) return;
-			_tools.Clear();
 			_recreateTools = false;
+			_tools.Clear();
+			Debug.Log("Create Tools");
 
 			foreach (var viewModel in ClipInfoViewModel.Instances)
 			{
@@ -87,9 +96,15 @@ namespace Needle.Timeline
 				vm.name = viewModel.Name;
 				vm.style.paddingBottom = 5;
 				_tools.Add(vm);
-				
+
 				vm.schedule.Execute(() =>
 				{
+					if (!viewModel.IsValid)
+					{
+						Debug.Log("Removing stuff");
+						vm.RemoveFromHierarchy();
+						return;
+					}
 					var inRange = viewModel.currentlyInClipTime;
 					vm.style.visibility = inRange ? Visibility.Visible : Visibility.Hidden;
 					vm.style.display = inRange ? DisplayStyle.Flex : DisplayStyle.None;
@@ -118,18 +133,44 @@ namespace Needle.Timeline
 						toolButton.style.height = 24f;
 						toolButton.text = name;
 						toolButton.style.flexGrow = 0;
-						toolsElement.Add(toolButton);
-						toolButton.clicked += () =>
+
+						void OnToolButtonClicked()
 						{
 							tool.ViewModel = viewModel;
 							tool.ActiveClip = clip;
 							if (tool is EditorTool et)
 							{
+								Debug.Log("Activate tool " + et + ", " + tool);
 								ToolManager.SetActiveTool(et);
-							}
-						};
+							} 
+						}
+
+			
+						toolButton.RegisterCallback<AttachToPanelEvent>(evt =>
+						{ 
+							Debug.Log("Attach button");
+							toolButton.clicked += OnToolButtonClicked;
+						});
+						toolButton.RegisterCallback<DetachFromPanelEvent>(evt =>
+						{
+							Debug.Log("Goodbye button");
+							toolButton.clicked -= OnToolButtonClicked;
+						});
+						toolsElement.Add(toolButton);
 					}
 				}
+			}
+		}
+
+		private class Man : Manipulator
+		{
+			protected override void RegisterCallbacksOnTarget()
+			{
+				
+			}
+
+			protected override void UnregisterCallbacksFromTarget()
+			{
 			}
 		}
 	}
