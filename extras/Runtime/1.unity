@@ -441,7 +441,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gizmoSizeFactor: 1
-  Factor: 0.68084335
+  Factor: 4.730114
 --- !u!1 &960015122
 GameObject:
   m_ObjectHideFlags: 0
@@ -474,7 +474,7 @@ MonoBehaviour:
   Count: 20000
   Shader: {fileID: 7200000, guid: 67018010f7a3e524f8d7a4b0688fbb06, type: 3}
   Points: {fileID: 343292042}
-  Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
   InstancedMaterial: {fileID: 2100000, guid: e294e24cf1ed56945baa44a3745ef8b6, type: 2}
   Scale: 0.1
   Speed: 1
@@ -771,6 +771,10 @@ PlayableDirector:
     value: {fileID: 343292042}
   - key: {fileID: 4079506292056913095, guid: 8b9ba6d584bac124f8d46aab450c96df, type: 2}
     value: {fileID: 1760619029}
+  - key: {fileID: -7258132492585807655, guid: 8b9ba6d584bac124f8d46aab450c96df, type: 2}
+    value: {fileID: 0}
+  - key: {fileID: -3353732523074014443, guid: 8b9ba6d584bac124f8d46aab450c96df, type: 2}
+    value: {fileID: 0}
   m_ExposedReferences:
     m_References:
     - 82060ca0554b4f7468f4e51add23033f: {fileID: 0}

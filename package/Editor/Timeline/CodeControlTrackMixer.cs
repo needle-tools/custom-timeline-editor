@@ -29,6 +29,7 @@ namespace Needle.Timeline
 					if (behaviour.viewModel == null) continue;
 
 					var viewModel = behaviour.viewModel;
+					if (!viewModel.IsValid) continue;
 					var length = (float)viewModel.director.duration;
 					var time = (float)behaviour.viewModel.ToClipTime(playable.GetTime()); //((playable.GetTime() - behaviour.viewModel.startTime) * behaviour.viewModel.timeScale);
 					// Debug.Log(time.ToString("0.0") + ", " + length.ToString("0.0"));
