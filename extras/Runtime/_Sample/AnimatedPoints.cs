@@ -67,14 +67,16 @@ namespace _Sample._Sample
 
 		public int pointsCount => points?.Count ?? 0;
 
+		private Color[] colors = new[] { new Color(0.9f, .5f, 0), new Color(0.5f, 0.9f, .5f), new Color(.9f, .8f, .2f), new Color(0.2f, .9f, .8f), new Color(.7f, .2f, .9f) };
+		
 		private void OnDrawGizmos()
 		{
 			var size = Vector3.up * .01f;
 			if (points != null)
 			{
-				Gizmos.color = Color.yellow;
 				for (var index = 0; index < points.Count; index++)
 				{
+					Gizmos.color = colors[index % colors.Length];
 					var pt = points[index];
 					Gizmos.DrawLine(pt, pt + size);
 					Gizmos.DrawSphere(pt, .1f * gizmoSizeFactor);
