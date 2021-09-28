@@ -407,6 +407,7 @@ GameObject:
   m_Component:
   - component: {fileID: 343292041}
   - component: {fileID: 343292042}
+  - component: {fileID: 343292043}
   m_Layer: 0
   m_Name: Points
   m_TagString: Untagged
@@ -441,7 +442,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gizmoSizeFactor: 1
-  Factor: 4.730114
+  Factor: 1
+--- !u!114 &343292043
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 343292040}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f40515ecb6bf3f4bbc7c83128ba793b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  MyValue: 0
+  MyInt: 0
+  MyDouble: 0
+  MyString: 
 --- !u!1 &960015122
 GameObject:
   m_ObjectHideFlags: 0
@@ -471,7 +488,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ee044f5d6be3c334291a960b22e4fb1e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Count: 20000
+  Count: 60000
   Shader: {fileID: 7200000, guid: 67018010f7a3e524f8d7a4b0688fbb06, type: 3}
   Points: {fileID: 343292042}
   Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
@@ -769,12 +786,6 @@ PlayableDirector:
     value: {fileID: 0}
   - key: {fileID: 1299525714294156642, guid: 8b9ba6d584bac124f8d46aab450c96df, type: 2}
     value: {fileID: 343292042}
-  - key: {fileID: 4079506292056913095, guid: 8b9ba6d584bac124f8d46aab450c96df, type: 2}
-    value: {fileID: 1760619029}
-  - key: {fileID: -7258132492585807655, guid: 8b9ba6d584bac124f8d46aab450c96df, type: 2}
-    value: {fileID: 0}
-  - key: {fileID: -3353732523074014443, guid: 8b9ba6d584bac124f8d46aab450c96df, type: 2}
-    value: {fileID: 0}
   m_ExposedReferences:
     m_References:
     - 82060ca0554b4f7468f4e51add23033f: {fileID: 0}

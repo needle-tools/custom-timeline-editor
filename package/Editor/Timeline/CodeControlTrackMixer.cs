@@ -26,35 +26,36 @@ namespace Needle.Timeline
 
 					var inputPlayable = (ScriptPlayable<CodeControlBehaviour>)playable.GetInput(i);
 					var behaviour = inputPlayable.GetBehaviour();
-					if (behaviour.viewModel == null) continue;
 
-					var viewModel = behaviour.viewModel;
-					if (!viewModel.IsValid) continue;
-					var length = (float)viewModel.director.duration;
-					var time = (float)behaviour.viewModel.ToClipTime(playable.GetTime()); //((playable.GetTime() - behaviour.viewModel.startTime) * behaviour.viewModel.timeScale);
-					// Debug.Log(time.ToString("0.0") + ", " + length.ToString("0.0"));
-					// looping support:
-					time %= (length * (float)behaviour.viewModel.timeScale);
-				
-					// Debug.Log("Mix frame " + info.frameId);
-					var saveToMix = inputWeight < 1f && valuesToMix.Count <= 0;
-					for (var index = 0; index < viewModel.clips.Count; index++)
+					foreach (var viewModel in behaviour.viewModels)
 					{
-						var curve = viewModel.clips[index];
-						var val = curve.Evaluate(time);
-						if (saveToMix)
+						if (!viewModel.IsValid) continue;
+						var length = (float)viewModel.director.duration;
+						var time = (float)viewModel.ToClipTime(playable.GetTime()); //((playable.GetTime() - behaviour.viewModel.startTime) * behaviour.viewModel.timeScale);
+						// Debug.Log(time.ToString("0.0") + ", " + length.ToString("0.0"));
+						// looping support:
+						time %= (length * (float)viewModel.timeScale);
+				
+						// Debug.Log("Mix frame " + info.frameId);
+						var saveToMix = inputWeight < 1f && valuesToMix.Count <= 0;
+						for (var index = 0; index < viewModel.clips.Count; index++)
 						{
-							valuesToMix.Add(val);
-						}
-						else if (inputWeight < 1f && valuesToMix.Count > index)
-						{
-							var prev = valuesToMix[index];
-							var final = curve.Interpolate(prev, val, inputWeight);
-							viewModel.values[index].SetValue(final);
-						}
-						else
-						{
-							viewModel.values[index].SetValue(val);
+							var curve = viewModel.clips[index];
+							var val = curve.Evaluate(time);
+							if (saveToMix)
+							{
+								valuesToMix.Add(val);
+							}
+							else if (inputWeight < 1f && valuesToMix.Count > index)
+							{
+								var prev = valuesToMix[index];
+								var final = curve.Interpolate(prev, val, inputWeight);
+								viewModel.values[index].SetValue(final);
+							}
+							else
+							{
+								viewModel.values[index].SetValue(val);
+							}
 						}
 					}
 				}

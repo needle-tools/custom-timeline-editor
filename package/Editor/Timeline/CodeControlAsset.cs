@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Playables;
 using UnityEngine.Timeline;
@@ -11,13 +12,13 @@ namespace Needle.Timeline
 		[SerializeField, HideInInspector]
 		private CodeControlBehaviour template;
 
-		internal ClipInfoViewModel viewModel;
+		internal readonly List<ClipInfoViewModel> viewModels = new List<ClipInfoViewModel>();
 		
 		public override Playable CreatePlayable(PlayableGraph graph, GameObject owner)
 		{
 			var scriptPlayable = ScriptPlayable<CodeControlBehaviour>.Create(graph, template);
 			var b = scriptPlayable.GetBehaviour();
-			b.viewModel = viewModel;
+			b.viewModels = viewModels;
 			return scriptPlayable; 
 		}
 

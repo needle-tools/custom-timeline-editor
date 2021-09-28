@@ -8,6 +8,7 @@ namespace Needle.Timeline
 		string Name { get; set; }
 		object Evaluate(float time);
 		bool CanAdd(Type type);
+		bool CanAdd(ICustomKeyframe kf);
 		bool Add(ICustomKeyframe kf);
 		void Remove(ICustomKeyframe kf);
 		event Action Changed;

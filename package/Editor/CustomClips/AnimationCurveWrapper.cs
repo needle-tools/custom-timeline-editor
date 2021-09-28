@@ -32,6 +32,11 @@ namespace Needle.Timeline
 			return typeof(float).IsAssignableFrom(type);
 		}
 
+		public bool CanAdd(ICustomKeyframe kf)
+		{
+			return kf.value?.GetType() == typeof(float);
+		}
+
 		public bool Add(ICustomKeyframe kf)
 		{
 			return false;

@@ -90,13 +90,14 @@ namespace Needle.Timeline
 				
 				
 				AssetDatabase.TryGetGUIDAndLocalFileIdentifier(asset.GetInstanceID(), out var guid, out long _id);
-				var id = guid + "@" + _id;
+				var id = guid + "@" + _id; 
 
-				// Debug.Log("<b>Create Playable</b> " + graph, timelineClip.asset);
+				Debug.Log("<b>Create Playable</b> " + boundObject, timelineClip.asset);
 				timelineClip.CreateCurves(id);
 				
-				foreach (var anim in animationComponents)
+				foreach (var script in animationComponents)
 				{
+					Debug.Log(script);
 					var model = clips.FirstOrDefault(clipInfo => clipInfo.id == id);
 					if (model == null)
 					{
@@ -105,20 +106,21 @@ namespace Needle.Timeline
 						clips.Add(model);
 					}
 
-					var existing = viewModels.FirstOrDefault(v => v.AnimationClip == timelineClip.curves);
-					timelineClip.displayName = anim.GetType().Name;
+					var existing = viewModels.FirstOrDefault(v => v.Script == script);
+					timelineClip.displayName = script.GetType().Name;
 
-					var viewModel = existing ?? new ClipInfoViewModel(boundObject.name, anim, model);
+					var viewModel = existing ?? new ClipInfoViewModel(boundObject.name, script, model);
 					viewModel.director = dir;
 					viewModel.startTime = timelineClip.start;
 					viewModel.endTime = timelineClip.end;
 					viewModel.length = viewModel.endTime - viewModel.startTime;
 					viewModel.timeScale = timelineClip.timeScale;
-					asset.viewModel = viewModel;
+					if(!asset.viewModels.Contains(viewModel))
+						asset.viewModels.Add(viewModel);
 					if (existing != null) continue;
 					viewModels.Add(viewModel);
 
-					var type = anim.GetType();
+					var type = script.GetType();
 					var animationClip = timelineClip.curves;
 					var clipBindings = AnimationUtility.GetCurveBindings(animationClip);
 					var path = AnimationUtility.CalculateTransformPath(boundObject.transform, null);

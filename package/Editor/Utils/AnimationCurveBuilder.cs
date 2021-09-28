@@ -168,7 +168,7 @@ namespace Needle.Timeline
 
 			curve.Name = name;
 
-			object Resolve() => data.Director.GetGenericBinding(data.Track);
+			object Resolve() => data.ViewModel.Script; //data.Director.GetGenericBinding(data.Track);
 			var handler = new MemberWrapper(data.Member, Resolve, data.MemberType);
 			data.ViewModel.Register(handler, curve);
 			return CreationResult.Successful;
@@ -218,7 +218,7 @@ namespace Needle.Timeline
 						binding.propertyName = data.Member.Name;
 						AnimationUtility.SetEditorCurve(data.TimelineClip.curves, binding, curve);
 						Debug.Log("FOUND: " + data.Member.Name + " as " + former);
-						break;
+						break; 
 					}
 				}
 			}
@@ -234,7 +234,8 @@ namespace Needle.Timeline
 				binding.path = data.Path;
 			}
 
-			object Resolve() => data.Director.GetGenericBinding(data.Track);
+			Debug.Log(data.Member.Name + " on <b>" + data.ViewModel.Script?.GetType() + "</b>");
+			object Resolve() => data.ViewModel.Script;// data.Director.GetGenericBinding(data.Track);
 			var handler = new MemberWrapper(data.Member, Resolve, data.MemberType);
 			var clip = data.TimelineClip.curves;
 			var animationCurve = new AnimationCurveWrapper(() => AnimationUtility.GetEditorCurve(clip, binding), data.Member.Name);

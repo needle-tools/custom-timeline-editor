@@ -105,6 +105,14 @@ namespace Needle.Timeline
 			return typeof(T).IsAssignableFrom(type);
 		}
 
+		public bool CanAdd(ICustomKeyframe kf)
+		{
+			if (kf is ICustomKeyframe<T>) return true;
+			var type = kf.value?.GetType();
+			if (type == null) return false;
+			return typeof(T).IsAssignableFrom(type);
+		}
+
 		public bool Add(ICustomKeyframe kf)
 		{
 			if (kf == null || kf.value == null || !(kf is ICustomKeyframe<T> keyframe))
