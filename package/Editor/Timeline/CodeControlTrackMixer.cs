@@ -14,48 +14,59 @@ namespace Needle.Timeline
 		// NOTE: This function is called at runtime and edit time.  Keep that in mind when setting the values of properties.
 		public override void ProcessFrame(Playable playable, FrameData info, object playerData)
 		{
-			using(mixerMarker.Auto())
+			using (mixerMarker.Auto())
 			{
-				valuesToMix.Clear();
 				var inputCount = playable.GetInputCount();
-
-				for (var i = 0; i < inputCount; i++)
+				var inputPlayable = (ScriptPlayable<CodeControlBehaviour>)playable.GetInput(0);
+				var behaviour = inputPlayable.GetBehaviour();
+				for (var viewModelIndex = 0; viewModelIndex < behaviour.viewModels.Count; viewModelIndex++)
 				{
-					var inputWeight = playable.GetInputWeight(i);
-					if (inputWeight <= 0.000001f) continue;
+					// var viewModel = behaviour.viewModels[viewModelIndex];
+					valuesToMix.Clear();
 
-					var inputPlayable = (ScriptPlayable<CodeControlBehaviour>)playable.GetInput(i);
-					var behaviour = inputPlayable.GetBehaviour();
-
-					foreach (var viewModel in behaviour.viewModels)
+					for (var i = 0; i < inputCount; i++)
 					{
-						if (!viewModel.IsValid) continue;
-						var length = (float)viewModel.director.duration;
-						var time = (float)viewModel.ToClipTime(playable.GetTime()); //((playable.GetTime() - behaviour.viewModel.startTime) * behaviour.viewModel.timeScale);
-						// Debug.Log(time.ToString("0.0") + ", " + length.ToString("0.0"));
-						// looping support:
-						time %= (length * (float)viewModel.timeScale);
-				
-						// Debug.Log("Mix frame " + info.frameId);
-						var saveToMix = inputWeight < 1f && valuesToMix.Count <= 0;
-						for (var index = 0; index < viewModel.clips.Count; index++)
+						var inputWeight = playable.GetInputWeight(i);
+						if (inputWeight <= 0.000001f) continue;
+
+						inputPlayable = (ScriptPlayable<CodeControlBehaviour>)playable.GetInput(i);
+						var b = inputPlayable.GetBehaviour();
+
+						var viewModel = b.viewModels[0];
+						// foreach (var viewModel in b.viewModels[viewModelIndex])
 						{
-							var curve = viewModel.clips[index];
-							var val = curve.Evaluate(time);
-							if (saveToMix)
+							if (!viewModel.IsValid) continue;
+							Debug.Log(viewModel.Script + ", " + inputWeight + ", " + viewModel.clips.Count);
+							var length = (float)viewModel.director.duration;
+							var time = (float)viewModel.ToClipTime(playable
+								.GetTime()); //((playable.GetTime() - behaviour.viewModel.startTime) * behaviour.viewModel.timeScale);
+							// Debug.Log(time.ToString("0.0") + ", " + length.ToString("0.0"));
+							// looping support:
+							time %= (length * (float)viewModel.timeScale);
+
+							// Debug.Log("Mix frame " + info.frameId);
+							var saveToMix = inputWeight < 1f && valuesToMix.Count <= 0;
+							for (var index = 0; index < viewModel.clips.Count; index++)
 							{
-								valuesToMix.Add(val);
+								var clip = viewModel.clips[index];
+								Debug.Log(clip);
+								var val = clip.Evaluate(time);
+								if (saveToMix)
+								{
+									valuesToMix.Add(val);
+								}
+								else if (inputWeight < 1f && valuesToMix.Count > index)
+								{
+									var prev = valuesToMix[index];
+									var final = clip.Interpolate(prev, val, inputWeight);
+									viewModel.values[index].SetValue(final);
+								}
+								else
+								{
+									viewModel.values[index].SetValue(val);
+								}
 							}
-							else if (inputWeight < 1f && valuesToMix.Count > index)
-							{
-								var prev = valuesToMix[index];
-								var final = curve.Interpolate(prev, val, inputWeight);
-								viewModel.values[index].SetValue(final);
-							}
-							else
-							{
-								viewModel.values[index].SetValue(val);
-							}
+							// break;
 						}
 					}
 				}

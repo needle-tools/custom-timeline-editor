@@ -113,7 +113,7 @@ namespace Needle.Timeline
 						clips.Add(model);
 					}
 
-					var existing = viewModels.FirstOrDefault(v => v.Script == script);
+					var existing = viewModels.FirstOrDefault(v => v.Script == script && v.AnimationClip == timelineClip.curves);
 					timelineClip.displayName = script.GetType().Name;
 
 					var viewModel = existing ?? new ClipInfoViewModel(boundObject.name, script, model);
