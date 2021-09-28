@@ -81,14 +81,21 @@ namespace Needle.Timeline
 			_tools.Clear();
 			_recreateTools = false;
 
-			foreach (var inst in ClipInfoViewModel.Instances)
+			foreach (var viewModel in ClipInfoViewModel.Instances)
 			{
 				var vm = new VisualElement();
-				vm.name = inst.Name;
+				vm.name = viewModel.Name;
 				vm.style.paddingBottom = 5;
 				_tools.Add(vm);
 				
-				var title = new Label(inst.Script.ToString());
+				vm.schedule.Execute(() =>
+				{
+					var inRange = viewModel.currentlyInClipTime;
+					vm.style.visibility = inRange ? Visibility.Visible : Visibility.Hidden;
+					vm.style.display = inRange ? DisplayStyle.Flex : DisplayStyle.None;
+				}).Every(500);
+				
+				var title = new Label(viewModel.Script.ToString());
 				vm.Add(title);
 
 				var toolsElement = new VisualElement();
@@ -96,7 +103,7 @@ namespace Needle.Timeline
 				toolsElement.style.flexDirection = new StyleEnum<FlexDirection>(FlexDirection.Row);
 				vm.Add(toolsElement);
 				
-				foreach (var clip in inst.clips)
+				foreach (var clip in viewModel.clips)
 				{
 					var hasToolSupport = false;
 					foreach (var tool in _toolInstances)
@@ -114,7 +121,7 @@ namespace Needle.Timeline
 						toolsElement.Add(toolButton);
 						toolButton.clicked += () =>
 						{
-							tool.ViewModel = inst;
+							tool.ViewModel = viewModel;
 							tool.ActiveClip = clip;
 							if (tool is EditorTool et)
 							{

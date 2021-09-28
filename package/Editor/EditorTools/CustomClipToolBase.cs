@@ -57,6 +57,7 @@ namespace Needle.Timeline
 				return;
 			if (ActiveClip == null)
 			{
+				Debug.Log("Clip does not exist, disabling tool");
 				ToolManager.RestorePreviousTool();
 				return;
 			}

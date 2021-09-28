@@ -106,7 +106,7 @@ namespace Needle.Timeline
 					}
 
 					var existing = viewModels.FirstOrDefault(v => v.AnimationClip == timelineClip.curves);
-					timelineClip.displayName = "Code Track";
+					timelineClip.displayName = anim.GetType().Name;
 
 					var viewModel = existing ?? new ClipInfoViewModel(boundObject.name, anim, model);
 					viewModel.director = dir;
