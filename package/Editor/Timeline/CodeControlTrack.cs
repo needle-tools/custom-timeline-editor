@@ -112,23 +112,23 @@ namespace Needle.Timeline
 				foreach (var script in animationComponents)
 				{
 					var type = script.GetType();
-					var name = type.Name;
+					var typeName = type.Name;
 					var index = -1;
 					for (var i = 0; i < componentTypeIndices.Count; i++)
 					{
 						var ct = componentTypeIndices[i];
-						if (ct.type == name)
+						if (ct.type == typeName)
 						{
 							index = ++ct.index;
-							componentTypeIndices[i] = (name, index);
+							componentTypeIndices[i] = (typeName, index);
 						}
 					}
 					if (index < 0)
 					{
 						index = 0;
-						componentTypeIndices.Add((name, 0));
+						componentTypeIndices.Add((typeName, 0));
 					}
-					var modelId = id + "_" + name + "_" + index;
+					var modelId = id + "_" + typeName + "_" + index;
 					
 					var model = clips.FirstOrDefault(e => e.id == modelId);
 					if (model == null)
@@ -148,7 +148,7 @@ namespace Needle.Timeline
 					viewModel.director = dir;
 					if (existing != null)
 					{
-						Debug.Log("VM exists: " + id);
+						// Debug.Log("VM exists: " + id);
 						continue;
 					}
 					viewModels.Add(viewModel);
