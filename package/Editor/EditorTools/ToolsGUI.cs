@@ -106,8 +106,7 @@ namespace Needle.Timeline
 
 						void OnToolButtonClicked()
 						{
-							tool.ViewModel = viewModel;
-							tool.ActiveClip = clip;
+							tool.Add(viewModel, clip);
 							if (tool is EditorTool et)
 							{
 								// Debug.Log("Activate tool " + et + ", " + tool);

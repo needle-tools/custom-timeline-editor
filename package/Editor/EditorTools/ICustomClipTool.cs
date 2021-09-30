@@ -1,12 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace Needle.Timeline
 {
 	public interface ICustomClipTool
 	{
-		ICustomClip ActiveClip { get; set; }
-		ClipInfoViewModel ViewModel { set; }
+		void Add(ClipInfoViewModel vm, ICustomClip clip);
+		void Remove(ICustomClip clip);
+		void Clear();
+		bool ContainsClip(Type clipType);
 		bool Supports(Type type);
 	}
 }

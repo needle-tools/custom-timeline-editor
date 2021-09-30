@@ -34,18 +34,22 @@ namespace Needle.Timeline
 				switch (Event.current.type)
 				{
 					case EventType.MouseDown:
-						if (ActiveClip is ICustomClip<List<Vector3>> clip)
+						foreach (var active in Active)
 						{
-							var time = (float)CurrentTime;
-							var closest = clip.GetClosest(time);
-							if (closest != null &&  Mathf.Abs(time - closest.time) < .1f && closest is ICustomKeyframe<List<Vector3>> kf)
+							if (!active.ViewModel.currentlyInClipTime) continue;
+							if (active.Clip is ICustomClip<List<Vector3>> clip)
 							{
-								keyframe = kf;
-							}
-							if (keyframe == null || Mathf.Abs(time - keyframe.time) > .1f)
-							{
-								keyframe = new CustomKeyframe<List<Vector3>>(new List<Vector3>(), time);
-								CustomUndo.Register(new CreateKeyframe(keyframe, clip));
+								var time = (float)active.ViewModel.clipTime;
+								var closest = clip.GetClosest(time);
+								if (closest != null &&  Mathf.Abs(time - closest.time) < .1f && closest is ICustomKeyframe<List<Vector3>> kf)
+								{
+									keyframe = kf;
+								}
+								if (keyframe == null || Mathf.Abs(time - keyframe.time) > .1f)
+								{
+									keyframe = new CustomKeyframe<List<Vector3>>(new List<Vector3>(), time);
+									CustomUndo.Register(new CreateKeyframe(keyframe, clip));
+								}
 							}
 						}
 						UseEvent(); 

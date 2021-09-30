@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEditor.EditorTools;
 using UnityEngine;
@@ -6,26 +8,47 @@ using UnityEngine.UIElements;
 
 namespace Needle.Timeline
 {
+	public struct SelectedClip
+	{
+		public readonly ClipInfoViewModel ViewModel;
+		public readonly ICustomClip Clip;
+
+		public SelectedClip(ClipInfoViewModel viewModel, ICustomClip clip)
+		{
+			ViewModel = viewModel;
+			Clip = clip;
+		}
+	}
+	
 	public abstract class CustomClipToolBase : EditorTool, ICustomClipTool
 	{
-		private ClipInfoViewModel viewModel;
+		private readonly List<SelectedClip> active = new List<SelectedClip>();
 
-		public ICustomClip ActiveClip { get; set; }
+		protected IReadOnlyList<SelectedClip> Active => active;
 
-		public ClipInfoViewModel ViewModel
+		public void Add(ClipInfoViewModel vm, ICustomClip clip)
 		{
-			set => viewModel = value;
+			active.Add(new SelectedClip(vm, clip));
 		}
 
+		public void Remove(ICustomClip clip)
+		{
+			active.RemoveAll(e => e.Clip == clip);
+		}
+
+		public void Clear()
+		{
+			active.Clear();
+		}
+
+		public bool ContainsClip(Type clipType) => active.Any(a => a.Clip.GetType() == clipType);
+
 		public abstract bool Supports(Type type);
-
-		protected double CurrentTime => viewModel.clipTime;
-
+		
 		private static Texture2D _toolIcon;
 		private VisualElement _toolRootElement;
 		private bool _receivedClickDownEvent;
 		private bool _receivedClickUpEvent;
-		private float currentTime;
 
 		public override void OnActivated()
 		{
@@ -55,12 +78,6 @@ namespace Needle.Timeline
 				return;
 			if (!ToolManager.IsActiveTool(this))
 				return;
-			if (ActiveClip == null)
-			{
-				Debug.Log("Clip does not exist, disabling tool");
-				ToolManager.RestorePreviousTool();
-				return;
-			}
 			OnToolInput();
 		}
 

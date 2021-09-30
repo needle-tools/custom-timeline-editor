@@ -9,6 +9,32 @@ namespace Needle.Timeline
 {
 	public static class ToolsHandler
 	{
+		public static void RebuildInstances()
+		{
+			_requireRebuild = true;
+			CreateToolInstances();
+		}
+
+		public static void Select(ICustomClipTool tool)
+		{
+			if (!_selected.Contains(tool))
+				_selected.Add(tool);
+		}
+
+		public static void Deselect(ICustomClipTool tool)
+		{
+			_selected.RemoveAll(t => t == tool);
+		}
+
+		public static void DeselectAll()
+		{
+			_selected.Clear();
+		}
+
+		public static bool IsSelected(ICustomClipTool tool) => _selected.Contains(tool);
+
+		private static readonly List<ICustomClipTool> _selected = new List<ICustomClipTool>();
+
 		[InitializeOnLoadMethod]
 		private static void Init()
 		{
@@ -21,23 +47,19 @@ namespace Needle.Timeline
 			if (mode == OpenSceneMode.Single)
 				RebuildInstances();
 		}
-		
-		public static void RebuildInstances()
-		{
-			_requireRebuild = true;
-			CreateToolInstances();
-		}
 
 		private static bool _requireRebuild = true;
 		private static List<ICustomClipTool> _toolInstances;
+
 		internal static IReadOnlyList<ICustomClipTool> ToolInstances
 		{
 			get
 			{
-				if(_requireRebuild) CreateToolInstances();
+				if (_requireRebuild) CreateToolInstances();
 				return _toolInstances;
 			}
 		}
+
 		private static void CreateToolInstances()
 		{
 			if (!_requireRebuild && _toolInstances != null) return;

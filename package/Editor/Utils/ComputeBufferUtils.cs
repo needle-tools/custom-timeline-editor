@@ -14,5 +14,17 @@ namespace Needle.Timeline
 			}
 			return buffer;
 		}
+		
+		// https://forum.unity.com/threads/graphicsbuffer-mesh-vertices-and-compute-shaders.777548/#post-6989081
+		// https://github.com/cecarlsen/HowToDrawATriangle
+		public static GraphicsBuffer SafeCreate(ref GraphicsBuffer buffer, GraphicsBuffer.Target target, int size, int stride)
+		{
+			if (buffer == null || !buffer.IsValid() || buffer.count < size || buffer.stride != stride)
+			{
+				buffer.SafeDispose();
+				buffer = new GraphicsBuffer(target, size, stride);
+			}
+			return buffer;
+		}
 	}
 }
