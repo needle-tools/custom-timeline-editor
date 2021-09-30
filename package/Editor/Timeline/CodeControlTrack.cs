@@ -70,6 +70,11 @@ namespace Needle.Timeline
 
 		private static BindingFlags DefaultFlags => BindingFlags.Default | BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
 
+		/// <summary>
+		/// For id generation per gameobject / type
+		/// </summary>
+		private readonly List<(string type, int index)> componentTypeIndices = new List<(string, int)>();
+		
 		protected override Playable CreatePlayable(PlayableGraph graph, GameObject gameObject, TimelineClip timelineClip)
 		{
 			using (CreateTrackMarker.Auto())
@@ -89,6 +94,7 @@ namespace Needle.Timeline
 
 				var asset = timelineClip.asset as CodeControlAsset;
 				if (!asset) throw new NullReferenceException("Missing code control asset");
+				asset.name = gameObject.name;
 				
 				// Debug.Log("Create " + asset + ", " + viewModels.Count);
 
@@ -102,40 +108,59 @@ namespace Needle.Timeline
 				// Debug.Log("<b>Create Playable</b> " + boundObject, timelineClip.asset);
 				timelineClip.CreateCurves(id);
 				
+				componentTypeIndices.Clear();
 				foreach (var script in animationComponents)
 				{
-					// Debug.Log(script);
-					var model = clips.FirstOrDefault(clipInfo => clipInfo.id == id);
+					var type = script.GetType();
+					var name = type.Name;
+					var index = -1;
+					for (var i = 0; i < componentTypeIndices.Count; i++)
+					{
+						var ct = componentTypeIndices[i];
+						if (ct.type == name)
+						{
+							index = ++ct.index;
+							componentTypeIndices[i] = (name, index);
+						}
+					}
+					if (index < 0)
+					{
+						index = 0;
+						componentTypeIndices.Add((name, 0));
+					}
+					var modelId = id + "_" + name + "_" + index;
+					
+					var model = clips.FirstOrDefault(e => e.id == modelId);
 					if (model == null)
 					{
-						model = new ClipInfoModel(id, timelineClip.curves);
+						model = new ClipInfoModel(modelId, timelineClip.curves);
 						// timelineClip.displayName += "\n" + id;
 						clips.Add(model);
 					}
 
-					var existing = viewModels.FirstOrDefault(v => v.Script == script && v.AnimationClip == timelineClip.curves);
+					var script1 = script;
+					var existing = viewModels.FirstOrDefault(v => v.Script == script1 && v.AnimationClip == timelineClip.curves && v.Id == model.id);
 					timelineClip.displayName = script.GetType().Name;
 
-					var viewModel = existing ?? new ClipInfoViewModel(boundObject.name, script, model);
-					viewModel.director = dir;
-					viewModel.startTime = timelineClip.start;
-					viewModel.endTime = timelineClip.end;
-					viewModel.length = viewModel.endTime - viewModel.startTime;
-					viewModel.timeScale = timelineClip.timeScale;
-					if(!asset.viewModels.Contains(viewModel))
+					var viewModel = existing ?? new ClipInfoViewModel(boundObject.name, script, model, timelineClip);
+					if (!asset.viewModels.Contains(viewModel))
 						asset.viewModels.Add(viewModel);
-					if (existing != null) continue;
+					viewModel.director = dir;
+					if (existing != null)
+					{
+						Debug.Log("VM exists: " + id);
+						continue;
+					}
 					viewModels.Add(viewModel);
 
-					var type = script.GetType();
 					var animationClip = timelineClip.curves;
 					var clipBindings = AnimationUtility.GetCurveBindings(animationClip);
 					var path = AnimationUtility.CalculateTransformPath(boundObject.transform, null);
-					
+
 					// TODO: handle formerly serialized name
-					
+
 					var fields = type.GetFields(DefaultFlags);
-					foreach (var field in fields) 
+					foreach (var field in fields)
 					{
 						var data = new AnimationCurveBuilder.Data(this, dir, viewModel, type, clipBindings, timelineClip, path,
 							field, field.FieldType, dir.playableAsset);

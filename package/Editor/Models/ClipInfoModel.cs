@@ -1,8 +1,8 @@
 ﻿#nullable enable
 
 using System;
-using JetBrains.Annotations;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Needle.Timeline
 {
@@ -11,6 +11,7 @@ namespace Needle.Timeline
 	{
 		public string id;
 		public AnimationClip? clip;
+		public bool solo;
 
 		public ClipInfoModel(string id, AnimationClip? clip)
 		{

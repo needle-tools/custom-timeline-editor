@@ -36,6 +36,9 @@ namespace Needle.Timeline
 		private static List<ICustomClipTool> _toolInstances;
 		private static readonly List<SceneView> _scenes = new List<SceneView>();
 
+		private static readonly List<ClipInfoViewModel> availableClips = new List<ClipInfoViewModel>();
+		internal static IReadOnlyList<ClipInfoViewModel> AvailableClips => availableClips;
+
 		private static void OnSetupTools()
 		{
 			if (_toolInstances != null) return;
@@ -78,7 +81,6 @@ namespace Needle.Timeline
 			_root.style.paddingRight = 5f;
 			_root.style.paddingLeft = 5f;
 			_root.style.paddingBottom = 5f;
-
 			_tools = new VisualElement();
 			_root.Add(_tools);
 		}
@@ -127,6 +129,7 @@ namespace Needle.Timeline
 						if (!hasToolSupport)
 						{
 						}
+						
 						hasToolSupport = true;
 						var name = tool.GetType().Name;
 						var toolButton = new Button();
@@ -159,18 +162,6 @@ namespace Needle.Timeline
 						toolsElement.Add(toolButton);
 					}
 				}
-			}
-		}
-
-		private class Man : Manipulator
-		{
-			protected override void RegisterCallbacksOnTarget()
-			{
-				
-			}
-
-			protected override void UnregisterCallbacksFromTarget()
-			{
 			}
 		}
 	}

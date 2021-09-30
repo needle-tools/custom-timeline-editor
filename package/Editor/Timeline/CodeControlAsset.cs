@@ -13,7 +13,7 @@ namespace Needle.Timeline
 		private CodeControlBehaviour template;
 
 		internal readonly List<ClipInfoViewModel> viewModels = new List<ClipInfoViewModel>();
-		
+
 		public override Playable CreatePlayable(PlayableGraph graph, GameObject owner)
 		{
 			var scriptPlayable = ScriptPlayable<CodeControlBehaviour>.Create(graph, template);

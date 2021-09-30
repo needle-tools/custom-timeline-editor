@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using Editor;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Playables;
+using UnityEngine.Timeline;
 
 namespace Needle.Timeline
 {
@@ -13,7 +15,17 @@ namespace Needle.Timeline
 		public static IReadOnlyList<ClipInfoViewModel> Instances => instances;
 		public static event Action<ClipInfoViewModel> Created;
 
+		public bool Solo
+		{
+			get => model.solo;
+			set
+			{
+				model.solo = value;
+			}
+		}
+
 		private readonly ClipInfoModel model;
+		private readonly TimelineClip timelineClip;
 		internal PlayableDirector director;
 
 		private ClipInfoViewModel()
@@ -22,11 +34,12 @@ namespace Needle.Timeline
 			Created?.Invoke(this);
 		}
 
-		public ClipInfoViewModel(string name, IAnimated script, ClipInfoModel model) : this()
+		public ClipInfoViewModel(string name, IAnimated script, ClipInfoModel model, TimelineClip timelineClip) : this()
 		{
 			this.Name = name;
 			this.Script = script;
 			this.model = model;
+			this.timelineClip = timelineClip;
 		}
 
 		internal void Register(IValueHandler handler, ICustomClip clip)
@@ -43,7 +56,10 @@ namespace Needle.Timeline
 		public readonly IAnimated Script;
 		public readonly List<IValueHandler> values = new List<IValueHandler>();
 		public readonly List<ICustomClip> clips = new List<ICustomClip>();
-		public double startTime, endTime, length, timeScale;
+		public double startTime => timelineClip.start;
+		public double endTime => timelineClip.end;
+		public double length => timelineClip.duration;
+		public double timeScale => timelineClip.timeScale;
 		public double currentTime => director.time;
 		public double clipTime => (currentTime - startTime) * timeScale;
 		public double clipLength => length * timeScale;
