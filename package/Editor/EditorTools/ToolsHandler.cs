@@ -15,24 +15,30 @@ namespace Needle.Timeline
 		[InitializeOnLoadMethod]
 		private static void Init()
 		{
-			OnSetupTools();
 			ClipInfoViewModel.Created += OnCreated;
 			SceneView.beforeSceneGui += OnSceneGui;
+			EditorSceneManager.sceneOpened += OnReload;
 			EditorSceneManager.sceneClosing += OnUnload;
+		}
+
+		private static void OnReload(Scene scene, OpenSceneMode mode)
+		{
+			_recreateUI = true;
+			_recreateInstances = true;
 		}
 
 		private static void OnUnload(Scene scene, bool rem)
 		{
-			_recreateTools = true;
+			_recreateUI = true;
 		}
 
 		private static void OnCreated(ClipInfoViewModel obj)
 		{
-			_recreateTools = true;
+			_recreateUI = true;
 		}
 
 		private static VisualElement _root, _tools;
-		private static bool _recreateTools;
+		private static bool _recreateUI, _recreateInstances;
 		private static List<ICustomClipTool> _toolInstances;
 		private static readonly List<SceneView> _scenes = new List<SceneView>();
 
@@ -41,8 +47,11 @@ namespace Needle.Timeline
 
 		private static void OnSetupTools()
 		{
-			if (_toolInstances != null) return;
-			_toolInstances = new List<ICustomClipTool>();
+			if (_toolInstances != null && !_recreateInstances) return;
+			Debug.Log("create instances");
+			_recreateInstances = false;
+			_toolInstances ??= new List<ICustomClipTool>();
+			_toolInstances.Clear();
 			var toolTypes = TypeCache.GetTypesDerivedFrom<ICustomClipTool>();
 			foreach (var tool in toolTypes)
 			{
@@ -54,6 +63,7 @@ namespace Needle.Timeline
 
 		private static void OnSceneGui(SceneView obj)
 		{
+			OnSetupTools();
 			OnBuildGUIIfNecessary();
 			CreateButtonsIfNecessary();
 
@@ -87,10 +97,10 @@ namespace Needle.Timeline
 
 		private static void CreateButtonsIfNecessary()
 		{
-			if (!_recreateTools) return;
-			_recreateTools = false;
+			if (!_recreateUI) return;
+			_recreateUI = false;
 			_tools.Clear();
-			Debug.Log("Create Tools");
+			// Debug.Log("Create Tools");
 
 			foreach (var viewModel in ClipInfoViewModel.Instances)
 			{
@@ -103,7 +113,7 @@ namespace Needle.Timeline
 				{
 					if (!viewModel.IsValid)
 					{
-						Debug.Log("Removing stuff");
+						// Debug.Log("Removing stuff");
 						vm.RemoveFromHierarchy();
 						return;
 					}
@@ -143,7 +153,7 @@ namespace Needle.Timeline
 							tool.ActiveClip = clip;
 							if (tool is EditorTool et)
 							{
-								Debug.Log("Activate tool " + et + ", " + tool);
+								// Debug.Log("Activate tool " + et + ", " + tool);
 								ToolManager.SetActiveTool(et);
 							} 
 						}
@@ -151,12 +161,12 @@ namespace Needle.Timeline
 			
 						toolButton.RegisterCallback<AttachToPanelEvent>(evt =>
 						{ 
-							Debug.Log("Attach button");
+							// Debug.Log("Attach button");
 							toolButton.clicked += OnToolButtonClicked;
 						});
 						toolButton.RegisterCallback<DetachFromPanelEvent>(evt =>
 						{
-							Debug.Log("Goodbye button");
+							// Debug.Log("Goodbye button");
 							toolButton.clicked -= OnToolButtonClicked;
 						});
 						toolsElement.Add(toolButton);

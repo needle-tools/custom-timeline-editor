@@ -19,9 +19,10 @@ namespace Needle.Timeline
 			var scriptPlayable = ScriptPlayable<CodeControlBehaviour>.Create(graph, template);
 			var b = scriptPlayable.GetBehaviour();
 			b.viewModels = viewModels;
+			// Debug.Log("Create Playable: " + b.viewModels.Count);
 			return scriptPlayable; 
 		}
 
-		public ClipCaps clipCaps => ClipCaps.All;
+		public ClipCaps clipCaps => ClipCaps.All; 
 	}
 }
