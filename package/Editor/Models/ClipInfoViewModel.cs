@@ -11,18 +11,12 @@ namespace Needle.Timeline
 {
 	public class ClipInfoViewModel
 	{
-		private static readonly List<ClipInfoViewModel> instances = new List<ClipInfoViewModel>();
 		public static IReadOnlyList<ClipInfoViewModel> Instances => instances;
+		public static IEnumerable<ClipInfoViewModel> ActiveInstances => instances.Where(vm => vm.currentlyInClipTime);
 		public static event Action<ClipInfoViewModel> Created;
 
-		public bool Solo
-		{
-			get => model.solo;
-			set
-			{
-				model.solo = value;
-			}
-		}
+		private static readonly List<ClipInfoViewModel> instances = new List<ClipInfoViewModel>();
+
 
 		private readonly ClipInfoModel model;
 		private readonly TimelineClip timelineClip;
@@ -50,6 +44,11 @@ namespace Needle.Timeline
 
 		internal AnimationClip AnimationClip => model.clip;
 
+		public bool Solo
+		{
+			get => model.solo;
+			set => model.solo = value;
+		}
 		public bool IsValid => director;
 		public string Name { get; set; }
 		public string Id => model.id;
