@@ -34,20 +34,6 @@ namespace Needle.Timeline
 		{
 			ToolsHandler.DeselectAll();
 			ToolsHandler.Select(tool);
-			
-			foreach (var viewModel in ClipInfoViewModel.ActiveInstances)
-			{
-				foreach (var clip in viewModel.clips)
-				{
-					if (!clip.SupportedTypes.Any(tool.Supports)) continue;
-					tool.AddTarget(viewModel, clip);
-					if (tool is EditorTool et)
-					{
-						Debug.Log("Set active tool: " + et);
-						ToolManager.SetActiveTool(et);
-					}
-				}
-			}
 		}
 	}
 }

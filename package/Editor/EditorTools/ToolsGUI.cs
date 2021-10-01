@@ -14,7 +14,7 @@ namespace Needle.Timeline
 			return null;
 		}
 		
-		[InitializeOnLoadMethod]
+		[InitializeOnLoadMethod] 
 		private static void Init()
 		{
 			SceneView.beforeSceneGui += OnSceneGUI;

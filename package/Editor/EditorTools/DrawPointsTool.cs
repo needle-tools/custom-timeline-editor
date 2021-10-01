@@ -35,7 +35,13 @@ namespace Needle.Timeline
 			Handles.DrawWireDisc(pos, Vector3.up, 0.5f);
 			Handles.DrawWireDisc(pos, Vector3.forward, 0.5f);
 			Handles.DrawWireDisc(pos, Vector3.right, 0.5f);
-			
+
+			switch (Event.current.type)
+			{
+				case EventType.KeyDown:
+					break;
+			}
+
 			if (Event.current.button == 0 && Event.current.modifiers == EventModifiers.None)
 			{
 				switch (Event.current.type)

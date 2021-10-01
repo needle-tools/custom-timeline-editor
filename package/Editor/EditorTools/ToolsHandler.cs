@@ -22,8 +22,23 @@ namespace Needle.Timeline
 		{
 			if (_selected.Contains(tool)) return;
 			_selected.Add(tool);
+			
 			var container = ToolsGUI.GetContainer(tool);
 			tool.Attach(container);
+			
+			foreach (var viewModel in ClipInfoViewModel.ActiveInstances) 
+			{
+				foreach (var clip in viewModel.clips)
+				{
+					if (!clip.SupportedTypes.Any(tool.Supports)) continue;
+					tool.AddTarget(viewModel, clip);
+					if (tool is EditorTool et)
+					{
+						Debug.Log("Set active tool: " + et);
+						ToolManager.SetActiveTool(et);
+					}
+				}
+			}
 		}
 
 		public static void Deselect(ICustomClipTool tool)
@@ -62,7 +77,18 @@ namespace Needle.Timeline
 			TimelineHooks.TimeChanged += OnTimeChanged;
 			ToolManager.activeToolChanged += OnActiveToolChanged;
 			CreateToolInstances();
-			UpdateToolTargets(); 
+			UpdateToolTargets();
+			
+			TimelineWindowUtil.IsInit += () =>
+			{
+
+				var active = ToolManager.activeToolType;
+				if (typeof(ICustomClipTool).IsAssignableFrom(active))
+				{
+					var inst = ToolInstances.FirstOrDefault(t => t.GetType() == active);
+					inst.Select();
+				}
+			};
 		}
 
 		private static void OnActiveToolChanged()

@@ -1,22 +1,54 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
 using UnityEditor;
 using UnityEditor.Timeline;
 using UnityEngine;
 using UnityEngine.Playables;
+using Object = UnityEngine.Object;
 
 namespace Needle.Timeline
 {
 	public static class TimelineWindowUtil
 	{
 		[InitializeOnLoadMethod]
-		private static void Init()
+		private static async void Init()
 		{
-			if (EditorWindow.HasOpenInstances<TimelineEditorWindow>())
+			// we need to cache the time because timeline window does not set it to the playable director before focus
+			TimelineHooks.TimeChanged += OnTimeChanged;
+			
+			// https://issuetracker.unity3d.com/issues/assembly-cache-should-be-empty-appears-in-the-console-when-evaluating-a-timeline-during-onenable
+			await Task.Delay(1);
+			var window = GetOrFindWindow();
+			if (window)
 			{
 				var directors = Object.FindObjectsOfType<PlayableDirector>();
-				foreach(var dir in directors) dir.Evaluate();
+				foreach (var dir in directors) 
+				{
+					var lastTime = GetTime(dir);
+					if (lastTime >= 0) dir.time = lastTime;  
+					dir.Evaluate();
+				}
+				IsInit?.Invoke();
 			}
 		}
+
+		private static void OnTimeChanged(PlayableDirector obj)
+		{
+			SetTime(obj);
+		}
+		
+		private static void SetTime(PlayableDirector dir)
+		{
+			SessionState.SetFloat("Timeline_Time_" + dir.GetHashCode(), (float)dir.time);
+		}
+
+		private static float GetTime(PlayableDirector dir)
+		{
+			return SessionState.GetFloat("Timeline_Time_" + dir.GetHashCode(), -1);
+		}
+
+		internal static event Action IsInit;
 		
 		internal static bool TryRepaint()
 		{
