@@ -22,6 +22,7 @@ namespace Needle.Timeline
 		{
 			base.OnAttach(element);
 			keyframe = null;
+			element.Add(new Button(){text = "hello"});
 		}
 
 		protected override void OnDetach(VisualElement element)
@@ -29,7 +30,7 @@ namespace Needle.Timeline
 			base.OnDetach(element);
 		}
 
-		protected override void OnTool(EditorWindow window)
+		protected override void OnInput(EditorWindow window)
 		{
 			// var pos = GetCurrentMousePositionInScene();
 			var pos = PlaneUtils.GetPointOnPlane(Camera.current, out _, out _, out _);
@@ -47,7 +48,6 @@ namespace Needle.Timeline
 			switch (Event.current.type, Event.current.modifiers, Event.current.button)
 			{
 				case (EventType.ScrollWheel, EventModifiers.Alt, _):
-					Debug.Log(Event.current.button);
 					radius += Event.current.delta.y * .01f;
 					radius = Mathf.Clamp(radius, .01f, 2f);
 					UseEvent();

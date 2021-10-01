@@ -46,6 +46,10 @@ namespace Needle.Timeline
 				{
 					EditorGUILayout.LabelField("NULL");
 				}
+				else if (kf.value is string str)
+				{
+					EditorGUILayout.LabelField("Value", str);
+				}
 				else
 				{
 					_stringBuilder.Clear();

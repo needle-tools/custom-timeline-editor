@@ -16,14 +16,18 @@ namespace Needle.Timeline
 		{
 			// we need to cache the time because timeline window does not set it to the playable director before focus
 			TimelineHooks.TimeChanged += OnTimeChanged;
+
 			
-			// https://issuetracker.unity3d.com/issues/assembly-cache-should-be-empty-appears-in-the-console-when-evaluating-a-timeline-during-onenable
+			// TimelineEditor.GetInspectedTimeFromMasterTime(RefreshReason.SceneNeedsUpdate);
+			// IsInit?.Invoke(); 
+			
+			https://issuetracker.unity3d.com/issues/assembly-cache-should-be-empty-appears-in-the-console-when-evaluating-a-timeline-during-onenable
 			await Task.Delay(1);
 			var window = GetOrFindWindow();
 			if (window)
 			{
 				var directors = Object.FindObjectsOfType<PlayableDirector>();
-				foreach (var dir in directors) 
+				foreach (var dir in directors)
 				{
 					var lastTime = GetTime(dir);
 					if (lastTime >= 0) dir.time = lastTime;  

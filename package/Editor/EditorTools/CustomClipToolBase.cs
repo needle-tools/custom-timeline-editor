@@ -13,6 +13,7 @@ namespace Needle.Timeline
 		public readonly ClipInfoViewModel ViewModel;
 		public readonly ICustomClip Clip;
 		public bool IsNull() => Clip == null;
+		public double Time => ViewModel?.clipTime ?? 0;
 
 		public ToolTarget(ClipInfoViewModel viewModel, ICustomClip clip)
 		{
@@ -82,14 +83,14 @@ namespace Needle.Timeline
 				return;
 			if (!ToolManager.IsActiveTool(this))
 				return;
-			OnTool(window);
+			OnInput(window);
 		}
 		#endregion
 		
 		
 		
 		protected abstract bool OnSupports(Type type);
-		protected abstract void OnTool(EditorWindow window);
+		protected abstract void OnInput(EditorWindow window);
 
 
 		protected virtual void OnAttach(VisualElement element){}

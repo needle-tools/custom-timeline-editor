@@ -10,7 +10,10 @@ namespace Needle.Timeline
 		internal static VisualElement GetContainer(ICustomClipTool tool)
 		{
 			OnCreateContainerIfNecessary();
-			if (_tools.TryGetValue(tool, out var container)) return container;
+			if (_tools.TryGetValue(tool, out var container))
+			{
+				return container;
+			}
 			return null;
 		}
 		
@@ -25,7 +28,7 @@ namespace Needle.Timeline
 		private static readonly List<SceneView> _scenes = new List<SceneView>();
 		private static VisualElement root, _toolsContainer;
 		private static bool _recreateUI = true;
-		private static Dictionary<ICustomClipTool, VisualElement> _tools = new Dictionary<ICustomClipTool, VisualElement>();
+		private static readonly Dictionary<ICustomClipTool, VisualElement> _tools = new Dictionary<ICustomClipTool, VisualElement>();
 
 		private static void OnSceneGUI(SceneView obj)
 		{
@@ -73,13 +76,14 @@ namespace Needle.Timeline
 					if (!_tools.TryGetValue(tool, out var toolContainer))
 					{
 						toolContainer = new VisualElement();
+						toolContainer.style.alignItems = Align.FlexStart;
+						toolContainer.style.flexDirection = FlexDirection.Row;
 						_tools.Add(tool, toolContainer);
 					}
 					else toolContainer.Clear();
 				
 					var name = tool.GetType().Name;
 					var toolButton = new Button();
-					toolButton.style.height = 24f;
 					toolButton.text = name;
 					toolButton.style.flexGrow = 0;
 					toolButton.AddManipulator(new ToolButtonManipulator(tool));
