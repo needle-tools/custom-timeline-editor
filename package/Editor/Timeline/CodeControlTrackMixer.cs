@@ -21,6 +21,8 @@ namespace Needle.Timeline
 			var inputCount = playable.GetInputCount();
 			var inputPlayable = (ScriptPlayable<CodeControlBehaviour>)playable.GetInput(0);
 			var behaviour = inputPlayable.GetBehaviour();
+			// if not bound
+			if (behaviour == null) return;
 			for (var viewModelIndex = 0; viewModelIndex < behaviour.viewModels.Count; viewModelIndex++)
 			{
 				// var viewModel = behaviour.viewModels[viewModelIndex];
