@@ -44,13 +44,17 @@ namespace Needle.Timeline
 
 		bool ICustomClipTool.HasClipTarget(Type clipType) => targets.Any(a => a.Clip.GetType() == clipType);
 
+		private Label debugLabel;
 		void ICustomClipTool.Attach(VisualElement el)
 		{
+			debugLabel ??= new Label(GetType().Name);
+			el.Add(debugLabel);
 			OnAttach(el);
 		}
 
 		void ICustomClipTool.Detach(VisualElement el)
 		{
+			el.Remove(debugLabel);
 			OnDetach(el);
 		}
 
