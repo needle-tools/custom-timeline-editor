@@ -12,7 +12,7 @@ namespace Needle.Timeline
 	{
 		private ICustomKeyframe<List<Vector3>> keyframe;
 		
-		public override bool Supports(Type type)
+		protected override bool OnSupports(Type type)
 		{
 			return typeof(List<Vector3>).IsAssignableFrom(type);
 		}
@@ -23,7 +23,12 @@ namespace Needle.Timeline
 			keyframe = null;
 		}
 
-		protected override void OnToolInput()
+		protected override void OnDetach(VisualElement element)
+		{
+			base.OnDetach(element);
+		}
+
+		protected override void OnTool(EditorWindow window)
 		{
 			// var pos = GetCurrentMousePositionInScene();
 			var pos = PlaneUtils.GetPointOnPlane(Camera.current, out _, out _, out _);

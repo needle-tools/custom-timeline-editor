@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using UnityEditor.EditorTools;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Needle.Timeline
@@ -42,6 +43,7 @@ namespace Needle.Timeline
 					tool.AddTarget(viewModel, clip);
 					if (tool is EditorTool et)
 					{
+						Debug.Log("Set active tool: " + et);
 						ToolManager.SetActiveTool(et);
 					}
 				}

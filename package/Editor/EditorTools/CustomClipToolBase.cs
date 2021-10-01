@@ -8,49 +8,61 @@ using UnityEngine.UIElements;
 
 namespace Needle.Timeline
 {
-	public struct SelectedClip
+	public readonly struct ToolTarget
 	{
 		public readonly ClipInfoViewModel ViewModel;
 		public readonly ICustomClip Clip;
 		public bool IsNull() => Clip == null;
 
-		public SelectedClip(ClipInfoViewModel viewModel, ICustomClip clip)
+		public ToolTarget(ClipInfoViewModel viewModel, ICustomClip clip)
 		{
 			ViewModel = viewModel;
 			Clip = clip;
 		}
 	}
-	
+
 	public abstract class CustomClipToolBase : EditorTool, ICustomClipTool
 	{
-		private new readonly List<SelectedClip> targets = new List<SelectedClip>();
+		private new readonly List<ToolTarget> targets = new List<ToolTarget>();
+		protected IReadOnlyList<ToolTarget> Targets => targets;
 
-		protected IReadOnlyList<SelectedClip> Targets => targets;
-
-		public void AddTarget(ClipInfoViewModel vm, ICustomClip clip)
+		#region ICustomClipTool
+		void ICustomClipTool.AddTarget(ClipInfoViewModel vm, ICustomClip clip)
 		{
-			targets.Add(new SelectedClip(vm, clip));
+			targets.Add(new ToolTarget(vm, clip));
 		}
 
-		public void RemoveTarget(ICustomClip clip)
+		void ICustomClipTool.RemoveTarget(ICustomClip clip)
 		{
 			targets.RemoveAll(e => e.Clip == clip);
 		}
 
-		public void RemoveAllTargets()
+		void ICustomClipTool.RemoveAllTargets()
 		{
 			targets.Clear();
 		}
 
-		public bool HasClipTarget(Type clipType) => targets.Any(a => a.Clip.GetType() == clipType);
+		bool ICustomClipTool.HasClipTarget(Type clipType) => targets.Any(a => a.Clip.GetType() == clipType);
 
-		public abstract bool Supports(Type type);
-		
+		void ICustomClipTool.Attach(VisualElement el)
+		{
+			OnAttach(el);
+		}
+
+		void ICustomClipTool.Detach(VisualElement el)
+		{
+			OnDetach(el);
+		}
+
+		bool ICustomClipTool.Supports(Type type) => OnSupports(type);
+		#endregion
+
 		private static Texture2D _toolIcon;
 		private VisualElement _toolRootElement;
 		private bool _receivedClickDownEvent;
 		private bool _receivedClickUpEvent;
 
+		#region EditorTool
 		public sealed override void OnActivated()
 		{
 		}
@@ -66,12 +78,23 @@ namespace Needle.Timeline
 				return;
 			if (!ToolManager.IsActiveTool(this))
 				return;
-			OnToolInput();
+			OnTool(window);
 		}
+		#endregion
+		
+		
+		
+		protected abstract bool OnSupports(Type type);
+		protected abstract void OnTool(EditorWindow window);
+
 
 		protected virtual void OnAttach(VisualElement element){}
-		protected abstract void OnToolInput();
-
+		protected virtual void OnDetach(VisualElement element){}
+		
+		
+		
+		
+		
 		protected static Vector3 GetCurrentMousePositionInScene()
 		{
 			Vector3 mousePosition = Event.current.mousePosition;

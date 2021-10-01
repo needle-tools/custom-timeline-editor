@@ -20,27 +20,38 @@ namespace Needle.Timeline
 
 		public static void Select(ICustomClipTool tool)
 		{
-			if (!_selected.Contains(tool))
-				_selected.Add(tool);
+			if (_selected.Contains(tool)) return;
+			_selected.Add(tool);
+			var container = ToolsGUI.GetContainer(tool);
+			tool.Attach(container);
 		}
 
 		public static void Deselect(ICustomClipTool tool)
 		{
-			_selected.RemoveAll(t =>
+			_selected.RemoveAll(_ =>
 			{
-				if (t != tool) return false;
-				t.RemoveAllTargets();
+				if (_ != tool) return false;
+				tool.RemoveAllTargets();
+				var container = ToolsGUI.GetContainer(tool);
+				tool.Detach(container);
 				return true;
 			});
 		}
 
 		public static void DeselectAll()
 		{
-			foreach(var sel in _selected) sel.RemoveAllTargets();
+			foreach (var tool in _selected)
+			{
+				tool.RemoveAllTargets();
+				var container = ToolsGUI.GetContainer(tool);
+				tool.Detach(container);
+			}
 			_selected.Clear();
 		}
 
 		public static bool IsSelected(ICustomClipTool tool) => _selected.Contains(tool);
+
+		internal static IReadOnlyList<ICustomClipTool> ActiveTools => _selected;
 
 		private static readonly List<ICustomClipTool> _selected = new List<ICustomClipTool>();
 
@@ -49,10 +60,25 @@ namespace Needle.Timeline
 		{
 			EditorSceneManager.sceneOpened += OpenedScene;
 			TimelineHooks.TimeChanged += OnTimeChanged;
+			ToolManager.activeToolChanged += OnActiveToolChanged;
 			CreateToolInstances();
+			UpdateToolTargets(); 
+		}
+
+		private static void OnActiveToolChanged()
+		{
+			if (!typeof(ICustomClipTool).IsAssignableFrom(ToolManager.activeToolType))
+			{
+				DeselectAll();
+			} 
 		}
 
 		private static void OnTimeChanged(PlayableDirector obj)
+		{
+			UpdateToolTargets();
+		}
+
+		private static void UpdateToolTargets()
 		{
 			foreach (var sel in _selected)
 			{
