@@ -13,7 +13,7 @@ namespace Needle.Timeline
 			EditorWindow.HasOpenInstances<TimelineEditorWindow>();
 		}
 
-		private static EditorWindow timelineWindow;
+		private static TimelineEditorWindow timelineWindow;
 
 		internal static bool TryRepaint()
 		{

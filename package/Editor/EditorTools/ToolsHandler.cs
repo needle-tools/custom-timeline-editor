@@ -2,7 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
+using UnityEditor.EditorTools;
 using UnityEditor.SceneManagement;
+using UnityEngine;
+using UnityEngine.Playables;
 using UnityEngine.SceneManagement;
 
 namespace Needle.Timeline
@@ -23,11 +26,17 @@ namespace Needle.Timeline
 
 		public static void Deselect(ICustomClipTool tool)
 		{
-			_selected.RemoveAll(t => t == tool);
+			_selected.RemoveAll(t =>
+			{
+				if (t != tool) return false;
+				t.RemoveAllTargets();
+				return true;
+			});
 		}
 
 		public static void DeselectAll()
 		{
+			foreach(var sel in _selected) sel.RemoveAllTargets();
 			_selected.Clear();
 		}
 
@@ -39,7 +48,28 @@ namespace Needle.Timeline
 		private static void Init()
 		{
 			EditorSceneManager.sceneOpened += OpenedScene;
+			TimelineHooks.TimeChanged += OnTimeChanged;
 			CreateToolInstances();
+		}
+
+		private static void OnTimeChanged(PlayableDirector obj)
+		{
+			foreach (var sel in _selected)
+			{
+				sel.RemoveAllTargets();
+			}
+			
+			foreach (var tool in _selected)
+			{
+				foreach (var vm in ClipInfoViewModel.ActiveInstances)
+				{
+					foreach (var clip in vm.clips)
+					{
+						if (!clip.SupportedTypes.Any(tool.Supports)) continue;
+						tool.AddTarget(vm, clip);
+					}
+				}
+			}
 		}
 
 		private static void OpenedScene(Scene scene, OpenSceneMode mode)

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UIElements;
 using Random = UnityEngine.Random;
 
 namespace Needle.Timeline
@@ -15,9 +17,9 @@ namespace Needle.Timeline
 			return typeof(List<Vector3>).IsAssignableFrom(type);
 		}
 
-		public override void OnActivated()
+		protected override void OnAttach(VisualElement element)
 		{
-			base.OnActivated();
+			base.OnAttach(element);
 			keyframe = null;
 		}
 
@@ -34,9 +36,11 @@ namespace Needle.Timeline
 				switch (Event.current.type)
 				{
 					case EventType.MouseDown:
-						foreach (var active in Active)
+						var active = Targets.LastOrDefault();
+						if (active.IsNull()) return;
+						// foreach (var active in Targets)
 						{
-							if (!active.ViewModel.currentlyInClipTime) continue;
+							// if (!active.ViewModel.currentlyInClipTime) continue;
 							if (active.Clip is ICustomClip<List<Vector3>> clip)
 							{
 								var time = (float)active.ViewModel.clipTime;

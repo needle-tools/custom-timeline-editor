@@ -12,6 +12,7 @@ namespace Needle.Timeline
 	{
 		public readonly ClipInfoViewModel ViewModel;
 		public readonly ICustomClip Clip;
+		public bool IsNull() => Clip == null;
 
 		public SelectedClip(ClipInfoViewModel viewModel, ICustomClip clip)
 		{
@@ -22,26 +23,26 @@ namespace Needle.Timeline
 	
 	public abstract class CustomClipToolBase : EditorTool, ICustomClipTool
 	{
-		private readonly List<SelectedClip> active = new List<SelectedClip>();
+		private new readonly List<SelectedClip> targets = new List<SelectedClip>();
 
-		protected IReadOnlyList<SelectedClip> Active => active;
+		protected IReadOnlyList<SelectedClip> Targets => targets;
 
-		public void Add(ClipInfoViewModel vm, ICustomClip clip)
+		public void AddTarget(ClipInfoViewModel vm, ICustomClip clip)
 		{
-			active.Add(new SelectedClip(vm, clip));
+			targets.Add(new SelectedClip(vm, clip));
 		}
 
-		public void Remove(ICustomClip clip)
+		public void RemoveTarget(ICustomClip clip)
 		{
-			active.RemoveAll(e => e.Clip == clip);
+			targets.RemoveAll(e => e.Clip == clip);
 		}
 
-		public void Clear()
+		public void RemoveAllTargets()
 		{
-			active.Clear();
+			targets.Clear();
 		}
 
-		public bool ContainsClip(Type clipType) => active.Any(a => a.Clip.GetType() == clipType);
+		public bool HasClipTarget(Type clipType) => targets.Any(a => a.Clip.GetType() == clipType);
 
 		public abstract bool Supports(Type type);
 		
@@ -50,28 +51,15 @@ namespace Needle.Timeline
 		private bool _receivedClickDownEvent;
 		private bool _receivedClickUpEvent;
 
-		public override void OnActivated()
+		public sealed override void OnActivated()
 		{
-			_toolRootElement = new VisualElement();
-			_toolRootElement.style.width = 200;
-			var backgroundColor = EditorGUIUtility.isProSkin
-				? new Color(0.21f, 0.21f, 0.21f, 0.8f)
-				: new Color(0.8f, 0.8f, 0.8f, 0.8f);
-			_toolRootElement.style.backgroundColor = backgroundColor;
-			_toolRootElement.style.marginLeft = 10f;
-			_toolRootElement.style.marginBottom = 10f;
-			_toolRootElement.style.paddingTop = 5f;
-			_toolRootElement.style.paddingRight = 5f;
-			_toolRootElement.style.paddingLeft = 5f;
-			_toolRootElement.style.paddingBottom = 5f;
 		}
 
-		public override void OnWillBeDeactivated()
+		public sealed override void OnWillBeDeactivated()
 		{
-			_toolRootElement?.RemoveFromHierarchy();
 		}
 
-		public override void OnToolGUI(EditorWindow window)
+		public sealed override void OnToolGUI(EditorWindow window)
 		{
 			base.OnToolGUI(window);
 			if (!(window is SceneView))
@@ -81,6 +69,7 @@ namespace Needle.Timeline
 			OnToolInput();
 		}
 
+		protected virtual void OnAttach(VisualElement element){}
 		protected abstract void OnToolInput();
 
 		protected static Vector3 GetCurrentMousePositionInScene()

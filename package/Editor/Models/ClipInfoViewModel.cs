@@ -12,8 +12,10 @@ namespace Needle.Timeline
 	public class ClipInfoViewModel
 	{
 		public static IReadOnlyList<ClipInfoViewModel> Instances => instances;
-		public static IEnumerable<ClipInfoViewModel> ActiveInstances => instances.Where(vm => vm.currentlyInClipTime);
-		public static event Action<ClipInfoViewModel> Created;
+		// private static readonly List<ClipInfoViewModel> _lastActiveInstances = new List<ClipInfoViewModel>();
+ 		public static IEnumerable<ClipInfoViewModel> ActiveInstances => instances.Where(vm => vm.currentlyInClipTime);
+
+        public static event Action<ClipInfoViewModel> Created;
 
 		private static readonly List<ClipInfoViewModel> instances = new List<ClipInfoViewModel>();
 

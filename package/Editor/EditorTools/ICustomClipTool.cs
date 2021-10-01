@@ -4,10 +4,10 @@ namespace Needle.Timeline
 {
 	public interface ICustomClipTool
 	{
-		void Add(ClipInfoViewModel vm, ICustomClip clip);
-		void Remove(ICustomClip clip);
-		void Clear();
-		bool ContainsClip(Type clipType);
+		void AddTarget(ClipInfoViewModel vm, ICustomClip clip);
+		void RemoveTarget(ICustomClip clip);
+		void RemoveAllTargets();
+		bool HasClipTarget(Type clipType);
 		bool Supports(Type type);
 	}
 }

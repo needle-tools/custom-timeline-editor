@@ -12,68 +12,75 @@ namespace Needle.Timeline
 		private readonly ProfilerMarker mixerMarker = new ProfilerMarker(nameof(CodeControlTrackMixer));
 		private readonly List<object> valuesToMix = new List<object>();
 
-		// NOTE: This function is called at runtime and edit time.  Keep that in mind when setting the values of properties.
+		private Dictionary<PlayableDirector, int> _directorTime;
+		
 		public override void ProcessFrame(Playable playable, FrameData info, object playerData)
 		{
-			using (mixerMarker.Auto())
+			using var auto = mixerMarker.Auto();
+			
+			var inputCount = playable.GetInputCount();
+			var inputPlayable = (ScriptPlayable<CodeControlBehaviour>)playable.GetInput(0);
+			var behaviour = inputPlayable.GetBehaviour();
+			for (var viewModelIndex = 0; viewModelIndex < behaviour.viewModels.Count; viewModelIndex++)
 			{
-				var inputCount = playable.GetInputCount();
-				var inputPlayable = (ScriptPlayable<CodeControlBehaviour>)playable.GetInput(0);
-				var behaviour = inputPlayable.GetBehaviour();
-				for (var viewModelIndex = 0; viewModelIndex < behaviour.viewModels.Count; viewModelIndex++)
+				// var viewModel = behaviour.viewModels[viewModelIndex];
+				valuesToMix.Clear();
+
+				for (var i = 0; i < inputCount; i++)
 				{
-					// var viewModel = behaviour.viewModels[viewModelIndex];
-					valuesToMix.Clear();
+					var inputWeight = playable.GetInputWeight(i);
+					if (inputWeight <= 0.000001f) continue;
 
-					for (var i = 0; i < inputCount; i++)
+					inputPlayable = (ScriptPlayable<CodeControlBehaviour>)playable.GetInput(i);
+					var b = inputPlayable.GetBehaviour();
+
+					var viewModel = b.viewModels[viewModelIndex];
+					var soloing = b.viewModels.Where(s => s.Solo && s.IsValid && s.currentlyInClipTime);
+					var anySolo = soloing.Any();
+
+					if (!viewModel.IsValid) continue;
+					if (anySolo && !viewModel.Solo) continue;
+
+					if (viewModel.Solo) inputWeight = 1;
+
+					// Debug.Log(viewModel.Script + ", " + inputWeight + ", " + viewModel.clips.Count);
+					var length = (float)viewModel.director.duration;
+					var time = (float)viewModel.ToClipTime(playable
+						.GetTime()); //((playable.GetTime() - behaviour.viewModel.startTime) * behaviour.viewModel.timeScale);
+					// Debug.Log(time.ToString("0.0") + ", " + length.ToString("0.0"));
+					// looping support:
+					time %= (length * (float)viewModel.timeScale);
+
+					// Debug.Log("Mix frame " + info.frameId);
+					var saveToMix = inputWeight < 1f && valuesToMix.Count <= 0;
+					for (var index = 0; index < viewModel.clips.Count; index++)
 					{
-						var inputWeight = playable.GetInputWeight(i);
-						if (inputWeight <= 0.000001f) continue;
-
-						inputPlayable = (ScriptPlayable<CodeControlBehaviour>)playable.GetInput(i);
-						var b = inputPlayable.GetBehaviour();
-
-						var viewModel = b.viewModels[viewModelIndex];
-						var soloing = b.viewModels.Where(s => s.Solo && s.IsValid && s.currentlyInClipTime);
-						var anySolo = soloing.Any();
-
-						if (!viewModel.IsValid) continue;
-						if (anySolo && !viewModel.Solo) continue;
-
-						if (viewModel.Solo) inputWeight = 1;
-						
-						// Debug.Log(viewModel.Script + ", " + inputWeight + ", " + viewModel.clips.Count);
-						var length = (float)viewModel.director.duration;
-						var time = (float)viewModel.ToClipTime(playable
-							.GetTime()); //((playable.GetTime() - behaviour.viewModel.startTime) * behaviour.viewModel.timeScale);
-						// Debug.Log(time.ToString("0.0") + ", " + length.ToString("0.0"));
-						// looping support:
-						time %= (length * (float)viewModel.timeScale);
-
-						// Debug.Log("Mix frame " + info.frameId);
-						var saveToMix = inputWeight < 1f && valuesToMix.Count <= 0;
-						for (var index = 0; index < viewModel.clips.Count; index++) 
+						var clip = viewModel.clips[index];
+						// Debug.Log(clip);
+						var val = clip.Evaluate(time);
+						if (saveToMix)
 						{
-							var clip = viewModel.clips[index];
-							// Debug.Log(clip);
-							var val = clip.Evaluate(time);
-							if (saveToMix)
-							{
-								valuesToMix.Add(val);
-							}
-							else if (inputWeight < 1f && valuesToMix.Count > index)
-							{
-								var prev = valuesToMix[index];
-								var final = clip.Interpolate(prev, val, inputWeight);
-								viewModel.values[index].SetValue(final);
-							}
-							else
-							{
-								viewModel.values[index].SetValue(val);
-							}
+							valuesToMix.Add(val);
 						}
-						// break;
+						else if (inputWeight < 1f && valuesToMix.Count > index)
+						{
+							var prev = valuesToMix[index];
+							var final = clip.Interpolate(prev, val, inputWeight);
+							viewModel.values[index].SetValue(final);
+						}
+						else
+						{
+							viewModel.values[index].SetValue(val);
+						}
 					}
+					// break;
+				}
+				
+			
+				var graph = playable.GetGraph();
+				if (graph.GetResolver() is PlayableDirector dir)
+				{
+					TimelineHooks.CheckTimeChanged(dir);
 				}
 			}
 		}
