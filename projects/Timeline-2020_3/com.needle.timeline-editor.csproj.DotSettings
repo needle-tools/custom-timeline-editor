@@ -6,6 +6,7 @@
 	<s:Boolean x:Key="/Default/CodeInspection/NamespaceProvider/NamespaceFoldersToSkip/=_002E_002E_005C_002E_002E_005Cpackage_005Ceditor_005Ccustomeditors/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/CodeInspection/NamespaceProvider/NamespaceFoldersToSkip/=_002E_002E_005C_002E_002E_005Cpackage_005Ceditor_005Ceditors/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/CodeInspection/NamespaceProvider/NamespaceFoldersToSkip/=_002E_002E_005C_002E_002E_005Cpackage_005Ceditor_005Ceditortools/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/CodeInspection/NamespaceProvider/NamespaceFoldersToSkip/=_002E_002E_005C_002E_002E_005Cpackage_005Ceditor_005Ceditortools_005Cvisualelements/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/CodeInspection/NamespaceProvider/NamespaceFoldersToSkip/=_002E_002E_005C_002E_002E_005Cpackage_005Ceditor_005Cinterfaces/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/CodeInspection/NamespaceProvider/NamespaceFoldersToSkip/=_002E_002E_005C_002E_002E_005Cpackage_005Ceditor_005Cinterpolators/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/CodeInspection/NamespaceProvider/NamespaceFoldersToSkip/=_002E_002E_005C_002E_002E_005Cpackage_005Ceditor_005Cmodels/@EntryIndexedValue">True</s:Boolean>
