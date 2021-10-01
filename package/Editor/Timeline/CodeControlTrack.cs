@@ -82,7 +82,7 @@ namespace Needle.Timeline
 				
 				var dir = gameObject.GetComponent<PlayableDirector>();
 				var assetPath = AssetDatabase.GetAssetPath(dir.playableAsset);
-				UnitySaveProcessor.Register(this, assetPath);
+				UnitySaveUtil.Register(this, assetPath);
 				
 				var boundObject = dir.GetGenericBinding(this) as MonoBehaviour;
 				if (!boundObject) return Playable.Null;

@@ -2,10 +2,10 @@
 using UnityEditor.Experimental;
 using UnityEngine;
 
-namespace Needle.Timeline.Serialization
+namespace Needle.Timeline
 {
 	// ReSharper disable once ClassNeverInstantiated.Global
-	public class UnitySaveProcessor : AssetsModifiedProcessor 
+	public class UnitySaveUtil : AssetsModifiedProcessor 
 	{
 		protected override void OnAssetsModified(string[] changedAssets, string[] addedAssets, string[] deletedAssets, AssetMoveInfo[] movedAssets)
 		{

@@ -3,7 +3,7 @@
 using System.IO;
 using UnityEngine;
 
-namespace Needle.Timeline.Serialization
+namespace Needle.Timeline
 {
 	public static class SaveUtil
 	{

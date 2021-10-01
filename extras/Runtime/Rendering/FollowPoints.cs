@@ -57,7 +57,7 @@ public class FollowPoints : MonoBehaviour
 		argsData[1] = (uint)Count;
 		argsData[2] = (uint)Mesh.GetIndexStart(0);
 		argsData[3] = (uint)Mesh.GetBaseVertex(0);
-		args.SetData(argsData);
+		args.SetData(argsData); 
 
 		Shader.SetBuffer(0, "Input", input);  
 		Shader.SetInt("CurrentCount", Points.pointsCount);
