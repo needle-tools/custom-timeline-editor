@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
@@ -80,8 +81,11 @@ namespace Needle.Timeline
 						if (next.time < time) continue;
 						// interpolate between this and the next keyframe
 						var t = GetPosition01(time, current.time, next.time);
-						using(_interpolationMarker.Auto())
-							return (T)_interpolator.Interpolate(current.value, next.value, t);
+						using (_interpolationMarker.Auto())
+						{
+							var res = _interpolator.Interpolate(current.value, next.value, t);
+							return (T)res;
+						} 
 					}
 
 					// if no keyframe was found that is <= time

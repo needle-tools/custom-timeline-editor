@@ -1,12 +1,93 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using UnityEngine;
 
 namespace Needle.Timeline
 {
+	public class NumbersInterpolator : IInterpolator
+	{
+		private readonly Type[] types = new[]
+		{
+			typeof(int),
+			typeof(uint),
+			typeof(float),
+			typeof(double)
+		};
+
+		public bool CanInterpolate(Type type)
+		{
+			return types.Contains(type);
+		}
+
+		public object Interpolate(object v0, object v1, float t)
+		{
+			throw new NotImplementedException();
+		}
+	}
+
+	public class IndexingInterpolator : IInterpolator
+	{
+		private PropertyInfo indexer;
+		private object[] args;
+
+		public bool CanInterpolate(Type type)
+		{
+			return false;//
+			indexer ??= type.GetProperties().FirstOrDefault(p => p.GetIndexParameters().Length != 0);
+			if (indexer == null) return false;
+			args ??= new object[1];
+			return true;
+		}
+
+		public object Interpolate(object v0, object v1, float t)
+		{
+			throw new NotImplementedException();
+		}
+	}
+
+	public class CollectionInterpolator : IInterpolator
+	{
+		public bool CanInterpolate(Type type)
+		{
+			return typeof(IList).IsAssignableFrom(type);
+		}
+
+		private IList result;
+		private IList secondaryBuffer;
+
+		public object Interpolate(object v0, object v1, float t)
+		{
+			if (v0 == null && v1 == null) return null;
+
+			var list0 = v0 as IList;
+			var list1 = v1 as IList;
+
+			result ??= (IList)Activator.CreateInstance(v0?.GetType() ?? v1.GetType());
+			result.Clear(); 
+			var count = Mathf.RoundToInt(Mathf.Lerp(list0?.Count ?? 0, list1?.Count ?? 0, t));
+			for (var i = 0; i < count; i++)
+			{
+				var val0 = list0?.Count > 0 ? list0[i % list0.Count] : list1?[i];
+				var val1 = list1?.Count > 0 ? list1[i % list1.Count] : list0?[i];
+				if (val0 is Vector3 vec0 && val1 is Vector3 vec1)
+				{
+					var res = Vector3.Lerp(vec0, vec1, t);
+					result.Add(res);
+				}
+			}
+			secondaryBuffer ??= (IList)Activator.CreateInstance(v0?.GetType() ?? v1.GetType());
+			secondaryBuffer.Clear();
+			foreach (var obj in result)
+				secondaryBuffer.Add(obj);
+			return secondaryBuffer;
+		}
+	}
+
 	public class ListInterpolator : IInterpolator<List<Vector3>>
 	{
-		// private ArrayInterpolator arrayInterpolator = new ArrayInterpolator();
 		private List<Vector3> result;
 		private List<Vector3> secondaryBuffer;
 
@@ -32,7 +113,7 @@ namespace Needle.Timeline
 			// {
 			// 	
 			// }
-			
+
 			if (result == null) result = new List<Vector3>();
 			else result.Clear();
 			var count = Mathf.RoundToInt(Mathf.Lerp(v0?.Count ?? 0, v1?.Count ?? 0, t));

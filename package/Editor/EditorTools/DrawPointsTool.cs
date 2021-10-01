@@ -48,8 +48,8 @@ namespace Needle.Timeline
 			switch (Event.current.type, Event.current.modifiers, Event.current.button)
 			{
 				case (EventType.ScrollWheel, EventModifiers.Alt, _):
-					radius += Event.current.delta.y * .01f;
-					radius = Mathf.Clamp(radius, .01f, 2f);
+					radius += Event.current.delta.y * -.01f;
+					radius = Mathf.Clamp(radius, .001f, 20f);
 					UseEvent();
 					break;
 					
@@ -78,7 +78,7 @@ namespace Needle.Timeline
 				case (EventType.MouseDrag, EventModifiers.None, 0):
 					if (keyframe != null)
 					{
-						keyframe.value.Add(Random.insideUnitSphere * radius + pos);
+						keyframe.value.Add(GetPoint(pos));
 						keyframe.RaiseValueChangedEvent();
 						UseEvent();
 					}
@@ -90,6 +90,14 @@ namespace Needle.Timeline
 				GUIUtility.hotControl = 0;
 				Event.current.Use();
 			}
+		}
+
+		private Vector3 GetPoint(Vector3 pos)
+		{
+			var pt = Random.insideUnitSphere * radius + pos;
+			if (SceneView.currentDrawingSceneView.in2DMode)
+				pt.z = 0;
+			return pt;
 		}
 	}
 }

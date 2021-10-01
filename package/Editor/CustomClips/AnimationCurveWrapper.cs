@@ -68,7 +68,7 @@ namespace Needle.Timeline
 
 		public bool CanInterpolate(Type type)
 		{
-			return true;
+			return typeof(float) == type;
 		}
 
 		public object Interpolate(object v0, object v1, float t)
