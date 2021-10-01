@@ -1,10 +1,55 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Needle.Timeline;
+using UnityEditor;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace _Sample
 {
+	public class DummyTool : CustomClipToolBase
+	{
+		protected override bool OnSupports(Type type)
+		{
+			return typeof(byte) == type;
+		}
+
+		protected override void OnInput(EditorWindow window)
+		{
+			
+		}
+	}
+	
+	public class TextTool : CustomClipToolBase
+	{
+		protected override bool OnSupports(Type type)
+		{
+			return typeof(string) == type;
+		}
+
+		protected override void OnAttach(VisualElement element)
+		{
+			base.OnAttach(element);
+			var tf = new TextField() { style = { minWidth = 100 } };
+			element.Add(tf);
+			element.Add(new Button(() =>
+			{
+				var t = Targets.LastOrDefault();
+				if (t.Clip is ICustomClip<string> str)
+				{
+					str.Add(new CustomKeyframe<string>(tf.text, (float)t.Time));
+				}
+
+			}){text = "Ok"});
+		}
+
+		protected override void OnInput(EditorWindow window)
+		{
+			
+		}
+	}
+	
 	public class AnimatedScript : MonoBehaviour, IAnimated
 	{
 		[Animate]
