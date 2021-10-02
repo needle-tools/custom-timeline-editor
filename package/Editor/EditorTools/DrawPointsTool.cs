@@ -13,6 +13,7 @@ namespace Needle.Timeline
 		private ICustomKeyframe<List<Vector3>> keyframe;
 
 		private float radius = .5f;
+		private bool erase = false;
 
 		protected override bool OnSupports(Type type)
 		{
@@ -23,18 +24,14 @@ namespace Needle.Timeline
 		{
 			base.OnAttach(element);
 			keyframe = null;
-			element.Add(new Button() { text = "hello" });
-		}
-
-		protected override void OnDetach(VisualElement element)
-		{
-			base.OnDetach(element);
+			element.Add(new Button(() => { erase = !erase; }) { text = "Toggle Erase" });
 		}
 
 		protected override void OnInput(EditorWindow window)
 		{
 			// var pos = GetCurrentMousePositionInScene();
 			var pos = PlaneUtils.GetPointOnPlane(Camera.current, out _, out _, out _);
+			Handles.color = erase ? Color.red : Color.white;
 			Handles.DrawWireDisc(pos, Vector3.up, radius);
 			Handles.DrawWireDisc(pos, Vector3.forward, radius);
 			Handles.DrawWireDisc(pos, Vector3.right, radius);
@@ -42,7 +39,20 @@ namespace Needle.Timeline
 			switch (Event.current.type)
 			{
 				case EventType.KeyDown:
-					if (Event.current.keyCode == KeyCode.Escape) this.Deselect();
+					switch (Event.current.keyCode)
+					{
+						case KeyCode.Escape:
+							this.Deselect();
+							break;
+						case KeyCode.W:
+							erase = false;
+							UseEvent();
+							break;
+						case KeyCode.E:
+							erase = true;
+							UseEvent();
+							break;
+					}
 					break;
 			}
 
@@ -67,7 +77,7 @@ namespace Needle.Timeline
 						{
 							keyframe = kf;
 						}
-						if (keyframe == null || Mathf.Abs(time - keyframe.time) > .1f)
+						if (!erase && (keyframe == null || Mathf.Abs(time - keyframe.time) > .1f))
 						{
 							keyframe = new CustomKeyframe<List<Vector3>>(new List<Vector3>(), time);
 							CustomUndo.Register(new CreateKeyframe(keyframe, clip));
@@ -79,18 +89,46 @@ namespace Needle.Timeline
 				case (EventType.MouseDrag, EventModifiers.None, 0):
 					if (keyframe != null)
 					{
-						keyframe.value.Add(GetPoint(pos));
-						keyframe.RaiseValueChangedEvent();
-						UseEvent();
+						if (erase)
+						{
+							if (keyframe.value.Count > 0 && RemoveInRange(pos, keyframe.value))
+							{
+								keyframe.RaiseValueChangedEvent();
+							}
+						}
+						else
+						{
+							keyframe.value.Add(GetPoint(pos));
+							keyframe.RaiseValueChangedEvent();
+						}
 					}
+					UseEvent();
 					break;
 			}
 
 			void UseEvent()
 			{
-				GUIUtility.hotControl = 0;
-				Event.current.Use();
+				if (Event.current.type != EventType.Used)
+				{
+					GUIUtility.hotControl = 0;
+					Event.current.Use();
+				}
 			}
+		}
+
+
+		private bool RemoveInRange(Vector3 pos, List<Vector3> points)
+		{
+			var cnt = points.Count;
+			for (var index = 0; index < points.Count; index++)
+			{
+				var pt = points[index];
+				if (Vector3.Distance(pt, pos) <= radius)
+				{
+					points.RemoveAt(index);
+				}
+			}
+			return cnt > points.Count;
 		}
 
 		private Vector3 GetPoint(Vector3 pos)

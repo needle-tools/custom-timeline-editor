@@ -65,20 +65,25 @@ namespace Needle.Timeline
 				if (_ != tool) return false;
 				tool.RemoveAllTargets();
 				var container = ToolsGUI.GetContainer(tool);
-				tool.Detach(container);
+				if(container.childCount > 0)
+					tool.Detach(container);
 				OnRemoveAttachedElements(tool);
+				if(allowRestoreTool && tool is EditorTool) ToolManager.RestorePreviousTool();
 				return true;
 			});
 		}
 
 		public static void DeselectAll()
 		{
-			foreach (var tool in _selected)
+			for (var index = _selected.Count - 1; index >= 0; index--)
 			{
+				var tool = _selected[index];
 				tool.RemoveAllTargets();
 				var container = ToolsGUI.GetContainer(tool);
-				tool.Detach(container);
+				if (container.childCount > 0)
+					tool.Detach(container);
 				OnRemoveAttachedElements(tool);
+				if (allowRestoreTool && tool is EditorTool) ToolManager.RestorePreviousTool();
 			}
 			_selected.Clear();
 		}
@@ -124,11 +129,14 @@ namespace Needle.Timeline
 			};
 		}
 
+		private static bool allowRestoreTool = true;
 		private static void OnActiveToolChanged()
 		{
 			if (!typeof(ICustomClipTool).IsAssignableFrom(ToolManager.activeToolType))
 			{
+				allowRestoreTool = false;
 				DeselectAll();
+				allowRestoreTool = true;
 			}
 		}
 
