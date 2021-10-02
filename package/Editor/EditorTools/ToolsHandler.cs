@@ -7,6 +7,7 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.Playables;
 using UnityEngine.SceneManagement;
+using UnityEngine.UIElements;
 
 namespace Needle.Timeline
 {
@@ -18,15 +19,31 @@ namespace Needle.Timeline
 			CreateToolInstances();
 		}
 
+		private static readonly List<VisualElement> tempBuffer = new List<VisualElement>();
+
 		public static void Select(ICustomClipTool tool)
 		{
 			if (_selected.Contains(tool)) return;
 			_selected.Add(tool);
-			
+
 			var container = ToolsGUI.GetContainer(tool);
+			#region Save added visual elements to be automatically removed on detach
+			tempBuffer.Clear();
+			tempBuffer.AddRange(container.Children());
 			tool.Attach(container);
-			
-			foreach (var viewModel in ClipInfoViewModel.ActiveInstances) 
+
+			var hasList = _attatched.ContainsKey(tool);
+			var list = hasList ? _attatched[tool] : new List<VisualElement>();
+			if (!hasList) _attatched.Add(tool, list);
+			foreach (var ch in container.Children())
+			{
+				if (!tempBuffer.Contains(ch))
+					list.Add(ch);
+			}
+			tempBuffer.Clear();
+			#endregion
+
+			foreach (var viewModel in ClipInfoViewModel.ActiveInstances)
 			{
 				foreach (var clip in viewModel.clips)
 				{
@@ -49,6 +66,7 @@ namespace Needle.Timeline
 				tool.RemoveAllTargets();
 				var container = ToolsGUI.GetContainer(tool);
 				tool.Detach(container);
+				OnRemoveAttachedElements(tool);
 				return true;
 			});
 		}
@@ -60,8 +78,21 @@ namespace Needle.Timeline
 				tool.RemoveAllTargets();
 				var container = ToolsGUI.GetContainer(tool);
 				tool.Detach(container);
+				OnRemoveAttachedElements(tool);
 			}
 			_selected.Clear();
+		}
+
+		private static void OnRemoveAttachedElements(ICustomClipTool tool)
+		{
+			if (_attatched.TryGetValue(tool, out var list))
+			{
+				foreach (var el in list)
+				{
+					if (el.parent != null)
+						el.RemoveFromHierarchy();
+				}
+			}
 		}
 
 		public static bool IsSelected(ICustomClipTool tool) => _selected.Contains(tool);
@@ -69,6 +100,9 @@ namespace Needle.Timeline
 		internal static IReadOnlyList<ICustomClipTool> ActiveTools => _selected;
 
 		private static readonly List<ICustomClipTool> _selected = new List<ICustomClipTool>();
+
+		private static readonly Dictionary<ICustomClipTool, IList<VisualElement>> _attatched
+			= new Dictionary<ICustomClipTool, IList<VisualElement>>();
 
 		[InitializeOnLoadMethod]
 		private static void Init()
@@ -78,10 +112,9 @@ namespace Needle.Timeline
 			ToolManager.activeToolChanged += OnActiveToolChanged;
 			CreateToolInstances();
 			UpdateToolTargets();
-			
+
 			TimelineWindowUtil.IsInit += () =>
 			{
-
 				var active = ToolManager.activeToolType;
 				if (typeof(ICustomClipTool).IsAssignableFrom(active))
 				{
@@ -96,7 +129,7 @@ namespace Needle.Timeline
 			if (!typeof(ICustomClipTool).IsAssignableFrom(ToolManager.activeToolType))
 			{
 				DeselectAll();
-			} 
+			}
 		}
 
 		private static void OnTimeChanged(PlayableDirector obj)
@@ -110,7 +143,7 @@ namespace Needle.Timeline
 			{
 				sel.RemoveAllTargets();
 			}
-			
+
 			foreach (var tool in _selected)
 			{
 				foreach (var vm in ClipInfoViewModel.ActiveInstances)
