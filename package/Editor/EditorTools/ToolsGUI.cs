@@ -7,21 +7,22 @@ namespace Needle.Timeline
 {
 	internal static class ToolsGUI
 	{
-		internal static VisualElement GetContainer(ICustomClipTool tool)
+		internal static VisualElement GetToolSettingsContainer()
 		{
 			OnCreateContainerIfNecessary();
 			return _toolsSettings;
-			// if (_tools.TryGetValue(tool, out var container))
-			// {
-			// 	return container;
-			// }
-			// return null;
 		}
-		
-		[InitializeOnLoadMethod] 
+
+#if UNITY_EDITOR
+		[InitializeOnLoadMethod]
+#else
+		[RuntimeInitializeOnLoadMethod]
+#endif
 		private static void Init()
 		{
+#if UNITY_EDITOR
 			SceneView.beforeSceneGui += OnSceneGUI;
+#endif
 			ClipInfoViewModel.Created += vm => _recreateUI = true;
 			OnCreateContainerIfNecessary();
 		}
@@ -53,7 +54,8 @@ namespace Needle.Timeline
 				_root.style.maxWidth = new StyleLength(new Length(50, LengthUnit.Percent));
 				_root.style.backgroundColor = EditorGUIUtility.isProSkin
 					? new Color(0.21f, 0.21f, 0.21f, 0.8f)
-					: new Color(0.8f, 0.8f, 0.8f, 0.8f);;
+					: new Color(0.8f, 0.8f, 0.8f, 0.8f);
+				;
 				_root.style.marginLeft = 5f;
 				_root.style.marginBottom = 5f;
 				_root.style.paddingTop = 5f;
@@ -77,12 +79,13 @@ namespace Needle.Timeline
 				_toolsSettings.style.maxWidth = new StyleLength(new Length(50, LengthUnit.Percent));
 				_toolsSettings.style.backgroundColor = EditorGUIUtility.isProSkin
 					? new Color(0.21f, 0.21f, 0.21f, 0.8f)
-					: new Color(0.8f, 0.8f, 0.8f, 0.8f);;
+					: new Color(0.8f, 0.8f, 0.8f, 0.8f);
+				;
 				_toolsSettings.style.marginLeft = 5;
 				_toolsSettings.style.marginBottom = 5;
 				_toolsSettings.style.alignSelf = Align.FlexStart;
 			}
-			
+
 			if (_recreateUI)
 			{
 				_recreateUI = false;
@@ -97,7 +100,7 @@ namespace Needle.Timeline
 						_tools.Add(tool, toolContainer);
 					}
 					else toolContainer.Clear();
-				
+
 					var name = tool.GetType().Name;
 					var toolButton = new Button();
 					toolButton.text = name;
@@ -105,7 +108,7 @@ namespace Needle.Timeline
 					toolButton.style.height = 30;
 					toolButton.AddManipulator(new ToolButtonManipulator(tool));
 					toolContainer.Add(toolButton);
-				
+
 					_availableTools.Add(toolContainer);
 				}
 			}

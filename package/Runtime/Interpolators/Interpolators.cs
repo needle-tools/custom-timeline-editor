@@ -12,10 +12,13 @@ namespace Needle.Timeline
 		public static bool TryFindInterpolator(AnimateAttribute attribute, Type type, out IInterpolator interpolator)
 		{
 			var searchType = typeof(IInterpolator<>).MakeGenericType(type);
+			
 			foreach (var t in TypeCache.GetTypesDerivedFrom(searchType))
 			{
 				if (t.IsAbstract || t.IsInterface) continue;
+				// ignore custom clips implementing interpolator interface
 				if (typeof(ICustomClip).IsAssignableFrom(t)) continue;
+				if (attribute.Interpolator != null && t != attribute.Interpolator) continue;
 				try
 				{
 					interpolator = Activator.CreateInstance(t) as IInterpolator;
@@ -31,6 +34,7 @@ namespace Needle.Timeline
 			foreach (var t in TypeCache.GetTypesDerivedFrom(typeof(IInterpolator)))
 			{
 				if (t.IsAbstract || t.IsInterface || t.ContainsGenericParameters) continue;
+				if (attribute.Interpolator != null && t != attribute.Interpolator) continue;
 				if (!interpolatorsCache.ContainsKey(t))
 				{
 					var i = Activator.CreateInstance(t) as IInterpolator;

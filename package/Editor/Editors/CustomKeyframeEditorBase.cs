@@ -5,18 +5,6 @@ using UnityEngine;
 
 namespace Needle.Timeline
 {
-	public struct SelectedKeyframe
-	{
-		public ICustomClip Clip;
-		public ICustomKeyframe Keyframe;
-		public KeyframeMeta Meta;
-
-		public struct KeyframeMeta
-		{
-			
-		}
-	}
-	
 	public abstract class CustomKeyframeEditorBase
 	{
 		public IList<SelectedKeyframe> Target { get; } = new List<SelectedKeyframe>();

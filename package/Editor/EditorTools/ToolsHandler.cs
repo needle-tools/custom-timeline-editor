@@ -26,7 +26,7 @@ namespace Needle.Timeline
 			if (_selected.Contains(tool)) return;
 			_selected.Add(tool);
 
-			var container = ToolsGUI.GetContainer(tool);
+			var container = ToolsGUI.GetToolSettingsContainer();
 			#region Save added visual elements to be automatically removed on detach
 			tempBuffer.Clear();
 			tempBuffer.AddRange(container.Children());
@@ -64,7 +64,7 @@ namespace Needle.Timeline
 			{
 				if (_ != tool) return false;
 				tool.RemoveAllTargets();
-				var container = ToolsGUI.GetContainer(tool);
+				var container = ToolsGUI.GetToolSettingsContainer();
 				if(container.childCount > 0)
 					tool.Detach(container);
 				OnRemoveAttachedElements(tool);
@@ -79,7 +79,7 @@ namespace Needle.Timeline
 			{
 				var tool = _selected[index];
 				tool.RemoveAllTargets();
-				var container = ToolsGUI.GetContainer(tool);
+				var container = ToolsGUI.GetToolSettingsContainer();
 				if (container.childCount > 0)
 					tool.Detach(container);
 				OnRemoveAttachedElements(tool);

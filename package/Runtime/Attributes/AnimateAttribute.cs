@@ -4,6 +4,6 @@ namespace Needle.Timeline
 {
 	public class AnimateAttribute : Attribute
 	{
-		
+		public Type Interpolator;
 	}
 }
