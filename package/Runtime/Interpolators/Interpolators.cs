@@ -56,6 +56,10 @@ namespace Needle.Timeline
 						Debug.LogException(m);
 					}
 				}
+				
+				// TODO: check if script implements method for collection interpolation? 
+				// e.g. Guide Interpolate(Guide v0, Guide v1, float t);
+				
 				var instance = interpolatorsCache[t];
 				if (instance?.CanInterpolate(type) == true)
 				{

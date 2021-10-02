@@ -97,6 +97,11 @@ namespace _Sample._Sample
 
 		[Animate] public float Factor = 1;
 
+		private Guide Interpolate(Guide g0, Guide g1, float t)
+		{
+			return new Guide();
+		}
+
 		public int pointsCount => points?.Count ?? 0;
 
 		private Color[] colors = new[]
