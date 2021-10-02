@@ -37,8 +37,24 @@ namespace Needle.Timeline
 				if (attribute.Interpolator != null && t != attribute.Interpolator) continue;
 				if (!interpolatorsCache.ContainsKey(t))
 				{
-					var i = Activator.CreateInstance(t) as IInterpolator;
-					interpolatorsCache.Add(t, i);
+					try
+					{
+						if (t.GetDefaultConstructor() != null)
+						{
+							var i = Activator.CreateInstance(t) as IInterpolator;
+							interpolatorsCache.Add(t, i);
+						}
+						else
+						{
+							// TODO: implement case where default constructor is not existing e.g. computebufferinterpolator????
+							interpolatorsCache.Add(t, null);
+						}
+					}
+					catch (MissingMemberException m)
+					{
+						interpolatorsCache.Add(t, null);
+						Debug.LogException(m);
+					}
 				}
 				var instance = interpolatorsCache[t];
 				if (instance?.CanInterpolate(type) == true)
@@ -52,6 +68,6 @@ namespace Needle.Timeline
 			return false;
 		}
 
-		private static Dictionary<Type, IInterpolator> interpolatorsCache = new Dictionary<Type, IInterpolator>();
+		private static readonly Dictionary<Type, IInterpolator> interpolatorsCache = new Dictionary<Type, IInterpolator>();
 	}
 }

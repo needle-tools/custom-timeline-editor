@@ -105,15 +105,6 @@ namespace Needle.Timeline
 					UseEvent();
 					break;
 			}
-
-			void UseEvent()
-			{
-				if (Event.current.type != EventType.Used)
-				{
-					GUIUtility.hotControl = 0;
-					Event.current.Use();
-				}
-			}
 		}
 
 

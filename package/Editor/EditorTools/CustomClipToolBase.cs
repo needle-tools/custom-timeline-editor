@@ -106,16 +106,25 @@ namespace Needle.Timeline
 
 		protected virtual void OnAttach(VisualElement element){}
 		protected virtual void OnDetach(VisualElement element){}
-		
-		
-		
-		
-		
+
+
+
+
 		protected static Vector3 GetCurrentMousePositionInScene()
 		{
-			Vector3 mousePosition = Event.current.mousePosition;
-			var placeObject = HandleUtility.PlaceObject(mousePosition, out var newPosition, out var normal);
-			return placeObject ? newPosition : HandleUtility.GUIPointToWorldRay(mousePosition).GetPoint(10);
+			return PlaneUtils.GetPointOnPlane(Camera.current, out _, out _, out _);
+			// Vector3 mousePosition = Event.current.mousePosition;
+			// var placeObject = HandleUtility.PlaceObject(mousePosition, out var newPosition, out var normal);
+			// return placeObject ? newPosition : HandleUtility.GUIPointToWorldRay(mousePosition).GetPoint(10);
+		}
+		
+
+		protected static void UseEvent()
+		{
+			if (Event.current == null || Event.current.type == EventType.Used) return;
+			// prevent selection box
+			GUIUtility.hotControl = 0;
+			Event.current.Use();
 		}
 	}
 }

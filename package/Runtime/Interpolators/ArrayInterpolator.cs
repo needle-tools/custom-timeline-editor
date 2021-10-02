@@ -48,43 +48,43 @@ namespace Needle.Timeline
 		}
 	}
 
-	public class CollectionInterpolator : IInterpolator
-	{
-		public bool CanInterpolate(Type type)
-		{
-			return typeof(IList).IsAssignableFrom(type);
-		}
-
-		private IList result;
-		private IList secondaryBuffer;
-
-		public object Interpolate(object v0, object v1, float t)
-		{
-			if (v0 == null && v1 == null) return null;
-
-			var list0 = v0 as IList;
-			var list1 = v1 as IList;
-
-			result ??= (IList)Activator.CreateInstance(v0?.GetType() ?? v1.GetType());
-			result.Clear(); 
-			var count = Mathf.RoundToInt(Mathf.Lerp(list0?.Count ?? 0, list1?.Count ?? 0, t));
-			for (var i = 0; i < count; i++)
-			{
-				var val0 = list0?.Count > 0 ? list0[i % list0.Count] : list1?[i];
-				var val1 = list1?.Count > 0 ? list1[i % list1.Count] : list0?[i];
-				if (val0 is Vector3 vec0 && val1 is Vector3 vec1)
-				{
-					var res = Vector3.Lerp(vec0, vec1, t);
-					result.Add(res);
-				}
-			}
-			secondaryBuffer ??= (IList)Activator.CreateInstance(v0?.GetType() ?? v1.GetType());
-			secondaryBuffer.Clear();
-			foreach (var obj in result)
-				secondaryBuffer.Add(obj);
-			return secondaryBuffer;
-		}
-	}
+	// public class CollectionInterpolator : IInterpolator
+	// {
+	// 	public bool CanInterpolate(Type type)
+	// 	{
+	// 		return typeof(IList).IsAssignableFrom(type);
+	// 	}
+	//
+	// 	private IList result;
+	// 	private IList secondaryBuffer;
+	//
+	// 	public object Interpolate(object v0, object v1, float t)
+	// 	{
+	// 		if (v0 == null && v1 == null) return null;
+	//
+	// 		var list0 = v0 as IList;
+	// 		var list1 = v1 as IList;
+	//
+	// 		result ??= (IList)Activator.CreateInstance(v0?.GetType() ?? v1.GetType());
+	// 		result.Clear(); 
+	// 		var count = Mathf.RoundToInt(Mathf.Lerp(list0?.Count ?? 0, list1?.Count ?? 0, t));
+	// 		for (var i = 0; i < count; i++)
+	// 		{
+	// 			var val0 = list0?.Count > 0 ? list0[i % list0.Count] : list1?[i];
+	// 			var val1 = list1?.Count > 0 ? list1[i % list1.Count] : list0?[i];
+	// 			if (val0 is Vector3 vec0 && val1 is Vector3 vec1)
+	// 			{
+	// 				var res = Vector3.Lerp(vec0, vec1, t);
+	// 				result.Add(res);
+	// 			}
+	// 		}
+	// 		secondaryBuffer ??= (IList)Activator.CreateInstance(v0?.GetType() ?? v1.GetType());
+	// 		secondaryBuffer.Clear();
+	// 		foreach (var obj in result)
+	// 			secondaryBuffer.Add(obj);
+	// 		return secondaryBuffer;
+	// 	}
+	// }
 
 	public class ListInterpolator : IInterpolator<List<Vector3>>
 	{

@@ -8,19 +8,7 @@ using UnityEngine.UIElements;
 
 namespace _Sample
 {
-	public class DummyTool : CustomClipToolBase
-	{
-		protected override bool OnSupports(Type type)
-		{
-			return typeof(byte) == type;
-		}
-
-		protected override void OnInput(EditorWindow window)
-		{
-			
-		}
-	}
-	
+#if UNITY_EDITOR
 	public class TextTool : CustomClipToolBase
 	{
 		protected override bool OnSupports(Type type)
@@ -49,24 +37,20 @@ namespace _Sample
 			
 		}
 	}
-	
+#endif
+
 	public class AnimatedScript : MonoBehaviour, IAnimated
 	{
-		[Animate]
-		public float MyValue;
+		[Animate] public float MyValue;
 
-		[Animate] 
-		private float MyOthervalue;
-		
-		[Animate]
-		public int MyInt;
-		
-		[Animate]
-		public double MyDouble;
-		
-		[Animate]
-		public string MyString;
-		
+		[Animate] private float MyOthervalue;
+
+		[Animate] public int MyInt;
+
+		[Animate] public double MyDouble;
+
+		[Animate] public string MyString;
+
 		// [Animate]
 		// public List<Vector3> points = new List<Vector3>();
 		//

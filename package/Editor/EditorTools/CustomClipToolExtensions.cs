@@ -1,4 +1,6 @@
-﻿namespace Needle.Timeline
+﻿using UnityEngine;
+
+namespace Needle.Timeline
 {
 	public static class CustomClipToolExtensions
 	{

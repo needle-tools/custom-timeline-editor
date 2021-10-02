@@ -442,7 +442,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gizmoSizeFactor: 1
-  Factor: 1
+  Factor: 0
 --- !u!114 &343292043
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -458,7 +458,7 @@ MonoBehaviour:
   MyValue: 0
   MyInt: 0
   MyDouble: 0
-  MyString: t23
+  MyString: 
 --- !u!1 &939538885
 GameObject:
   m_ObjectHideFlags: 0
