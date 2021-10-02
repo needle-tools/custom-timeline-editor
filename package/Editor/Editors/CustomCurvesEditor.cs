@@ -288,13 +288,16 @@ namespace Needle.Timeline
 															{
 																if (_copy != null && _copy is ICloneable cloneable && clip == _copyClip)
 																{
-																	if (cloneable.Clone() is ICustomKeyframe copy)
+																	if (viewModel.currentlyInClipTime)
 																	{
-																		copy.time = (float)viewModel.clipTime;
-																		CustomUndo.Register(new CreateKeyframe(copy, clip));
-																		Repaint();
-																		UpdatePreview();
-																		return;
+																		if (cloneable.Clone() is ICustomKeyframe copy)
+																		{
+																			copy.time = (float)viewModel.clipTime;
+																			CustomUndo.Register(new CreateKeyframe(copy, clip));
+																			Repaint();
+																			UpdatePreview();
+																			return;
+																		}
 																	}
 																}
 															}
