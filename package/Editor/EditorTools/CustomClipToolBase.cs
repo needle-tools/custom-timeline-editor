@@ -60,6 +60,12 @@ namespace Needle.Timeline
 		}
 
 		bool ICustomClipTool.Supports(Type type) => OnSupports(type);
+		
+		void ICustomClipTool.GetOrCreateSettings(ref ScriptableObject obj)
+		{
+			OnGetOrCreateSettings(ref obj);
+			Settings = obj;
+		}
 		#endregion
 
 		private static Texture2D _toolIcon;
@@ -87,7 +93,12 @@ namespace Needle.Timeline
 		}
 		#endregion
 		
-		
+		protected ScriptableObject Settings { get; private set; }
+
+		protected virtual void OnGetOrCreateSettings(ref ScriptableObject settings)
+		{
+			
+		}
 		
 		protected abstract bool OnSupports(Type type);
 		protected abstract void OnInput(EditorWindow window);

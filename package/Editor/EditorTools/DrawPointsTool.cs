@@ -11,6 +11,7 @@ namespace Needle.Timeline
 	public class DrawPointsTool : CustomClipToolBase
 	{
 		private ICustomKeyframe<List<Vector3>> keyframe;
+
 		private float radius = .5f;
 
 		protected override bool OnSupports(Type type)
@@ -22,7 +23,7 @@ namespace Needle.Timeline
 		{
 			base.OnAttach(element);
 			keyframe = null;
-			element.Add(new Button(){text = "hello"});
+			element.Add(new Button() { text = "hello" });
 		}
 
 		protected override void OnDetach(VisualElement element)
@@ -41,10 +42,10 @@ namespace Needle.Timeline
 			switch (Event.current.type)
 			{
 				case EventType.KeyDown:
-					if(Event.current.keyCode == KeyCode.Escape) this.Deselect();
+					if (Event.current.keyCode == KeyCode.Escape) this.Deselect();
 					break;
 			}
-			
+
 			switch (Event.current.type, Event.current.modifiers, Event.current.button)
 			{
 				case (EventType.ScrollWheel, EventModifiers.Alt, _):
@@ -52,7 +53,7 @@ namespace Needle.Timeline
 					radius = Mathf.Clamp(radius, .001f, 20f);
 					UseEvent();
 					break;
-					
+
 				case (EventType.MouseDown, EventModifiers.None, 0):
 					var active = Targets.LastOrDefault();
 					if (active.IsNull()) return;

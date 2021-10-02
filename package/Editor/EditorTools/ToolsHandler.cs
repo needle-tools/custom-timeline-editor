@@ -152,8 +152,18 @@ namespace Needle.Timeline
 			foreach (var tool in toolTypes)
 			{
 				if (tool.IsAbstract || tool.IsInterface) continue;
-				var instance = (ICustomClipTool)Activator.CreateInstance(tool);
-				_toolInstances.Add(instance);
+				ICustomClipTool instance = default;
+				if (typeof(EditorTool).IsAssignableFrom(tool))
+				{
+					instance = (ICustomClipTool)ScriptableObject.CreateInstance(tool);
+					_toolInstances.Add(instance);
+				}
+				else
+				{
+					instance = (ICustomClipTool)Activator.CreateInstance(tool);
+					_toolInstances.Add(instance);
+				}
+				ToolsSettings.HandleSettingsForToolInstance(instance);
 			}
 		}
 	}

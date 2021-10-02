@@ -1,4 +1,5 @@
 ﻿using System;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Needle.Timeline
@@ -11,6 +12,7 @@ namespace Needle.Timeline
 		internal bool HasClipTarget(Type clipType);
 		internal void Attach(VisualElement el);
 		internal void Detach(VisualElement el);
+		internal void GetOrCreateSettings(ref ScriptableObject obj);
 
 		bool Supports(Type type);
 	}
