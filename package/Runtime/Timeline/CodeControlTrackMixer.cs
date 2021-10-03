@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using Unity.Profiling;
 using UnityEngine;
 using UnityEngine.Playables;
+using UnityEngine.PlayerLoop;
 
 namespace Needle.Timeline
 {
@@ -23,6 +24,7 @@ namespace Needle.Timeline
 			var behaviour = inputPlayable.GetBehaviour();
 			// if not bound
 			if (behaviour == null) return;
+			var frameInfo = new FrameInfo(0, info.deltaTime);
 			for (var viewModelIndex = 0; viewModelIndex < behaviour.viewModels.Count; viewModelIndex++)
 			{
 				// var viewModel = behaviour.viewModels[viewModelIndex];
@@ -83,7 +85,12 @@ namespace Needle.Timeline
 				if (graph.GetResolver() is PlayableDirector dir)
 				{
 					TimelineHooks.CheckTimeChanged(dir);
+					
+					var vm = behaviour.viewModels[viewModelIndex];
+					frameInfo.Time = (float)dir.time;
+					vm.OnProcessedFrame(frameInfo);
 				}
+
 			}
 		}
 	}

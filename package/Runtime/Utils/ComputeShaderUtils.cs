@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using UnityEditor.Timeline;
 using UnityEngine;
 
 namespace Needle.Timeline
@@ -17,16 +18,16 @@ namespace Needle.Timeline
 			shader.SetBuffer(index, name, buffer);
 		}
 
-		public static ComputeBuffer SetBuffer<T>(this ComputeShader shader, string kernelName, string name, List<T> data, int stride) where T : struct
+		public static ComputeBuffer SetBuffer<T>(this ComputeShader shader, string kernelName, string name, List<T> data, int stride, int? size = null) where T : struct
 		{
 			var kernel = shader.FindKernel(kernelName);
-			return SetBuffer(shader, kernel, name, data, stride);
+			return SetBuffer(shader, kernel, name, data, stride, size);
 		}
 
-		public static ComputeBuffer SetBuffer<T>(this ComputeShader shader, int kernel, string id, List<T> data, int stride) where T : struct
+		public static ComputeBuffer SetBuffer<T>(this ComputeShader shader, int kernel, string id, List<T> data, int stride, int? size = null) where T : struct
 		{
 			if (data.Count <= 0) return null;
-			var buffer = ComputeBufferProvider.GetBuffer(id, data, stride);
+			var buffer = ComputeBufferProvider.GetBuffer(id, data, stride, size);
 			shader.SetBuffer(kernel, id, buffer);
 			return buffer;
 		}

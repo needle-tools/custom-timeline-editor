@@ -11,6 +11,12 @@ namespace Needle.Timeline
 
 		public static bool TryFindInterpolator(AnimateAttribute attribute, Type type, out IInterpolator interpolator)
 		{
+			if (attribute.AllowInterpolation == false)
+			{
+				interpolator = new NoInterpolator();
+				return true;
+			}
+			
 			var searchType = typeof(IInterpolator<>).MakeGenericType(type);
 			
 			foreach (var t in TypeCache.GetTypesDerivedFrom(searchType))

@@ -44,6 +44,14 @@ namespace Needle.Timeline
 			clips.Add(clip);
 		}
 
+		internal void OnProcessedFrame(FrameInfo info)
+		{
+			if (Script is ITimelineUpdateCallback cb)
+			{
+				cb.OnEvaluated(info);
+			}
+		}
+
 		internal AnimationClip AnimationClip => model.clip;
 
 		public bool Solo

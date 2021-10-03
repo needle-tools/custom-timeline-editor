@@ -6,8 +6,10 @@ RWTexture2D<float4> Output;
 float4 _Time;
 
 float FadeInSpeed, FadeOutSpeed;
+int PositionsCount;
 StructuredBuffer<float3> Positions;
 float XFactor;
+float MoveSpeed, TurnSpeed;
 
 struct Entity
 {
@@ -35,36 +37,46 @@ void Simulate(uint3 id : SV_DispatchThreadID)
     Entities.GetDimensions(count, _);
     if(id.x >= count) return;
     Entity entity = Entities[id.x];
-    Positions.GetDimensions(count, _);
     if(entity.energy <= 0.001)
     {
-        uint randomIndex = wang_hash(entity.pos.x + entity.pos.y + id.x);
-        float3 randomPos = Positions[randomIndex%count];
-        entity.pos = randomPos;
-        entity.lastPos = randomPos;
+        uint rx = wang_hash(entity.pos.x + id.x) % 1;
+        uint ry = wang_hash(entity.pos.y + id.x) % 1;
+        entity.pos = 0;// float2(rx, ry);
+        entity.dir = normalize(float2(sin(id.x +  _Time.x), cos(id.x + _Time.x)));
+        entity.pos += entity.dir * 3;
+        entity.lastPos = float2(entity.pos);
+        entity.dir *= -1;
         entity.energy = 1;
     }
     float res_dot = -1;
+    float res_rating = 0;
     float3 res_target = 0;
     float2 res_dir = 0;
+    count = PositionsCount;
     for(int i = 0; i < count; i++)
     {
         float3 pos = Positions[i];
         float2 dir = pos.xy - entity.pos;
+        float dist = length(dir);
+        if(dist < .1) continue;
         float2 ndir = normalize(dir);
-        float a = dot(ndir, entity.dir);
-        if(a > res_dot) 
+        float d = dot(ndir, normalize(entity.dir));
+        float rating = lerp(saturate(1/dist), clamp(d, 0, 100), d);
+        if(rating > res_rating && (id.x + i) % (uint)(count*.1) == 0) 
         {
-            res_dot = a;
+            res_rating = rating;
+            res_dot = d;
             res_target = pos;
             res_dir = dir;
         }
     }
-    entity.energy -= length(res_dir) * _Time.w * .1;
+    entity.energy -= length(res_dir) * _Time.w * .1 * MoveSpeed;
     entity.lastPos = entity.pos;
-    entity.dir = lerp(entity.dir, res_dir, _Time.w / max(.2,length(res_dir)));
-    entity.pos = lerp(entity.pos, entity.pos + entity.dir, _Time.w);
-    Entities[id.x] = entity;
+    float t = TurnSpeed * _Time.w / max(.5,length(res_dir));
+    entity.dir = lerp(entity.dir, res_dir, saturate(t));
+    t =  _Time.w * MoveSpeed;
+    entity.pos = lerp(entity.pos, entity.pos + entity.dir, saturate(t));
+    Entities[id.x] = entity; 
 }
 
 
@@ -74,9 +86,15 @@ void Draw(uint3 id : SV_DispatchThreadID)
     uint width, height;
     Output.GetDimensions(width, height);
     Entity entity = Entities[id.x];
-    float2 pt = entity.pos;
-    uint2 pixel = uint2(pt.x*XFactor + width*.5, pt.y * XFactor + height * .5);
-    Output[pixel] = lerp(Output[pixel], 1, _Time.w * FadeInSpeed);
+    float dist = length(entity.pos - entity.lastPos);
+    float4 color = lerp(float4(1,0,0,1), 1, entity.energy*2);
+    for(float i = 0; i < dist; i += 1/dist)
+    {
+        float2 pt = lerp(entity.lastPos, entity.pos, i);;
+        uint2 pixel = uint2(pt.x*XFactor + width*.5, pt.y * XFactor + height * .5);
+        if(pixel.x < 0 || pixel.x >= width || pixel.y < 0 || pixel.y > height) break;
+        Output[pixel] = lerp(Output[pixel], color, _Time.w * FadeInSpeed);
+    }
 }
 
 
