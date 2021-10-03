@@ -18,6 +18,8 @@ namespace Needle.Timeline.Tests
 			var shader = LoadShader();
 			Assert.IsTrue(Mathf.Approximately(TestInterpolate<float>(shader, "FLOAT", sizeof(float), 0, 1), 
 				.5f));
+			Assert.IsTrue(Mathf.Approximately(TestInterpolate<float>(shader, "FLOAT", sizeof(float), 0, 1, 1), 
+				1));
 		}
 
 		[Test]
@@ -47,15 +49,48 @@ namespace Needle.Timeline.Tests
 		}
 
 		[Test]
-		public void InterpolateCustom()
+		public void InterpolateCustom1()
 		{
 			var shader = LoadShader();
-			var res = TestInterpolate(shader, "FLOAT2", sizeof(float)*2, new MyType(), new MyType(){v0=1, v1=1});
+			var res = TestInterpolate(shader, "FLOAT2", sizeof(float)*2, new CustomType1(), new CustomType1(){v0=1, v1=1});
 			Assert.IsTrue(Mathf.Approximately(res.v0, 0.5f));
 			Assert.IsTrue(Mathf.Approximately(res.v1, 0.5f));
 		}
+		private struct CustomType1
+		{
+			public float v0;
+			public float v1;
+			public override string ToString()
+			{
+				return "v0=" + v0 + ", v1=" + v1;
+			}
+		}
 
+		[Test]
+		public void InterpolateCustom2()
+		{
+			var shader = LoadShader();
+			var res = TestInterpolate(shader, "FLOAT3", sizeof(float)*3, new CustomType2(), new CustomType2(){v0=1, v1=new Vector2(1,1)});
+			Assert.IsTrue(Mathf.Approximately(res.v0, 0.5f));
+			Assert.IsTrue(res.v1 == new Vector2(.5f,.5f));
+		}
+		private struct CustomType2
+		{
+			public float v0;
+			public Vector2 v1;
+			public override string ToString()
+			{
+				return "v0=" + v0 + ", v1=" + v1;
+			}
+		}
 
+		
+		
+		
+		
+		
+		
+		
 		private static T TestInterpolate<T>(ComputeShader shader, string keyword, int stride, T t0, T t1, float t = 0.5f) where T : struct
 		{
 			using var i0 = new ComputeBuffer(1, stride);
@@ -78,15 +113,6 @@ namespace Needle.Timeline.Tests
 		}
 		
 		
-
-		private struct MyType
-		{
-			public float v0;
-			public float v1;
-			public override string ToString()
-			{
-				return "v0=" + v0 + ", v1=" + v1;
-			}
-		}
+		
 	}
 }
