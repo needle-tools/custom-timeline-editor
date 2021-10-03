@@ -11,9 +11,17 @@ namespace Needle.Timeline.Tests
 			Assert.NotNull(shader);
 			return shader;
 		}
+		
+		[Test]
+		public void Interpolate_Int()
+		{
+			var shader = LoadShader();
+			Assert.IsTrue(TestInterpolate<int>(shader, "INT", sizeof(int), 0, 100) == 50);
+			Assert.IsTrue(TestInterpolate<int>(shader, "INT", sizeof(int), 0, -100) == -50);
+		}
 
 		[Test]
-		public void InterpolateFloat()
+		public void Interpolate_Float()
 		{
 			var shader = LoadShader();
 			Assert.IsTrue(Mathf.Approximately(TestInterpolate<float>(shader, "FLOAT", sizeof(float), 0, 1), 
@@ -23,7 +31,7 @@ namespace Needle.Timeline.Tests
 		}
 
 		[Test]
-		public void InterpolateFloat2()
+		public void Interpolate_Float2()
 		{
 			var shader = LoadShader();
 			Assert.IsTrue(TestInterpolate(shader, "FLOAT2", sizeof(float) * 2, new Vector2(), Vector2.one) == 
@@ -31,7 +39,7 @@ namespace Needle.Timeline.Tests
 		}
 
 		[Test]
-		public void InterpolateFloat3()
+		public void Interpolate_Float3()
 		{
 			var shader = LoadShader();
 			Assert.IsTrue(TestInterpolate(shader, "FLOAT3", sizeof(float) * 3, new Vector3(), Vector3.one) == 
@@ -39,7 +47,7 @@ namespace Needle.Timeline.Tests
 		}
 
 		[Test]
-		public void InterpolateFloat4()
+		public void Interpolate_Float4()
 		{
 			var shader = LoadShader();
 			Assert.IsTrue(TestInterpolate(shader, "FLOAT4", sizeof(float) * 4, new Vector4(), Vector4.one) == 
@@ -49,7 +57,7 @@ namespace Needle.Timeline.Tests
 		}
 
 		[Test]
-		public void InterpolateCustom1()
+		public void Interpolate_Custom1()
 		{
 			var shader = LoadShader();
 			var res = TestInterpolate(shader, "FLOAT2", sizeof(float)*2, new CustomType1(), new CustomType1(){v0=1, v1=1});
@@ -67,7 +75,7 @@ namespace Needle.Timeline.Tests
 		}
 
 		[Test]
-		public void InterpolateCustom2()
+		public void Interpolate_Custom2()
 		{
 			var shader = LoadShader();
 			var res = TestInterpolate(shader, "FLOAT3", sizeof(float)*3, new CustomType2(), new CustomType2(){v0=1, v1=new Vector2(1,1)});
