@@ -7,6 +7,7 @@ using UnityEngine;
 
 namespace Needle.Timeline
 {
+	[NoAutoSelect]
 	public class NumbersInterpolator : IInterpolator
 	{
 		private readonly Type[] types = new[]
@@ -28,6 +29,7 @@ namespace Needle.Timeline
 		}
 	}
 
+	[NoAutoSelect]
 	public class IndexingInterpolator : IInterpolator
 	{
 		private PropertyInfo indexer;
@@ -35,7 +37,7 @@ namespace Needle.Timeline
 
 		public bool CanInterpolate(Type type)
 		{
-			return false;//
+			return false; //
 			indexer ??= type.GetProperties().FirstOrDefault(p => p.GetIndexParameters().Length != 0);
 			if (indexer == null) return false;
 			args ??= new object[1];
@@ -101,6 +103,14 @@ namespace Needle.Timeline
 			return Interpolate(v0 as List<Vector3>, v1 as List<Vector3>, t);
 		}
 
+		public enum Mode
+		{
+			AllAtOnce = 0,
+			Individual = 1
+		}
+
+		public Mode CurrentMode = Mode.Individual;
+
 		public List<Vector3> Interpolate(List<Vector3> v0, List<Vector3> v1, float t)
 		{
 			// TODO: via timeline mixer it can currently happen that one of the inputs is the output list of a previous interpolation, maybe we need some buffer cache to get temporary result buffers?
@@ -117,12 +127,28 @@ namespace Needle.Timeline
 			if (result == null) result = new List<Vector3>();
 			else result.Clear();
 			var count = Mathf.RoundToInt(Mathf.Lerp(v0?.Count ?? 0, v1?.Count ?? 0, t));
+			var perEntry = 1f / Mathf.Min(v0?.Count ?? 0, v1?.Count ?? 0);
+			Debug.Log(t);
 			for (var i = 0; i < count; i++)
 			{
-				var val0 = v0?.Count > 0 ? v0[i % v0.Count] : v1[i];
-				var val1 = v1?.Count > 0 ? v1[i % v1.Count] : v0[i];
-				var res = Vector3.Lerp(val0, val1, t);
-				result.Add(res);
+				var val0 = v0?.Count > 0 ? v0[i % v0.Count] : v1?[i];
+				var val1 = v1?.Count > 0 ? v1[i % v1.Count] : v0?[i];
+				if (val0 == null || val1 == null) continue;
+				Vector3? res = null;
+				switch (CurrentMode)
+				{
+					case Mode.AllAtOnce:
+						res = Vector3.Lerp(val0.Value, val1.Value, t);
+						break;
+
+					case Mode.Individual:
+						var start = (i+1) * perEntry;
+						var it = Mathf.Clamp01(t - start);
+						res = Vector3.Lerp(val0.Value, val1.Value, it);
+						break;
+				}
+				if (res != null)
+					result.Add(res.Value);
 			}
 
 			//

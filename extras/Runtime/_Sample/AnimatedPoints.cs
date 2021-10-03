@@ -11,7 +11,7 @@ namespace _Sample._Sample
 	[ExecuteAlways]
 	public class AnimatedPoints : MonoBehaviour, IAnimated
 	{
-		[Animate(AllowInterpolation = false), NonSerialized]
+		[Animate(AllowInterpolation = true), NonSerialized]
 		public List<Vector3> points = new List<Vector3>();
 
 		[Animate, NonSerialized] public List<Line> guides = new List<Line>();
