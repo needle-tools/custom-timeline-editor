@@ -801,7 +801,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: da143bb0ddcd33949ac33ce6f7332d23, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gizmoSizeFactor: 1
+  gizmoSizeFactor: 0.5
   Factor: 0
 --- !u!114 &1849834652
 MonoBehaviour:
@@ -821,7 +821,9 @@ MonoBehaviour:
   Points: {fileID: 1849834651}
   Shader: {fileID: 7200000, guid: f29be70d55b81ab4e855b01616fd7fb6, type: 3}
   Renderer: {fileID: 1888973583}
-  FadeInSpeed: 50
+  Count: 300
+  FadeInSpeed: 60
+  FadeOutSpeed: 0.2
 --- !u!1 &1888973582
 GameObject:
   m_ObjectHideFlags: 0

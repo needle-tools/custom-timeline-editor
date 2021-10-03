@@ -12,15 +12,6 @@ namespace Needle.Timeline
 	{
 		private static readonly Dictionary<string, ComputeBuffer> _buffers = new Dictionary<string, ComputeBuffer>();
 
-		public static void SetBuffer<T>(this ComputeShader shader, int kernel, string id, List<T> data, int stride) where T : struct
-		{
-			if (data.Count <= 0)
-			{
-				return;
-			}
-			var buffer = GetBuffer(id, data, stride);
-			shader.SetBuffer(kernel, id, buffer);
-		}
 		
 		public static ComputeBuffer GetBuffer<T>(string id, List<T> data, int stride) where T : struct
 		{

@@ -1,19 +1,80 @@
-﻿#pragma kernel Draw
+﻿#pragma kernel Simulate
+#pragma kernel Draw
 #pragma kernel Clear
 
 RWTexture2D<float4> Output;
 float4 _Time;
 
-float FadeInSpeed;
+float FadeInSpeed, FadeOutSpeed;
 StructuredBuffer<float3> Positions;
 float XFactor;
+
+struct Entity
+{
+    float2 pos;
+    float2 lastPos;
+    float2 dir;
+    float energy;
+};
+RWStructuredBuffer<Entity> Entities;
+
+uint wang_hash(uint seed)
+{
+    seed = (seed ^ 61) ^ (seed >> 16);
+    seed *= 9;
+    seed = seed ^ (seed >> 4);
+    seed *= 0x27d4eb2d;
+    seed = seed ^ (seed >> 15);
+    return seed;
+}
+
+[numthreads(32,1,1)]
+void Simulate(uint3 id : SV_DispatchThreadID)
+{
+    uint count, _;
+    Entities.GetDimensions(count, _);
+    if(id.x >= count) return;
+    Entity entity = Entities[id.x];
+    Positions.GetDimensions(count, _);
+    if(entity.energy <= 0.001)
+    {
+        uint randomIndex = wang_hash(entity.pos.x + entity.pos.y + id.x);
+        float3 randomPos = Positions[randomIndex%count];
+        entity.pos = randomPos;
+        entity.lastPos = randomPos;
+        entity.energy = 1;
+    }
+    float res_dot = -1;
+    float3 res_target = 0;
+    float2 res_dir = 0;
+    for(int i = 0; i < count; i++)
+    {
+        float3 pos = Positions[i];
+        float2 dir = pos.xy - entity.pos;
+        float2 ndir = normalize(dir);
+        float a = dot(ndir, entity.dir);
+        if(a > res_dot) 
+        {
+            res_dot = a;
+            res_target = pos;
+            res_dir = dir;
+        }
+    }
+    entity.energy -= length(res_dir) * _Time.w * .1;
+    entity.lastPos = entity.pos;
+    entity.dir = lerp(entity.dir, res_dir, _Time.w / max(.2,length(res_dir)));
+    entity.pos = lerp(entity.pos, entity.pos + entity.dir, _Time.w);
+    Entities[id.x] = entity;
+}
+
 
 [numthreads(32,1,1)]
 void Draw(uint3 id : SV_DispatchThreadID)
 {
     uint width, height;
     Output.GetDimensions(width, height);
-    float3 pt = Positions[id.x];
+    Entity entity = Entities[id.x];
+    float2 pt = entity.pos;
     uint2 pixel = uint2(pt.x*XFactor + width*.5, pt.y * XFactor + height * .5);
     Output[pixel] = lerp(Output[pixel], 1, _Time.w * FadeInSpeed);
 }
@@ -22,5 +83,5 @@ void Draw(uint3 id : SV_DispatchThreadID)
 [numthreads(32,32,1)]
 void Clear(uint3 id : SV_DispatchThreadID)
 {
-    Output[id.xy] = lerp(Output[id.xy], 0, _Time.w); //_Time.y * .5 + .5;
+    Output[id.xy] = lerp(Output[id.xy], 0, _Time.w * FadeOutSpeed);
 }

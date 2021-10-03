@@ -11,12 +11,12 @@ namespace _Sample._Sample
 	[ExecuteAlways]
 	public class AnimatedPoints : MonoBehaviour, IAnimated
 	{
-		[Animate(), NonSerialized]
+		[Animate(Interpolator = typeof(NoInterpolator)), NonSerialized]
 		public List<Vector3> points = new List<Vector3>();
 
 		[Animate, NonSerialized] public List<Line> guides = new List<Line>();
 
-		[Animate] public float gizmoSizeFactor = 1;
+		public float gizmoSizeFactor = 1;
 
 		[Animate] public float Factor = 1;
 
