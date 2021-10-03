@@ -58,11 +58,11 @@ void Simulate(uint3 id : SV_DispatchThreadID)
         float3 pos = Positions[i];
         float2 dir = pos.xy - entity.pos;
         float dist = length(dir);
-        if(dist < .1) continue;
+        // if(dist < .01) continue;
         float2 ndir = normalize(dir);
         float d = dot(ndir, normalize(entity.dir));
-        float rating = lerp(saturate(1/dist), clamp(d, 0, 100), d);
-        if(rating > res_rating && (id.x + i) % (uint)(count*.02) == 0) 
+        float rating = lerp(saturate(1/(dist*100000)), clamp(d, -1, 1), d);
+        if(rating > res_rating)// && (id.x + i) % (uint)(count*.02) == 0) 
         {
             res_rating = rating;
             res_dot = d;
@@ -70,10 +70,11 @@ void Simulate(uint3 id : SV_DispatchThreadID)
             res_dir = dir;
         }
     }
-    entity.energy -= length(res_dir) * _Time.w * .05 * MoveSpeed;
+    entity.energy -= length(res_dir) * _Time.w * .01 * MoveSpeed;
     entity.lastPos = entity.pos;
     float t = TurnSpeed * _Time.w / max(.5,length(res_dir));
-    entity.dir = lerp(entity.dir, res_dir, saturate(t));
+    entity.dir = lerp(entity.dir, entity.dir + res_dir, t);
+    entity.dir *= 1 - (_Time.w + .01);
     t =  _Time.w * MoveSpeed;
     entity.pos = lerp(entity.pos, entity.pos + entity.dir, saturate(t));
     Entities[id.x] = entity; 

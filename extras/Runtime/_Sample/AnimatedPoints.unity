@@ -699,10 +699,10 @@ MonoBehaviour:
   Renderer: {fileID: 1888973583}
   UpdateViaTimeline: 1
   Count: 2000
-  FadeInSpeed: 30
-  FadeOutSpeed: 0.6
-  MoveSpeed: 10
-  TurnSpeed: 6
+  FadeInSpeed: 4
+  FadeOutSpeed: 0.3
+  MoveSpeed: 1
+  TurnSpeed: 12
 --- !u!1 &1888973582
 GameObject:
   m_ObjectHideFlags: 0
