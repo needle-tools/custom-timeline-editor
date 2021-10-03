@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System.Runtime.InteropServices;
+using NUnit.Framework;
 using UnityEngine;
 
 namespace Needle.Timeline.Tests
@@ -105,17 +106,22 @@ namespace Needle.Timeline.Tests
 		public void Interpolate_Custom3()
 		{
 			var shader = LoadShader();
-			Debug.Log(sizeof(float) + ", " + sizeof(int));
-			var res = TestInterpolate(shader, "FLOAT2", sizeof(float) + sizeof(int), 
+			var res = TestInterpolate(shader, "FLOAT2", typeof(CustomType3).GetStride(), 
 				new CustomType3(), 
 				new CustomType3(){v0=10, v1=1});
 			Assert.IsTrue(res.v0 == 5);
 			Assert.IsTrue(Mathf.Approximately(res.v1, .5f));
 		}
+		
+		
+		[StructLayout(LayoutKind.Explicit)]
 		private struct CustomType3
 		{
+			[FieldOffset(0)]
 			public int v0;
+			[FieldOffset(4)]
 			public float v1;
+			
 			public override string ToString()
 			{
 				return "v0=" + v0 + ", v1=" + v1;
