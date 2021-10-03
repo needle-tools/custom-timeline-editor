@@ -57,6 +57,14 @@ namespace Needle.Timeline.Tests
 		}
 
 		[Test]
+		public void Interpolate_Color()
+		{
+			var shader = LoadShader();
+			Assert.IsTrue(TestInterpolate(shader, "FLOAT4", sizeof(float) * 4, new Color(1,0,0,0), new Color(0,1,0,1)) == 
+			              new Color(.5f, 0.5f, 0, .5f));
+		}
+
+		[Test]
 		public void Interpolate_Custom1()
 		{
 			var shader = LoadShader();
@@ -92,6 +100,27 @@ namespace Needle.Timeline.Tests
 			}
 		}
 
+
+		[Test]
+		public void Interpolate_Custom3()
+		{
+			var shader = LoadShader();
+			Debug.Log(sizeof(float) + ", " + sizeof(int));
+			var res = TestInterpolate(shader, "FLOAT2", sizeof(float) + sizeof(int), 
+				new CustomType3(), 
+				new CustomType3(){v0=10, v1=1});
+			Assert.IsTrue(res.v0 == 5);
+			Assert.IsTrue(Mathf.Approximately(res.v1, .5f));
+		}
+		private struct CustomType3
+		{
+			public int v0;
+			public float v1;
+			public override string ToString()
+			{
+				return "v0=" + v0 + ", v1=" + v1;
+			}
+		}
 		
 		
 		
@@ -101,6 +130,8 @@ namespace Needle.Timeline.Tests
 		
 		private static T TestInterpolate<T>(ComputeShader shader, string keyword, int stride, T t0, T t1, float t = 0.5f) where T : struct
 		{
+			Debug.Log("Type\t" + typeof(T) + "\nStride\t" + stride + "\nKW\t" + keyword);
+			
 			using var i0 = new ComputeBuffer(1, stride);
 			i0.SetData(new[]{t0});
 			using var i1 = new ComputeBuffer(1, stride);
@@ -116,7 +147,7 @@ namespace Needle.Timeline.Tests
 			var data = new T[1];
 			res.GetData(data);
 			var output = data[0];
-			Debug.Log(t0 + " -> " + t1 + " = " + output);
+			Debug.Log("i0\t" + t0 + "\ni1\t" + t1 + "\nt\t" + t + "\nres\t" + output + "\n");
 			return output;
 		}
 		

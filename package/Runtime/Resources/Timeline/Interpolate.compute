@@ -13,6 +13,7 @@ typedef float3 T;
 #elif FLOAT4
 typedef float4 T;
 #else
+// fallback is float but... obviously not handled
 typedef float T;
 #endif
 
@@ -26,3 +27,4 @@ void cs_main(uint3 id : SV_DispatchThreadID)
 {
     res[id.x] = lerp(i0[id.x], i1[id.x], t);
 }
+
