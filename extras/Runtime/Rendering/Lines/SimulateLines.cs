@@ -22,6 +22,7 @@ namespace _Sample.Rendering.Lines
 		[Header("Settings")] public int Count = 1000;
 		public float FadeInSpeed = 10, FadeOutSpeed = 5;
 		public float MoveSpeed = 10, TurnSpeed = 5;
+		public float EnergyFactor = 1;
 
 		private RenderTexture _texture;
 
@@ -113,6 +114,7 @@ namespace _Sample.Rendering.Lines
 				// Debug.Log(maxBufferSize);
 				Shader.SetBuffer("Simulate", "Positions", Points.points, sizeof(float) * 3, maxBufferSize);
 				Shader.SetInt("PositionsCount", Points.points.Count);
+				Shader.SetFloat("EnergyFactor", EnergyFactor);
 				Shader.DispatchOptimal("Simulate", entities.Count, 1, 1);
 
 				Shader.SetTexture("Draw", "Output", _texture);
