@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
@@ -8,7 +9,6 @@ namespace Needle.Timeline
 {
 	public static class Interpolators
 	{
-
 		public static bool TryFindInterpolator(AnimateAttribute attribute, Type type, out IInterpolator interpolator)
 		{
 			if (attribute.AllowInterpolation == false)
@@ -16,12 +16,13 @@ namespace Needle.Timeline
 				interpolator = new NoInterpolator();
 				return true;
 			}
-			
+
 			var searchType = typeof(IInterpolator<>).MakeGenericType(type);
-			
+
 			foreach (var t in TypeCache.GetTypesDerivedFrom(searchType))
 			{
 				if (t.IsAbstract || t.IsInterface) continue;
+				if (t.GetCustomAttribute<NoAutoSelect>() != null) continue;
 				// ignore custom clips implementing interpolator interface
 				if (typeof(ICustomClip).IsAssignableFrom(t)) continue;
 				if (attribute.Interpolator != null && t != attribute.Interpolator) continue;
@@ -40,7 +41,14 @@ namespace Needle.Timeline
 			foreach (var t in TypeCache.GetTypesDerivedFrom(typeof(IInterpolator)))
 			{
 				if (t.IsAbstract || t.IsInterface || t.ContainsGenericParameters) continue;
-				if (attribute.Interpolator != null && t != attribute.Interpolator) continue;
+				
+				if (attribute.Interpolator != null)
+				{
+					if (t != attribute.Interpolator)
+						continue;
+				}
+				else if (t.GetCustomAttribute<NoAutoSelect>() != null) continue;
+				
 				if (!interpolatorsCache.ContainsKey(t))
 				{
 					try
@@ -62,16 +70,17 @@ namespace Needle.Timeline
 						Debug.LogException(m);
 					}
 				}
-				
+
 				// TODO: check if script implements method for collection interpolation? 
 				// e.g. Guide Interpolate(Guide v0, Guide v1, float t);
-				
+
 				var instance = interpolatorsCache[t];
 				if (instance?.CanInterpolate(type) == true)
 				{
 					interpolator = Activator.CreateInstance(t) as IInterpolator;
 					return true;
-				};
+				}
+				;
 			}
 
 			interpolator = null;

@@ -1,0 +1,28 @@
+﻿#pragma kernel cs_main
+#pragma multi_compile INT FLOAT FLOAT2 FLOAT3 FLOAT4
+
+// https://docs.microsoft.com/en-us/windows/win32/direct3dhlsl/dx-graphics-hlsl-user-defined
+#ifdef INT
+typedef int T;
+#elif FLOAT
+typedef float T;
+#elif FLOAT2
+typedef float2 T;
+#elif FLOAT3
+typedef float3 T;
+#elif FLOAT4
+typedef float4 T;
+#else
+typedef float T;
+#endif
+
+StructuredBuffer<T> i0;
+StructuredBuffer<T> i1;
+RWStructuredBuffer<T> res;
+float t;
+
+[numthreads(128,1,1)]
+void cs_main(uint3 id : SV_DispatchThreadID)
+{
+    res[id.x] = lerp(i0[id.x], i1[id.x], t);
+}
