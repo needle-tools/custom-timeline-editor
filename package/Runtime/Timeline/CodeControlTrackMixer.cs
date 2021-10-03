@@ -19,12 +19,14 @@ namespace Needle.Timeline
 		{
 			using var auto = mixerMarker.Auto();
 			
+			
+			
 			var inputCount = playable.GetInputCount();
 			var inputPlayable = (ScriptPlayable<CodeControlBehaviour>)playable.GetInput(0);
 			var behaviour = inputPlayable.GetBehaviour();
 			// if not bound
 			if (behaviour == null) return;
-			var frameInfo = new FrameInfo(0, info.deltaTime);
+			var frameInfo = new FrameInfo((float)playable.GetTime(), info.deltaTime);
 			for (var viewModelIndex = 0; viewModelIndex < behaviour.viewModels.Count; viewModelIndex++)
 			{
 				// var viewModel = behaviour.viewModels[viewModelIndex];
@@ -82,12 +84,16 @@ namespace Needle.Timeline
 				
 			
 				var graph = playable.GetGraph();
+				var vm = behaviour.viewModels[viewModelIndex];
 				if (graph.GetResolver() is PlayableDirector dir)
 				{
 					TimelineHooks.CheckTimeChanged(dir);
 					
-					var vm = behaviour.viewModels[viewModelIndex];
 					frameInfo.Time = (float)dir.time;
+					vm.OnProcessedFrame(frameInfo);
+				}
+				else
+				{
 					vm.OnProcessedFrame(frameInfo);
 				}
 

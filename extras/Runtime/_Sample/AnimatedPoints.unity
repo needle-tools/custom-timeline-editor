@@ -697,11 +697,12 @@ MonoBehaviour:
   Points: {fileID: 1849834651}
   Shader: {fileID: 7200000, guid: f29be70d55b81ab4e855b01616fd7fb6, type: 3}
   Renderer: {fileID: 1888973583}
+  UpdateViaTimeline: 1
   Count: 2000
-  FadeInSpeed: 5
-  FadeOutSpeed: 0.2
-  MoveSpeed: 22
-  TurnSpeed: 100
+  FadeInSpeed: 30
+  FadeOutSpeed: 0.6
+  MoveSpeed: 10
+  TurnSpeed: 6
 --- !u!1 &1888973582
 GameObject:
   m_ObjectHideFlags: 0

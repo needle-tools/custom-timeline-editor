@@ -42,7 +42,7 @@ void Simulate(uint3 id : SV_DispatchThreadID)
         uint rx = wang_hash(entity.pos.x + id.x) % 1;
         uint ry = wang_hash(entity.pos.y + id.x) % 1;
         entity.pos = 0;// float2(rx, ry);
-        entity.dir = normalize(float2(sin(id.x +  _Time.x), cos(id.x + _Time.x)));
+        entity.dir = normalize(float2(sin(id.x +  _Time.x), cos(id.x + _Time.x))) * _Time.y;
         entity.pos += entity.dir * 3;
         entity.lastPos = float2(entity.pos);
         entity.dir *= -1;
@@ -62,7 +62,7 @@ void Simulate(uint3 id : SV_DispatchThreadID)
         float2 ndir = normalize(dir);
         float d = dot(ndir, normalize(entity.dir));
         float rating = lerp(saturate(1/dist), clamp(d, 0, 100), d);
-        if(rating > res_rating && (id.x + i) % (uint)(count*.1) == 0) 
+        if(rating > res_rating && (id.x + i) % (uint)(count*.02) == 0) 
         {
             res_rating = rating;
             res_dot = d;
@@ -70,7 +70,7 @@ void Simulate(uint3 id : SV_DispatchThreadID)
             res_dir = dir;
         }
     }
-    entity.energy -= length(res_dir) * _Time.w * .1 * MoveSpeed;
+    entity.energy -= length(res_dir) * _Time.w * .05 * MoveSpeed;
     entity.lastPos = entity.pos;
     float t = TurnSpeed * _Time.w / max(.5,length(res_dir));
     entity.dir = lerp(entity.dir, res_dir, saturate(t));

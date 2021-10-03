@@ -95,7 +95,7 @@ namespace _Sample.Rendering.Lines
 					entities.Clear();
 					for (var i = 0; i < Count; i++)
 					{
-						var e = new Entity() { pos = Random.insideUnitCircle * new Vector2(Width, Height) };
+						var e = new Entity() { pos = Random.insideUnitCircle * new Vector2(Width, Height) * Random.value };
 						e.lastPos = e.pos;
 						e.dir = Vector2.up;
 						e.energy = 1;
@@ -109,7 +109,7 @@ namespace _Sample.Rendering.Lines
 					Shader.SetFloat("MoveSpeed", MoveSpeed);
 				if (TurnSpeed != 0)
 					Shader.SetFloat("TurnSpeed", TurnSpeed);
-				maxBufferSize = Mathf.Max(maxBufferSize, Points.points.Count);
+				maxBufferSize = Mathf.Max(maxBufferSize, Points.points.Count, 100);
 				// Debug.Log(maxBufferSize);
 				Shader.SetBuffer("Simulate", "Positions", Points.points, sizeof(float) * 3, maxBufferSize);
 				Shader.SetInt("PositionsCount", Points.points.Count);
