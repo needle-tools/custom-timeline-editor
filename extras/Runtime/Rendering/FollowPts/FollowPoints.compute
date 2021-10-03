@@ -1,0 +1,26 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel Draw
+
+RWStructuredBuffer<float3> Input;
+int CurrentCount;
+RWStructuredBuffer<float4> Positions;
+RWStructuredBuffer<float3> Velocities;
+float DeltaTime;
+
+float ScaleFactor, SpeedFactor, DampFactor;
+
+[numthreads(32,1,1)]
+void Draw(uint3 id : SV_DispatchThreadID)
+{
+    float3 target = Input[id.x % CurrentCount];
+    float3 pos = Positions[id.x].xyz;
+    float3 vel = Velocities[id.x];
+    float3 dir = target - pos;
+    const float dist = length(dir);
+    const float3 step = dir * DeltaTime * SpeedFactor;
+    vel += step;
+    float scale = ScaleFactor;
+    Positions[id.x] = float4(pos + vel, scale);
+    vel *= saturate(1-DampFactor);
+    Velocities[id.x] = vel;
+}

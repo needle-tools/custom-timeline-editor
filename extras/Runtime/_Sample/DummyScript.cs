@@ -7,7 +7,7 @@ namespace _Sample._Sample
 	public class DummyScript : MonoBehaviour, IAnimated
 	{
 		[Animate]
-		public List<Guide> List;
+		public List<Line> List;
 		
 
 		private void OnDrawGizmos()

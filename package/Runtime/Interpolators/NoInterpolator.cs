@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Needle.Timeline
 {
@@ -8,7 +9,7 @@ namespace Needle.Timeline
 		{
 			return true;
 		}
-
+		
 		public object Interpolate(object v0, object v1, float t)
 		{
 			if (t > 0.99f) return v1;

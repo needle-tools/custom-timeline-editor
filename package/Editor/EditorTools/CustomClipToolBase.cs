@@ -109,6 +109,7 @@ namespace Needle.Timeline
 
 
 
+		protected static bool IsIn2DMode => SceneView.lastActiveSceneView?.in2DMode ?? false;
 
 		protected static Vector3 GetCurrentMousePositionInScene()
 		{

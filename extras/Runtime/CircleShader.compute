@@ -1,11 +1,11 @@
 // Each #kernel tells which function to compile; you can have many kernels
-#pragma kernel CSMain
+#pragma kernel Draw
 
 StructuredBuffer<float3> _Points;
 RWTexture2D<float4> _Result;
 
 [numthreads(32,1,1)]
-void CSMain (uint3 id : SV_DispatchThreadID)
+void Draw (uint3 id : SV_DispatchThreadID)
 {
     float3 pt = _Points[id.x];
     _Result[id.xy] = float4(pt.xy, 0 ,1);

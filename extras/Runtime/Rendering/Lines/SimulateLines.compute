@@ -1,0 +1,26 @@
+﻿#pragma kernel Draw
+#pragma kernel Clear
+
+RWTexture2D<float4> Output;
+float4 _Time;
+
+float FadeInSpeed;
+StructuredBuffer<float3> Positions;
+float XFactor;
+
+[numthreads(32,1,1)]
+void Draw(uint3 id : SV_DispatchThreadID)
+{
+    uint width, height;
+    Output.GetDimensions(width, height);
+    float3 pt = Positions[id.x];
+    uint2 pixel = uint2(pt.x*XFactor + width*.5, pt.y * XFactor + height * .5);
+    Output[pixel] = lerp(Output[pixel], 1, _Time.w * FadeInSpeed);
+}
+
+
+[numthreads(32,32,1)]
+void Clear(uint3 id : SV_DispatchThreadID)
+{
+    Output[id.xy] = lerp(Output[id.xy], 0, _Time.w); //_Time.y * .5 + .5;
+}
