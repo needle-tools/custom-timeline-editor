@@ -42,9 +42,10 @@ void Simulate(uint3 id : SV_DispatchThreadID)
     {
         uint rx = wang_hash(entity.pos.x + id.x) % 1;
         uint ry = wang_hash(entity.pos.y + id.x) % 1;
+        float rand = wang_hash(id.x);
         entity.pos = 0;// float2(rx, ry);
         entity.dir = normalize(float2(sin(id.x +  _Time.x), cos(id.x + _Time.x))) * _Time.y;
-        entity.pos += normalize(entity.dir) * 5;
+        entity.pos += normalize(entity.dir) * (6 + sin(_Time.x));
         // entity.pos += entity.dir * 3;
         entity.lastPos = float2(entity.pos);
         entity.dir *= -1;
@@ -63,7 +64,7 @@ void Simulate(uint3 id : SV_DispatchThreadID)
         if(dist < .01) continue;
         float2 ndir = normalize(dir);
         float d = dot(ndir, normalize(entity.dir));
-        if(d < -.99) continue;
+        if(d < -.9) continue;
         float distRating = saturate(1/(dist*1000));
         float rating = min(d, distRating);
         if(rating > res_rating)// && (id.x + i) % (uint)(count*.02) == 0) 

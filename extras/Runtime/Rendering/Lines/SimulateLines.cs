@@ -76,6 +76,11 @@ namespace _Sample.Rendering.Lines
 		private void Run()
 		{
 			if (!Points || Points.points == null) return;
+			if (Renderer.IsHidden())
+			{
+				return;
+			}
+			// Debug.Log("RUN");
 			// Debug.Log("RUN");
 			_texture.SafeCreate(ref _texture, Width, Height, 0, GraphicsFormat.R32G32B32A32_SFloat, true);
 

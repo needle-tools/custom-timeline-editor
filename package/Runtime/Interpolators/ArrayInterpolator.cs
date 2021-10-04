@@ -127,8 +127,7 @@ namespace Needle.Timeline
 			if (result == null) result = new List<Vector3>();
 			else result.Clear();
 			var count = Mathf.RoundToInt(Mathf.Lerp(v0?.Count ?? 0, v1?.Count ?? 0, t));
-			var perEntry = 1f / Mathf.Min(v0?.Count ?? 0, v1?.Count ?? 0);
-			Debug.Log(t);
+			var perEntry = 1f / count;
 			for (var i = 0; i < count; i++)
 			{
 				var val0 = v0?.Count > 0 ? v0[i % v0.Count] : v1?[i];
@@ -142,8 +141,8 @@ namespace Needle.Timeline
 						break;
 
 					case Mode.Individual:
-						var start = (i+1) * perEntry;
-						var it = Mathf.Clamp01(t - start);
+						var start = (i) * perEntry;
+						var it = Mathf.Clamp01(t - start) / perEntry;
 						res = Vector3.Lerp(val0.Value, val1.Value, it);
 						break;
 				}
