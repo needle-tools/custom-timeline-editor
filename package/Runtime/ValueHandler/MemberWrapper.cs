@@ -41,7 +41,7 @@ namespace Needle.Timeline
 			{
 				try
 				{
-					SetDirect(target, value);
+					Set(target, value);
 				}
 				catch (Exception e)
 				{
@@ -51,11 +51,22 @@ namespace Needle.Timeline
 			}
 			else
 			{
-				SetDirect(target, value);
+				Set(target, value);
 			}
 		}
 
-		private void SetDirect(object target, object value)
+		public object GetValue()
+		{
+			var target = getTarget();
+			// Debug.Log("Set " + member.Name + " on " + target?.GetType());
+			if (target == null)
+			{
+				return null;
+			}
+			return Get(target);
+		}
+
+		private void Set(object target, object value)
 		{
 			switch (member)
 			{
@@ -67,6 +78,22 @@ namespace Needle.Timeline
 						property.SetValue(target, value);
 					break;
 			}
+		}
+
+		private object Get(object target)
+		{
+			switch (member)
+			{
+				case FieldInfo field:
+					return field.GetValue(target);
+				
+				case PropertyInfo property:
+					if (property.CanRead)
+						return property.GetValue(target);
+					break;
+			}
+			
+			return null;
 		}
 	}
 }

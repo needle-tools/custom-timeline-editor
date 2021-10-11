@@ -27,6 +27,8 @@ namespace Needle.Timeline
 			return sb.ToString();
 		}
 
+		public object Instance { get; set; }
+
 		public bool CanInterpolate(Type type)
 		{
 			return type == typeof(string);

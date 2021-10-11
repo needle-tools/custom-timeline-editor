@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using Needle.Timeline;
+using Needle.Timeline.Interfaces;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Random = UnityEngine.Random;
 
 namespace _Sample
 {
@@ -28,13 +30,11 @@ namespace _Sample
 				{
 					str.Add(new CustomKeyframe<string>(tf.text, (float)t.Time));
 				}
-
-			}){text = "Ok"});
+			}) { text = "Ok" });
 		}
 
 		protected override void OnInput(EditorWindow window)
 		{
-			
 		}
 	}
 #endif
@@ -50,6 +50,64 @@ namespace _Sample
 		[Animate] public double MyDouble;
 
 		[Animate] public string MyString;
+
+		[Animate] public List<MyType> CustomType;
+
+
+		[Serializable]
+		public class MyType : Interpolatable<MyType>
+		{
+			public Vector3 Pos;
+			public Color Color;
+
+			public override void Interpolate(ref MyType instance, MyType t0, MyType t1, float t)
+			{
+				if (instance == null) instance = new MyType();
+				instance.Pos = Vector3.Lerp(t0.Pos, t1.Pos, t);
+				instance.Color = Color.Lerp(t0.Color, t1.Color, t);
+			}
+		}
+
+		private void OnDrawGizmos()
+		{
+			if (CustomType == null) return;
+			foreach (var e in CustomType)
+			{
+				Gizmos.color = e.Color;
+				Gizmos.DrawSphere(e.Pos, .2f);
+			}
+		}
+
+#if UNITY_EDITOR
+		public class MyTypeEditor : CustomClipToolBase
+		{
+			protected override bool OnSupports(Type type)
+			{
+				return typeof(MyType).IsAssignableFrom(type) || typeof(IList<MyType>).IsAssignableFrom(type);
+			}
+
+			protected override void OnAttach(VisualElement element)
+			{
+				base.OnAttach(element);
+				element.Add(new Button(() =>
+				{
+					var t = Targets.FirstOrDefault();
+					if (t.Clip is ICustomClip<List<MyType>> c)
+					{
+						c.Add(new CustomKeyframe<List<MyType>>(new List<MyType>()
+						{
+							new MyType() { Pos = Random.insideUnitCircle, Color = Random.ColorHSV() }
+						}, t.TimeF));
+					}
+				}) { name = "Add" });
+			}
+
+			protected override void OnInput(EditorWindow window)
+			{
+			}
+		}
+
+#endif
 
 		// [Animate]
 		// public List<Vector3> points = new List<Vector3>();

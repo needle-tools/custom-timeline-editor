@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 using UnityEngine;
 
 namespace Needle.Timeline
@@ -17,6 +18,8 @@ namespace Needle.Timeline
 			Changed = default;
 			Keyframes = null;
 			SupportedTypes = new[] { typeof(float) };
+			Instance = null;
+			ViewModel = null;
 		}
 
 
@@ -60,11 +63,16 @@ namespace Needle.Timeline
 		}
 
 		public Type[] SupportedTypes { get; private set; }
+		
+		[JsonIgnore] 
+		public ClipInfoViewModel ViewModel { get; set; }
 
 		object ICustomClip.Evaluate(float time)
 		{
 			return Evaluate(time);
 		}
+
+		public object Instance { get; set; }
 
 		public bool CanInterpolate(Type type)
 		{

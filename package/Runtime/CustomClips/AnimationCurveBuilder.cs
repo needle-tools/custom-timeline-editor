@@ -34,7 +34,7 @@ namespace Needle.Timeline
 			{
 				var formerly = Member.GetCustomAttributes<FormerlySerializedAsAttribute>();
 				var str = default(StringBuilder);
-				foreach(var form in formerly)
+				foreach (var form in formerly)
 				{
 					if (!id) yield return form.oldName;
 					else
@@ -91,16 +91,17 @@ namespace Needle.Timeline
 				var attribute = data.Member.GetCustomAttribute<AnimateAttribute>();
 				var res = CreateAnimationCurve(attribute, data);
 				if (res == CreationResult.Successful) return res;
-				
+
 				res = CreateCustomAnimationCurve(attribute, data, out var clip);
-				if (clip != null) clip.Changed += () =>
-				{
-					// Debug.Log("clip changed");
-					EditorUtility.SetDirty(data.Track);
-					data.Track.dirtyCount += 1; 
-					data.Director.Evaluate();
-					TimelineWindowUtil.TryRepaint();
-				};
+				if (clip != null)
+					clip.Changed += () =>
+					{
+						// Debug.Log("clip changed");
+						EditorUtility.SetDirty(data.Track);
+						data.Track.dirtyCount += 1;
+						data.Director.Evaluate();
+						TimelineWindowUtil.TryRepaint();
+					};
 				return res;
 			}
 		}
@@ -116,7 +117,7 @@ namespace Needle.Timeline
 			var curveType = typeof(CustomAnimationCurve<>).MakeGenericType(data.MemberType);
 			try
 			{
-				var content = SaveUtil.Load(data.Id); 
+				var content = SaveUtil.Load(data.Id);
 				if (content == null)
 				{
 					foreach (var former in data.EnumerateFormerNames(true))
@@ -133,7 +134,7 @@ namespace Needle.Timeline
 						}
 					}
 				}
-				
+
 				if (content != null)
 				{
 					curve = ser.Deserialize(content, curveType) as ICustomClip;
@@ -149,21 +150,25 @@ namespace Needle.Timeline
 			{
 				curve = Activator.CreateInstance(curveType) as ICustomClip;
 			}
-			
-			if(curve != null)
+
+			if (curve != null)
 			{
 				if (curve is IHasInterpolator i)
 				{
 					if (Interpolators.TryFindInterpolator(attribute, data.MemberType, out var interpolator))
+					{
+						Debug.Log("Chose " + interpolator + ", " + data.Member.Name);
 						i.Interpolator = interpolator;
+					}
 					else
 					{
+						Debug.Log("No Interpolator: " + data.Member.Name);
 						i.Interpolator = new NoInterpolator();
 					}
 				}
 			}
-			
-			if(curve == null)
+
+			if (curve == null)
 				return CreationResult.Failed;
 
 			curve.Name = name;
@@ -175,7 +180,7 @@ namespace Needle.Timeline
 		}
 
 
-		private static readonly Type[] animationCurveTypes = 
+		private static readonly Type[] animationCurveTypes =
 		{
 			typeof(float),
 			typeof(int),
@@ -192,7 +197,7 @@ namespace Needle.Timeline
 			}
 
 			var binding = data.Bindings.FirstOrDefault(b => b.propertyName == data.Member.Name);
-			
+
 			// if the attribute has been removed
 			if (attribute == null)
 			{
@@ -218,7 +223,7 @@ namespace Needle.Timeline
 						binding.propertyName = data.Member.Name;
 						AnimationUtility.SetEditorCurve(data.TimelineClip.curves, binding, curve);
 						Debug.Log("FOUND: " + data.Member.Name + " as " + former);
-						break; 
+						break;
 					}
 				}
 			}
@@ -235,7 +240,7 @@ namespace Needle.Timeline
 			}
 
 			// Debug.Log(data.Member.Name + " on <b>" + data.ViewModel.Script?.GetType() + "</b>");
-			object Resolve() => data.ViewModel.Script;// data.Director.GetGenericBinding(data.Track);
+			object Resolve() => data.ViewModel.Script; // data.Director.GetGenericBinding(data.Track);
 			var handler = new MemberWrapper(data.Member, Resolve, data.MemberType);
 			var clip = data.TimelineClip.curves;
 			var animationCurve = new AnimationCurveWrapper(() => AnimationUtility.GetEditorCurve(clip, binding), data.Member.Name);

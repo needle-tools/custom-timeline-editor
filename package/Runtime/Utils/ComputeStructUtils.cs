@@ -62,7 +62,7 @@ namespace Needle.Timeline
 			if (type.IsValueType)
 			{
 				return InternalGetStride(type, ++level);
-				Debug.LogError("Unhandled type " + type);
+				// Debug.LogError("Unhandled type " + type);
 			}
 			return 0;
 		}

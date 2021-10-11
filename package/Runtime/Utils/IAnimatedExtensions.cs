@@ -33,9 +33,9 @@ namespace Needle.Timeline
 		{
 #if UNITY_EDITOR
 			return SceneVisibilityManager.instance.IsHidden(_.gameObject);
-#endif
+#else
 			return false;
+#endif
 		}
-
 	}
 }

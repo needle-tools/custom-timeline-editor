@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using NUnit.Framework.Internal;
 using UnityEditor;
 using UnityEditor.Timeline;
 using UnityEngine;
@@ -20,8 +21,12 @@ namespace Needle.Timeline
 			
 			// TimelineEditor.GetInspectedTimeFromMasterTime(RefreshReason.SceneNeedsUpdate);
 			// IsInit?.Invoke(); 
+
+			//https://issuetracker.unity3d.com/issues/assembly-cache-should-be-empty-appears-in-the-console-when-evaluating-a-timeline-during-onenable
 			
-			https://issuetracker.unity3d.com/issues/assembly-cache-should-be-empty-appears-in-the-console-when-evaluating-a-timeline-during-onenable
+			
+			
+			
 			await Task.Delay(1);
 			var window = GetOrFindWindow();
 			if (window)

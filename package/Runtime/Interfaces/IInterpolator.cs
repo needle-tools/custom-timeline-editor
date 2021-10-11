@@ -4,6 +4,7 @@ namespace Needle.Timeline
 {
 	public interface IInterpolator
 	{
+		object Instance { get; set; }
 		bool CanInterpolate(Type type);
 		object Interpolate(object v0, object v1, float t);
 	}

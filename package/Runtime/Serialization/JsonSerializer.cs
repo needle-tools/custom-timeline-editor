@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Needle.Timeline.Serialization
 {
@@ -18,6 +20,7 @@ namespace Needle.Timeline.Serialization
 						new Vec2Conv(),
 						new Vec3Conv(),
 						new Vec4Conv(),
+						new ColConv(),
 						
 						new KeyframeConverter(),
 					}
@@ -27,7 +30,16 @@ namespace Needle.Timeline.Serialization
 		
 		public object Serialize(object obj)
 		{
-			return JsonConvert.SerializeObject(obj, Settings);
+			try
+			{
+				return JsonConvert.SerializeObject(obj, Settings);
+			}
+			catch (JsonSerializationException ser)
+			{
+				Debug.LogException(ser);
+				Debug.LogError(obj, obj as Object);
+			}
+			return null;
 		}
 
 		public T Deserialize<T>(object value)

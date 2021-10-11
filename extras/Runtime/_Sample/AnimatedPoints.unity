@@ -665,6 +665,9 @@ MonoBehaviour:
   MyInt: 0
   MyDouble: 0
   MyString: 
+  CustomType:
+  - Pos: {x: -0.095016085, y: -0.9164898, z: 0}
+    Color: {r: 0.061693914, g: 0.046463255, b: 0.04668782, a: 1}
 --- !u!114 &1849834651
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Needle.Timeline
 {
@@ -16,6 +17,10 @@ namespace Needle.Timeline
 		ICustomKeyframe GetPrevious(float time);
 		ICustomKeyframe GetClosest(float time);
 		Type[] SupportedTypes { get; }
+		/// <summary>
+		/// Set before evaluation
+		/// </summary>
+		ClipInfoViewModel ViewModel { get; set; }
 	}
 
 	public interface ICustomClip<out T> : ICustomClip

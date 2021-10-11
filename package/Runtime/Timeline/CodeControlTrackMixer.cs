@@ -62,7 +62,7 @@ namespace Needle.Timeline
 					for (var index = 0; index < viewModel.clips.Count; index++)
 					{
 						var clip = viewModel.clips[index];
-						// Debug.Log(clip);
+						clip.ViewModel = viewModel;
 						var val = clip.Evaluate(time);
 						if (saveToMix)
 						{

@@ -1,12 +1,32 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Needle.Timeline.Interfaces;
+using UnityEditor;
 using UnityEngine;
 
 namespace Needle.Timeline
 {
+
+	public class IInterpolatableInterpolator : IInterpolator
+	{
+		public object Instance { get; set; }
+
+		public bool CanInterpolate(Type type)
+		{
+			return typeof(IInterpolatable).IsAssignableFrom(type);
+		}
+
+		public object Interpolate(object v0, object v1, float t)
+		{
+			var i0 = v0 as IInterpolatable;
+			var i1 = v1 as IInterpolatable;
+			return null;
+		}
+	}
+
+	[Priority(-100)]
 	[NoAutoSelect]
 	public class NumbersInterpolator : IInterpolator
 	{
@@ -17,6 +37,8 @@ namespace Needle.Timeline
 			typeof(float),
 			typeof(double)
 		};
+
+		public object Instance { get; set; }
 
 		public bool CanInterpolate(Type type)
 		{
@@ -29,69 +51,41 @@ namespace Needle.Timeline
 		}
 	}
 
+	[Priority(-100)]
 	[NoAutoSelect]
 	public class IndexingInterpolator : IInterpolator
 	{
 		private PropertyInfo indexer;
 		private object[] args;
 
+		public object Instance { get; set; }
+
 		public bool CanInterpolate(Type type)
 		{
-			return false; //
-			indexer ??= type.GetProperties().FirstOrDefault(p => p.GetIndexParameters().Length != 0);
+			indexer = type.GetIndexer();
 			if (indexer == null) return false;
 			args ??= new object[1];
-			return true;
+			return indexer != null;
 		}
 
 		public object Interpolate(object v0, object v1, float t)
 		{
-			throw new NotImplementedException();
+			if (t < 0.999f)
+			{
+				if (v0 == null) return null;
+				return indexer.GetValue(v0);
+			}
+			if (v1 == null) return null;
+			return indexer.GetValue(v1);
 		}
 	}
-
-	// public class CollectionInterpolator : IInterpolator
-	// {
-	// 	public bool CanInterpolate(Type type)
-	// 	{
-	// 		return typeof(IList).IsAssignableFrom(type);
-	// 	}
-	//
-	// 	private IList result;
-	// 	private IList secondaryBuffer;
-	//
-	// 	public object Interpolate(object v0, object v1, float t)
-	// 	{
-	// 		if (v0 == null && v1 == null) return null;
-	//
-	// 		var list0 = v0 as IList;
-	// 		var list1 = v1 as IList;
-	//
-	// 		result ??= (IList)Activator.CreateInstance(v0?.GetType() ?? v1.GetType());
-	// 		result.Clear(); 
-	// 		var count = Mathf.RoundToInt(Mathf.Lerp(list0?.Count ?? 0, list1?.Count ?? 0, t));
-	// 		for (var i = 0; i < count; i++)
-	// 		{
-	// 			var val0 = list0?.Count > 0 ? list0[i % list0.Count] : list1?[i];
-	// 			var val1 = list1?.Count > 0 ? list1[i % list1.Count] : list0?[i];
-	// 			if (val0 is Vector3 vec0 && val1 is Vector3 vec1)
-	// 			{
-	// 				var res = Vector3.Lerp(vec0, vec1, t);
-	// 				result.Add(res);
-	// 			}
-	// 		}
-	// 		secondaryBuffer ??= (IList)Activator.CreateInstance(v0?.GetType() ?? v1.GetType());
-	// 		secondaryBuffer.Clear();
-	// 		foreach (var obj in result)
-	// 			secondaryBuffer.Add(obj);
-	// 		return secondaryBuffer;
-	// 	}
-	// }
 
 	public class ListInterpolator : IInterpolator<List<Vector3>>
 	{
 		private List<Vector3> result;
 		private List<Vector3> secondaryBuffer;
+
+		public object Instance { get; set; }
 
 		public bool CanInterpolate(Type type)
 		{
@@ -114,16 +108,7 @@ namespace Needle.Timeline
 		public List<Vector3> Interpolate(List<Vector3> v0, List<Vector3> v1, float t)
 		{
 			// TODO: via timeline mixer it can currently happen that one of the inputs is the output list of a previous interpolation, maybe we need some buffer cache to get temporary result buffers?
-			// if (v0 == result)
-			// {
-			// 	
-			// }
-			//
-			// if (v1 == result)
-			// {
-			// 	
-			// }
-
+			
 			if (result == null) result = new List<Vector3>();
 			else result.Clear();
 			var count = Mathf.RoundToInt(Mathf.Lerp(v0?.Count ?? 0, v1?.Count ?? 0, t));

@@ -37,12 +37,18 @@ namespace Needle.Timeline
 		}
 
 		public Type[] SupportedTypes { get; } = { typeof(T) };
+		
+		[JsonIgnore]
+		public ClipInfoViewModel ViewModel { get; set; }
 
 		public T Interpolate(T v0, T v1, float t)
 		{
+			_interpolator.Instance = ViewModel?.Script;
 			return (T)_interpolator.Interpolate(v0, v1, t);
 		}
-		
+
+		public object Instance { get; set; }
+
 		public bool CanInterpolate(Type type)
 		{
 			return type == typeof(T);
@@ -83,6 +89,7 @@ namespace Needle.Timeline
 						var t = GetPosition01(time, current.time, next.time);
 						using (_interpolationMarker.Auto())
 						{
+							_interpolator.Instance = ViewModel?.Script;
 							var res = _interpolator.Interpolate(current.value, next.value, t);
 							return (T)res;
 						} 
