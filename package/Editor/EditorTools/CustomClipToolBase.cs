@@ -16,22 +16,37 @@ namespace Needle.Timeline
 		#region ICustomClipTool
 		void ICustomClipTool.AddTarget(ClipInfoViewModel vm, ICustomClip clip)
 		{
-			targets.Add(new ToolTarget(vm, clip));
+			var t = new ToolTarget(vm, clip);
+			targets.Add(t);
+			OnAddedTarget(t); 
 		}
 
 		void ICustomClipTool.RemoveTarget(ICustomClip clip)
 		{
-			targets.RemoveAll(e => e.Clip == clip);
+			for (var index = targets.Count - 1; index >= 0; index--)
+			{
+				var t = targets[index];
+				if (t.Clip == clip)
+				{
+					targets.RemoveAt(index);
+					OnRemovedTarget(t);
+				}
+			}
 		}
 
 		void ICustomClipTool.RemoveAllTargets()
 		{
+			foreach (var t in targets)
+			{
+				OnRemovedTarget(t);
+			}
 			targets.Clear();
 		}
 
 		bool ICustomClipTool.HasClipTarget(Type clipType) => targets.Any(a => a.Clip.GetType() == clipType);
 
 		private Label debugLabel;
+
 		void ICustomClipTool.Attach(VisualElement el)
 		{
 			debugLabel ??= new Label(GetType().Name);
@@ -46,7 +61,7 @@ namespace Needle.Timeline
 		}
 
 		bool ICustomClipTool.Supports(Type type) => OnSupports(type);
-		
+
 		void ICustomClipTool.GetOrCreateSettings(ref ScriptableObject obj)
 		{
 			OnGetOrCreateSettings(ref obj);
@@ -78,21 +93,32 @@ namespace Needle.Timeline
 			OnInput(window);
 		}
 		#endregion
-		
+
 		protected ScriptableObject Settings { get; private set; }
 
 		protected virtual void OnGetOrCreateSettings(ref ScriptableObject settings)
 		{
-			
 		}
-		
+
+		protected virtual void OnAddedTarget(ToolTarget t)
+		{
+		}
+
+		protected virtual void OnRemovedTarget(ToolTarget t)
+		{
+		}
+
 		protected abstract bool OnSupports(Type type);
 		protected abstract void OnInput(EditorWindow window);
 
 
-		protected virtual void OnAttach(VisualElement element){}
-		protected virtual void OnDetach(VisualElement element){}
+		protected virtual void OnAttach(VisualElement element)
+		{
+		}
 
+		protected virtual void OnDetach(VisualElement element)
+		{
+		}
 
 
 		protected static bool IsIn2DMode => SceneView.lastActiveSceneView?.in2DMode ?? false;
@@ -104,7 +130,7 @@ namespace Needle.Timeline
 			// var placeObject = HandleUtility.PlaceObject(mousePosition, out var newPosition, out var normal);
 			// return placeObject ? newPosition : HandleUtility.GUIPointToWorldRay(mousePosition).GetPoint(10);
 		}
-		
+
 
 		protected static void UseEvent()
 		{

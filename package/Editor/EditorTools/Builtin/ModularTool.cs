@@ -18,23 +18,12 @@ namespace Needle.Timeline
 
 		protected override bool OnSupports(Type type)
 		{
-			if (typeof(IList).IsAssignableFrom(type))
+			foreach (var field in EnumerateFields(type))
 			{
-				if (type.IsGenericType) 
+				if (ToolModule.Modules.Any(m => m.CanModify(field.FieldType)))
 				{
-					var content = type.GetGenericArguments().FirstOrDefault();
-					if (content != null)
-					{
-						foreach (var field in content.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public))
-						{
-							Debug.Log(field.DeclaringType + ": " +  field.Name);
-						}
-					}
+					return true;
 				}
-			}
-			else
-			{
-				
 			}
 			return typeof(List<Vector3>).IsAssignableFrom(type);
 		}
@@ -44,9 +33,30 @@ namespace Needle.Timeline
 			base.OnAttach(element);
 			keyframe = null;
 			// element.Add(new Button(() => { erase = !erase; }) { text = "Toggle Erase" });
+		}
 
-			foreach (var mod in ToolModule.Modules)
-				Debug.Log(mod);
+		protected override void OnAddedTarget(ToolTarget t)
+		{
+			base.OnAddedTarget(t);
+
+			foreach (var type in t.Clip.SupportedTypes)
+			{
+				foreach (var field in EnumerateFields(type))
+				{
+					foreach (var mod in ToolModule.Modules)
+					{
+						if (mod.CanModify(field.FieldType))
+						{
+							Debug.Log(field.Name + " = " + field.FieldType + " via " + mod); 
+						}
+					}
+				}
+			}
+		}
+
+		protected override void OnRemovedTarget(ToolTarget t)
+		{
+			base.OnRemovedTarget(t);
 		}
 
 		protected override void OnInput(EditorWindow window)
@@ -131,6 +141,24 @@ namespace Needle.Timeline
 					}
 					UseEvent();
 					break;
+			}
+		}
+
+		private IEnumerable<FieldInfo> EnumerateFields(Type type)
+		{
+			if (typeof(ICollection).IsAssignableFrom(type))
+			{
+				if (type.IsGenericType) 
+				{
+					var content = type.GetGenericArguments().FirstOrDefault();
+					if (content != null)
+					{
+						foreach (var field in content.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public))
+						{
+							yield return field;
+						}
+					}
+				}
 			}
 		}
 

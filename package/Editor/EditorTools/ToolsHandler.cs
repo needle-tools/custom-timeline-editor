@@ -145,8 +145,13 @@ namespace Needle.Timeline
 			UpdateToolTargets();
 		}
 
+		private static readonly List<ClipInfoViewModel> _lastActiveInstances = new List<ClipInfoViewModel>();
+
 		private static void UpdateToolTargets()
 		{
+			// only update targets if they actually change
+			if (_lastActiveInstances.SequenceEqual(ClipInfoViewModel.ActiveInstances)) return;
+			
 			foreach (var sel in _selected)
 			{
 				sel.RemoveAllTargets();
@@ -163,6 +168,8 @@ namespace Needle.Timeline
 					}
 				}
 			}
+			_lastActiveInstances.Clear();
+			_lastActiveInstances.AddRange(ClipInfoViewModel.ActiveInstances);
 		}
 
 		private static void OpenedScene(Scene scene, OpenSceneMode mode)
