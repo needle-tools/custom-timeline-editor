@@ -55,30 +55,33 @@ namespace _Sample
 
 		[Animate] public MyType SomeType;
 
-		private void OnDrawGizmos()
-		{
-			if (CustomType == null) return;
-			foreach (var e in CustomType)
-			{
-				Gizmos.color = e.Color;
-				Gizmos.DrawSphere(e.Pos, .2f);
-			}
-			if (SomeType != null)
-			{
-				Gizmos.color = SomeType.Color;
-				Gizmos.DrawSphere(SomeType.Pos, .3f);
-			}
-		}
-
 		[Serializable]
 		public class MyType
 		{
 			public Vector3 Pos;
 			public Color Color;
+			public float Size;
 
 			public static MyType GetRandom()
 			{
-				return new MyType() { Pos = Random.insideUnitCircle, Color = Random.ColorHSV() }; 
+				return new MyType() { Pos = Random.insideUnitCircle, Color = Random.ColorHSV(), Size = Random.value * .5f + 0.02f };
+			}
+		}
+
+		private void OnDrawGizmos()
+		{
+			if (CustomType != null)
+			{
+				foreach (var e in CustomType)
+				{
+					Gizmos.color = e.Color;
+					Gizmos.DrawSphere(e.Pos, e.Size);
+				}
+			}
+			if (SomeType != null)
+			{
+				Gizmos.color = SomeType.Color;
+				Gizmos.DrawSphere(SomeType.Pos + Vector3.right * 3, SomeType.Size);
 			}
 		}
 
@@ -95,17 +98,19 @@ namespace _Sample
 				base.OnAttach(element);
 				element.Add(new Button(() =>
 				{
-					var t = Targets.LastOrDefault();
-					if (t.Clip is ICustomClip<List<MyType>> c)
+					foreach (var t in Targets)
 					{
-						c.Add(new CustomKeyframe<List<MyType>>(new List<MyType>
+						if (t.Clip is ICustomClip<List<MyType>> c)
 						{
-							MyType.GetRandom()
-						}, t.TimeF));
-					}
-					else if (t.Clip is ICustomClip<MyType> s)
-					{
-						s.Add(new CustomKeyframe<MyType>(MyType.GetRandom(), t.TimeF));
+							var list = new List<MyType>();
+							for (var i = 0; i < Random.Range(1, 5); i++)
+								list.Add(MyType.GetRandom());
+							c.Add(new CustomKeyframe<List<MyType>>(list, t.TimeF));
+						}
+						else if (t.Clip is ICustomClip<MyType> s)
+						{
+							s.Add(new CustomKeyframe<MyType>(MyType.GetRandom(), t.TimeF));
+						}
 					}
 				}) { name = "Add" });
 			}

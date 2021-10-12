@@ -94,14 +94,23 @@ namespace Needle.Timeline
 
 				res = CreateCustomAnimationCurve(attribute, data, out var clip);
 				if (clip != null)
-					clip.Changed += () =>
+				{
+					void OnClipOnChanged()
 					{
+						// if (!data.Track)
+						// {
+						// 	// clip.Changed -= OnClipOnChanged;
+						// 	// return;
+						// }
 						// Debug.Log("clip changed");
 						EditorUtility.SetDirty(data.Track);
 						data.Track.dirtyCount += 1;
 						data.Director.Evaluate();
 						TimelineWindowUtil.TryRepaint();
-					};
+					}
+
+					clip.Changed += OnClipOnChanged;
+				}
 				return res;
 			}
 		}

@@ -9,7 +9,7 @@ using Random = UnityEngine.Random;
 namespace _Sample.Rendering.Lines
 {
 	[ExecuteAlways]
-	public class SimulateLines : MonoBehaviour, IAnimated, ITimelineUpdateCallback
+	public class SimulateLines : MonoBehaviour, IAnimated, IAnimatedEvaluate
 	{
 		public int Width = 1024, Height = 720;
 		public float WidthWorld = 1;

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Editor;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Playables;
@@ -46,7 +45,7 @@ namespace Needle.Timeline
 
 		internal void OnProcessedFrame(FrameInfo info)
 		{
-			if (Script is ITimelineUpdateCallback cb)
+			if (Script is IAnimatedEvaluate cb)
 			{
 				cb.OnEvaluated(info);
 			}

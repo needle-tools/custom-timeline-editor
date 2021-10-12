@@ -17,7 +17,7 @@
 		}
 	}
 
-	public interface ITimelineUpdateCallback
+	public interface IAnimatedEvaluate
 	{
 		void OnEvaluated(FrameInfo frame);
 	}

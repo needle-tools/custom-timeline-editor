@@ -29,7 +29,7 @@ namespace Needle.Timeline
 			return typeof(T).IsAssignableFrom(type);
 		}
 
-		public void Interpolate(ref object instance, object obj0, object obj1, float t)
+		public virtual void Interpolate(ref object instance, object obj0, object obj1, float t)
 		{
 			this.Cast(ref instance, obj0, obj1, t);
 		}

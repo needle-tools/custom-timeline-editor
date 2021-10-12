@@ -50,8 +50,12 @@ namespace Needle.Timeline
 			
 		}
 
+		#pragma warning disable CS0414
 		public event Action Changed;
+		#pragma warning restore CS0414
+		
 		public IReadOnlyCollection<IReadonlyCustomKeyframe> Keyframes { get; }
+		
 		public ICustomKeyframe GetPrevious(float time)
 		{
 			return null;

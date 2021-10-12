@@ -22,7 +22,7 @@ namespace Needle.Timeline
 		public object Interpolate(object v0, object v1, float t)
 		{
 			if (v0 == null && v1 == null) return null;
-			if (interpolatable == null) Setup(v0?.GetType() ?? v1?.GetType());
+			if (interpolatable == null) Setup(v0?.GetType() ?? v1.GetType());
 			interpolatable.Interpolate(ref _instance, v0, v1, t);
 			return _instance;
 		}
