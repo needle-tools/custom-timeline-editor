@@ -75,7 +75,7 @@ namespace _Sample.Rendering.Lines
 
 		private void Run()
 		{
-			if (!Points || Points.points == null) return;
+			if (!Points) return;
 			if (Renderer.IsHidden())
 			{
 				return;
@@ -115,10 +115,11 @@ namespace _Sample.Rendering.Lines
 					Shader.SetFloat("MoveSpeed", MoveSpeed);
 				if (TurnSpeed != 0)
 					Shader.SetFloat("TurnSpeed", TurnSpeed);
-				maxBufferSize = Mathf.Max(maxBufferSize, Points.points.Count, 100);
+				maxBufferSize = Mathf.Max(maxBufferSize, Points.points?.Count ?? 0, 100);
 				// Debug.Log(maxBufferSize);
-				Shader.SetBuffer("Simulate", "Positions", Points.points, sizeof(float) * 3, maxBufferSize);
-				Shader.SetInt("PositionsCount", Points.points.Count);
+				if(Points.points != null)
+					Shader.SetBuffer("Simulate", "Positions", Points.points, sizeof(float) * 3, maxBufferSize);
+				Shader.SetInt("PositionsCount", Points.points?.Count ?? 0);
 				Shader.SetFloat("EnergyFactor", EnergyFactor);
 				Shader.DispatchOptimal("Simulate", entities.Count, 1, 1);
 
