@@ -35,6 +35,7 @@ namespace Needle.Timeline
 			// element.Add(new Button(() => { erase = !erase; }) { text = "Toggle Erase" });
 		}
 
+		private static readonly List<IToolModule> buffer = new List<IToolModule>();
 		protected override void OnAddedTarget(ToolTarget t)
 		{
 			base.OnAddedTarget(t);
@@ -43,13 +44,7 @@ namespace Needle.Timeline
 			{
 				foreach (var field in EnumerateFields(type))
 				{
-					foreach (var mod in ToolModule.Modules)
-					{
-						if (mod.CanModify(field.FieldType))
-						{
-							// Debug.Log(field.Name + " = " + field.FieldType + " via " + mod); 
-						}
-					}
+					ToolModule.GetModulesSupportingType(field.FieldType, buffer);
 				}
 			}
 		}
@@ -58,6 +53,8 @@ namespace Needle.Timeline
 		{
 			base.OnRemovedTarget(t);
 		}
+
+		private ToolInputData data = new ToolInputData();
 
 		protected override void OnInput(EditorWindow window)
 		{
@@ -96,6 +93,9 @@ namespace Needle.Timeline
 				// 	ForEachModule((toolTarget, module) => module.EndInput(toolTarget));
 				// 	break;
 			}
+			
+			data.Update();
+			Debug.Log(data.ScreenDelta.ToString("0.0000"));
 
 			switch (Event.current.type, Event.current.modifiers, Event.current.button)
 			{
