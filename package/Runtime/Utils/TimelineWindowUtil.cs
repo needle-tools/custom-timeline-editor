@@ -1,7 +1,8 @@
-﻿using System;
+﻿
+#if UNITY_EDITOR
+using System;
 using System.Linq;
 using System.Threading.Tasks;
-using NUnit.Framework.Internal;
 using UnityEditor;
 using UnityEditor.Timeline;
 using UnityEngine;
@@ -80,3 +81,4 @@ namespace Needle.Timeline
 		}
 	}
 }
+#endif

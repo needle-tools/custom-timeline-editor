@@ -4,12 +4,14 @@ using System.Linq;
 using System.Reflection;
 using Needle.Timeline.Serialization;
 using Unity.Profiling;
-using UnityEditor;
-using UnityEditor.Build.Content;
-using UnityEditor.Timeline;
 using UnityEngine;
 using UnityEngine.Playables;
 using UnityEngine.Timeline;
+
+#if UNITY_EDITOR
+using UnityEditor;
+using UnityEditor.Timeline;
+#endif
 
 namespace Needle.Timeline
 {
@@ -22,7 +24,10 @@ namespace Needle.Timeline
 	[TrackClipType(typeof(CodeControlAsset))]
 	[TrackBindingType(typeof(MonoBehaviour))]
 	[TrackColor(.2f, .5f, 1f)]
-	public class CodeControlTrack : TrackAsset, ICanDrawInlineCurve
+	public class CodeControlTrack : TrackAsset
+#if UNITY_EDITOR
+		, ICanDrawInlineCurve
+#endif
 	{
 		// protected override void OnBeforeTrackSerialize()
 		// {
@@ -45,12 +50,12 @@ namespace Needle.Timeline
 				{
 					var json = (string)ser.Serialize(clip);
 					var id = viewModel.Id + "_" + clip.Name;
-					SaveUtil.Save(id, json); 
+					SaveUtil.Save(id, json);
 					// Debug.Log("saved " + id);
 				}
 			}
 		}
-		
+
 		internal const bool IsUsingMixer = true;
 
 		[SerializeField, HideInInspector] internal int dirtyCount;
@@ -73,17 +78,17 @@ namespace Needle.Timeline
 		/// For id generation per gameobject / type
 		/// </summary>
 		private readonly List<(string type, int index)> componentTypeIndices = new List<(string, int)>();
-		
+
 		protected override Playable CreatePlayable(PlayableGraph graph, GameObject gameObject, TimelineClip timelineClip)
 		{
 			using (CreateTrackMarker.Auto())
 			{
 				viewModels.RemoveAll(vm => !vm.IsValid);
-				
+
 				var dir = gameObject.GetComponent<PlayableDirector>();
 				var assetPath = AssetDatabase.GetAssetPath(dir.playableAsset);
 				UnitySaveUtil.Register(this, assetPath);
-				
+
 				var boundObject = dir.GetGenericBinding(this) as MonoBehaviour;
 				if (!boundObject) return Playable.Null;
 
@@ -96,14 +101,14 @@ namespace Needle.Timeline
 
 				var animationComponents = boundObject.GetComponents<IAnimated>();
 				if (animationComponents.Length <= 0) return Playable.Null;
-				
-				
+
+
 				AssetDatabase.TryGetGUIDAndLocalFileIdentifier(asset.GetInstanceID(), out var guid, out long _id);
 				var id = guid + "@" + _id;
-				
+
 				// Debug.Log("<b>Create Playable</b> " + boundObject, timelineClip.asset);
 				timelineClip.CreateCurves(id);
-				
+
 				componentTypeIndices.Clear();
 				foreach (var script in animationComponents)
 				{
@@ -125,7 +130,7 @@ namespace Needle.Timeline
 						componentTypeIndices.Add((typeName, 0));
 					}
 					var modelId = id + "_" + typeName + "_" + index;
-					
+
 					var model = clips.FirstOrDefault(e => e.id == modelId);
 					if (model == null)
 					{
@@ -133,7 +138,7 @@ namespace Needle.Timeline
 						model = new ClipInfoModel(modelId, timelineClip.curves);
 						clips.Add(model);
 					}
-					
+
 					timelineClip.displayName = typeName;
 
 					bool GetExisting(ClipInfoViewModel v) => v.Script == script && v.AnimationClip == timelineClip.curves && v.Id == model.id;
