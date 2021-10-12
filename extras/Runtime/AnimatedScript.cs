@@ -53,6 +53,22 @@ namespace _Sample
 
 		[Animate] public List<MyType> CustomType;
 
+		[Animate] public MyType SomeType;
+
+		private void OnDrawGizmos()
+		{
+			if (CustomType == null) return;
+			foreach (var e in CustomType)
+			{
+				Gizmos.color = e.Color;
+				Gizmos.DrawSphere(e.Pos, .2f);
+			}
+			if (SomeType != null)
+			{
+				Gizmos.color = SomeType.Color;
+				Gizmos.DrawSphere(SomeType.Pos, .3f);
+			}
+		}
 
 		[Serializable]
 		public class MyType : Interpolatable<MyType>
@@ -63,18 +79,13 @@ namespace _Sample
 			public override void Interpolate(ref MyType instance, MyType t0, MyType t1, float t)
 			{
 				if (instance == null) instance = new MyType();
-				instance.Pos = Vector3.Lerp(t0.Pos, t1.Pos, t);
-				instance.Color = Color.Lerp(t0.Color, t1.Color, t);
+				instance.Pos = Vector3.Lerp(t0.Pos, t1?.Pos ?? Vector3.zero, t);
+				instance.Color = Color.Lerp(t0.Color, t1?.Color ?? Color.black, t);
 			}
-		}
 
-		private void OnDrawGizmos()
-		{
-			if (CustomType == null) return;
-			foreach (var e in CustomType)
+			public static MyType GetRandom()
 			{
-				Gizmos.color = e.Color;
-				Gizmos.DrawSphere(e.Pos, .2f);
+				return new MyType() { Pos = Random.insideUnitCircle, Color = Random.ColorHSV() }; 
 			}
 		}
 
@@ -91,13 +102,17 @@ namespace _Sample
 				base.OnAttach(element);
 				element.Add(new Button(() =>
 				{
-					var t = Targets.FirstOrDefault();
+					var t = Targets.LastOrDefault();
 					if (t.Clip is ICustomClip<List<MyType>> c)
 					{
-						c.Add(new CustomKeyframe<List<MyType>>(new List<MyType>()
+						c.Add(new CustomKeyframe<List<MyType>>(new List<MyType>
 						{
-							new MyType() { Pos = Random.insideUnitCircle, Color = Random.ColorHSV() }
+							MyType.GetRandom()
 						}, t.TimeF));
+					}
+					else if (t.Clip is ICustomClip<MyType> s)
+					{
+						s.Add(new CustomKeyframe<MyType>(MyType.GetRandom(), t.TimeF));
 					}
 				}) { name = "Add" });
 			}

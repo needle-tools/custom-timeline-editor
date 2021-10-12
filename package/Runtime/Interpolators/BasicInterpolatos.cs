@@ -8,11 +8,6 @@ using UnityEngine;
 
 namespace Needle.Timeline
 {
-	public enum CollectionInterpolationMode
-	{
-		AllAtOnce = 0,
-		Individual = 1
-	}
 
 	public class IInterpolatableInterpolator : IInterpolator
 	{
@@ -23,11 +18,26 @@ namespace Needle.Timeline
 			return typeof(IInterpolatable).IsAssignableFrom(type);
 		}
 
+		private object _instance;
+
 		public object Interpolate(object v0, object v1, float t)
 		{
-			var i0 = v0 as IInterpolatable;
-			var i1 = v1 as IInterpolatable;
-			return null;
+			if (v0 == null && v1 == null) return null;
+			if (_instance == null)
+			{
+				var type = v0?.GetType() ?? v1.GetType();
+				if (type == null) throw new Exception("Failed getting type?");
+				_instance = Activator.CreateInstance(type);
+			}
+			if (v0 is IInterpolatable i0)
+			{
+				i0.Interpolate(ref _instance, v0, v1, t);
+			}
+			else if (v1 is IInterpolatable i1)
+			{
+				i1.Interpolate(ref _instance, v0, v1, t);
+			}
+			return _instance;
 		}
 	}
 

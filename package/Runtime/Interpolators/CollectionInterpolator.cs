@@ -5,6 +5,12 @@ using UnityEngine;
 
 namespace Needle.Timeline
 {
+	public enum CollectionInterpolationMode
+	{
+		AllAtOnce = 0,
+		Individual = 1
+	}
+	
 	[Priority(-100)]
 	// ReSharper disable once UnusedType.Global
 	public class CollectionInterpolator : IInterpolator
