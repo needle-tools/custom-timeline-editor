@@ -8,6 +8,11 @@ using UnityEngine;
 
 namespace Needle.Timeline
 {
+	public enum CollectionInterpolationMode
+	{
+		AllAtOnce = 0,
+		Individual = 1
+	}
 
 	public class IInterpolatableInterpolator : IInterpolator
 	{
@@ -77,69 +82,6 @@ namespace Needle.Timeline
 			}
 			if (v1 == null) return null;
 			return indexer.GetValue(v1);
-		}
-	}
-
-	public class ListInterpolator : IInterpolator<List<Vector3>>
-	{
-		private List<Vector3> result;
-		private List<Vector3> secondaryBuffer;
-
-		public object Instance { get; set; }
-
-		public bool CanInterpolate(Type type)
-		{
-			return typeof(List<Vector3>).IsAssignableFrom(type);
-		}
-
-		public object Interpolate(object v0, object v1, float t)
-		{
-			return Interpolate(v0 as List<Vector3>, v1 as List<Vector3>, t);
-		}
-
-		public enum Mode
-		{
-			AllAtOnce = 0,
-			Individual = 1
-		}
-
-		public Mode CurrentMode = Mode.Individual;
-
-		public List<Vector3> Interpolate(List<Vector3> v0, List<Vector3> v1, float t)
-		{
-			// TODO: via timeline mixer it can currently happen that one of the inputs is the output list of a previous interpolation, maybe we need some buffer cache to get temporary result buffers?
-			
-			if (result == null) result = new List<Vector3>();
-			else result.Clear();
-			var count = Mathf.RoundToInt(Mathf.Lerp(v0?.Count ?? 0, v1?.Count ?? 0, t));
-			var perEntry = 1f / count;
-			for (var i = 0; i < count; i++)
-			{
-				var val0 = v0?.Count > 0 ? v0[i % v0.Count] : v1?[i];
-				var val1 = v1?.Count > 0 ? v1[i % v1.Count] : v0?[i];
-				if (val0 == null || val1 == null) continue;
-				Vector3? res = null;
-				switch (CurrentMode)
-				{
-					case Mode.AllAtOnce:
-						res = Vector3.Lerp(val0.Value, val1.Value, t);
-						break;
-
-					case Mode.Individual:
-						var start = (i) * perEntry;
-						var it = Mathf.Clamp01(t - start) / perEntry;
-						res = Vector3.Lerp(val0.Value, val1.Value, it);
-						break;
-				}
-				if (res != null)
-					result.Add(res.Value);
-			}
-
-			//
-			if (secondaryBuffer == null) secondaryBuffer = new List<Vector3>(result.Count);
-			secondaryBuffer.Clear();
-			secondaryBuffer.AddRange(result);
-			return secondaryBuffer;
 		}
 	}
 

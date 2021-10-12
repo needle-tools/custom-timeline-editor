@@ -1,10 +1,10 @@
 ﻿using System;
 
-namespace Needle.Timeline.Interfaces
+namespace Needle.Timeline
 {
 	public interface IInterpolatable
 	{
-		void Interpolate(ref IInterpolatable instance, IInterpolatable t0, IInterpolatable t1, float t);
+		void Interpolate(ref object instance, object t0, object t1, float t);
 	}
 
 	public interface IInterpolatable<T> : IInterpolatable
@@ -14,17 +14,22 @@ namespace Needle.Timeline.Interfaces
 
 	public static class IInterpolateExtensions
 	{
-		public static void Cast<T>(this IInterpolatable<T> generic, ref IInterpolatable instance, IInterpolatable t0, IInterpolatable t1, float t)
+		public static void Cast<T>(this IInterpolatable<T> generic, ref object instance, object t0, object t1, float t)
 		{
 			var m = (T)instance;
 			generic.Interpolate(ref m, (T)t0, (T)t1, t);
-			instance = (IInterpolatable)m;
+			instance = m;
 		}
 	}
 
 	public abstract class Interpolatable<T> : IInterpolatable<T>
 	{
-		public void Interpolate(ref IInterpolatable instance, IInterpolatable t0, IInterpolatable t1, float t)
+		public bool CanInterpolate(Type type)
+		{
+			return typeof(T).IsAssignableFrom(type);
+		}
+
+		public void Interpolate(ref object instance, object t0, object t1, float t)
 		{
 			this.Cast(ref instance, t0, t1, t);
 		}

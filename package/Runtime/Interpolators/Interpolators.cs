@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using UnityEditor;
 using UnityEngine;
 
@@ -9,6 +10,29 @@ namespace Needle.Timeline
 {
 	public static class Interpolators
 	{
+		public static bool TryFindInterpolatable(Type type, out IInterpolatable interpolatable)
+		{
+			var genericType = typeof(IInterpolatable<>).MakeGenericType(type);
+			int Ordering(MemberInfo t) => t.GetCustomAttribute<Priority>()?.Rating ?? 0;
+			foreach (var t in TypeCache.GetTypesDerivedFrom(genericType).OrderByDescending(Ordering))
+			{
+				if (t.IsAbstract || t.IsInterface) continue;
+				if (t.GetCustomAttribute<NoAutoSelect>() != null) continue;
+				try
+				{
+					interpolatable = Activator.CreateInstance(t) as IInterpolatable;
+					if (interpolatable != null) return true;
+				}
+				catch (Exception e)
+				{
+					Debug.LogException(e);
+				}
+			}
+			
+			interpolatable = null;
+			return false;
+		}
+		
 		public static bool TryFindInterpolator(AnimateAttribute attribute, Type memberType, out IInterpolator interpolator)
 		{
 			if (attribute.AllowInterpolation == false)

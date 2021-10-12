@@ -157,12 +157,12 @@ namespace Needle.Timeline
 				{
 					if (Interpolators.TryFindInterpolator(attribute, data.MemberType, out var interpolator))
 					{
-						Debug.Log("Chose " + interpolator + ", " + data.Member.Name);
+						// Debug.Log("Chose " + interpolator + ", " + data.Member.Name);
 						i.Interpolator = interpolator;
 					}
 					else
 					{
-						Debug.Log("No Interpolator: " + data.Member.Name);
+						// Debug.Log("No Interpolator: " + data.Member.Name);
 						i.Interpolator = new NoInterpolator();
 					}
 				}

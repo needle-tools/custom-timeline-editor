@@ -20,11 +20,6 @@ namespace _Sample._Sample
 
 		[Animate] public float Factor = 1;
 
-		private Line Interpolate(Line g0, Line g1, float t)
-		{
-			return new Line();
-		}
-
 		public int pointsCount => points?.Count ?? 0;
 
 		private Color[] colors = new[]

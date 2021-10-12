@@ -229,15 +229,15 @@ MonoBehaviour:
   m_Children: []
   m_Clips:
   - m_Version: 1
-    m_Start: 3.5166666666666666
+    m_Start: 6.716666666666667
     m_ClipIn: 0
     m_Asset: {fileID: -8123387805156620017}
-    m_Duration: 11.7
-    m_TimeScale: 0.5112561684941048
+    m_Duration: 3.4000000000000004
+    m_TimeScale: 1.7593226974650058
     m_ParentTrack: {fileID: 1299525714294156642}
     m_EaseInDuration: 0
     m_EaseOutDuration: 0
-    m_BlendInDuration: 4.616666666666666
+    m_BlendInDuration: 1.416666666666666
     m_BlendOutDuration: -1
     m_MixInCurve:
       serializedVersion: 2
@@ -289,7 +289,7 @@ MonoBehaviour:
     m_EaseInDuration: 0
     m_EaseOutDuration: 0
     m_BlendInDuration: -1
-    m_BlendOutDuration: 4.616666666666666
+    m_BlendOutDuration: 1.416666666666666
     m_MixInCurve:
       serializedVersion: 2
       m_Curve:
@@ -350,7 +350,7 @@ MonoBehaviour:
     m_DisplayName: SimulateLines
   m_Markers:
     m_Objects: []
-  dirtyCount: 39301
+  dirtyCount: 39770
   clips:
   - id: 8b9ba6d584bac124f8d46aab450c96df@8469510165854301362
     clip: {fileID: 0}

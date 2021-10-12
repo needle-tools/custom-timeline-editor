@@ -1,16 +1,16 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
-using Needle.Timeline.Interfaces;
 using UnityEngine;
 
 namespace Needle.Timeline
 {
 	[Priority(-100)]
 	// ReSharper disable once UnusedType.Global
-	public class CollectionInterpolator<T> : IInterpolator<T>
+	public class CollectionInterpolator : IInterpolator
 	{
+		public CollectionInterpolationMode CurrentMode = CollectionInterpolationMode.AllAtOnce;
+		
 		public object Instance { get; set; }
 
 		public bool CanInterpolate(Type type)
@@ -30,31 +30,32 @@ namespace Needle.Timeline
 		private IList buffer;
 		private IList output;
 		private Type listContentType;
-
-		public T Interpolate(T v0, T v1, float t)
-		{
-			Debug.Log(v0);
-			return v1;
-		}
+		private IInterpolatable interpolatable;
+		private bool didSearchInterpolatable;
 
 		public object Interpolate(object v0, object v1, float t)
 		{
 			if (v0 == null && v1 == null) return null;
-
+			
 			var list0 = v0 as IList;
 			var list1 = v1 as IList;
-
-			buffer ??= (IList)Activator.CreateInstance(v0?.GetType() ?? v1.GetType());
-			buffer.Clear();
-
-			if (listContentType == null)
+			if (list0?.Count <= 0 && list1?.Count <= 0) return null;
+			var listType = v0?.GetType() ?? v1.GetType();
+			TryFindListContentType(list0);
+			TryFindListContentType(list1);
+			if (listContentType == null) return null;
+			if (!didSearchInterpolatable)
 			{
-				listContentType = (list0 ?? list1)?.GetType().GenericTypeArguments.FirstOrDefault();
-				if (listContentType != null) Debug.Log(listContentType);
+				didSearchInterpolatable = true;
+				Interpolators.TryFindInterpolatable(listContentType, out interpolatable);
 			}
 
+			buffer ??= (IList)Activator.CreateInstance(listType);
+			buffer.Clear();
 
 			var count = Mathf.RoundToInt(Mathf.Lerp(list0?.Count ?? 0, list1?.Count ?? 0, t));
+			var perEntry = 1f / count;
+			
 			for (var i = 0; i < count; i++)
 			{
 				var val0 = list0?.Count > 0 ? list0[i % list0.Count] : list1?[i];
@@ -64,34 +65,49 @@ namespace Needle.Timeline
 					buffer.Add(null);
 					continue;
 				}
-				
-				if (val0 is IInterpolatable i0 && val1 is IInterpolatable i1)
+				var pos = t;
+				switch (CurrentMode)
 				{
-					object instance;
-					if (output?.Count > i)
-						instance = output[i];
-					else
-					{
-						var type = val0?.GetType() ?? val1.GetType();
-						instance = Activator.CreateInstance(type);
-					}
-					var interpolatableInstance = (IInterpolatable)instance;
-					i0.Interpolate(ref interpolatableInstance, i0, i1, t);
-					buffer.Add(interpolatableInstance);
+					case CollectionInterpolationMode.Individual:
+						var start = (i) * perEntry;
+						pos = Mathf.Clamp01(t - start) / perEntry;
+						break;
 				}
-				// TODO: remove once we have support for interpolation helpers
-				else if (val0 is Vector3 vec0 && val1 is Vector3 vec1)
+				if (interpolatable == null)
 				{
-					var res = Vector3.Lerp(vec0, vec1, t);
-					buffer.Add(res);
+					if (pos >= .99999f) buffer.Add(val1);
+					else buffer.Add(val0);
+					continue;
 				}
-				else Debug.LogError("Can not interpolate " + listContentType);
+				object instance;
+				if (output?.Count > i)
+					instance = output[i];
+				else
+				{
+					var type = val0?.GetType() ?? val1.GetType();
+					instance = Activator.CreateInstance(type);
+				}
+				interpolatable.Interpolate(ref instance, val0, val1, pos);
+				buffer.Add(instance);
 			}
 			output ??= (IList)Activator.CreateInstance(v0?.GetType() ?? v1.GetType());
 			output.Clear();
 			foreach (var obj in buffer)
 				output.Add(obj);
 			return output;
+		}
+
+		private void TryFindListContentType(IEnumerable list)
+		{
+			if (listContentType != null) return;
+			if (list == null) return;
+			listContentType = list.GetType().GenericTypeArguments.FirstOrDefault();
+			if (listContentType != null) return;
+			foreach (var e in list)
+			{
+				if (listContentType != null) break;
+				listContentType = e?.GetType();
+			}
 		}
 	}
 }
