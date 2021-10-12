@@ -23,12 +23,6 @@ namespace Needle.Timeline
 						UseEvent();
 					break;
 			}
-
-			void UseEvent()
-			{
-				GUIUtility.hotControl = 0;
-				Event.current.Use();
-			}
 		}
 
 		protected virtual bool OnMouseDown()

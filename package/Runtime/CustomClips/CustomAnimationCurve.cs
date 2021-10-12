@@ -126,19 +126,19 @@ namespace Needle.Timeline
 
 		public bool Add(ICustomKeyframe kf)
 		{
-			if (kf == null || kf.value == null || !(kf is ICustomKeyframe<T> keyframe))
+			if (kf == null || !(kf is ICustomKeyframe<T> keyframe))
 				return false;
 			_keyframes.Add(keyframe);
 			keyframeAdded = true;
 			SortKeyframesIfNecessary();
 			RegisterKeyframeEvents(keyframe);
 			Changed?.Invoke();
-			return true;
+			return true; 
 		}
 
 		public void Remove(ICustomKeyframe kf)
 		{
-			if (kf == null || kf.value == null || !(kf is ICustomKeyframe<T> keyframe))
+			if (kf == null || !(kf is ICustomKeyframe<T> keyframe))
 				return;
 			if (_keyframes.Remove(keyframe))
 			{

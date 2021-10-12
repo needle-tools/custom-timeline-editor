@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using NUnit.Framework.Constraints;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -8,7 +9,7 @@ using Random = UnityEngine.Random;
 
 namespace Needle.Timeline
 {
-	public class DrawPointsTool : CustomClipToolBase
+	public class PaintTool : CustomClipToolBase
 	{
 		private ICustomKeyframe<List<Vector3>> keyframe;
 
@@ -25,6 +26,9 @@ namespace Needle.Timeline
 			base.OnAttach(element);
 			keyframe = null;
 			element.Add(new Button(() => { erase = !erase; }) { text = "Toggle Erase" });
+
+			foreach (var mod in ToolModule.Modules)
+				Debug.Log(mod);
 		}
 
 		protected override void OnInput(EditorWindow window)
@@ -32,7 +36,7 @@ namespace Needle.Timeline
 			var pos = PlaneUtils.GetPointOnPlane(Camera.current, out _, out _, out _);
 			Handles.color = erase ? Color.red : Color.white;
 			Handles.DrawWireDisc(pos, Vector3.up, radius);
-			Handles.DrawWireDisc(pos, Vector3.forward, radius); 
+			Handles.DrawWireDisc(pos, Vector3.forward, radius);
 			Handles.DrawWireDisc(pos, Vector3.right, radius);
 
 			switch (Event.current.type)
@@ -105,7 +109,6 @@ namespace Needle.Timeline
 					break;
 			}
 		}
-
 
 		private bool RemoveInRange(Vector3 pos, IList<Vector3> points)
 		{

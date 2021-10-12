@@ -6,6 +6,9 @@ using UnityEngine;
 namespace Needle.Timeline
 {
 
+	/// <summary>
+	/// 
+	/// </summary>
 	[Priority(-1000)]
 	public class ReflectionInterpolator : IInterpolator
 	{
@@ -16,21 +19,21 @@ namespace Needle.Timeline
 		
 		public bool CanInterpolate(Type type)
 		{
-			return Setup(type);
+			return TryInit(type);
 		}
 
 		public object Interpolate(object v0, object v1, float t)
 		{
 			if (v0 == null && v1 == null) return null;
-			if (interpolatable == null) Setup(v0?.GetType() ?? v1.GetType());
+			if (interpolatable == null) TryInit(v0?.GetType() ?? v1.GetType());
 			interpolatable.Interpolate(ref _instance, v0, v1, t);
 			return _instance;
 		}
 
-		private bool Setup(Type type)
+		private bool TryInit(Type type)
 		{
 			if (!ReflectiveInterpolatable.TryCreate(type, out interpolatable)) return false;
-			_instance = Activator.CreateInstance(type);
+			_instance ??= Activator.CreateInstance(type);
 			return _instance != null;
 		}
 	}

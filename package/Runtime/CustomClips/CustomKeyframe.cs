@@ -54,6 +54,12 @@ namespace Needle.Timeline
 			ValueChanged?.Invoke();
 		}
 
+		// ReSharper disable once UnusedMember.Global
+		public CustomKeyframe()
+		{
+			// required to be able to create via activator
+		}
+
 		public CustomKeyframe(T value, float time)
 		{
 			this.value = value;
