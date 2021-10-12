@@ -71,17 +71,10 @@ namespace _Sample
 		}
 
 		[Serializable]
-		public class MyType : Interpolatable<MyType>
+		public class MyType
 		{
 			public Vector3 Pos;
 			public Color Color;
-
-			public override void Interpolate(ref MyType instance, MyType t0, MyType t1, float t)
-			{
-				if (instance == null) instance = new MyType();
-				instance.Pos = Vector3.Lerp(t0.Pos, t1?.Pos ?? Vector3.zero, t);
-				instance.Color = Color.Lerp(t0.Color, t1?.Color ?? Color.black, t);
-			}
 
 			public static MyType GetRandom()
 			{

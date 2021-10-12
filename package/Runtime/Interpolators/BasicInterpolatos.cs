@@ -1,13 +1,40 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Needle.Timeline.Interfaces;
-using UnityEditor;
 using UnityEngine;
 
 namespace Needle.Timeline
 {
+
+	[Priority(-1000)]
+	public class ReflectionInterpolator : IInterpolator
+	{
+		public object Instance { get; set; }
+
+		private ReflectiveInterpolatable interpolatable;
+		private object _instance;
+		
+		public bool CanInterpolate(Type type)
+		{
+			return Setup(type);
+		}
+
+		public object Interpolate(object v0, object v1, float t)
+		{
+			if (v0 == null && v1 == null) return null;
+			if (interpolatable == null) Setup(v0?.GetType() ?? v1?.GetType());
+			interpolatable.Interpolate(ref _instance, v0, v1, t);
+			return _instance;
+		}
+
+		private bool Setup(Type type)
+		{
+			if (!ReflectiveInterpolatable.TryCreate(type, out interpolatable)) return false;
+			_instance = Activator.CreateInstance(type);
+			return _instance != null;
+		}
+	}
+
 
 	public class IInterpolatableInterpolator : IInterpolator
 	{

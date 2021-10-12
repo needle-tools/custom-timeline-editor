@@ -2,6 +2,14 @@
 
 namespace Needle.Timeline
 {
+	public class ColorInterpolatable : Interpolatable<Color>
+	{
+		public override void Interpolate(ref Color instance, Color t0, Color t1, float t)
+		{
+			instance = Color.Lerp(t0, t1, t);
+		}
+	}
+	
 	public class Vector4Interpolatable : Interpolatable<Vector4>
 	{
 		public override void Interpolate(ref Vector4 instance, Vector4 t0, Vector4 t1, float t)

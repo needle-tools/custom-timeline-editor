@@ -14,8 +14,8 @@ public struct Line : IInterpolatable<Line>
 		instance.End = Vector3.Lerp(t0.End, t1.End, t);
 	}
 
-	public void Interpolate(ref object instance, object t0, object t1, float t)
+	public void Interpolate(ref object instance, object obj0, object obj1, float t)
 	{
-		this.Cast(ref instance, t0, t1, t);
+		this.Cast(ref instance, obj0, obj1, t);
 	}
 }

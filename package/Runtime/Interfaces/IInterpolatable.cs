@@ -4,7 +4,7 @@ namespace Needle.Timeline
 {
 	public interface IInterpolatable
 	{
-		void Interpolate(ref object instance, object t0, object t1, float t);
+		void Interpolate(ref object instance, object obj0, object obj1, float t);
 	}
 
 	public interface IInterpolatable<T> : IInterpolatable
@@ -29,9 +29,9 @@ namespace Needle.Timeline
 			return typeof(T).IsAssignableFrom(type);
 		}
 
-		public void Interpolate(ref object instance, object t0, object t1, float t)
+		public void Interpolate(ref object instance, object obj0, object obj1, float t)
 		{
-			this.Cast(ref instance, t0, t1, t);
+			this.Cast(ref instance, obj0, obj1, t);
 		}
 
 		public abstract void Interpolate(ref T instance, T t0, T t1, float t);

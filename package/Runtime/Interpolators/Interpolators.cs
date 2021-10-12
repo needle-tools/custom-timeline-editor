@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using UnityEditor;
 using UnityEngine;
 
@@ -10,7 +9,7 @@ namespace Needle.Timeline
 {
 	public static class Interpolators
 	{
-		public static bool TryFindInterpolatable(Type type, out IInterpolatable interpolatable)
+		public static bool TryFindInterpolatable(Type type, out IInterpolatable interpolatable, bool allowReflective = true)
 		{
 			var genericType = typeof(IInterpolatable<>).MakeGenericType(type);
 			int Ordering(MemberInfo t) => t.GetCustomAttribute<Priority>()?.Rating ?? 0;
@@ -27,6 +26,12 @@ namespace Needle.Timeline
 				{
 					Debug.LogException(e);
 				}
+			}
+
+			if (allowReflective && ReflectiveInterpolatable.TryCreate(type, out var ri))
+			{
+				interpolatable = ri;
+				return interpolatable != null;
 			}
 			
 			interpolatable = null;
