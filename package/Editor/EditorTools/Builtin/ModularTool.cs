@@ -47,7 +47,7 @@ namespace Needle.Timeline
 					{
 						if (mod.CanModify(field.FieldType))
 						{
-							Debug.Log(field.Name + " = " + field.FieldType + " via " + mod); 
+							// Debug.Log(field.Name + " = " + field.FieldType + " via " + mod); 
 						}
 					}
 				}

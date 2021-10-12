@@ -16,6 +16,7 @@ namespace Needle.Timeline
 		#region ICustomClipTool
 		void ICustomClipTool.AddTarget(ClipInfoViewModel vm, ICustomClip clip)
 		{
+			Debug.Log("Add " + clip.Name + "@" + vm.startTime);
 			var t = new ToolTarget(vm, clip);
 			targets.Add(t);
 			OnAddedTarget(t); 
@@ -28,6 +29,7 @@ namespace Needle.Timeline
 				var t = targets[index];
 				if (t.Clip == clip)
 				{
+					Debug.Log("Remove " + clip.Name + "@" + t.ViewModel.startTime);
 					targets.RemoveAt(index);
 					OnRemovedTarget(t);
 				}

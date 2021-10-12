@@ -134,6 +134,7 @@ namespace Needle.Timeline
 		{
 			if (!typeof(ICustomClipTool).IsAssignableFrom(ToolManager.activeToolType))
 			{
+				_lastActiveInstances.Clear();
 				allowRestoreTool = false;
 				DeselectAll();
 				allowRestoreTool = true;
@@ -151,20 +152,32 @@ namespace Needle.Timeline
 		{
 			// only update targets if they actually change
 			if (_lastActiveInstances.SequenceEqual(ClipInfoViewModel.ActiveInstances)) return;
-			
-			foreach (var sel in _selected)
-			{
-				sel.RemoveAllTargets();
-			}
+
+			// foreach (var sel in _selected)
+			// {
+			// 	sel.RemoveAllTargets();
+			// }
 
 			foreach (var tool in _selected)
 			{
 				foreach (var vm in ClipInfoViewModel.ActiveInstances)
 				{
+					if (_lastActiveInstances.Contains(vm)) continue;
 					foreach (var clip in vm.clips)
 					{
 						if (!clip.SupportedTypes.Any(tool.Supports)) continue;
 						tool.AddTarget(vm, clip);
+					}
+				}
+			}
+			foreach (var last in _lastActiveInstances)
+			{
+				if (!ClipInfoViewModel.ActiveInstances.Contains(last))
+				{
+					foreach (var tool in _selected)
+					{
+						foreach(var clip in last.clips)
+							tool.RemoveTarget(clip);
 					}
 				}
 			}
