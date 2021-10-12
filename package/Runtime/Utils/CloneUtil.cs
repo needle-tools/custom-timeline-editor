@@ -76,8 +76,15 @@ namespace Needle.Timeline
 		{
 			foreach (var field in source.GetType().GetFields(BindingFlags.Default | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
 			{
-				Debug.Log(field.Name);
 				var val = field.GetValue(source);
+				var type = val?.GetType();
+				if (type != null)
+				{
+					if (!type.IsValueType)
+					{
+						val = TryClone(val);
+					}
+				}
 				field.SetValue(target, val);
 			}
 			return true;
