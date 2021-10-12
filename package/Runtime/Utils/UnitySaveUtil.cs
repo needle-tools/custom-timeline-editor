@@ -5,8 +5,12 @@ using UnityEngine;
 namespace Needle.Timeline
 {
 	// ReSharper disable once ClassNeverInstantiated.Global
-	public class UnitySaveUtil : AssetsModifiedProcessor 
+	internal class UnitySaveUtil
+#if UNITY_EDITOR
+		: AssetsModifiedProcessor
+#endif
 	{
+#if UNITY_EDITOR
 		protected override void OnAssetsModified(string[] changedAssets, string[] addedAssets, string[] deletedAssets, AssetMoveInfo[] movedAssets)
 		{
 			foreach (var ch in changedAssets)
@@ -24,12 +28,16 @@ namespace Needle.Timeline
 		}
 
 		private static readonly Dictionary<string, List<CodeControlTrack>> tracks = new Dictionary<string, List<CodeControlTrack>>();
+#endif
+
 
 		internal static void Register(CodeControlTrack track, string path)
 		{
-			if(!tracks.ContainsKey(path)) tracks.Add(path, new List<CodeControlTrack>());
+#if UNITY_EDITOR
+			if (!tracks.ContainsKey(path)) tracks.Add(path, new List<CodeControlTrack>());
 			var list = tracks[path];
-			if(!list.Contains(track)) list.Add(track);
+			if (!list.Contains(track)) list.Add(track);
+#endif
 		}
 	}
 }

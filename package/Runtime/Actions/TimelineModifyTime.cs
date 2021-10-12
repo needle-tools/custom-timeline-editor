@@ -14,17 +14,21 @@ namespace Needle.Timeline
 			this.oldTime = dir.time;
 			this.newTime = newTime;
 		}
-		
+
 		protected override void OnRedo()
 		{
 			dir.time = newTime;
+#if UNITY_EDITOR
 			TimelineWindowUtil.TryRepaint();
+#endif
 		}
 
 		protected override void OnUndo()
 		{
 			dir.time = oldTime;
+#if UNITY_EDITOR
 			TimelineWindowUtil.TryRepaint();
+#endif
 		}
 	}
 }
