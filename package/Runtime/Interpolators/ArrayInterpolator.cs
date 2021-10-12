@@ -32,7 +32,6 @@ namespace Needle.Timeline
 	}
 
 	[Priority(-100)]
-	[NoAutoSelect]
 	public class NumbersInterpolator : IInterpolator
 	{
 		private readonly Type[] types = new[]
@@ -52,7 +51,19 @@ namespace Needle.Timeline
 
 		public object Interpolate(object v0, object v1, float t)
 		{
-			throw new NotImplementedException();
+			switch (v0, v1)
+			{
+				case (float f0, float f1): return Mathf.Lerp(f0, f1, t);
+				case (double f0, double f1): return Lerp(f0, f1, t);
+				case (int f0, int f1): return Mathf.Lerp(f0, f1, t);
+				case (uint f0, uint f1): return Mathf.Lerp(f0, f1, t);
+			}
+			return v0;
+		}
+
+		private static double Lerp(double a, double b, float t)
+		{
+			return a + (b - a) * t;
 		}
 	}
 

@@ -9,7 +9,7 @@ namespace Needle.Timeline
 	// ReSharper disable once UnusedType.Global
 	public class CollectionInterpolator : IInterpolator
 	{
-		public CollectionInterpolationMode CurrentMode = CollectionInterpolationMode.AllAtOnce;
+		public CollectionInterpolationMode CurrentMode = CollectionInterpolationMode.Individual;
 		
 		public object Instance { get; set; }
 
@@ -69,14 +69,14 @@ namespace Needle.Timeline
 				switch (CurrentMode)
 				{
 					case CollectionInterpolationMode.Individual:
-						var start = (i) * perEntry;
+						var start = i * perEntry;
 						pos = Mathf.Clamp01(t - start) / perEntry;
 						break;
 				}
 				if (interpolatable == null)
 				{
-					if (pos >= .99999f) buffer.Add(val1);
-					else buffer.Add(val0);
+					if (pos < 1) buffer.Add(val0);
+					else buffer.Add(val1);
 					continue;
 				}
 				object instance;
@@ -87,6 +87,7 @@ namespace Needle.Timeline
 					var type = val0?.GetType() ?? val1.GetType();
 					instance = Activator.CreateInstance(type);
 				}
+				// Debug.Log(t + ": " + pos.ToString("0.000") + ", " + count + ", " + i);
 				interpolatable.Interpolate(ref instance, val0, val1, pos);
 				buffer.Add(instance);
 			}
