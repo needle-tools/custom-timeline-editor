@@ -56,22 +56,20 @@ namespace _Sample
 		[Animate] public MyType SomeType;
 
 		[Serializable]
-		public class MyType : BaseType
+		public class MyType
 		{
+			[PositionValue]
 			public Vector3 Pos;
 			public Color Color;
-
-			public static MyType GetRandom()
-			{
-				return new MyType() { Pos = Random.insideUnitCircle, Color = Random.ColorHSV(), Size = Random.value * .5f + 0.02f };
-			}
-		}
-
-		public class BaseType
-		{
 			public float Size;
-		}
 
+			public static MyType GetRandom() => 
+				new MyType { Pos = Random.insideUnitCircle, Color = Random.ColorHSV(), Size = Random.value * .5f + 0.02f };
+		}
+		
+		
+		
+		
 		private void OnDrawGizmos()
 		{
 			if (CustomType != null)
