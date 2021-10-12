@@ -53,7 +53,7 @@ namespace Needle.Timeline
 			if (!didSearchInterpolatable)
 			{
 				didSearchInterpolatable = true;
-				Interpolators.TryFindInterpolatable(listContentType, out interpolatable);
+				InterpolatorBuilder.TryFindInterpolatable(listContentType, out interpolatable);
 			}
 
 			buffer ??= (IList)Activator.CreateInstance(listType);

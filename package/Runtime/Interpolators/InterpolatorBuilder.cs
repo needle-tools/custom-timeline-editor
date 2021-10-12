@@ -7,12 +7,14 @@ using UnityEngine;
 
 namespace Needle.Timeline
 {
-	public static class Interpolators
+	public static class InterpolatorBuilder
 	{
 		public static bool TryFindInterpolatable(Type type, out IInterpolatable interpolatable, bool allowReflective = true)
 		{
 			var genericType = typeof(IInterpolatable<>).MakeGenericType(type);
 			int Ordering(MemberInfo t) => t.GetCustomAttribute<Priority>()?.Rating ?? 0;
+			
+			// first check if we have a concrete implementation
 			foreach (var t in TypeCache.GetTypesDerivedFrom(genericType).OrderByDescending(Ordering))
 			{
 				if (t.IsAbstract || t.IsInterface) continue;
@@ -28,6 +30,7 @@ namespace Needle.Timeline
 				}
 			}
 
+			// otherwise fallback to reflective interpolator if possible
 			if (allowReflective && ReflectiveInterpolatable.TryCreate(type, out var ri))
 			{
 				interpolatable = ri;

@@ -15,7 +15,7 @@ namespace Needle.Timeline
 			for (var index = 0; index < fields.Length; index++)
 			{
 				var field = type.GetFields(flags)[index];
-				if (!Interpolators.TryFindInterpolatable(field.FieldType, out var interpolatable, false))
+				if (!InterpolatorBuilder.TryFindInterpolatable(field.FieldType, out var interpolatable, false))
 				{
 					Debug.LogWarning("No interpolatable found for " + field.FieldType);
 					return false;
@@ -42,14 +42,12 @@ namespace Needle.Timeline
 		private class MemberInterpolationData : IInterpolatable
 		{
 			private readonly MemberInfo member;
-			private readonly Type valueType;
 			private readonly IInterpolatable interpolatable;
 			private object _valueInstance;
 
 			public MemberInterpolationData(MemberInfo member, Type valueType, IInterpolatable interpolatable)
 			{
 				this.member = member;
-				this.valueType = valueType;
 				this.interpolatable = interpolatable;
 				_valueInstance = Activator.CreateInstance(valueType);
 			}

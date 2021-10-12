@@ -155,7 +155,7 @@ namespace Needle.Timeline
 			{
 				if (curve is IHasInterpolator i)
 				{
-					if (Interpolators.TryFindInterpolator(attribute, data.MemberType, out var interpolator))
+					if (InterpolatorBuilder.TryFindInterpolator(attribute, data.MemberType, out var interpolator))
 					{
 						// Debug.Log("Chose " + interpolator + ", " + data.Member.Name);
 						i.Interpolator = interpolator;
