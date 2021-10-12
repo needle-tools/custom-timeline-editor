@@ -1,6 +1,7 @@
 ﻿#nullable enable
 using System;
 using System.Collections;
+using System.Reflection;
 using UnityEngine;
 
 namespace Needle.Timeline
@@ -32,8 +33,8 @@ namespace Needle.Timeline
 			{
 				return null!;
 			}
-			
-			if (value?.GetType().IsValueType ?? false)
+
+			if (value.GetType().IsValueType)
 			{
 				return value;
 			}
@@ -44,10 +45,6 @@ namespace Needle.Timeline
 				return res;
 			}
 
-			if (value is IList col)
-			{
-				return Activator.CreateInstance(value.GetType(), col);
-			}
 
 			if (value is ComputeBuffer buffer)
 			{
@@ -58,7 +55,32 @@ namespace Needle.Timeline
 				return copy;
 			}
 
+			if (value is IList col)
+			{
+				// TODO: check if list contains value types, otherwise we need to copy list content as well
+				return Activator.CreateInstance(value.GetType(), col);
+			}
+
+
+			var newInstance = Activator.CreateInstance(value.GetType());
+			if (newInstance != null)
+			{
+				if (TryCloneMembers(value, newInstance))
+					return newInstance;
+			}
+
 			throw new CouldNotCloneException();
+		}
+
+		private static bool TryCloneMembers(object source, object target)
+		{
+			foreach (var field in source.GetType().GetFields(BindingFlags.Default | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+			{
+				Debug.Log(field.Name);
+				var val = field.GetValue(source);
+				field.SetValue(target, val);
+			}
+			return true;
 		}
 	}
 }
