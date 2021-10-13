@@ -1,6 +1,7 @@
 ﻿#nullable enable
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
@@ -77,20 +78,48 @@ namespace Needle.Timeline
 
 	public interface IToolModule
 	{
-		bool CanModify(FieldInfo type);
+		bool CanModify(Type type);
 	}
 
 	public abstract class ToolModule : IToolModule
 	{
-		public abstract bool CanModify(FieldInfo type);
-		public bool WantsInput(ToolInputData input) => input.Type == InputEventType.Begin;
-
-		public bool OnModify(ToolInputData input, IEnumerable<FieldInfo> fields, Func<object> target)
+		public bool CanModify(Type type)
 		{
-			foreach (var field in fields)
-			{
-				Debug.Log("Input on " + this + ", " + field.Name + ", " + field.DeclaringType);
-			}
+			return typeof(Vector3).IsAssignableFrom(type);
+		}
+		public bool WantsInput(ToolInputData input) => input.Type == InputEventType.Begin || input.Type == InputEventType.Update;
+
+		public bool OnModify(ToolInputData input, ref object? value)
+		{
+			if (value == null) return false;
+			var delta = input.DeltaWorld.GetValueOrDefault();
+			value = (Vector3)value + delta;
+			// switch (target)
+			// {
+			// 	case IList list:
+			// 		
+			// 		break;
+			// 	case List<Vector3> vecList:
+			// 		if (vecList == null) return false;
+			// 		for (var index = 0; index < vecList?.Count; index++)
+			// 		{
+			// 			var entry = vecList[index];
+			// 			entry += delta;
+			// 			vecList[index] = entry;
+			// 		}
+			// 		break;
+			// 	default:
+			// 		foreach (var field in target.GetType().EnumerateFields())
+			// 		{
+			// 			if (field.FieldType == typeof(Vector3))
+			// 			{
+			// 				var val = (Vector3)field.GetValue(target);
+			// 				val += delta;
+			// 				field.SetValue(target, val);
+			// 			}
+			// 		}
+			// 		break;
+			// }
 			return true;
 		}
 
@@ -119,7 +148,7 @@ namespace Needle.Timeline
 			list.Clear();
 			foreach (var mod in ToolModule.Modules)
 			{
-				if (mod.CanModify(type))
+				if (mod.CanModify(type.FieldType))
 				{
 					list.Add(mod);
 				}
@@ -130,10 +159,10 @@ namespace Needle.Timeline
 
 	public class DragVector3 : ToolModule
 	{
-		public override bool CanModify(FieldInfo type)
-		{
-			return typeof(Vector3).IsAssignableFrom(type.FieldType);
-		}
+		// public override bool CanModify(FieldInfo type)
+		// {
+		// 	return typeof(Vector3).IsAssignableFrom(type.FieldType);
+		// }
 
 		// public override void OnInput(FieldInfo field, ToolInputData input)
 		// {

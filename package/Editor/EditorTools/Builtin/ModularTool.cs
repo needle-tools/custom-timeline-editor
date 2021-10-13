@@ -47,7 +47,7 @@ namespace Needle.Timeline
 		{
 			foreach (var field in type.EnumerateFields())
 			{
-				if (ToolModule.Modules.Any(m => m.CanModify(field)))
+				if (ToolModule.Modules.Any(m => m.CanModify(field.FieldType)))
 				{
 					return true;
 				}
@@ -160,7 +160,6 @@ namespace Needle.Timeline
 						var time = (float)tar.ViewModel.clipTime;
 						var closest = tar.Clip.GetClosest(time);
 						if (closest == null) continue;
-						if (closest.time > time) continue;
 						visibleKeyframes.Add((tar.ViewModel, new ClipKeyframePair(tar.Clip, closest)));
 					}
 				}
@@ -175,18 +174,81 @@ namespace Needle.Timeline
 					Debug.Log(kf.time);
 					foreach (var mod in modulesUI)
 					{
+						var module = mod.Module;
 						if (mod.IsActive && mod.Module.WantsInput(data))
 						{
-							mod.Module.OnModify(data, kf.EnumerateFields(), () => kf.value);
+							var value = kf.value;
+							var contentType = kf.TryRetrieveKeyframeContentType();
+							if (contentType == null)
+							{
+								continue;
+							}
+							
+							List<FieldInfo> targetField = null;
+							if (!module.CanModify(contentType))
+							{
+								foreach (var field in contentType.EnumerateFields())
+								{
+									if (module.CanModify(field.FieldType))
+									{
+										targetField ??= new List<FieldInfo>();
+										targetField.Add(field);
+									}
+								}
+							}
+							
+							if (value is IList list)
+							{
+								var changed = false;
+								for (var index = list.Count - 1; index >= 0; index--)
+								{
+									var listEntry = list[index];
+									if (targetField != null)
+									{
+										foreach (var field in targetField)
+										{
+											if (module.CanModify(field.FieldType))
+											{
+												var fieldValue = field.GetValue(listEntry);
+												if (module.OnModify(data, ref fieldValue))
+												{
+													field.SetValue(listEntry, fieldValue);
+													changed = true;
+												}
+											}
+										}
+									}
+									else
+									{
+										if (module.CanModify(contentType))
+										{
+											if (module.OnModify(data, ref listEntry))
+											{
+												changed = true;
+											}
+										}
+									}
+									list[index] = listEntry;
+								}
+								if (changed)
+								{
+									kf.value = value;
+									kf.RaiseValueChangedEvent();
+								}
+							}
+							else
+							{
+							}
+							
 						}
 					}
 					
-					if (pair != null && Mathf.Abs(time - pair.Keyframe.time) < .1f)
-					{
-					}
-					if (keyframe == null || Mathf.Abs(time - keyframe.time) > .1f)
-					{
-					}
+					// if (pair != null && Mathf.Abs(time - pair.Keyframe.time) < .1f)
+					// {
+					// }
+					// if (keyframe == null || Mathf.Abs(time - keyframe.time) > .1f)
+					// {
+					// }
 				}
 				UseEvent();
 			}
