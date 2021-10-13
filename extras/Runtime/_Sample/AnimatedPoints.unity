@@ -665,11 +665,23 @@ MonoBehaviour:
   MyInt: 0
   MyDouble: 0
   MyString: 
-  CustomType: []
+  CustomType:
+  - Pos: {x: 0.39162585, y: -0.6752, z: 0}
+    Color: {r: 0.26365626, g: 0.74818844, b: 0.12187898, a: 1}
+    Size: 0.26886892
+  - Pos: {x: -0.71372205, y: 0.64260566, z: 0}
+    Color: {r: 0.4604044, g: 0.37162152, b: 0.804029, a: 1}
+    Size: 0.29257947
+  - Pos: {x: 0.7714817, y: -0.418755, z: 0}
+    Color: {r: 0.16692664, g: 0.16376922, b: 0.16271198, a: 1}
+    Size: 0.107839495
+  - Pos: {x: 0.67377764, y: -0.7223736, z: 0}
+    Color: {r: 0.6600358, g: 0.6250491, b: 0.6070683, a: 1}
+    Size: 0.2006118
   SomeType:
-    Pos: {x: 0, y: 0, z: 0}
-    Color: {r: 0, g: 0, b: 0, a: 0}
-    Size: 0
+    Pos: {x: -0.28126222, y: -0.6312238, z: 0}
+    Color: {r: 0.6024925, g: 0.10627074, b: 0.344748, a: 1}
+    Size: 0.24942385
 --- !u!114 &1849834651
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -704,7 +716,7 @@ MonoBehaviour:
   Renderer: {fileID: 1888973583}
   UpdateViaTimeline: 1
   Count: 20000
-  FadeInSpeed: 30
+  FadeInSpeed: 50
   FadeOutSpeed: 1
   MoveSpeed: 2
   TurnSpeed: 12

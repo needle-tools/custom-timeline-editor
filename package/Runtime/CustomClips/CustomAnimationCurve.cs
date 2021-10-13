@@ -121,13 +121,19 @@ namespace Needle.Timeline
 			if (kf is ICustomKeyframe<T>) return true;
 			var type = kf.value?.GetType();
 			if (type == null) return false;
-			return typeof(T).IsAssignableFrom(type);
+			if (!typeof(T).IsAssignableFrom(type)) return false;
+			return true;
 		}
 
 		public bool Add(ICustomKeyframe kf)
 		{
 			if (kf == null || !(kf is ICustomKeyframe<T> keyframe))
 				return false;
+			if (_keyframes.Any(other => Mathf.Abs(other.time - kf.time) < Mathf.Epsilon))
+			{
+				Debug.LogError("Keyframe already exists at time " + kf.time);
+				return false;
+			}
 			_keyframes.Add(keyframe);
 			keyframeAdded = true;
 			SortKeyframesIfNecessary();

@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 
 namespace Needle.Timeline
@@ -72,14 +73,30 @@ namespace Needle.Timeline
 
 	public interface IToolModule
 	{
-		bool CanModify(Type type);
+		bool CanModify(FieldInfo type);
 	}
 
 	public abstract class ToolModule : IToolModule
 	{
+		public abstract bool CanModify(FieldInfo type);
+		public bool RequestsInput(ToolInputData input)
+		{
+			if (input.Type == InputEventType.Update)
+			{
+				return true;
+			}
+			return false;
+		}
+
+		public bool OnModify()
+		{
+			Debug.Log("Input on " + this);
+			return true;
+		}
+
+		#region static
 		private static bool modulesInit;
 		private static readonly List<ToolModule> modules = new List<ToolModule>();
-
 		public static IReadOnlyList<ToolModule> Modules
 		{
 			get
@@ -90,14 +107,14 @@ namespace Needle.Timeline
 					foreach (var mod in RuntimeTypeCache.TypesDerivingFrom<ToolModule>())
 					{
 						if (mod.IsAbstract || mod.IsInterface) continue;
-						modules.Add(Activator.CreateInstance(mod) as ToolModule);
+						if(Activator.CreateInstance(mod) is ToolModule moduleInstance)
+							modules.Add(moduleInstance);
 					}
 				}
 				return modules;
 			}
 		}
-
-		public static void GetModulesSupportingType(Type type, IList<IToolModule> list)
+		public static void GetModulesSupportingType(FieldInfo type, IList<IToolModule> list)
 		{
 			list.Clear();
 			foreach (var mod in ToolModule.Modules)
@@ -108,37 +125,19 @@ namespace Needle.Timeline
 				}
 			}
 		}
-
-		public abstract bool CanModify(Type type);
+		#endregion
 	}
 
-	public abstract class ToolModule<T> : ToolModule
+	public class DragVector3 : ToolModule
 	{
-		public sealed override bool CanModify(Type type)
+		public override bool CanModify(FieldInfo type)
 		{
-			return OnCanModify(type);
+			return typeof(Vector3).IsAssignableFrom(type.FieldType);
 		}
 
-		public void BeginInput(T target)
-		{
-		}
-
-		public void UpdateInput(T target)
-		{
-		}
-
-		public void EndInput(T target)
-		{
-		}
-
-		protected abstract bool OnCanModify(Type type);
-	}
-
-	public class GenerateVector3Module : ToolModule<Vector3>
-	{
-		protected override bool OnCanModify(Type type)
-		{
-			return typeof(Vector3).IsAssignableFrom(type);
-		}
+		// public override void OnInput(FieldInfo field, ToolInputData input)
+		// {
+		// 	// var vec = (Vector3)field.GetValue();
+		// }
 	}
 }

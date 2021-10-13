@@ -8,7 +8,7 @@ using UnityEngine.Timeline;
 
 namespace Needle.Timeline
 {
-	public class ClipInfoViewModel
+	public class ClipInfoViewModel : IReadClipTime
 	{
 		public static IReadOnlyList<ClipInfoViewModel> Instances => instances;
 		// private static readonly List<ClipInfoViewModel> _lastActiveInstances = new List<ClipInfoViewModel>();
@@ -73,5 +73,6 @@ namespace Needle.Timeline
 		public double clipLength => length * timeScale;
 		public bool currentlyInClipTime => clipTime >= 0 && clipTime <= clipLength;
 		public double ToClipTime(double time) => (time - startTime) * timeScale;
+		public double ClipTime => clipTime;
 	}
 }

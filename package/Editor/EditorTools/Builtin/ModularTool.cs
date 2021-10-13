@@ -10,6 +10,30 @@ using Random = UnityEngine.Random;
 
 namespace Needle.Timeline
 {
+	public class ModuleView
+	{
+		public ToolModule Module;
+		public VisualElement Container;
+		public TextElement Label;
+
+		private bool active;
+		public void SetActive(bool active)
+		{
+			this.active = active;
+			Label.style.color = active ? Color.white : Color.gray;
+		}
+
+		public ModuleView(VisualElement container)
+		{
+			Container = container;
+		}
+
+		public bool Is(IToolModule mod)
+		{
+			return Module == mod;// TargetField.DeclaringType == field.DeclaringType && TargetField.Name == field.Name;
+		}
+	}
+	
 	public class ModularTool : CustomClipToolBase
 	{
 		private ICustomKeyframe keyframe;
@@ -20,7 +44,7 @@ namespace Needle.Timeline
 		{
 			foreach (var field in EnumerateFields(type))
 			{
-				if (ToolModule.Modules.Any(m => m.CanModify(field.FieldType)))
+				if (ToolModule.Modules.Any(m => m.CanModify(field)))
 				{
 					return true;
 				}
@@ -32,37 +56,119 @@ namespace Needle.Timeline
 		{
 			base.OnAttach(element);
 			keyframe = null;
-			// element.Add(new Button(() => { erase = !erase; }) { text = "Toggle Erase" });
+			modulesContainer ??= new VisualElement();
+			element.Add(modulesContainer);
 		}
 
 		private static readonly List<IToolModule> buffer = new List<IToolModule>();
-		protected override void OnAddedTarget(ToolTarget t)
-		{
-			base.OnAddedTarget(t);
+		private VisualElement modulesContainer;
+		private List<ModuleView> modulesUI = new List<ModuleView>();
 
-			foreach (var type in t.Clip.SupportedTypes)
-			{
-				foreach (var field in EnumerateFields(type))
-				{
-					ToolModule.GetModulesSupportingType(field.FieldType, buffer);
-				}
-			}
+
+		protected override void OnAddedTarget(ToolTarget _)
+		{
+			base.OnAddedTarget(_);
+			OnTargetsChanged();
 		}
 
 		protected override void OnRemovedTarget(ToolTarget t)
 		{
 			base.OnRemovedTarget(t);
+			OnTargetsChanged();
 		}
 
-		private ToolInputData data = new ToolInputData();
+		private void OnTargetsChanged()
+		{
+			//modulesContainer.Clear();
+			foreach (var t in Targets)
+			{
+				foreach (var type in t.Clip.SupportedTypes)
+				{
+					foreach (var field in EnumerateFields(type))
+					{
+						
+						ToolModule.GetModulesSupportingType(field, buffer);
+						if (buffer.Count > 0)
+						{
+							VisualElement container = null;
+							foreach (var mod in buffer)
+							{
+								var entry = modulesUI.FirstOrDefault(e => e.Is(mod));
+								if (entry != null) continue;
+
+								if (container == null)
+								{
+									container = new VisualElement();
+									modulesContainer.Add(container);
+									// var label = new Label(field.Name + " : " + field.FieldType.Name);
+									// container.Add(label);
+								}
+								
+								entry = new ModuleView(modulesContainer);
+								entry.Module = (ToolModule)mod;
+								modulesUI.Add(entry);
+
+								Button button = null;
+								 button = new Button(() =>
+								{
+									foreach (var e in modulesUI)
+									{
+										e.SetActive(false);
+									}
+									entry.SetActive(true);
+								}) { text = mod.GetType().Name };
+								 entry.Label = button;
+								container.Add(button);
+							}
+						}
+					}
+				}
+			}
+		}
+
+		private readonly ToolInputData data = new ToolInputData();
+		private readonly List<(IReadClipTime time, IClipKeyframePair val)> visibleKeyframes = new List<(IReadClipTime time, IClipKeyframePair val)>();
 
 		protected override void OnInput(EditorWindow window)
 		{
-			var pos = PlaneUtils.GetPointOnPlane(Camera.current, out _, out _, out _);
-			// Handles.color = erase ? Color.red : Color.white;
-			Handles.DrawWireDisc(pos, Vector3.up, radius);
-			Handles.DrawWireDisc(pos, Vector3.forward, radius);
-			Handles.DrawWireDisc(pos, Vector3.right, radius);
+			data.Update();
+			foreach (var tool in modulesUI)
+			{
+				if (!tool.IsActive) continue;
+				foreach (var field in EnumerateTargetFields())
+				{
+					tool.Module.RequestsInput(data);
+				}
+			}
+
+
+			foreach (var tar in Targets)
+			{
+				if (!tar.IsNull())
+				{
+					var time = (float)tar.ViewModel.clipTime;
+					var closest = tar.Clip.GetClosest(time);
+					if (closest == null) continue;
+					if (closest.time > time) continue;
+					visibleKeyframes.Add((tar.ViewModel, new ClipKeyframePair(tar.Clip, closest)));
+				}
+			}
+			foreach (var (read, kf) in visibleKeyframes)
+			{
+				var time = (float)read.ClipTime;
+				if (kf != null && Mathf.Abs(time - kf.Keyframe.time) < .1f)
+				{
+					
+				}
+				if (keyframe == null || Mathf.Abs(time - keyframe.time) > .1f)
+				{
+				}
+			}
+			// var pos = PlaneUtils.GetPointOnPlane(Camera.current, out _, out _, out _);
+			// // Handles.color = erase ? Color.red : Color.white;
+			// Handles.DrawWireDisc(pos, Vector3.up, radius);
+			// Handles.DrawWireDisc(pos, Vector3.forward, radius);
+			// Handles.DrawWireDisc(pos, Vector3.right, radius);
 
 			switch (Event.current.type)
 			{
@@ -94,8 +200,6 @@ namespace Needle.Timeline
 				// 	break;
 			}
 			
-			data.Update();
-			Debug.Log(data.ScreenDelta.ToString("0.0000"));
 
 			switch (Event.current.type, Event.current.modifiers, Event.current.button)
 			{
@@ -120,14 +224,15 @@ namespace Needle.Timeline
 						}
 						if (keyframe == null || Mathf.Abs(time - keyframe.time) > .1f)
 						{
-							if (active.Clip.GetType().IsGenericType)
-							{
-								var clipType = active.Clip.GetType().GetGenericArguments().FirstOrDefault();
-								var keyframeType = typeof(CustomKeyframe<>).MakeGenericType(clipType);
-								keyframe = Activator.CreateInstance(keyframeType) as ICustomKeyframe;
-								keyframe!.time = time;
-								CustomUndo.Register(new CreateKeyframe(keyframe, active.Clip));
-							}
+							Debug.Log("Should create a keyframe here");
+							// if (active.Clip.GetType().IsGenericType)
+							// {
+							// 	var clipType = active.Clip.GetType().GetGenericArguments().FirstOrDefault();
+							// 	var keyframeType = typeof(CustomKeyframe<>).MakeGenericType(clipType);
+							// 	keyframe = Activator.CreateInstance(keyframeType) as ICustomKeyframe;
+							// 	keyframe!.time = time;
+							// 	CustomUndo.Register(new CreateKeyframe(keyframe, active.Clip));
+							// }
 						}
 					}
 					UseEvent();
@@ -141,6 +246,20 @@ namespace Needle.Timeline
 					}
 					UseEvent();
 					break;
+			}
+		}
+
+		private IEnumerable<FieldInfo> EnumerateTargetFields()
+		{
+			foreach (var t in Targets)
+			{
+				foreach (var type in t.Clip.SupportedTypes)
+				{
+					foreach (var field in EnumerateFields(type))
+					{
+						yield return field;
+					}
+				}
 			}
 		}
 

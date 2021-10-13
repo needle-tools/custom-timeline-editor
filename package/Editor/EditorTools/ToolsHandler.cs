@@ -151,7 +151,9 @@ namespace Needle.Timeline
 		private static void UpdateToolTargets()
 		{
 			// only update targets if they actually change
-			if (_lastActiveInstances.SequenceEqual(ClipInfoViewModel.ActiveInstances)) return;
+			var removed = _lastActiveInstances.RemoveAll(e => !e.IsValid);
+			
+			if (removed < 0 && _lastActiveInstances.SequenceEqual(ClipInfoViewModel.ActiveInstances)) return;
 
 			// foreach (var sel in _selected)
 			// {
