@@ -46,6 +46,9 @@ namespace Needle.Timeline
 				case EventType.MouseUp:
 					Type = InputEventType.End;
 					break;
+				default:
+					Type = InputEventType.Unknown;
+					break;
 			}
 			switch (evt.type)
 			{
@@ -68,7 +71,8 @@ namespace Needle.Timeline
 		Begin = 0,
 		Update = 1,
 		End = 2,
-		Cancel = 3
+		Cancel = 3,
+		Unknown = 4,
 	}
 
 	public interface IToolModule
@@ -79,18 +83,14 @@ namespace Needle.Timeline
 	public abstract class ToolModule : IToolModule
 	{
 		public abstract bool CanModify(FieldInfo type);
-		public bool RequestsInput(ToolInputData input)
-		{
-			if (input.Type == InputEventType.Update)
-			{
-				return true;
-			}
-			return false;
-		}
+		public bool WantsInput(ToolInputData input) => input.Type == InputEventType.Begin;
 
-		public bool OnModify()
+		public bool OnModify(ToolInputData input, IEnumerable<FieldInfo> fields, Func<object> target)
 		{
-			Debug.Log("Input on " + this);
+			foreach (var field in fields)
+			{
+				Debug.Log("Input on " + this + ", " + field.Name + ", " + field.DeclaringType);
+			}
 			return true;
 		}
 

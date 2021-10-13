@@ -17,10 +17,13 @@ namespace Needle.Timeline
 		public TextElement Label;
 
 		private bool active;
-		public void SetActive(bool active)
+		public bool IsActive => active;
+		
+		public void SetActive(bool state)
 		{
-			this.active = active;
-			Label.style.color = active ? Color.white : Color.gray;
+			this.active = state;
+			Label.style.color = this.active ? Color.white : Color.gray;
+			Debug.Log(active);
 		}
 
 		public ModuleView(VisualElement container)
@@ -42,7 +45,7 @@ namespace Needle.Timeline
 
 		protected override bool OnSupports(Type type)
 		{
-			foreach (var field in EnumerateFields(type))
+			foreach (var field in type.EnumerateFields())
 			{
 				if (ToolModule.Modules.Any(m => m.CanModify(field)))
 				{
@@ -82,44 +85,46 @@ namespace Needle.Timeline
 			//modulesContainer.Clear();
 			foreach (var t in Targets)
 			{
-				foreach (var type in t.Clip.SupportedTypes)
+				foreach (var field in t.Clip.EnumerateFields())
 				{
-					foreach (var field in EnumerateFields(type))
-					{
 						
-						ToolModule.GetModulesSupportingType(field, buffer);
-						if (buffer.Count > 0)
+					ToolModule.GetModulesSupportingType(field, buffer);
+					if (buffer.Count > 0)
+					{
+						VisualElement container = null;
+						foreach (var mod in buffer)
 						{
-							VisualElement container = null;
-							foreach (var mod in buffer)
+							var entry = modulesUI.FirstOrDefault(e => e.Is(mod));
+							if (entry != null) continue;
+
+							if (container == null)
 							{
-								var entry = modulesUI.FirstOrDefault(e => e.Is(mod));
-								if (entry != null) continue;
-
-								if (container == null)
-								{
-									container = new VisualElement();
-									modulesContainer.Add(container);
-									// var label = new Label(field.Name + " : " + field.FieldType.Name);
-									// container.Add(label);
-								}
-								
-								entry = new ModuleView(modulesContainer);
-								entry.Module = (ToolModule)mod;
-								modulesUI.Add(entry);
-
-								Button button = null;
-								 button = new Button(() =>
-								{
-									foreach (var e in modulesUI)
-									{
-										e.SetActive(false);
-									}
-									entry.SetActive(true);
-								}) { text = mod.GetType().Name };
-								 entry.Label = button;
-								container.Add(button);
+								container = new VisualElement();
+								modulesContainer.Add(container);
+								// var label = new Label(field.Name + " : " + field.FieldType.Name);
+								// container.Add(label);
 							}
+								
+							entry = new ModuleView(modulesContainer);
+							entry.Module = (ToolModule)mod;
+							modulesUI.Add(entry);
+
+							Button button = null;
+							button = new Button(() =>
+							{
+								foreach (var e in modulesUI)
+								{
+									if (e == entry) continue;
+									e.SetActive(false);
+								}
+								entry.SetActive(!entry.IsActive);
+							})
+							{
+								text = mod.GetType().Name
+							};
+							entry.Label = button;
+							container.Add(button);
+							entry.SetActive(false);
 						}
 					}
 				}
@@ -131,38 +136,59 @@ namespace Needle.Timeline
 
 		protected override void OnInput(EditorWindow window)
 		{
+			if (Event.current.type == EventType.MouseDown)
+				Debug.Log("Mouse down");
+			
 			data.Update();
-			foreach (var tool in modulesUI)
-			{
-				if (!tool.IsActive) continue;
-				foreach (var field in EnumerateTargetFields())
-				{
-					tool.Module.RequestsInput(data);
-				}
-			}
+			// foreach (var tool in modulesUI)
+			// {
+			// 	if (!tool.IsActive) continue;
+			// 	foreach (var field in EnumerateTargetFields())
+			// 	{
+			// 		tool.Module.RequestsInput(data);
+			// 	}
+			// }
 
 
-			foreach (var tar in Targets)
+			visibleKeyframes.Clear();
+			if (modulesUI.Any(m => m.IsActive && m.Module.WantsInput(data)))
 			{
-				if (!tar.IsNull())
+				foreach (var tar in Targets)
 				{
-					var time = (float)tar.ViewModel.clipTime;
-					var closest = tar.Clip.GetClosest(time);
-					if (closest == null) continue;
-					if (closest.time > time) continue;
-					visibleKeyframes.Add((tar.ViewModel, new ClipKeyframePair(tar.Clip, closest)));
+					if (!tar.IsNull())
+					{
+						var time = (float)tar.ViewModel.clipTime;
+						var closest = tar.Clip.GetClosest(time);
+						if (closest == null) continue;
+						if (closest.time > time) continue;
+						visibleKeyframes.Add((tar.ViewModel, new ClipKeyframePair(tar.Clip, closest)));
+					}
 				}
-			}
-			foreach (var (read, kf) in visibleKeyframes)
-			{
-				var time = (float)read.ClipTime;
-				if (kf != null && Mathf.Abs(time - kf.Keyframe.time) < .1f)
+				Debug.Log("KF=" + visibleKeyframes.Count);
+				Debug.Log("Modules=" + modulesUI.Count);
+				foreach (var (read, pair) in visibleKeyframes)
 				{
+					var time = (float)read.ClipTime;
 					
+					var kf = pair?.Keyframe;
+					if (kf == null) continue;
+					Debug.Log(kf.time);
+					foreach (var mod in modulesUI)
+					{
+						if (mod.IsActive && mod.Module.WantsInput(data))
+						{
+							mod.Module.OnModify(data, kf.EnumerateFields(), () => kf.value);
+						}
+					}
+					
+					if (pair != null && Mathf.Abs(time - pair.Keyframe.time) < .1f)
+					{
+					}
+					if (keyframe == null || Mathf.Abs(time - keyframe.time) > .1f)
+					{
+					}
 				}
-				if (keyframe == null || Mathf.Abs(time - keyframe.time) > .1f)
-				{
-				}
+				UseEvent();
 			}
 			// var pos = PlaneUtils.GetPointOnPlane(Camera.current, out _, out _, out _);
 			// // Handles.color = erase ? Color.red : Color.white;
@@ -211,10 +237,9 @@ namespace Needle.Timeline
 
 				case (EventType.MouseDown, EventModifiers.None, 0):
 					var active = Targets.LastOrDefault();
-					if (active.IsNull()) return;
 					// foreach (var active in Targets)
 					// if (!active.ViewModel.currentlyInClipTime) continue;
-					if (active.IsNull() == false)
+					if (!active.IsNull())
 					{
 						var time = (float)active.ViewModel.clipTime;
 						var closest = active.Clip.GetClosest(time);
@@ -224,7 +249,6 @@ namespace Needle.Timeline
 						}
 						if (keyframe == null || Mathf.Abs(time - keyframe.time) > .1f)
 						{
-							Debug.Log("Should create a keyframe here");
 							// if (active.Clip.GetType().IsGenericType)
 							// {
 							// 	var clipType = active.Clip.GetType().GetGenericArguments().FirstOrDefault();
@@ -246,38 +270,6 @@ namespace Needle.Timeline
 					}
 					UseEvent();
 					break;
-			}
-		}
-
-		private IEnumerable<FieldInfo> EnumerateTargetFields()
-		{
-			foreach (var t in Targets)
-			{
-				foreach (var type in t.Clip.SupportedTypes)
-				{
-					foreach (var field in EnumerateFields(type))
-					{
-						yield return field;
-					}
-				}
-			}
-		}
-
-		private IEnumerable<FieldInfo> EnumerateFields(Type type)
-		{
-			if (typeof(ICollection).IsAssignableFrom(type))
-			{
-				if (type.IsGenericType) 
-				{
-					var content = type.GetGenericArguments().FirstOrDefault();
-					if (content != null)
-					{
-						foreach (var field in content.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public))
-						{
-							yield return field;
-						}
-					}
-				}
 			}
 		}
 

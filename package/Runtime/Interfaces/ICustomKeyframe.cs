@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Needle.Timeline
@@ -15,6 +16,7 @@ namespace Needle.Timeline
 		new float time { get; set; }
 		event Action TimeChanged, ValueChanged;
 		void RaiseValueChangedEvent();
+		Type[] AcceptedTypes();
 	}
 	
 	public interface ICustomKeyframe<T> : ICustomKeyframe

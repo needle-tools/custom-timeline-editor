@@ -54,6 +54,12 @@ namespace Needle.Timeline
 			ValueChanged?.Invoke();
 		}
 
+		private readonly Type[] types = { typeof(T) };
+		public Type[] AcceptedTypes()
+		{
+			return types;
+		}
+
 		// ReSharper disable once UnusedMember.Global
 		public CustomKeyframe()
 		{
