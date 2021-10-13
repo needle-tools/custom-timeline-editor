@@ -49,7 +49,7 @@ namespace Needle.Timeline
 			{
 				buffer.SafeDispose();
 				buffer = new ComputeBuffer(size, stride);
-				Debug.Log("Create ComputeBuffer");
+				Debug.Log("Create ComputeBuffer, size=" + size + ", stride=" + stride);
 			}
 			return buffer;
 		}

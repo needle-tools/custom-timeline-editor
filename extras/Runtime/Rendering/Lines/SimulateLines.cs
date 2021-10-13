@@ -110,12 +110,12 @@ namespace _Sample.Rendering.Lines
 					var stride = typeof(Entity).GetStride();
 					entitiesBuffer = ComputeBufferProvider.GetBuffer("Entities", entities, stride);
 				}
-				Shader.SetBuffer("Simulate", "Entities", entitiesBuffer);
-				if (MoveSpeed != 0)
+				Shader.SetBuffer("Simulate", "Entities", entitiesBuffer); 
+				if (MoveSpeed != 0) 
 					Shader.SetFloat("MoveSpeed", MoveSpeed);
 				if (TurnSpeed != 0)
-					Shader.SetFloat("TurnSpeed", TurnSpeed);
-				maxBufferSize = Mathf.Max(maxBufferSize, Points.points?.Count ?? 0, 100);
+					Shader.SetFloat("TurnSpeed", TurnSpeed); 
+				maxBufferSize = Mathf.Max(maxBufferSize, Mathf.CeilToInt((Points.points?.Count ?? 0) * 1.5f), 100);
 				// Debug.Log(maxBufferSize);
 				if(Points.points != null)
 					Shader.SetBuffer("Simulate", "Positions", Points.points, sizeof(float) * 3, maxBufferSize);

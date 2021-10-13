@@ -665,20 +665,11 @@ MonoBehaviour:
   MyInt: 0
   MyDouble: 0
   MyString: 
-  CustomType:
-  - Size: 0.120345086
-    Pos: {x: -0.44059652, y: 0.44828153, z: 0}
-    Color: {r: 0.3924016, g: 0.22439215, b: 0.4868061, a: 1}
-  - Size: 0.4619316
-    Pos: {x: 0.070794135, y: -0.12159306, z: 0}
-    Color: {r: 0.4470555, g: 0.56040776, b: 0.51448363, a: 1}
-  - Size: 0.12995425
-    Pos: {x: -0.24121231, y: -0.14220202, z: 0}
-    Color: {r: 0.5198799, g: 0.6077147, b: 0.8836142, a: 1}
+  CustomType: []
   SomeType:
-    Size: 0.36079556
-    Pos: {x: -0.41924053, y: -0.44271442, z: 0}
-    Color: {r: 0.467153, g: 0.26220903, b: 0.47209755, a: 1}
+    Pos: {x: 0, y: 0, z: 0}
+    Color: {r: 0, g: 0, b: 0, a: 0}
+    Size: 0
 --- !u!114 &1849834651
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -705,17 +696,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7180069439c38704490ce6992b48a930, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Width: 600
-  Height: 400
+  Width: 1900
+  Height: 1080
   WidthWorld: 10
   Points: {fileID: 1849834651}
   Shader: {fileID: 7200000, guid: f29be70d55b81ab4e855b01616fd7fb6, type: 3}
   Renderer: {fileID: 1888973583}
   UpdateViaTimeline: 1
   Count: 20000
-  FadeInSpeed: 5
+  FadeInSpeed: 30
   FadeOutSpeed: 1
-  MoveSpeed: 4
+  MoveSpeed: 2
   TurnSpeed: 12
   EnergyFactor: 4
 --- !u!1 &1888973582
@@ -794,7 +785,7 @@ Transform:
   m_GameObject: {fileID: 1888973582}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 10, y: 6.6666665, z: 0}
+  m_LocalScale: {x: 10, y: 5.684211, z: 0}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 4
