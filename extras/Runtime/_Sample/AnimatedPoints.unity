@@ -710,7 +710,7 @@ MonoBehaviour:
   Count: 500000
   FadeInSpeed: 5
   FadeOutSpeed: 0.5
-  MoveSpeed: 2.5
+  MoveSpeed: 1.69
   TurnSpeed: 3
   EnergyFactor: 5
 --- !u!95 &1849834653

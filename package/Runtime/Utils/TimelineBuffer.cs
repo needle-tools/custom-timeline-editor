@@ -1,11 +1,13 @@
 ﻿#if UNITY_EDITOR
 using System;
+using System.Diagnostics;
 using System.Runtime.Remoting.Messaging;
 using System.Threading.Tasks;
 using UnityEditor;
 using UnityEditor.Timeline;
 using UnityEngine;
 using UnityEngine.Playables;
+using Debug = UnityEngine.Debug;
 
 namespace Needle.Timeline
 {
@@ -71,11 +73,12 @@ namespace Needle.Timeline
 			var targetTime = fromTime ?? dir.time;
 			var startTime = targetTime - seconds;
 			var frames = Mathf.CeilToInt(seconds * 120f);
-			var framesPerSecond = Mathf.RoundToInt(1000 / 120f);
 			IAnimatedExtensions.deltaTimeOverride =  1/120f;
-			// var waitEveryFrame = Mathf.RoundToInt(60f / framesPerSecond);
 			var state = dir.state;
 			if (state != PlayState.Playing) dir.Play();
+			var sw = new Stopwatch();
+			sw.Start();
+			var abortBuffer = false;
 			for (var i = 0; i < frames; i++)
 			{
 				var time = (double)Mathf.Lerp((float)startTime, (float)targetTime, i / (float)frames);
@@ -83,13 +86,17 @@ namespace Needle.Timeline
 				if (i == frames) time = targetTime;
 				dir.time = time;
 				dir.Evaluate();
-				// if (i % 200 == 0)
-				// {
-				// 	await Task.Delay(1);
-				// }
+				
+				if (sw.ElapsedMilliseconds > 1000)
+				{
+					abortBuffer = true;
+					Debug.LogWarning("Buffering took too long");
+					break;
+				}
 			}
 			dir.time = targetTime;
-			dir.Evaluate();
+			if(!abortBuffer)
+				dir.Evaluate();
 			IAnimatedExtensions.deltaTimeOverride = null;
 
 			switch (state)
