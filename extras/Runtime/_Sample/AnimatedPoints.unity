@@ -708,11 +708,11 @@ MonoBehaviour:
   UpdateViaTimeline: 1
   Seed: 0
   Count: 500000
-  FadeInSpeed: 5
-  FadeOutSpeed: 0.5
-  MoveSpeed: 1.69
-  TurnSpeed: 3
-  EnergyFactor: 5
+  FadeInSpeed: 0.2
+  FadeOutSpeed: 0.8176942
+  MoveSpeed: 9.107475
+  TurnSpeed: 2.34
+  EnergyFactor: 2.1016688
 --- !u!95 &1849834653
 Animator:
   serializedVersion: 3

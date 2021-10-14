@@ -21,16 +21,17 @@ namespace Needle.Timeline
 		}
 
 		private static int timeChangedCount;
-		private static async void OnTimeChanged(PlayableDirector obj, double d)
+		private static async void OnTimeChanged(PlayableDirector dir, double d)
 		{
 			if (isBuffering) return;
 			var evtTime = d;
 			var id = bufferRequestId;
 			await Task.Delay(50);
 			if (isBuffering || id != bufferRequestId) return;
-			var diff = Mathf.Abs((float)(obj.time - evtTime));
+			var diff = Mathf.Abs((float)(dir.time - evtTime));
 			if(diff > .05f)
 			{
+				if (dir.state == PlayState.Playing) return;
 				await RequestBufferCurrentInspectedTimeline(30);
 			}
 		}
