@@ -90,7 +90,7 @@ namespace Needle.Timeline
 		}
 		public virtual bool WantsInput(ToolInputData input) => input.Type == InputEventType.Begin || input.Type == InputEventType.Update;
 
-		public virtual bool OnModify(ToolInputData input, ref object? value)
+		public virtual bool OnModify(ToolInputData input, Type valueType, ref object? value)
 		{
 			if (value == null) return false;
 			return false;
@@ -137,7 +137,7 @@ namespace Needle.Timeline
 			return typeof(Vector3).IsAssignableFrom(type);
 		}
 
-		public override bool OnModify(ToolInputData input, ref object? value)
+		public override bool OnModify(ToolInputData input, Type valueType, ref object? value)
 		{
 			if (value is Vector3 vec)
 			{
@@ -156,17 +156,20 @@ namespace Needle.Timeline
 	{
 		public override bool CanModify(Type type)
 		{
-			return typeof(Color).IsAssignableFrom(type);
+			return typeof(Color).IsAssignableFrom(type); 
 		}
 
-		public override bool OnModify(ToolInputData input, ref object? value)
+		public override bool OnModify(ToolInputData input, Type valueType, ref object? value)
 		{
 			if (value is Color col)
 			{
 				// TODO: we need to have access to other fields of custom types, e.g. here we want the position to get the distance
+				
+				// TODO: figure out how we create new objects e.g. in a list
+
 				Color.RGBToHSV(col, out var h, out var s, out var v);
 				h += input.ScreenDelta.x * .001f;
-				v += input.ScreenDelta.y * .001f;
+				v += input.ScreenDelta.y * -.001f;
 				col = Color.HSVToRGB(h, s, v);
 				value = Color.Lerp((Color)value, col, 1);
 				return true;

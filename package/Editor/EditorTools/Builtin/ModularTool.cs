@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using UnityEditor;
+using UnityEditor.Experimental;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Random = UnityEngine.Random;
@@ -210,7 +211,7 @@ namespace Needle.Timeline
 											if (module.CanModify(field.FieldType))
 											{
 												var fieldValue = field.GetValue(listEntry);
-												if (module.OnModify(data, ref fieldValue))
+												if (module.OnModify(data, contentType, ref fieldValue))
 												{
 													field.SetValue(listEntry, fieldValue);
 													changed = true;
@@ -222,7 +223,7 @@ namespace Needle.Timeline
 									{
 										if (module.CanModify(contentType))
 										{
-											if (module.OnModify(data, ref listEntry))
+											if (module.OnModify(data, contentType, ref listEntry))
 											{
 												changed = true;
 											}
