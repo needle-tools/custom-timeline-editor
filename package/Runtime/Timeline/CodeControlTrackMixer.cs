@@ -1,10 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using Unity.Profiling;
-using UnityEngine;
 using UnityEngine.Playables;
-using UnityEngine.PlayerLoop;
 
 namespace Needle.Timeline
 {
@@ -12,14 +9,10 @@ namespace Needle.Timeline
 	{
 		private readonly ProfilerMarker mixerMarker = new ProfilerMarker(nameof(CodeControlTrackMixer));
 		private readonly List<object> valuesToMix = new List<object>();
-
-		private Dictionary<PlayableDirector, int> _directorTime;
 		
 		public override void ProcessFrame(Playable playable, FrameData info, object playerData)
 		{
 			using var auto = mixerMarker.Auto();
-			
-			
 			
 			var inputCount = playable.GetInputCount();
 			var inputPlayable = (ScriptPlayable<CodeControlBehaviour>)playable.GetInput(0);
@@ -41,6 +34,8 @@ namespace Needle.Timeline
 					var b = inputPlayable.GetBehaviour();
 
 					var viewModel = b.viewModels[viewModelIndex];
+					viewModel.Script.OnProcessFrame(frameInfo);
+					
 					var soloing = b.viewModels.Where(s => s.Solo && s.IsValid && s.currentlyInClipTime);
 					var anySolo = soloing.Any();
 
@@ -87,7 +82,7 @@ namespace Needle.Timeline
 				var vm = behaviour.viewModels[viewModelIndex];
 				if (graph.GetResolver() is PlayableDirector dir)
 				{
-					TimelineHooks.CheckTimeChanged(dir);
+					TimelineHooks.CheckStateChanged(dir);
 					
 					frameInfo.Time = (float)dir.time;
 					vm.OnProcessedFrame(frameInfo);

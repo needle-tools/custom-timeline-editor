@@ -1,4 +1,5 @@
 ﻿using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 
@@ -36,6 +37,30 @@ namespace Needle.Timeline
 #else
 			return false;
 #endif
+		}
+
+		public static Task RequestBuffer(this IAnimated _, float duration = 10)
+		{
+			return TimelineBuffer.RequestBufferCurrentInspectedTimeline(duration);
+		}
+
+		private static float time;
+		private static float deltaTime;
+		internal static float? deltaTimeOverride = null;
+
+		internal static void OnProcessFrame(this IAnimated _, FrameInfo info)
+		{
+			time = info.Time;
+			deltaTime = deltaTimeOverride ?? info.DeltaTime;
+		}
+
+		public static float DeltaTime(this IAnimated _) => deltaTime;
+		
+		public static void SetTime(this IAnimated _, ComputeShader shader)
+		{
+			var vec = new Vector4(time, Mathf.Sin(time), Mathf.Cos(time), deltaTime);
+			// Debug.Log(vec.x + " = " + vec.w.ToString("0.000000"));
+			shader.SetVector("_Time", vec);
 		}
 	}
 }

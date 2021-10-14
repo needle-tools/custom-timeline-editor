@@ -48,13 +48,14 @@ void Simulate(uint3 id : SV_DispatchThreadID)
         entity.pos += normalize(entity.dir) * (6 + sin(_Time.x));
         // entity.pos += entity.dir * 3;
         entity.lastPos = float2(entity.pos);
-        entity.dir *= -1;
-        entity.energy = 1;
+        entity.dir *= -.5;
+        entity.energy = 1 + rx;
     }
     float res_dot = -1;
     float res_rating = 0;
     float3 res_target = 0;
     float2 res_dir = 0;
+    float res_dist = 0;
     count = PositionsCount;
     for(int i = 0; i < count; i++)
     {
@@ -73,6 +74,7 @@ void Simulate(uint3 id : SV_DispatchThreadID)
             res_dot = d;
             res_target = pos;
             res_dir = dir;
+            res_dist = dist;
         }
     }
     entity.energy -= max(_Time.w * 0.001 * EnergyFactor, length(entity.pos) * _Time.w * .005 * MoveSpeed * EnergyFactor);
@@ -85,6 +87,7 @@ void Simulate(uint3 id : SV_DispatchThreadID)
     t =  _Time.w * MoveSpeed * energyFactor;
     float2 step = entity.dir;
     step = lerp(step, normalize(step), 1-entity.energy);
+    step *= max(.2, saturate(res_dist*100));
     entity.pos = lerp(entity.pos, entity.pos + step, saturate(t));
     Entities[id.x] = entity; 
 }
@@ -97,13 +100,13 @@ void Draw(uint3 id : SV_DispatchThreadID)
     Output.GetDimensions(width, height);
     Entity entity = Entities[id.x];
     float dist = length(entity.pos - entity.lastPos);
-    float4 color = lerp(float4(25,2,-10,1), float4(0,3,5,1), entity.energy);
+    float4 color = lerp(float4(5,1,-5,1), float4(0,9,10,1), entity.energy * 1);
     for(float i = 0; i < dist; i += 1/dist)
     {
         float2 pt = lerp(entity.lastPos, entity.pos, i);;
         uint2 pixel = uint2(pt.x*XFactor + width*.5, pt.y * XFactor + height * .5);
         if(pixel.x <= 0 || pixel.x >= width || pixel.y <= 0 || pixel.y >= height) break;
-        Output[pixel] = lerp(Output[pixel], color, _Time.w * FadeInSpeed);
+        Output[pixel] = lerp(Output[pixel], color, saturate(_Time.w * FadeInSpeed / (dist * 100)));
     }
 }
 
@@ -111,5 +114,6 @@ void Draw(uint3 id : SV_DispatchThreadID)
 [numthreads(32,32,1)]
 void Clear(uint3 id : SV_DispatchThreadID)
 {
-    Output[id.xy] = lerp(Output[id.xy], 0, _Time.w * FadeOutSpeed);
+    Output[id.xy] = lerp(Output[id.xy], float4(-.2,-.2,0,1), _Time.w * FadeOutSpeed);
+    Output[id.xy] = saturate(Output[id.xy]);
 }

@@ -17,8 +17,9 @@
 		}
 	}
 
-	public interface IAnimatedEvaluate
+	public interface IAnimatedEvents
 	{
+		void OnReset();
 		void OnEvaluated(FrameInfo frame);
 	}
 }

@@ -45,7 +45,7 @@ namespace Needle.Timeline
 
 		internal void OnProcessedFrame(FrameInfo info)
 		{
-			if (Script is IAnimatedEvaluate cb)
+			if (Script is IAnimatedEvents cb)
 			{
 				cb.OnEvaluated(info);
 			}

@@ -668,20 +668,11 @@ MonoBehaviour:
   MyInt: 0
   MyDouble: 0
   MyString: 
-  CustomType:
-  - Pos: {x: 0.19029255, y: -0.29984388, z: 0}
-    Color: {r: 0.016944725, g: 0.83990794, b: 0.45350507, a: 1}
-    Size: 0.04747667
-  - Pos: {x: 0.5763494, y: 0.17332146, z: 0}
-    Color: {r: 0.7801978, g: 0.8409482, b: 0.34435925, a: 1}
-    Size: 0.1866091
-  - Pos: {x: 0.7298459, y: 0.58057415, z: 0}
-    Color: {r: 0.2732053, g: 0.19933672, b: 0.25813326, a: 1}
-    Size: 0.15317217
+  CustomType: []
   SomeType:
-    Pos: {x: -0.2325137, y: -0.19913551, z: 0}
-    Color: {r: 0.2145114, g: 0.19218393, b: 0.23861101, a: 1}
-    Size: 0.43702367
+    Pos: {x: 0, y: 0, z: 0}
+    Color: {r: 0, g: 0, b: 0, a: 0}
+    Size: 0
 --- !u!114 &1849834651
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -694,7 +685,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: da143bb0ddcd33949ac33ce6f7332d23, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gizmoSizeFactor: 0.3
+  gizmoSizeFactor: 0.5
   Factor: 0
 --- !u!114 &1849834652
 MonoBehaviour:
@@ -715,12 +706,13 @@ MonoBehaviour:
   Shader: {fileID: 7200000, guid: f29be70d55b81ab4e855b01616fd7fb6, type: 3}
   Renderer: {fileID: 1888973583}
   UpdateViaTimeline: 1
+  Seed: 0
   Count: 500000
-  FadeInSpeed: 0.3
-  FadeOutSpeed: 0.3
-  MoveSpeed: 5
-  TurnSpeed: 5
-  EnergyFactor: 1
+  FadeInSpeed: 5
+  FadeOutSpeed: 0.5
+  MoveSpeed: 2.5
+  TurnSpeed: 3
+  EnergyFactor: 5
 --- !u!95 &1849834653
 Animator:
   serializedVersion: 3

@@ -19,7 +19,7 @@ namespace Needle.Timeline
 			Debug.Log("Add " + clip.Name + "@" + vm.startTime);
 			var t = new ToolTarget(vm, clip);
 			targets.Add(t);
-			OnAddedTarget(t); 
+			OnAddedTarget(t);  
 		}
 
 		void ICustomClipTool.RemoveTarget(ICustomClip clip)

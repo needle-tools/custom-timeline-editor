@@ -141,7 +141,7 @@ namespace Needle.Timeline
 			}
 		}
 
-		private static void OnTimeChanged(PlayableDirector obj)
+		private static void OnTimeChanged(PlayableDirector obj, double d)
 		{
 			UpdateToolTargets();
 		}

@@ -9,7 +9,7 @@ using Random = UnityEngine.Random;
 namespace _Sample.Rendering.Lines
 {
 	[ExecuteAlways]
-	public class SimulateLines : MonoBehaviour, IAnimated, IAnimatedEvaluate
+	public class SimulateLines : MonoBehaviour, IAnimated, IAnimatedEvents
 	{
 		public int Width = 1024, Height = 720;
 		public float WidthWorld = 1;
@@ -19,7 +19,8 @@ namespace _Sample.Rendering.Lines
 		public Renderer Renderer;
 		public bool UpdateViaTimeline = true;
 
-		[Header("Settings")] public int Count = 1000;
+		[Header("Settings")] public int Seed = 0;
+		public int Count = 1000;
 		public float FadeInSpeed = 10, FadeOutSpeed = 5;
 		public float MoveSpeed = 10, TurnSpeed = 5;
 		public float EnergyFactor = 1;
@@ -30,6 +31,11 @@ namespace _Sample.Rendering.Lines
 		{
 			Gizmos.color = Color.gray;
 			Gizmos.DrawWireCube(Vector3.zero, Size);
+		}
+
+		private void OnValidate()
+		{
+			this.RequestBuffer();
 		}
 
 		private Vector3 Size
@@ -68,6 +74,15 @@ namespace _Sample.Rendering.Lines
 				Run();
 		}
 
+		public void OnReset()
+		{
+			entities.Clear();
+			entitiesBuffer.SafeDispose();
+			maxBufferSize = 0;
+			currentBufferSize = 0;
+			if (_texture) Graphics.Blit(Texture2D.blackTexture, _texture);
+		}
+
 		public void OnEvaluated(FrameInfo frame)
 		{
 			if (UpdateViaTimeline)
@@ -91,18 +106,18 @@ namespace _Sample.Rendering.Lines
 				Renderer.transform.localScale = Size;
 				Renderer.sharedMaterial.mainTexture = _texture;
 			}
-
-
+			
 			if (Shader)
 			{
-				Shader.SetTime();
+				this.SetTime(Shader);
 
 				if (entities.Count <= 0 || entities.Count != Count)
 				{
 					entities.Clear();
+					Random.InitState(Seed);
 					for (var i = 0; i < Count; i++)
 					{
-						var e = new Entity() { pos = Random.insideUnitCircle * new Vector2(Width, Height) * Random.value };
+						var e = new Entity() { pos = 0.2f * Random.insideUnitCircle * new Vector2(Width, Height) * Random.value };
 						e.lastPos = e.pos;
 						e.dir = Vector2.up;
 						e.energy = 1;

@@ -48,10 +48,5 @@ namespace Needle.Timeline
 			shader.Dispatch(kernel, (int)tx, (int)ty, (int)tz);
 			return true;
 		}
-
-		public static void SetTime(this ComputeShader shader)
-		{
-			shader.SetVector("_Time", new Vector4(Time.time, Mathf.Sin(Time.time), Mathf.Cos(Time.time), Time.deltaTime));
-		}
 	}
 }

@@ -1,5 +1,4 @@
-﻿
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -19,56 +18,68 @@ namespace Needle.Timeline
 			// we need to cache the time because timeline window does not set it to the playable director before focus
 			TimelineHooks.TimeChanged += OnTimeChanged;
 
-			
 			// TimelineEditor.GetInspectedTimeFromMasterTime(RefreshReason.SceneNeedsUpdate);
 			// IsInit?.Invoke(); 
 
 			//https://issuetracker.unity3d.com/issues/assembly-cache-should-be-empty-appears-in-the-console-when-evaluating-a-timeline-during-onenable
-			
-			
-			
-			
+
+
 			await Task.Delay(1);
 			var window = GetOrFindWindow();
 			if (window)
-			{
-				var directors = Object.FindObjectsOfType<PlayableDirector>();
-				foreach (var dir in directors)
+			{ 
+				// var directors = Object.FindObjectsOfType<PlayableDirector>();
+				var dir = TimelineEditor.inspectedDirector;
+				// foreach (var dir in directors)
 				{
-					var lastTime = GetTime(dir);
-					if (lastTime >= 0) dir.time = lastTime;  
+					var lastTime = GetTime(); 
+					if (lastTime >= 0)
+					{
+						dir.time = lastTime;
+						TimelineHooks.CheckStateChanged(dir);
+						Debug.Log(dir.time);
+					}
 					dir.Evaluate();
 				}
 				IsInit?.Invoke();
 			}
+
+			EditorApplication.update += OnEditorUpdate;
 		}
 
-		private static void OnTimeChanged(PlayableDirector obj)
+		private static void OnEditorUpdate()
+		{
+			if (TimelineEditor.inspectedDirector)
+				TimelineHooks.CheckStateChanged(TimelineEditor.inspectedDirector);
+		}
+
+		private static void OnTimeChanged(PlayableDirector obj, double d)
 		{
 			SetTime(obj);
 		}
-		
+
 		private static void SetTime(PlayableDirector dir)
 		{
-			SessionState.SetFloat("Timeline_Time_" + dir.GetHashCode(), (float)dir.time);
+			SessionState.SetFloat("Timeline_Time", (float)dir.time);
 		}
 
-		private static float GetTime(PlayableDirector dir)
+		private static float GetTime()
 		{
-			return SessionState.GetFloat("Timeline_Time_" + dir.GetHashCode(), -1);
+			return SessionState.GetFloat("Timeline_Time", -1);
 		}
 
 		internal static event Action IsInit;
-		
+
 		internal static bool TryRepaint()
 		{
 			var window = GetOrFindWindow();
 			if (!window) return false;
 			window.Repaint();
-			return true; 
+			return true;
 		}
 
 		private static TimelineEditorWindow timelineWindow;
+
 		private static TimelineEditorWindow GetOrFindWindow()
 		{
 			if (timelineWindow) return timelineWindow;
