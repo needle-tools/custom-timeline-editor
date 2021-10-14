@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using _Sample._Sample;
 using Needle.Timeline;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
 using Random = UnityEngine.Random;
@@ -66,6 +67,13 @@ namespace _Sample.Rendering.Lines
 			entitiesBuffer.SafeDispose();
 			maxBufferSize = 0;
 			if (_texture) Graphics.Blit(Texture2D.blackTexture, _texture);
+			Shader.StartWatching();
+			Application.runInBackground = true;
+		}
+
+		private void OnDisable()
+		{
+			Shader.StopWatching();
 		}
 
 		private void Update()

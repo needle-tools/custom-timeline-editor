@@ -5,6 +5,18 @@ namespace Needle.Timeline
 {
 	public static class ComputeShaderUtils
 	{
+		public static void StartWatching(this ComputeShader shader)
+		{
+			if (!shader) return;
+			UpdateWatcherUtil.Register(shader);
+		}
+
+		public static void StopWatching(this ComputeShader shader)
+		{
+			if (!shader) return;
+			UpdateWatcherUtil.Unregister(shader);
+		}
+		
 		public static void SetTexture(this ComputeShader shader, string kernel, string name, Texture texture)
 		{
 			var index = shader.FindKernel(kernel);
