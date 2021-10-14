@@ -107,10 +107,6 @@ namespace Needle.Timeline
 					}
 					UseEvent();
 					break;
-				
-				case (EventType.MouseUp, EventModifiers.None, 0):
-					TimelineBuffer.RequestBufferCurrentInspectedTimeline();
-					break;
 			}
 		}
 

@@ -92,7 +92,18 @@ namespace Needle.Timeline
 				return;
 			if (!ToolManager.IsActiveTool(this))
 				return;
+			var isEndInputEvent = false;
+			switch (Event.current.type)
+			{
+				case EventType.MouseUp:
+					isEndInputEvent = true;
+					break;
+			}
 			OnInput(window);
+			if (isEndInputEvent)
+			{
+				TimelineBuffer.RequestBufferCurrentInspectedTimeline();
+			}
 		}
 		#endregion
 
