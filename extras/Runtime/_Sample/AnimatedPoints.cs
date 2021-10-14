@@ -30,9 +30,11 @@ namespace _Sample._Sample
 			var size = Vector3.up * .01f;
 			if (points != null)
 			{
+				var col0 = Color.cyan;
+				var col1 = Color.red;
 				for (var index = 0; index < points.Count; index++)
 				{
-					Gizmos.color = colors[index % colors.Length];
+					Gizmos.color = Color.Lerp(col0, col1, index / (float)points.Count);
 					var pt = points[index];
 					Gizmos.DrawLine(pt, pt + size);
 					Gizmos.DrawSphere(pt, .1f * gizmoSizeFactor);

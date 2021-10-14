@@ -52,6 +52,7 @@ namespace _Sample.Rendering.Lines
 		private readonly List<Entity> entities = new List<Entity>();
 		private ComputeBuffer entitiesBuffer;
 		private int maxBufferSize = 0;
+		private int currentBufferSize;
 
 		private void OnEnable()
 		{
@@ -111,13 +112,14 @@ namespace _Sample.Rendering.Lines
 					entitiesBuffer = ComputeBufferProvider.GetBuffer("Entities", entities, stride);
 				}
 				Shader.SetBuffer("Simulate", "Entities", entitiesBuffer); 
-				if (MoveSpeed != 0) 
+				if (MoveSpeed != 0)   
 					Shader.SetFloat("MoveSpeed", MoveSpeed);
 				if (TurnSpeed != 0)
-					Shader.SetFloat("TurnSpeed", TurnSpeed); 
-				maxBufferSize = Mathf.Max(maxBufferSize, Mathf.CeilToInt((Points.points?.Count ?? 0) * 1.5f), 100);
-				// Debug.Log(maxBufferSize);
-				if(Points.points != null)
+					Shader.SetFloat("TurnSpeed", TurnSpeed);
+				var requiredSize = Mathf.Max(Points.points?.Count ?? 0, 100);
+				if (maxBufferSize < requiredSize) maxBufferSize = Mathf.CeilToInt(requiredSize * 1.5f);
+				// Debug.Log((Points.points?.Count ?? 0) + " => "+  maxBufferSize);
+				if (Points.points != null)    
 					Shader.SetBuffer("Simulate", "Positions", Points.points, sizeof(float) * 3, maxBufferSize);
 				Shader.SetInt("PositionsCount", Points.points?.Count ?? 0);
 				Shader.SetFloat("EnergyFactor", EnergyFactor);

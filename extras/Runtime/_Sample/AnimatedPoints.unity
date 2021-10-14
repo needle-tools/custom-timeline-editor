@@ -666,22 +666,13 @@ MonoBehaviour:
   MyDouble: 0
   MyString: 
   CustomType:
-  - Pos: {x: 0.39162585, y: -0.6752, z: 0}
-    Color: {r: 0.26365626, g: 0.74818844, b: 0.12187898, a: 1}
-    Size: 0.26886892
-  - Pos: {x: -0.71372205, y: 0.64260566, z: 0}
-    Color: {r: 0.4604044, g: 0.37162152, b: 0.804029, a: 1}
-    Size: 0.29257947
-  - Pos: {x: 0.7714817, y: -0.418755, z: 0}
-    Color: {r: 0.16692664, g: 0.16376922, b: 0.16271198, a: 1}
-    Size: 0.107839495
-  - Pos: {x: 0.67377764, y: -0.7223736, z: 0}
-    Color: {r: 0.6600358, g: 0.6250491, b: 0.6070683, a: 1}
-    Size: 0.2006118
+  - Pos: {x: 0.018778332, y: -0.57117933, z: 0}
+    Color: {r: 0.10279371, g: 0.09289882, b: 0.07981818, a: 1}
+    Size: 0.34522933
   SomeType:
-    Pos: {x: -0.28126222, y: -0.6312238, z: 0}
-    Color: {r: 0.6024925, g: 0.10627074, b: 0.344748, a: 1}
-    Size: 0.24942385
+    Pos: {x: -0.76843554, y: -0.5383189, z: 0}
+    Color: {r: 0.0037254079, g: 0.005585194, b: 0.0016186124, a: 1}
+    Size: 0.16231653
 --- !u!114 &1849834651
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -694,7 +685,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: da143bb0ddcd33949ac33ce6f7332d23, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gizmoSizeFactor: 0.49
+  gizmoSizeFactor: 0.3
   Factor: 0
 --- !u!114 &1849834652
 MonoBehaviour:
@@ -715,12 +706,12 @@ MonoBehaviour:
   Shader: {fileID: 7200000, guid: f29be70d55b81ab4e855b01616fd7fb6, type: 3}
   Renderer: {fileID: 1888973583}
   UpdateViaTimeline: 1
-  Count: 20000
-  FadeInSpeed: 50
-  FadeOutSpeed: 1
-  MoveSpeed: 2
-  TurnSpeed: 12
-  EnergyFactor: 4
+  Count: 500000
+  FadeInSpeed: 0.3
+  FadeOutSpeed: 0.3
+  MoveSpeed: 5
+  TurnSpeed: 5
+  EnergyFactor: 0.3
 --- !u!1 &1888973582
 GameObject:
   m_ObjectHideFlags: 0

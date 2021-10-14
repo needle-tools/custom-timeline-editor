@@ -97,7 +97,7 @@ void Draw(uint3 id : SV_DispatchThreadID)
     Output.GetDimensions(width, height);
     Entity entity = Entities[id.x];
     float dist = length(entity.pos - entity.lastPos);
-    float4 color = lerp(float4(0,0,0,1), 1, entity.energy*2);
+    float4 color = lerp(float4(20,0,0,1), float4(0,2,3,1), entity.energy);
     for(float i = 0; i < dist; i += 1/dist)
     {
         float2 pt = lerp(entity.lastPos, entity.pos, i);;
