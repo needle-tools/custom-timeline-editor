@@ -1,9 +1,9 @@
-mymode = {
+mymode123 = {
     builtin = true
-    label = "the best mode"
+    label = "the best mode123"
     menus = [
         { name = "File" children = [
-            { name = "HEY" command_id = "Profiler/OpenProfileData" }
+            { name = "HEY123" command_id = "Profiler/OpenProfileData" }
             { name = "Help" command_id = "Mode/Next" }
             null
             { name = "BYE" }
@@ -13,7 +13,6 @@ mymode = {
 
     layout = {
         restore_saved_layout = false
-        top_view = { class_name = "MainToolbarWindow" size =  20}
         center_view = {
             vertical = true
             children = [

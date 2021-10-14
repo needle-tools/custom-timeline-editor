@@ -21,7 +21,7 @@ public class Folder1 : MonoBehaviour
     }
 
     [ContextMenu(nameof(SetMyMode))]
-    private void SetMyMode() => SetMode("mymode");
+    private void SetMyMode() => SetMode("mymode123");
 
     private static void SetMode(string name)
     {
