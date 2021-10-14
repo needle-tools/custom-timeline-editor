@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
+using UnityEngine.Animations;
 
 namespace Needle.Timeline
 {
@@ -83,44 +84,16 @@ namespace Needle.Timeline
 
 	public abstract class ToolModule : IToolModule
 	{
-		public bool CanModify(Type type)
+		public virtual bool CanModify(Type type)
 		{
-			return typeof(Vector3).IsAssignableFrom(type);
+			return typeof(Vector3).IsAssignableFrom(type) || typeof(Color).IsAssignableFrom(type);
 		}
-		public bool WantsInput(ToolInputData input) => input.Type == InputEventType.Begin || input.Type == InputEventType.Update;
+		public virtual bool WantsInput(ToolInputData input) => input.Type == InputEventType.Begin || input.Type == InputEventType.Update;
 
-		public bool OnModify(ToolInputData input, ref object? value)
+		public virtual bool OnModify(ToolInputData input, ref object? value)
 		{
 			if (value == null) return false;
-			var delta = input.DeltaWorld.GetValueOrDefault();
-			value = (Vector3)value + delta;
-			// switch (target)
-			// {
-			// 	case IList list:
-			// 		
-			// 		break;
-			// 	case List<Vector3> vecList:
-			// 		if (vecList == null) return false;
-			// 		for (var index = 0; index < vecList?.Count; index++)
-			// 		{
-			// 			var entry = vecList[index];
-			// 			entry += delta;
-			// 			vecList[index] = entry;
-			// 		}
-			// 		break;
-			// 	default:
-			// 		foreach (var field in target.GetType().EnumerateFields())
-			// 		{
-			// 			if (field.FieldType == typeof(Vector3))
-			// 			{
-			// 				var val = (Vector3)field.GetValue(target);
-			// 				val += delta;
-			// 				field.SetValue(target, val);
-			// 			}
-			// 		}
-			// 		break;
-			// }
-			return true;
+			return false;
 		}
 
 		#region static
@@ -159,14 +132,46 @@ namespace Needle.Timeline
 
 	public class DragVector3 : ToolModule
 	{
-		// public override bool CanModify(FieldInfo type)
-		// {
-		// 	return typeof(Vector3).IsAssignableFrom(type.FieldType);
-		// }
+		public override bool CanModify(Type type)
+		{
+			return typeof(Vector3).IsAssignableFrom(type);
+		}
 
-		// public override void OnInput(FieldInfo field, ToolInputData input)
-		// {
-		// 	// var vec = (Vector3)field.GetValue();
-		// }
+		public override bool OnModify(ToolInputData input, ref object? value)
+		{
+			if (value is Vector3 vec)
+			{
+				var dist = Vector3.Distance(input.WorldPosition.Value, (Vector3)value); 
+				var strength = Mathf.Clamp01(1 - dist);
+				if (strength <= 0) return false;
+				var delta = input.DeltaWorld.GetValueOrDefault();
+				var target = vec + delta;
+				value = Vector3.Lerp(vec, target, strength);
+				return strength > .01f;
+			}
+			return false;
+		}
+	}
+	public class DragColor : ToolModule
+	{
+		public override bool CanModify(Type type)
+		{
+			return typeof(Color).IsAssignableFrom(type);
+		}
+
+		public override bool OnModify(ToolInputData input, ref object? value)
+		{
+			if (value is Color col)
+			{
+				// TODO: we need to have access to other fields of custom types, e.g. here we want the position to get the distance
+				Color.RGBToHSV(col, out var h, out var s, out var v);
+				h += input.ScreenDelta.x * .001f;
+				v += input.ScreenDelta.y * .001f;
+				col = Color.HSVToRGB(h, s, v);
+				value = Color.Lerp((Color)value, col, 1);
+				return true;
+			}
+			return false;
+		}
 	}
 }
