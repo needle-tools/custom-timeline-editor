@@ -84,11 +84,10 @@ namespace Needle.Timeline
 
 	public abstract class ToolModule : IToolModule
 	{
-		public virtual bool CanModify(Type type)
-		{
-			return typeof(Vector3).IsAssignableFrom(type) || typeof(Color).IsAssignableFrom(type);
-		}
-		public virtual bool WantsInput(ToolInputData input) => input.Type == InputEventType.Begin || input.Type == InputEventType.Update;
+		public abstract bool CanModify(Type type);
+		
+		public virtual bool WantsInput(ToolInputData input) => 
+			input.Type == InputEventType.Begin || input.Type == InputEventType.Update;
 
 		public virtual bool OnModify(ToolInputData input, Type valueType, ref object? value)
 		{
