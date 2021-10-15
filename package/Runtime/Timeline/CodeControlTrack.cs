@@ -33,7 +33,7 @@ namespace Needle.Timeline
 		// {
 		// 	Debug.Log("TODO: save state " + EditorUtility.IsDirty(this)); 
 		// 	base.OnBeforeTrackSerialize();
-		// }
+		// } 
 		//
 		// protected override void OnAfterTrackDeserialize()
 		// {
@@ -42,6 +42,8 @@ namespace Needle.Timeline
 
 		internal void Save()
 		{
+			// TODO: how can we prevent override by accident -> e.g. field name Point and point
+			
 			var ser = new JsonSerializer();
 			foreach (var viewModel in viewModels)
 			{
@@ -51,14 +53,14 @@ namespace Needle.Timeline
 					var json = (string)ser.Serialize(clip);
 					var id = viewModel.Id + "_" + clip.Name;
 					SaveUtil.Save(id, json);
-					// Debug.Log("saved " + id);
+					Debug.Log("saved " + id);
 				}
 			}
 		}
 
 		internal const bool IsUsingMixer = true;
 
-		[SerializeField, HideInInspector] internal int dirtyCount;
+		[SerializeField, HideInInspector] internal int dirtyCount; 
 		[SerializeField, HideInInspector] private List<ClipInfoModel> clips = new List<ClipInfoModel>();
 		[NonSerialized] private readonly List<ClipInfoViewModel> viewModels = new List<ClipInfoViewModel>();
 		internal IReadOnlyList<ClipInfoViewModel> ViewModels => viewModels;

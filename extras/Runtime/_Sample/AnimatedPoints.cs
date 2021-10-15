@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using Needle.Timeline;
 using UnityEngine;
-using UnityEngine.Scripting;
-using UnityEngine.UI;
-using UnityEngine.UIElements;
 
 namespace _Sample._Sample
 {
@@ -17,11 +14,11 @@ namespace _Sample._Sample
 		[Animate, NonSerialized] public List<Line> guides = new List<Line>();
 
 		[Animate]
-		public List<Point> Points = new List<Point>();
+		public List<Point> Points1 = new List<Point>();
 
 		public struct Point
 		{
-			public Vector3 Position;
+			public Vector3 Position; 
 			public float Weight;
 		}
 		

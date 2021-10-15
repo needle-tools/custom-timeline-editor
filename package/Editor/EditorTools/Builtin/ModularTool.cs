@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using UnityEditor;
 using UnityEditor.Experimental;
 using UnityEngine;
@@ -46,6 +47,7 @@ namespace Needle.Timeline
 
 		protected override bool OnSupports(Type type)
 		{
+			if (ToolModule.Modules.Any(m => m.CanModify(type))) return true;
 			foreach (var field in type.EnumerateFields())
 			{
 				if (ToolModule.Modules.Any(m => m.CanModify(field.FieldType)))
@@ -53,7 +55,7 @@ namespace Needle.Timeline
 					return true;
 				}
 			}
-			return typeof(List<Vector3>).IsAssignableFrom(type);
+			return false;
 		}
 
 		protected override void OnAttach(VisualElement element)
@@ -83,55 +85,64 @@ namespace Needle.Timeline
 
 		private void OnTargetsChanged()
 		{
-			//modulesContainer.Clear();
 			foreach (var t in Targets)
 			{
+				foreach (var type in t.Clip.SupportedTypes)
+				{
+					ToolModule.GetModulesSupportingType(type, buffer);
+					BuildModuleToolsUI();
+				}
+
 				foreach (var field in t.Clip.EnumerateFields())
 				{
-					ToolModule.GetModulesSupportingType(field, buffer);
-					if (buffer.Count > 0)
-					{
-						VisualElement container = null;
-						foreach (var mod in buffer)
-						{
-							var entry = modulesUI.FirstOrDefault(e => e.Is(mod));
-							if (entry != null) continue;
-
-							if (container == null)
-							{
-								container = new VisualElement();
-								modulesContainer.Add(container);
-								// var label = new Label(field.Name + " : " + field.FieldType.Name);
-								// container.Add(label);
-							}
-
-							entry = new ModuleView(modulesContainer);
-							entry.Module = (ToolModule)mod;
-							modulesUI.Add(entry);
-
-							Button button = null;
-							button = new Button(() =>
-							{
-								foreach (var e in modulesUI)
-								{
-									if (e == entry) continue;
-									e.SetActive(false);
-								}
-								entry.SetActive(!entry.IsActive);
-							})
-							{
-								text = mod.GetType().Name
-							};
-							entry.Label = button;
-							container.Add(button);
-							entry.SetActive(false);
-						}
-					}
+					ToolModule.GetModulesSupportingType(field.FieldType, buffer);
+					BuildModuleToolsUI();
 				}
 			}
 		}
 
-		private readonly ToolInputData data = new ToolInputData();
+		private void BuildModuleToolsUI()
+		{
+			if (buffer.Count <= 0) return;
+
+			VisualElement container = null;
+			foreach (var mod in buffer)
+			{
+				var entry = modulesUI.FirstOrDefault(e => e.Is(mod));
+				if (entry != null) continue;
+
+				if (container == null)
+				{
+					container = new VisualElement();
+					modulesContainer.Add(container);
+					// var label = new Label(field.Name + " : " + field.FieldType.Name);
+					// container.Add(label);
+				}
+
+				entry = new ModuleView(modulesContainer);
+				entry.Module = (ToolModule)mod;
+				modulesUI.Add(entry);
+
+				Button button = null;
+				button = new Button(() =>
+				{
+					foreach (var e in modulesUI)
+					{
+						if (e == entry) continue;
+						e.SetActive(false);
+					}
+					entry.SetActive(!entry.IsActive);
+				})
+				{
+					text = mod.GetType().Name
+				};
+				entry.Label = button;
+				container.Add(button);
+				entry.SetActive(false);
+			}
+		}
+
+		private readonly InputData input = new InputData();
 		private readonly List<(IReadClipTime time, IClipKeyframePair val)> visibleKeyframes = new List<(IReadClipTime time, IClipKeyframePair val)>();
 
 		protected override void OnInput(EditorWindow window)
@@ -139,7 +150,7 @@ namespace Needle.Timeline
 			if (Event.current.type == EventType.MouseDown)
 				Debug.Log("Mouse down");
 
-			data.Update();
+			input.Update();
 			// foreach (var tool in modulesUI)
 			// {
 			// 	if (!tool.IsActive) continue;
@@ -150,12 +161,12 @@ namespace Needle.Timeline
 			// }
 
 
-			if (modulesUI.Any(m => m.IsActive && m.Module.WantsInput(data)))
+			if (modulesUI.Any(m => m.IsActive && m.Module.WantsInput(input)))
 			{
 				foreach (var mod in modulesUI)
 				{
 					if (!mod.IsActive) continue;
-					if (!mod.Module.WantsInput(data)) continue;
+					if (!mod.Module.WantsInput(input)) continue;
 					var module = mod.Module;
 
 					foreach (var tar in Targets)
@@ -168,30 +179,36 @@ namespace Needle.Timeline
 							if (kf != null)
 								visibleKeyframes.Add((tar.ViewModel, new ClipKeyframePair(tar.Clip, kf)));
 						}
+
 						
-						if (visibleKeyframes.Count <= 0)
+						if (!tar.Clip.SupportedTypes.Any(module.CanModify))
 						{
-							if (!tar.Clip.SupportedTypes.Any(module.CanModify))
+							var data = new ToolData()
 							{
-								if (tar.Clip.GetType().IsGenericType)
-								{
-									var clipType = tar.Clip.GetType().GetGenericArguments().FirstOrDefault();
-									var keyframeType = typeof(CustomKeyframe<>).MakeGenericType(clipType);
-									var kf = Activator.CreateInstance(keyframeType) as ICustomKeyframe;
-									kf!.time = tar.TimeF;
-									CustomUndo.Register(new CreateKeyframe(kf, tar.Clip));
-								}
-							}
+								Clip = tar.Clip,
+								Time = tar.TimeF
+							};
+							Debug.Log("Modify: " + module + ": " + tar.Clip);
+							module.OnModify(input, ref data);
+
+							// if (tar.Clip.GetType().IsGenericType)
+							// {
+							// 	var clipType = tar.Clip.GetType().GetGenericArguments().FirstOrDefault();
+							// 	var keyframeType = typeof(CustomKeyframe<>).MakeGenericType(clipType);
+							// 	var kf = Activator.CreateInstance(keyframeType) as ICustomKeyframe;
+							// 	kf!.time = tar.TimeF;
+							// 	CustomUndo.Register(new CreateKeyframe(kf, tar.Clip));
+							// }
 						}
-						else
+						
+						if(visibleKeyframes.Count > 0)
 						{
 							foreach (var (read, pair) in visibleKeyframes)
 							{
 								var kf = pair?.Keyframe;
 								if (kf == null) continue;
-								Debug.Log(kf.time);
-
-								if (mod.IsActive && mod.Module.WantsInput(data))
+						
+								if (mod.IsActive && mod.Module.WantsInput(input))
 								{
 									var value = kf.value;
 									var contentType = kf.TryRetrieveKeyframeContentType();
@@ -200,15 +217,15 @@ namespace Needle.Timeline
 										continue;
 									}
 
-									List<FieldInfo> targetField = null;
+									List<FieldInfo> targetFields = null;
 									if (!module.CanModify(contentType))
 									{
 										foreach (var field in contentType.EnumerateFields())
 										{
 											if (module.CanModify(field.FieldType))
 											{
-												targetField ??= new List<FieldInfo>();
-												targetField.Add(field);
+												targetFields ??= new List<FieldInfo>();
+												targetFields.Add(field);
 											}
 										}
 									}
@@ -219,16 +236,23 @@ namespace Needle.Timeline
 										for (var index = list.Count - 1; index >= 0; index--)
 										{
 											var listEntry = list[index];
-											if (targetField != null)
+											if (targetFields != null)
 											{
-												foreach (var field in targetField)
+												foreach (var field in targetFields)
 												{
 													if (module.CanModify(field.FieldType))
 													{
 														var fieldValue = field.GetValue(listEntry);
-														if (module.OnModify(data, contentType, ref fieldValue))
+														var data = new ToolData()
 														{
-															field.SetValue(listEntry, fieldValue);
+															Clip = pair.Clip,
+															Keyframe = pair.Keyframe,
+															Value = fieldValue,
+															ValueType = contentType
+														};
+														if (module.OnModify(input, ref data))
+														{
+															field.SetValue(listEntry, data.Value);
 															changed = true;
 														}
 													}
@@ -238,8 +262,16 @@ namespace Needle.Timeline
 											{
 												if (module.CanModify(contentType))
 												{
-													if (module.OnModify(data, contentType, ref listEntry))
+													var data = new ToolData()
 													{
+														Clip = pair.Clip,
+														Keyframe = pair.Keyframe,
+														Value = listEntry,
+														ValueType = contentType
+													};
+													if (module.OnModify(input, ref data))
+													{
+														listEntry = data.Value;
 														changed = true;
 													}
 												}
@@ -259,7 +291,6 @@ namespace Needle.Timeline
 							}
 						}
 					}
-
 				}
 				// Debug.Log("KF=" + visibleKeyframes.Count);
 				// Debug.Log("Modules=" + modulesUI.Count);

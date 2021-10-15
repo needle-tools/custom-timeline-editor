@@ -120,7 +120,7 @@ namespace Needle.Timeline
 			curve = default;
 			if (attribute == null) return CreationResult.NotMarked;
 
-			var name = data.Member.Name;
+			var name = data.Member.Name.ToLowerInvariant();
 			var ser = new JsonSerializer();
 
 			var curveType = typeof(CustomAnimationCurve<>).MakeGenericType(data.MemberType);

@@ -1,7 +1,8 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Data.SqlTypes;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
@@ -10,7 +11,24 @@ namespace Needle.Timeline
 {
 	public static class IClipAndKeyframeExtensions
 	{
-		internal static Type TryRetrieveKeyframeContentType(this ICustomKeyframe kf)
+		public static ICustomKeyframe? AddKeyframe(this ICustomClip clip, float time, object? value = null)
+		{
+			if (clip.GetType().IsGenericType)
+			{
+				var clipType = clip.GetType().GetGenericArguments().FirstOrDefault();
+				var keyframeType = typeof(CustomKeyframe<>).MakeGenericType(clipType);
+				if (Activator.CreateInstance(keyframeType) is ICustomKeyframe kf)
+				{
+					kf.time = time;
+					kf.value = value;
+					CustomUndo.Register(new CreateKeyframe(kf, clip));
+					return kf;
+				}
+			}
+			return null;
+		}
+		
+		internal static Type? TryRetrieveKeyframeContentType(this ICustomKeyframe kf)
 		{
 			var valueType = kf.value?.GetType() ?? kf.AcceptedTypes()?.FirstOrDefault();
 			if (valueType == null) return null;
@@ -18,7 +36,7 @@ namespace Needle.Timeline
 			{
 				if (valueType.IsGenericType)
 				{
-					var content = valueType.GetGenericArguments().FirstOrDefault();
+					var content = valueType.GetGenericArguments().First();
 					return content;
 				}
 				
