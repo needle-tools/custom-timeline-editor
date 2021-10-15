@@ -60,7 +60,7 @@ namespace Needle.Timeline
 
 		internal const bool IsUsingMixer = true;
 
-		[SerializeField, HideInInspector] internal int dirtyCount; 
+		[SerializeField, HideInInspector] internal uint dirtyCount; 
 		[SerializeField, HideInInspector] private List<ClipInfoModel> clips = new List<ClipInfoModel>();
 		[NonSerialized] private readonly List<ClipInfoViewModel> viewModels = new List<ClipInfoViewModel>();
 		internal IReadOnlyList<ClipInfoViewModel> ViewModels => viewModels;

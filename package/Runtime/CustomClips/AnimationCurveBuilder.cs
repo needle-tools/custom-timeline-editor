@@ -104,7 +104,8 @@ namespace Needle.Timeline
 						// }
 						// Debug.Log("clip changed");
 						EditorUtility.SetDirty(data.Track);
-						data.Track.dirtyCount += 1;
+						// TODO: figure out if we really need this
+						data.Track.dirtyCount = (data.Track.dirtyCount + 1) % uint.MaxValue;
 						data.Director.Evaluate();
 						TimelineWindowUtil.TryRepaint();
 					}

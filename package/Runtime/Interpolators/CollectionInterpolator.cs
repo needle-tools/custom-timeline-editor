@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Linq;
+using Unity.Profiling;
 using UnityEngine;
 
 namespace Needle.Timeline
@@ -39,8 +40,13 @@ namespace Needle.Timeline
 		private IInterpolatable interpolatable;
 		private bool didSearchInterpolatable;
 
+		private static ProfilerMarker interpolateMarker = new ProfilerMarker("Interpolate Collection");
+		private static ProfilerMarker createInstanceMarker = new ProfilerMarker("Interpolate Collection: Create instance");
+
 		public object Interpolate(object v0, object v1, float t)
 		{
+			using var _ = interpolateMarker.Auto();
+			
 			if (v0 == null && v1 == null) return null;
 			
 			var list0 = v0 as IList;
@@ -90,8 +96,11 @@ namespace Needle.Timeline
 					instance = output[i];
 				else
 				{
-					var type = val0?.GetType() ?? val1.GetType();
-					instance = Activator.CreateInstance(type);
+					using (createInstanceMarker.Auto())
+					{
+						var type = val0?.GetType() ?? val1.GetType();
+						instance = Activator.CreateInstance(type);
+					}
 				}
 				// Debug.Log(t + ": " + pos.ToString("0.000") + ", " + count + ", " + i);
 				interpolatable.Interpolate(ref instance, val0, val1, pos);
@@ -113,7 +122,9 @@ namespace Needle.Timeline
 			foreach (var e in list)
 			{
 				if (listContentType != null) break;
-				listContentType = e?.GetType();
+				if (e == null) continue;
+				listContentType = e.GetType();
+				break;
 			}
 		}
 	}
