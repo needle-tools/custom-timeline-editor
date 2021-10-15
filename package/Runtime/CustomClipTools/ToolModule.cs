@@ -5,8 +5,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.Animations;
+using Random = UnityEngine.Random;
 
 namespace Needle.Timeline
 {
@@ -82,7 +84,7 @@ namespace Needle.Timeline
 	{
 		bool CanModify(Type type);
 	}
-	
+
 	public struct ToolData
 	{
 		public ICustomClip Clip;
@@ -94,10 +96,9 @@ namespace Needle.Timeline
 
 	public abstract class ToolModule : IToolModule
 	{
-		
 		public abstract bool CanModify(Type type);
-		
-		public virtual bool WantsInput(InputData input) => 
+
+		public virtual bool WantsInput(InputData input) =>
 			input.Type == InputEventType.Begin || input.Type == InputEventType.Update;
 
 		public virtual bool OnModify(InputData input, ref ToolData toolData)
@@ -108,6 +109,7 @@ namespace Needle.Timeline
 		#region static
 		private static bool modulesInit;
 		private static readonly List<ToolModule> modules = new List<ToolModule>();
+
 		public static IReadOnlyList<ToolModule> Modules
 		{
 			get
@@ -118,13 +120,14 @@ namespace Needle.Timeline
 					foreach (var mod in RuntimeTypeCache.TypesDerivingFrom<ToolModule>())
 					{
 						if (mod.IsAbstract || mod.IsInterface) continue;
-						if(Activator.CreateInstance(mod) is ToolModule moduleInstance)
+						if (Activator.CreateInstance(mod) is ToolModule moduleInstance)
 							modules.Add(moduleInstance);
 					}
 				}
 				return modules;
 			}
 		}
+
 		public static void GetModulesSupportingType(Type type, IList<IToolModule> list)
 		{
 			list.Clear();
@@ -149,26 +152,47 @@ namespace Needle.Timeline
 
 		public override bool OnModify(InputData input, ref ToolData toolData)
 		{
-			if (toolData.Clip.SupportedTypes.Contains(typeof(List<Vector3>)) == false) return false;
+			// if (toolData.Clip.SupportedTypes.Contains(typeof(List<Vector3>)) == false) return false;
+
+			if (toolData.Value != null) return false;
+			if (input.WorldPosition == null) return false;
+			var pos = input.WorldPosition.Value + Random.insideUnitSphere;
+
 			var closestKeyframe = toolData.Keyframe;
 			closestKeyframe ??= toolData.Clip.GetClosest(toolData.Time);
-			
+
 			if (closestKeyframe == null || Mathf.Abs(closestKeyframe.time - toolData.Time) > .1f)
-			{  
+			{
 				var clipType = toolData.Clip.SupportedTypes.FirstOrDefault();
 				if (clipType == null) throw new Exception("Expecting at least one clip type");
 				closestKeyframe = toolData.Clip.AddKeyframe(toolData.Time, Activator.CreateInstance(clipType));
+				if (closestKeyframe != null)
+					closestKeyframe.time = toolData.Time;
 			}
-			
-			if(closestKeyframe != null)
+
+			if (closestKeyframe != null)
 			{
-				if (closestKeyframe.value is IList<Vector3> list)
+				var contentType = closestKeyframe.TryRetrieveKeyframeContentType();
+
+				if (closestKeyframe.value is ICollection<Vector3> list)
 				{
-					list.Add(input.WorldPosition.GetValueOrDefault());
+					list.Add(pos);
 					return true;
 				}
+
+				if (closestKeyframe.value is IList col && contentType != typeof(Vector3) && contentType != null)
+				{
+					var instance = Activator.CreateInstance(contentType);
+					if (instance != null)
+					{
+						var posField = instance.GetType().EnumerateFields().FirstOrDefault(f => f.FieldType == typeof(Vector3));
+						posField!.SetValue(instance, pos);
+						col.Add(instance);
+						return true;
+					}
+				}
 			}
-			
+
 			return false;
 		}
 	}
@@ -184,7 +208,7 @@ namespace Needle.Timeline
 		{
 			if (toolData.Value is Vector3 vec)
 			{
-				var dist = Vector3.Distance(input.WorldPosition.Value, (Vector3)toolData.Value); 
+				var dist = Vector3.Distance(input.WorldPosition.Value, (Vector3)toolData.Value);
 				var strength = Mathf.Clamp01(1 - dist);
 				if (strength <= 0) return false;
 				var delta = input.DeltaWorld.GetValueOrDefault();
@@ -195,11 +219,32 @@ namespace Needle.Timeline
 			return false;
 		}
 	}
+
+	public class FloatScaleDrag : ToolModule
+	{
+		public override bool CanModify(Type type)
+		{
+			return typeof(float).IsAssignableFrom(type); 
+		}
+
+		public override bool OnModify(InputData input, ref ToolData toolData)
+		{
+			if (toolData.Value is float vec)
+			{
+				var delta = -input.ScreenDelta.y * 0.01f;
+				var target = vec + delta;
+				toolData.Value = target;
+				return Mathf.Abs(delta) > .01f;
+			}
+			return false;
+		}
+	}
+
 	public class DragColor : ToolModule
 	{
 		public override bool CanModify(Type type)
 		{
-			return typeof(Color).IsAssignableFrom(type); 
+			return typeof(Color).IsAssignableFrom(type);
 		}
 
 		public override bool OnModify(InputData input, ref ToolData toolData)
@@ -207,7 +252,7 @@ namespace Needle.Timeline
 			if (toolData.Value is Color col)
 			{
 				// TODO: we need to have access to other fields of custom types, e.g. here we want the position to get the distance
-				
+
 				// TODO: figure out how we create new objects e.g. in a list
 
 				Color.RGBToHSV(col, out var h, out var s, out var v);

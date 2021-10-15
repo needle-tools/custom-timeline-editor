@@ -21,6 +21,7 @@ namespace Needle.Timeline
 				{
 					kf.time = time;
 					kf.value = value;
+					Debug.Log("create Keyframe at " + time);
 					CustomUndo.Register(new CreateKeyframe(kf, clip));
 					return kf;
 				}

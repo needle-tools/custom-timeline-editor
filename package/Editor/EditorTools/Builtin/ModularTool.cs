@@ -189,7 +189,7 @@ namespace Needle.Timeline
 								Time = tar.TimeF
 							};
 							Debug.Log("Modify: " + module + ": " + tar.Clip);
-							module.OnModify(input, ref data);
+							module.OnModify(input, ref data); 
 
 							// if (tar.Clip.GetType().IsGenericType)
 							// {
@@ -248,7 +248,8 @@ namespace Needle.Timeline
 															Clip = pair.Clip,
 															Keyframe = pair.Keyframe,
 															Value = fieldValue,
-															ValueType = contentType
+															ValueType = contentType,
+															Time = tar.TimeF
 														};
 														if (module.OnModify(input, ref data))
 														{
@@ -267,7 +268,8 @@ namespace Needle.Timeline
 														Clip = pair.Clip,
 														Keyframe = pair.Keyframe,
 														Value = listEntry,
-														ValueType = contentType
+														ValueType = contentType,
+														Time = tar.TimeF
 													};
 													if (module.OnModify(input, ref data))
 													{

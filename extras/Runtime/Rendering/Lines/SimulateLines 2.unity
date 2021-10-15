@@ -599,10 +599,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1849834649}
   - component: {fileID: 1849834648}
-  - component: {fileID: 1849834651}
   - component: {fileID: 1849834650}
-  - component: {fileID: 1849834652}
-  - component: {fileID: 1849834653}
   m_Layer: 0
   m_Name: Director
   m_TagString: Untagged
@@ -632,11 +629,7 @@ PlayableDirector:
   - key: {fileID: 7563117043417603788, guid: cf04200b669495446bde90fec691c7be, type: 2}
     value: {fileID: 0}
   - key: {fileID: -2294418804253643794, guid: eda0e4cb5140de24889234fc5613a0cb, type: 2}
-    value: {fileID: 1849834651}
-  - key: {fileID: 1299525714294156642, guid: 8b9ba6d584bac124f8d46aab450c96df, type: 2}
-    value: {fileID: 1849834651}
-  - key: {fileID: -5062019541866889341, guid: 8b9ba6d584bac124f8d46aab450c96df, type: 2}
-    value: {fileID: 1849834653}
+    value: {fileID: 1849834650}
   m_ExposedReferences:
     m_References:
     - 82060ca0554b4f7468f4e51add23033f: {fileID: 0}
@@ -663,77 +656,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 1849834647}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1f40515ecb6bf3f4bbc7c83128ba793b, type: 3}
+  m_Script: {fileID: 11500000, guid: 41db22fc09fe4942b3f85cd365c6a881, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MyValue: 0
-  MyInt: 0
-  MyDouble: 0
-  MyString: 
-  CustomType: []
-  SomeType:
-    Pos: {x: 0, y: 0, z: 0}
-    Color: {r: 0, g: 0, b: 0, a: 0}
-    Size: 0
---- !u!114 &1849834651
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1849834647}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: da143bb0ddcd33949ac33ce6f7332d23, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gizmoSizeFactor: 0.5
-  Factor: 0
---- !u!114 &1849834652
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1849834647}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7180069439c38704490ce6992b48a930, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Width: 1900
-  Height: 1080
-  WidthWorld: 10
-  Points: {fileID: 1849834651}
-  Shader: {fileID: 7200000, guid: f29be70d55b81ab4e855b01616fd7fb6, type: 3}
-  Renderer: {fileID: 1888973583}
-  UpdateViaTimeline: 1
-  Seed: 0
-  Count: 500000
-  FadeInSpeed: 0.2
-  FadeOutSpeed: 0.8176942
-  MoveSpeed: 9.107475
-  TurnSpeed: 2.34
-  EnergyFactor: 2.1016688
---- !u!95 &1849834653
-Animator:
-  serializedVersion: 3
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1849834647}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 0}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1 &1888973582
 GameObject:
   m_ObjectHideFlags: 0
