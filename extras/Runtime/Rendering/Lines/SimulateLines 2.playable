@@ -92,7 +92,7 @@ MonoBehaviour:
     m_DisplayName: ScriptWithPoints
   m_Markers:
     m_Objects: []
-  dirtyCount: 9231
+  dirtyCount: 9677
   clips:
   - id: eda0e4cb5140de24889234fc5613a0cb@-88420583372947174_AnimatedPoints_0
     clip: {fileID: 9185079662231323250}

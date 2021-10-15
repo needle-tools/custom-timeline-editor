@@ -13,6 +13,8 @@ namespace Needle.Timeline
 {
 	internal static class TimelineBuffer
 	{
+		public static bool AllowBuffering = false;
+		
 		[InitializeOnLoadMethod]
 		private static void Init()
 		{
@@ -58,9 +60,10 @@ namespace Needle.Timeline
 		}
 
 		private static bool isBuffering = false;
-		internal static async Task Buffer(PlayableDirector dir, float seconds = 10, double? fromTime = null)
+		private static Task Buffer(PlayableDirector dir, float seconds = 10, double? fromTime = null)
 		{
-			if (isBuffering) return;
+			if (!AllowBuffering) return Task.CompletedTask;
+			if (isBuffering) return Task.CompletedTask;
 			isBuffering = true;
 			Debug.Log("BUFFER");
 			
@@ -107,7 +110,8 @@ namespace Needle.Timeline
 					break;
 			}
 			TimelineEditor.GetWindow().Repaint();
-			isBuffering = false; 
+			isBuffering = false;
+			return Task.CompletedTask;
 		}
 	}
 }
