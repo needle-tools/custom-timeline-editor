@@ -16,6 +16,16 @@ namespace _Sample._Sample
 
 		[Animate, NonSerialized] public List<Line> guides = new List<Line>();
 
+		[Animate]
+		public List<Point> Points = new List<Point>();
+
+		public struct Point
+		{
+			public Vector3 Position;
+			public float Weight;
+		}
+		
+
 		public float gizmoSizeFactor = 1;
 
 		[Animate] public float Factor = 1;

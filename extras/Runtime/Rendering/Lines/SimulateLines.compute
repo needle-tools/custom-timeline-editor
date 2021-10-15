@@ -17,11 +17,11 @@ struct Entity
     float2 pos;
     float2 lastPos;
     float2 dir;
-    float energy;
+    float energy; 
 };
 RWStructuredBuffer<Entity> Entities;
 
-uint wang_hash(uint seed)
+uint wang_hash(uint seed)  
 {
     seed = (seed ^ 61) ^ (seed >> 16);
     seed *= 9;
@@ -62,7 +62,7 @@ void Simulate(uint3 id : SV_DispatchThreadID)
         float3 pos = Positions[i];
         float2 dir = pos.xy - entity.pos;
         float dist = length(dir);
-        if(dist < .01) continue;
+        if(dist < .001) continue;
         float2 ndir = normalize(dir);
         float d = dot(ndir, normalize(entity.dir));
         if(d < -.9) continue;
@@ -77,7 +77,7 @@ void Simulate(uint3 id : SV_DispatchThreadID)
             res_dist = dist;
         }
     }
-    entity.energy -= max(_Time.w * 0.001 * EnergyFactor, length(entity.pos) * _Time.w * .005 * MoveSpeed * EnergyFactor);
+    entity.energy -= max(_Time.w * 0.005 * EnergyFactor, length(entity.pos) * _Time.w * .002 * MoveSpeed * EnergyFactor);
     entity.lastPos = entity.pos;
     float energyFactor = 1/entity.energy;
     float t = TurnSpeed * _Time.w / max(.5,length(res_dir));

@@ -30,7 +30,7 @@ namespace Needle.Timeline
 			{ 
 				// var directors = Object.FindObjectsOfType<PlayableDirector>();
 				var dir = TimelineEditor.inspectedDirector;
-				// foreach (var dir in directors)
+				if(dir)
 				{
 					var lastTime = GetTime(); 
 					if (lastTime >= 0)

@@ -19,7 +19,7 @@ namespace Needle.Timeline
 
 		private bool active;
 		public bool IsActive => active;
-		
+
 		public void SetActive(bool state)
 		{
 			this.active = state;
@@ -34,10 +34,10 @@ namespace Needle.Timeline
 
 		public bool Is(IToolModule mod)
 		{
-			return Module == mod;// TargetField.DeclaringType == field.DeclaringType && TargetField.Name == field.Name;
+			return Module == mod; // TargetField.DeclaringType == field.DeclaringType && TargetField.Name == field.Name;
 		}
 	}
-	
+
 	public class ModularTool : CustomClipToolBase
 	{
 		private ICustomKeyframe keyframe;
@@ -88,7 +88,6 @@ namespace Needle.Timeline
 			{
 				foreach (var field in t.Clip.EnumerateFields())
 				{
-						
 					ToolModule.GetModulesSupportingType(field, buffer);
 					if (buffer.Count > 0)
 					{
@@ -105,7 +104,7 @@ namespace Needle.Timeline
 								// var label = new Label(field.Name + " : " + field.FieldType.Name);
 								// container.Add(label);
 							}
-								
+
 							entry = new ModuleView(modulesContainer);
 							entry.Module = (ToolModule)mod;
 							modulesUI.Add(entry);
@@ -139,7 +138,7 @@ namespace Needle.Timeline
 		{
 			if (Event.current.type == EventType.MouseDown)
 				Debug.Log("Mouse down");
-			
+
 			data.Update();
 			// foreach (var tool in modulesUI)
 			// {
@@ -151,107 +150,120 @@ namespace Needle.Timeline
 			// }
 
 
-			visibleKeyframes.Clear();
 			if (modulesUI.Any(m => m.IsActive && m.Module.WantsInput(data)))
 			{
-				foreach (var tar in Targets)
+				foreach (var mod in modulesUI)
 				{
-					if (!tar.IsNull())
+					if (!mod.IsActive) continue;
+					if (!mod.Module.WantsInput(data)) continue;
+					var module = mod.Module;
+
+					foreach (var tar in Targets)
 					{
-						var time = (float)tar.ViewModel.clipTime;
-						var closest = tar.Clip.GetClosest(time);
-						if (closest == null) continue;
-						visibleKeyframes.Add((tar.ViewModel, new ClipKeyframePair(tar.Clip, closest)));
-					}
-				}
-				Debug.Log("KF=" + visibleKeyframes.Count);
-				Debug.Log("Modules=" + modulesUI.Count);
-				foreach (var (read, pair) in visibleKeyframes)
-				{
-					var time = (float)read.ClipTime;
-					
-					var kf = pair?.Keyframe;
-					if (kf == null) continue;
-					Debug.Log(kf.time);
-					foreach (var mod in modulesUI)
-					{
-						var module = mod.Module;
-						if (mod.IsActive && mod.Module.WantsInput(data))
+						visibleKeyframes.Clear();
+						if (!tar.IsNull())
 						{
-							var value = kf.value;
-							var contentType = kf.TryRetrieveKeyframeContentType();
-							if (contentType == null)
+							var time = (float)tar.ViewModel.clipTime;
+							var kf = tar.Clip.GetClosest(time);
+							if (kf != null)
+								visibleKeyframes.Add((tar.ViewModel, new ClipKeyframePair(tar.Clip, kf)));
+						}
+						
+						if (visibleKeyframes.Count <= 0)
+						{
+							if (!tar.Clip.SupportedTypes.Any(module.CanModify))
 							{
-								continue;
-							}
-							
-							List<FieldInfo> targetField = null;
-							if (!module.CanModify(contentType))
-							{
-								foreach (var field in contentType.EnumerateFields())
+								if (tar.Clip.GetType().IsGenericType)
 								{
-									if (module.CanModify(field.FieldType))
-									{
-										targetField ??= new List<FieldInfo>();
-										targetField.Add(field);
-									}
+									var clipType = tar.Clip.GetType().GetGenericArguments().FirstOrDefault();
+									var keyframeType = typeof(CustomKeyframe<>).MakeGenericType(clipType);
+									var kf = Activator.CreateInstance(keyframeType) as ICustomKeyframe;
+									kf!.time = tar.TimeF;
+									CustomUndo.Register(new CreateKeyframe(kf, tar.Clip));
 								}
 							}
-							
-							if (value is IList list)
+						}
+						else
+						{
+							foreach (var (read, pair) in visibleKeyframes)
 							{
-								var changed = false;
-								for (var index = list.Count - 1; index >= 0; index--)
+								var kf = pair?.Keyframe;
+								if (kf == null) continue;
+								Debug.Log(kf.time);
+
+								if (mod.IsActive && mod.Module.WantsInput(data))
 								{
-									var listEntry = list[index];
-									if (targetField != null)
+									var value = kf.value;
+									var contentType = kf.TryRetrieveKeyframeContentType();
+									if (contentType == null)
 									{
-										foreach (var field in targetField)
+										continue;
+									}
+
+									List<FieldInfo> targetField = null;
+									if (!module.CanModify(contentType))
+									{
+										foreach (var field in contentType.EnumerateFields())
 										{
 											if (module.CanModify(field.FieldType))
 											{
-												var fieldValue = field.GetValue(listEntry);
-												if (module.OnModify(data, contentType, ref fieldValue))
+												targetField ??= new List<FieldInfo>();
+												targetField.Add(field);
+											}
+										}
+									}
+
+									if (value is IList list)
+									{
+										var changed = false;
+										for (var index = list.Count - 1; index >= 0; index--)
+										{
+											var listEntry = list[index];
+											if (targetField != null)
+											{
+												foreach (var field in targetField)
 												{
-													field.SetValue(listEntry, fieldValue);
-													changed = true;
+													if (module.CanModify(field.FieldType))
+													{
+														var fieldValue = field.GetValue(listEntry);
+														if (module.OnModify(data, contentType, ref fieldValue))
+														{
+															field.SetValue(listEntry, fieldValue);
+															changed = true;
+														}
+													}
 												}
 											}
+											else
+											{
+												if (module.CanModify(contentType))
+												{
+													if (module.OnModify(data, contentType, ref listEntry))
+													{
+														changed = true;
+													}
+												}
+											}
+											list[index] = listEntry;
+										}
+										if (changed)
+										{
+											kf.value = value;
+											kf.RaiseValueChangedEvent();
 										}
 									}
 									else
 									{
-										if (module.CanModify(contentType))
-										{
-											if (module.OnModify(data, contentType, ref listEntry))
-											{
-												changed = true;
-											}
-										}
 									}
-									list[index] = listEntry;
-								}
-								if (changed)
-								{
-									kf.value = value;
-									kf.RaiseValueChangedEvent();
 								}
 							}
-							else
-							{
-							}
-							
 						}
 					}
-					
-					// if (pair != null && Mathf.Abs(time - pair.Keyframe.time) < .1f)
-					// {
-					// }
-					// if (keyframe == null || Mathf.Abs(time - keyframe.time) > .1f)
-					// {
-					// }
+
 				}
-				UseEvent();
+				// Debug.Log("KF=" + visibleKeyframes.Count);
+				// Debug.Log("Modules=" + modulesUI.Count);
+				// UseEvent();
 			}
 			// var pos = PlaneUtils.GetPointOnPlane(Camera.current, out _, out _, out _);
 			// // Handles.color = erase ? Color.red : Color.white;
@@ -288,7 +300,7 @@ namespace Needle.Timeline
 				// 	ForEachModule((toolTarget, module) => module.EndInput(toolTarget));
 				// 	break;
 			}
-			
+
 
 			switch (Event.current.type, Event.current.modifiers, Event.current.button)
 			{
@@ -299,27 +311,30 @@ namespace Needle.Timeline
 					break;
 
 				case (EventType.MouseDown, EventModifiers.None, 0):
-					var active = Targets.LastOrDefault();
-					// foreach (var active in Targets)
-					// if (!active.ViewModel.currentlyInClipTime) continue;
-					if (!active.IsNull())
+					foreach (var active in Targets)
 					{
-						var time = (float)active.ViewModel.clipTime;
-						var closest = active.Clip.GetClosest(time);
-						if (closest != null && Mathf.Abs(time - closest.time) < .1f)
+						// var active = Targets.LastOrDefault();
+						// foreach (var active in Targets)
+						// if (!active.ViewModel.currentlyInClipTime) continue;
+						if (!active.IsNull())
 						{
-							keyframe = closest;
-						}
-						if (keyframe == null || Mathf.Abs(time - keyframe.time) > .1f)
-						{
-							// if (active.Clip.GetType().IsGenericType)
-							// {
-							// 	var clipType = active.Clip.GetType().GetGenericArguments().FirstOrDefault();
-							// 	var keyframeType = typeof(CustomKeyframe<>).MakeGenericType(clipType);
-							// 	keyframe = Activator.CreateInstance(keyframeType) as ICustomKeyframe;
-							// 	keyframe!.time = time;
-							// 	CustomUndo.Register(new CreateKeyframe(keyframe, active.Clip));
-							// }
+							var time = (float)active.ViewModel.clipTime;
+							var closest = active.Clip.GetClosest(time);
+							if (closest != null && Mathf.Abs(time - closest.time) < .1f)
+							{
+								keyframe = closest;
+							}
+							if (closest == null || Mathf.Abs(time - closest.time) > .1f)
+							{
+								// if (active.Clip.GetType().IsGenericType)
+								// {
+								// 	var clipType = active.Clip.GetType().GetGenericArguments().FirstOrDefault();
+								// 	var keyframeType = typeof(CustomKeyframe<>).MakeGenericType(clipType);
+								// 	keyframe = Activator.CreateInstance(keyframeType) as ICustomKeyframe;
+								// 	keyframe!.time = time;
+								// 	CustomUndo.Register(new CreateKeyframe(keyframe, active.Clip));
+								// }
+							}
 						}
 					}
 					UseEvent();
