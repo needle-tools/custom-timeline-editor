@@ -1,0 +1,42 @@
+animation = {
+    builtin = true
+    label = "Animation Mode"
+
+    capabilities = {
+        reset_menus = false
+        layout_switching = true
+        layout_window_menu = false
+        status_bar_extra_features = false
+    }
+    
+    layout = {
+        restore_saved_layout = false
+        center_view = {
+            vertical = true
+            children = [
+                {
+                    horizontal = true
+                    children = [
+                        { tabs = true children = [{ class_name = "ProjectBrowser"}] size = 0.2 }
+                        { tabs = true children = [{ class_name = "SceneWindow"}] size = 0.6 }
+                        { tabs = true children = [{ class_name = "InspectorWindow"}] size = 0.2 }
+                    ]
+                }
+                {
+                    horizontal = true
+                    children = [
+                        { tabs = true children = [{ class_name = "TimelineWindow"}] size = 1 }
+                    ]
+                }
+                {
+                    horizontal = true
+                    size = 0.3
+                    tabs = true
+                    children = [
+                        { class_name = "ConsoleWindow" }
+                    ]
+                }
+            ]
+        }
+    }
+}
