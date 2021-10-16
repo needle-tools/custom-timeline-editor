@@ -19,7 +19,7 @@ namespace _Sample._Sample
 			public float Weight;
 			public Color Color;
 
-			public void Init()
+			public void Init(InitStage stage, IToolData _)
 			{
 				Weight = .05f;
 				Color = Color.white;
@@ -42,7 +42,7 @@ namespace _Sample._Sample
 				Gizmos.color = Color.white;
 				foreach (var line in Lines)
 				{
-					Gizmos.DrawLine(line.Start, line.End);
+					line.DrawGizmos();
 				}
 			}
 		}

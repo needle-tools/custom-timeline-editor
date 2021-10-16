@@ -23,6 +23,12 @@ namespace Needle.Timeline
 
 		public static void Select(ICustomClipTool tool)
 		{
+			if (tool == null)
+			{
+				Debug.LogError("Tool is null, this is a bug - maybe try recompile a script if this was at startup");
+				return;
+			}
+			
 			if (_selected.Contains(tool)) return;
 			_selected.Add(tool);
 

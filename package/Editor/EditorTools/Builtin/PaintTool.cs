@@ -9,6 +9,7 @@ using Random = UnityEngine.Random;
 
 namespace Needle.Timeline
 {
+	[Meta(Legacy = true)]
 	public class PaintTool : CustomClipToolBase
 	{
 		private ICustomKeyframe<List<Vector3>> keyframe;

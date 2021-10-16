@@ -12,7 +12,6 @@ namespace Needle.Timeline
 		public static object? TryCreateInstance(this Type type)
 		{
 			var instance = Activator.CreateInstance(type);
-			if(instance is IInit i) i.Init();
 			return instance;
 		}
 		

@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using UnityEditor;
 using UnityEditor.Experimental;
+using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Random = UnityEngine.Random;
@@ -21,16 +22,44 @@ namespace Needle.Timeline
 		private bool active;
 		public bool IsActive => active;
 
+		private bool initOptions;
+		private VisualElement options;
+
 		public void SetActive(bool state)
 		{
 			this.active = state;
 			Label.style.color = this.active ? Color.white : Color.gray;
-			Debug.Log(active);
+
+			options.style.display =  new StyleEnum<DisplayStyle>(state ? StyleKeyword.Auto : StyleKeyword.None);
+			options.style.visibility = state ? Visibility.Visible : Visibility.Hidden;
 		}
 
-		public ModuleView(VisualElement container)
+		public ModuleView(VisualElement container, ToolModule module)
 		{
 			Container = container;
+			this.Module = module;
+
+			options = new VisualElement(); 
+			Container.Add(options);
+			foreach (var field in Module.GetType().EnumerateFields())
+			{
+				if (field.FieldType == typeof(float))
+				{
+					var el = new FloatField(field.Name);
+					el.value = (float)field.GetValue(Module);
+					el.RegisterValueChangedCallback(cb =>
+					{
+						field.SetValue(Module, cb.newValue);
+					});
+					options.Add(el);
+				}
+				else
+				{
+					var label = new Label();
+					label.text = field.Name;
+					options.Add(label);
+				}
+			}
 		}
 
 		public bool Is(IToolModule mod)
@@ -126,8 +155,7 @@ namespace Needle.Timeline
 					// container.Add(label);
 				}
 
-				entry = new ModuleView(modulesContainer);
-				entry.Module = (ToolModule)mod;
+				entry = new ModuleView(modulesContainer, (ToolModule)mod);
 				modulesUI.Add(entry);
 
 				Button button = null;

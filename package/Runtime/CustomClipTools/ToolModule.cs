@@ -4,17 +4,17 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Runtime.InteropServices;
+using UnityEditor;
 using UnityEngine;
-using UnityEngine.Animations;
 using Random = UnityEngine.Random;
 
 namespace Needle.Timeline
 {
-	public class InputData
+	public class InputData : IToolData
 	{
-		public Vector3? WorldPosition;
+		public bool IsIn2DMode;
+		
+		public Vector3? WorldPosition { get; private set; }
 		public Vector3? LastWorldPosition;
 		public Vector3? StartWorldPosition;
 
@@ -41,6 +41,11 @@ namespace Needle.Timeline
 			var evt = Event.current;
 			if (evt == null) return;
 			if (evt.type == EventType.Used) return;
+
+			#if UNITY_EDITOR
+			IsIn2DMode = SceneView.lastActiveSceneView?.in2DMode ?? false;
+			#endif
+			
 			switch (evt.type)
 			{
 				case EventType.MouseDown:
@@ -193,6 +198,8 @@ namespace Needle.Timeline
 
 	public class SprayModule : ToolModule
 	{
+		public float Radius = 1;
+		
 		public override bool CanModify(Type type)
 		{
 			return typeof(Vector3).IsAssignableFrom(type);
@@ -204,7 +211,8 @@ namespace Needle.Timeline
 
 			if (toolData.Value != null) return false;
 			if (input.WorldPosition == null) return false;
-			var pos = input.WorldPosition.Value + Random.insideUnitSphere;
+			var pos = input.WorldPosition.Value + Random.insideUnitSphere * Radius;
+			if (input.IsIn2DMode) pos.z = 0;
 
 			var closestKeyframe = toolData.Keyframe;
 			closestKeyframe ??= toolData.Clip.GetClosest(toolData.Time);
@@ -233,8 +241,10 @@ namespace Needle.Timeline
 					var instance = contentType.TryCreateInstance();
 					if (instance != null)
 					{
+						if(instance is IInit i) i.Init(InitStage.InstanceCreated, input);
 						var posField = instance.GetType().EnumerateFields().FirstOrDefault(f => f.FieldType == typeof(Vector3));
 						posField!.SetValue(instance, pos);
+						if (instance is IInit init) init.Init(InitStage.BasicValuesSet, input);
 						col.Add(instance);
 						return true;
 					}

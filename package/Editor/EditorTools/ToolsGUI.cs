@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -103,10 +104,13 @@ namespace Needle.Timeline
 					}
 					else toolContainer.Clear();
 
-					var name = tool.GetType().Name;
+					var type = tool.GetType();
+					var meta = type.GetCustomAttribute<Meta>();
+					var name = meta?.Name ?? type.Name;
+					if (meta?.Legacy ?? false) name += " (Legacy)";
 					var toolButton = new Button();
 					toolButton.text = name;
-					toolButton.style.flexGrow = 0;
+					toolButton.style.flexGrow = 1;
 					toolButton.style.height = 30;
 					toolButton.AddManipulator(new ToolButtonManipulator(tool));
 					toolContainer.Add(toolButton);
