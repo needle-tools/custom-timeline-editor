@@ -158,6 +158,28 @@ namespace Needle.Timeline
 		#endregion
 	}
 
+	public class ModifySelf : ToolModule
+	{
+		public override bool CanModify(Type type)
+		{
+			return typeof(IModifySelf).IsAssignableFrom(type);
+		}
+
+		public override bool WantsInput(InputData input)
+		{
+			return true;
+		}
+
+		public override bool OnModify(InputData input, ref ToolData toolData)
+		{
+			if (toolData.Value == null) return false;
+			if (toolData.Value is IModifySelf mod)
+			{
+				return mod.OnInput();
+			}
+			return false;
+		}
+	}
 
 	public class SprayModule : ToolModule
 	{

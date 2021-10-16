@@ -160,7 +160,6 @@ namespace Needle.Timeline
 
 		protected void UseEventDelayed()
 		{
-			Debug.Log("Mark used");
 			_useEventDelayed = true;
 		}
 

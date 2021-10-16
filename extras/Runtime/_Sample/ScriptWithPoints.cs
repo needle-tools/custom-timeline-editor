@@ -9,6 +9,9 @@ namespace _Sample._Sample
 	{
 		[Animate] public List<Point> Points1 = new List<Point>();
 
+		[Animate]
+		public List<Line> Lines = new List<Line>();
+
 		[Serializable]
 		public struct Point : IInit
 		{
@@ -31,6 +34,15 @@ namespace _Sample._Sample
 				{
 					Gizmos.color = pt.Color;
 					Gizmos.DrawSphere(pt.Position, pt.Weight + .01f);
+				}
+			}
+
+			if (Lines != null)
+			{
+				Gizmos.color = Color.white;
+				foreach (var line in Lines)
+				{
+					Gizmos.DrawLine(line.Start, line.End);
 				}
 			}
 		}

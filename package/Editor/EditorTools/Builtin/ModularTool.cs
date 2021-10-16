@@ -91,6 +91,13 @@ namespace Needle.Timeline
 				{
 					ToolModule.GetModulesSupportingType(type, buffer);
 					BuildModuleToolsUI();
+
+					if (typeof(ICollection).IsAssignableFrom(type) && type.IsGenericType)
+					{
+						var contentType = type.GetGenericArguments().First();
+						ToolModule.GetModulesSupportingType(contentType, buffer);
+						BuildModuleToolsUI();
+					}
 				}
 
 				foreach (var field in t.Clip.EnumerateFields())
@@ -190,8 +197,8 @@ namespace Needle.Timeline
 								Time = tar.TimeF
 							};
 							// Debug.Log("Modify: " + module + ": " + tar.Clip);
-							module.OnModify(input, ref data); 
-							UseEventDelayed();
+							if(module.OnModify(input, ref data))
+								UseEventDelayed();
 
 							// if (tar.Clip.GetType().IsGenericType)
 							// {
