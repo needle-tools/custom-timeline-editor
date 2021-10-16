@@ -13,6 +13,7 @@ namespace Needle.Timeline
 	{
 		Vector3? WorldPosition { get; }
 		Vector3? DeltaWorld { get; }
+		Vector2 ToScreenPoint(Vector3 worldPoint);
 	}
 
 	public interface IInit

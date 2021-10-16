@@ -14,6 +14,7 @@ namespace Needle.Timeline
 	{
 		public bool IsIn2DMode;
 		
+		
 		public Vector3? WorldPosition { get; private set; }
 		public Vector3? LastWorldPosition;
 		public Vector3? StartWorldPosition;
@@ -31,8 +32,15 @@ namespace Needle.Timeline
 			private set => deltaWorld = value;
 		}
 
+		public Vector2 ToScreenPoint(Vector3 worldPoint)
+		{
+			return Camera.current.WorldToScreenPoint(worldPoint);
+		}
+
 		public Vector2 ScreenPosition;
 		public Vector2 LastScreenPosition;
+		public Vector2 StartScreenPosition;
+		
 		public Vector2 ScreenDelta => ScreenPosition - LastScreenPosition;
 		public InputEventType Type;
 
@@ -76,6 +84,7 @@ namespace Needle.Timeline
 				case EventType.MouseDown:
 					RecordCurrent();
 					StartWorldPosition = WorldPosition;
+					StartScreenPosition = ScreenPosition;
 					break;
 				case EventType.MouseDrag:
 				case EventType.MouseUp:
@@ -130,7 +139,8 @@ namespace Needle.Timeline
 		public abstract bool CanModify(Type type);
 
 		public virtual bool WantsInput(InputData input) =>
-			input.Type == InputEventType.Begin || input.Type == InputEventType.Update;
+			(input.Type == InputEventType.Begin || input.Type == InputEventType.Update)
+			&& Event.current.button == 0 && Event.current.modifiers == EventModifiers.None;
 
 		public virtual bool OnModify(InputData input, ref ToolData toolData)
 		{
@@ -190,7 +200,7 @@ namespace Needle.Timeline
 			if (toolData.Value == null) return false;
 			if (toolData.Value is IModifySelf mod)
 			{
-				return mod.OnInput();
+				return mod.OnInput(input);
 			}
 			return false;
 		}
@@ -199,7 +209,12 @@ namespace Needle.Timeline
 	public class SprayModule : ToolModule
 	{
 		public float Radius = 1;
-		
+
+		public override bool WantsInput(InputData input)
+		{
+			return base.WantsInput(input);
+		}
+
 		public override bool CanModify(Type type)
 		{
 			return typeof(Vector3).IsAssignableFrom(type);
@@ -214,7 +229,7 @@ namespace Needle.Timeline
 			var pos = input.WorldPosition.Value + Random.insideUnitSphere * Radius;
 			if (input.IsIn2DMode) pos.z = 0;
 
-			var closestKeyframe = toolData.Keyframe;
+			var closestKeyframe = toolData.Keyframe; 
 			closestKeyframe ??= toolData.Clip.GetClosest(toolData.Time);
 
 			if (closestKeyframe == null || Mathf.Abs(closestKeyframe.time - toolData.Time) > .1f)
@@ -280,6 +295,8 @@ namespace Needle.Timeline
 
 	public class FloatScaleDrag : ToolModule
 	{
+		public float Radius = 1;
+		
 		public override bool CanModify(Type type)
 		{
 			return typeof(float).IsAssignableFrom(type); 
@@ -289,15 +306,15 @@ namespace Needle.Timeline
 		{
 			if (toolData.Value is float vec)
 			{
-				if (toolData.Position != null && input.WorldPosition != null)
+				if (toolData.Position != null)
 				{
-					var dist = Vector3.Distance(input.WorldPosition.Value, toolData.Position.Value);
-					var strength = Mathf.Clamp01(1 - dist);
+					var dist = Vector2.Distance(input.StartScreenPosition, input.ToScreenPoint(toolData.Position.Value));
+					var strength = Mathf.Clamp01(Radius * 100 - dist);
 					if (strength <= 0) return false;
-					var delta = input.DeltaWorld.GetValueOrDefault().y;
+					var delta = input.ScreenDelta.y * 0.01f;
 					var target = vec + delta;
 					toolData.Value = target;
-					return strength > .0001f;
+					return true;
 				}
 				else
 				{

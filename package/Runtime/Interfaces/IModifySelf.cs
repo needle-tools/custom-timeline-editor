@@ -2,6 +2,6 @@
 {
 	public interface IModifySelf
 	{
-		bool OnInput();
+		bool OnInput(IToolData data);
 	}
 }
