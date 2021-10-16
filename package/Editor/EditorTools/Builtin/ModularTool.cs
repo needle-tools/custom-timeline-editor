@@ -133,11 +133,11 @@ namespace Needle.Timeline
 				Button button = null;
 				button = new Button(() =>
 				{
-					foreach (var e in modulesUI)
-					{
-						if (e == entry) continue;
-						e.SetActive(false);
-					}
+					// foreach (var e in modulesUI)
+					// {
+					// 	if (e == entry) continue;
+					// 	e.SetActive(false);
+					// }
 					entry.SetActive(!entry.IsActive);
 				})
 				{

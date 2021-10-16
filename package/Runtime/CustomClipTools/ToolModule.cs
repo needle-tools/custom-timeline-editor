@@ -16,6 +16,7 @@ namespace Needle.Timeline
 	{
 		public Vector3? WorldPosition;
 		public Vector3? LastWorldPosition;
+		public Vector3? StartWorldPosition;
 
 		private Vector3? deltaWorld;
 
@@ -55,17 +56,26 @@ namespace Needle.Timeline
 					Type = InputEventType.Unknown;
 					break;
 			}
+
+			void RecordCurrent()
+			{
+				DeltaWorld = null;
+				LastWorldPosition = WorldPosition;
+				WorldPosition = PlaneUtils.GetPointOnPlane(Camera.current, out _, out _, out _);
+				LastScreenPosition = ScreenPosition;
+				ScreenPosition = evt.mousePosition;
+			}
+			
 			switch (evt.type)
 			{
 				case EventType.MouseDown:
+					RecordCurrent();
+					StartWorldPosition = WorldPosition;
+					break;
 				case EventType.MouseDrag:
 				case EventType.MouseUp:
 				case EventType.MouseMove:
-					DeltaWorld = null;
-					LastWorldPosition = WorldPosition;
-					WorldPosition = PlaneUtils.GetPointOnPlane(Camera.current, out _, out _, out _);
-					LastScreenPosition = ScreenPosition;
-					ScreenPosition = evt.mousePosition;
+					RecordCurrent();
 					break;
 			}
 		}
@@ -244,15 +254,15 @@ namespace Needle.Timeline
 
 		public override bool OnModify(InputData input, ref ToolData toolData)
 		{
-			if (toolData.Value is Vector3 vec)
+			if (toolData.Value is Vector3 vec && input.WorldPosition.HasValue)
 			{
 				var dist = Vector3.Distance(input.WorldPosition.Value, (Vector3)toolData.Value);
-				var strength = Mathf.Clamp01(1 - dist);
+				var strength = Mathf.Clamp01(10 * (1 - dist));
 				if (strength <= 0) return false;
 				var delta = input.DeltaWorld.GetValueOrDefault();
 				var target = vec + delta;
 				toolData.Value = Vector3.Lerp(vec, target, strength);
-				return strength > .01f;
+				return true;
 			}
 			return false;
 		}
@@ -332,10 +342,10 @@ namespace Needle.Timeline
 			if (toolData.Value is Color col)
 			{
 				float strength = 1;
-				if (toolData.Position != null && input.WorldPosition != null)
+				if (toolData.Position != null && input.StartWorldPosition != null)
 				{
-					var dist = Vector3.Distance(input.WorldPosition.Value, toolData.Position.Value);
-					strength = Mathf.Clamp01(1 - dist);
+					var dist = Vector3.Distance(input.StartWorldPosition.Value, toolData.Position.Value);
+					strength = Mathf.Clamp01(2 - dist);
 					if (strength <= 0.001f) return false;
 				}
 				
@@ -344,7 +354,7 @@ namespace Needle.Timeline
 				// TODO: figure out how we create new objects e.g. in a list
 
 				Color.RGBToHSV(col, out var h, out var s, out var v);
-				h += input.ScreenDelta.x * .001f;
+				h += input.ScreenDelta.x * .005f;
 				if((Event.current.modifiers & EventModifiers.Alt) != 0)
 					s += input.ScreenDelta.y * -.01f;
 				else
