@@ -145,12 +145,13 @@ namespace Needle.Timeline
 		private readonly InputData input = new InputData();
 		private readonly List<(IReadClipTime time, IClipKeyframePair val)> visibleKeyframes = new List<(IReadClipTime time, IClipKeyframePair val)>();
 
-		protected override void OnInput(EditorWindow window)
+		protected override void OnHandleInput()
 		{
 			if (Event.current.type == EventType.MouseDown)
 				Debug.Log("Mouse down");
 
 			input.Update();
+			var eventUsed = false;
 			// foreach (var tool in modulesUI)
 			// {
 			// 	if (!tool.IsActive) continue;
@@ -188,8 +189,9 @@ namespace Needle.Timeline
 								Clip = tar.Clip,
 								Time = tar.TimeF
 							};
-							Debug.Log("Modify: " + module + ": " + tar.Clip);
+							// Debug.Log("Modify: " + module + ": " + tar.Clip);
 							module.OnModify(input, ref data); 
+							UseEventDelayed();
 
 							// if (tar.Clip.GetType().IsGenericType)
 							// {
@@ -248,13 +250,16 @@ namespace Needle.Timeline
 															Clip = pair.Clip,
 															Keyframe = pair.Keyframe,
 															Value = fieldValue,
+															Index = index,
 															ValueType = contentType,
-															Time = tar.TimeF
+															Time = tar.TimeF,
+															ValueOwner = listEntry,
 														};
 														if (module.OnModify(input, ref data))
 														{
 															field.SetValue(listEntry, data.Value);
 															changed = true;
+															UseEventDelayed();
 														}
 													}
 												}
@@ -269,12 +274,14 @@ namespace Needle.Timeline
 														Keyframe = pair.Keyframe,
 														Value = listEntry,
 														ValueType = contentType,
-														Time = tar.TimeF
+														Time = tar.TimeF,
+														ValueOwner = pair.Keyframe,
 													};
 													if (module.OnModify(input, ref data))
 													{
 														listEntry = data.Value;
 														changed = true;
+														UseEventDelayed();
 													}
 												}
 											}
@@ -285,9 +292,6 @@ namespace Needle.Timeline
 											kf.value = value;
 											kf.RaiseValueChangedEvent();
 										}
-									}
-									else
-									{
 									}
 								}
 							}
@@ -382,6 +386,9 @@ namespace Needle.Timeline
 					UseEvent();
 					break;
 			}
+			
+			if(eventUsed)
+				UseEvent();
 		}
 
 		private void ForEachModule(Action<ToolTarget, ToolModule> callback)

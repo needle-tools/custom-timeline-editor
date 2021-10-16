@@ -19,7 +19,7 @@ namespace Needle.Timeline
 			Debug.Log("Add " + clip.Name + "@" + vm.startTime);
 			var t = new ToolTarget(vm, clip);
 			targets.Add(t);
-			OnAddedTarget(t);  
+			OnAddedTarget(t);
 		}
 
 		void ICustomClipTool.RemoveTarget(ICustomClip clip)
@@ -122,7 +122,14 @@ namespace Needle.Timeline
 		}
 
 		protected abstract bool OnSupports(Type type);
-		protected abstract void OnInput(EditorWindow window);
+
+		protected void OnInput(EditorWindow window)
+		{
+			_useEventDelayed = false;
+			OnHandleInput();
+			if (_useEventDelayed)
+				UseEvent();
+		}
 
 
 		protected virtual void OnAttach(VisualElement element)
@@ -130,6 +137,10 @@ namespace Needle.Timeline
 		}
 
 		protected virtual void OnDetach(VisualElement element)
+		{
+		}
+
+		protected virtual void OnHandleInput()
 		{
 		}
 
@@ -145,9 +156,24 @@ namespace Needle.Timeline
 		}
 
 
+		private bool _useEventDelayed;
+
+		protected void UseEventDelayed()
+		{
+			Debug.Log("Mark used");
+			_useEventDelayed = true;
+		}
+
 		protected static void UseEvent()
 		{
-			if (Event.current == null || Event.current.type == EventType.Used) return;
+			if (Event.current == null) return;
+			switch (Event.current.type)
+			{
+				case EventType.Used:
+				case EventType.Repaint:
+				case EventType.Layout:
+					return;
+			}
 			// prevent selection box
 			GUIUtility.hotControl = 0;
 			Event.current.Use();

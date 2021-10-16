@@ -15,7 +15,7 @@ public class LineTool : CustomClipToolBase
 		return typeof(List<Line>).IsAssignableFrom(type);
 	}
 
-	protected override void OnInput(EditorWindow window)
+	protected override void OnHandleInput()
 	{
 		if (Event.current.modifiers != EventModifiers.None) return;
 		if (Event.current.button != 0) return;

@@ -31,7 +31,7 @@ namespace Needle.Timeline
 				Debug.Log(mod);
 		}
 
-		protected override void OnInput(EditorWindow window)
+		protected override void OnHandleInput()
 		{
 			var pos = PlaneUtils.GetPointOnPlane(Camera.current, out _, out _, out _);
 			Handles.color = erase ? Color.red : Color.white;

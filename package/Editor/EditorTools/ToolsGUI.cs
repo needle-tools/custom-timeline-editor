@@ -92,6 +92,8 @@ namespace Needle.Timeline
 				_availableTools.Clear();
 				foreach (var tool in ToolsHandler.ToolInstances)
 				{
+					if (tool == null) continue;
+					
 					if (!_tools.TryGetValue(tool, out var toolContainer))
 					{
 						toolContainer = new VisualElement();

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
 using Needle.Timeline;
 using UnityEngine;
 
@@ -8,15 +7,20 @@ namespace _Sample._Sample
 {
 	public class ScriptWithPoints : MonoBehaviour, IAnimated
 	{
-		
-		[Animate]
-		public List<Point> Points1 = new List<Point>();
+		[Animate] public List<Point> Points1 = new List<Point>();
 
 		[Serializable]
-		public struct Point
+		public struct Point : IInit
 		{
-			public Vector3 Position; 
+			public Vector3 Position;
 			public float Weight;
+			public Color Color;
+
+			public void Init()
+			{
+				Weight = .05f;
+				Color = Color.white;
+			}
 		}
 
 		private void OnDrawGizmos()
@@ -25,7 +29,8 @@ namespace _Sample._Sample
 			{
 				foreach (var pt in Points1)
 				{
-					Gizmos.DrawSphere(pt.Position, pt.Weight + .1f);
+					Gizmos.color = pt.Color;
+					Gizmos.DrawSphere(pt.Position, pt.Weight + .01f);
 				}
 			}
 		}

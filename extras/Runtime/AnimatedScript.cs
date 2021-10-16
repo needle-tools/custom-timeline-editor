@@ -33,8 +33,9 @@ namespace _Sample
 			}) { text = "Ok" });
 		}
 
-		protected override void OnInput(EditorWindow window)
+		protected override void OnHandleInput()
 		{
+			
 		}
 	}
 #endif
@@ -117,8 +118,9 @@ namespace _Sample
 				}) { name = "Add" });
 			}
 
-			protected override void OnInput(EditorWindow window)
+			protected override void OnHandleInput()
 			{
+				
 			}
 		}
 

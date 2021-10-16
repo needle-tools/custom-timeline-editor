@@ -92,10 +92,26 @@ namespace Needle.Timeline
 		public Type? ValueType;
 		public object? Value;
 		public float Time;
+		public int? Index;
+		public object? ValueOwner;
+
+		private bool _didSearchPosition;
+		private Vector3? _position;
+		public Vector3? Position
+		{
+			get
+			{
+				if (_didSearchPosition) return _position;
+				_didSearchPosition = true;
+				return _position = ToolHelpers.TryGetPosition(ValueOwner, Value);
+			}
+		}
 	}
 
 	public abstract class ToolModule : IToolModule
 	{
+		public bool EventUsed { get; protected set; }
+
 		public abstract bool CanModify(Type type);
 
 		public virtual bool WantsInput(InputData input) =>
@@ -182,7 +198,7 @@ namespace Needle.Timeline
 
 				if (closestKeyframe.value is IList col && contentType != typeof(Vector3) && contentType != null)
 				{
-					var instance = Activator.CreateInstance(contentType);
+					var instance = contentType.TryCreateInstance();
 					if (instance != null)
 					{
 						var posField = instance.GetType().EnumerateFields().FirstOrDefault(f => f.FieldType == typeof(Vector3));
@@ -231,10 +247,52 @@ namespace Needle.Timeline
 		{
 			if (toolData.Value is float vec)
 			{
-				var delta = -input.ScreenDelta.y * 0.01f;
-				var target = vec + delta;
-				toolData.Value = target;
-				return Mathf.Abs(delta) > .01f;
+				if (toolData.Position != null && input.WorldPosition != null)
+				{
+					var dist = Vector3.Distance(input.WorldPosition.Value, toolData.Position.Value);
+					var strength = Mathf.Clamp01(1 - dist);
+					if (strength <= 0) return false;
+					var delta = input.DeltaWorld.GetValueOrDefault().y;
+					var target = vec + delta;
+					toolData.Value = target;
+					return strength > .0001f;
+				}
+				else
+				{
+					var delta = -input.ScreenDelta.y * 0.01f;
+					var target = vec + delta;
+					toolData.Value = target;
+					return Mathf.Abs(delta) > .0001f;
+				}
+			}
+			return false;
+		}
+	}
+	
+	
+	public class SetFloatValue : ToolModule
+	{
+		public float Value = .1f;
+		
+		public override bool CanModify(Type type)
+		{
+			return typeof(float).IsAssignableFrom(type); 
+		}
+
+		public override bool OnModify(InputData input, ref ToolData toolData)
+		{
+			if (toolData.Value is float vec)
+			{
+				if (toolData.Position != null && input.WorldPosition != null)
+				{
+					var dist = Vector3.Distance(input.WorldPosition.Value, toolData.Position.Value);
+					var strength = Mathf.Clamp01(1 - dist);
+					if (strength <= 0) return false;
+					toolData.Value = Value;
+					return true;
+				}
+				toolData.Value = Value;
+				return true;
 			}
 			return false;
 		}
@@ -251,15 +309,26 @@ namespace Needle.Timeline
 		{
 			if (toolData.Value is Color col)
 			{
+				float strength = 1;
+				if (toolData.Position != null && input.WorldPosition != null)
+				{
+					var dist = Vector3.Distance(input.WorldPosition.Value, toolData.Position.Value);
+					strength = Mathf.Clamp01(1 - dist);
+					if (strength <= 0.001f) return false;
+				}
+				
 				// TODO: we need to have access to other fields of custom types, e.g. here we want the position to get the distance
 
 				// TODO: figure out how we create new objects e.g. in a list
 
 				Color.RGBToHSV(col, out var h, out var s, out var v);
 				h += input.ScreenDelta.x * .001f;
-				v += input.ScreenDelta.y * -.001f;
+				if((Event.current.modifiers & EventModifiers.Alt) != 0)
+					s += input.ScreenDelta.y * -.01f;
+				else
+					v += input.ScreenDelta.y * -.01f;
 				col = Color.HSVToRGB(h, s, v);
-				toolData.Value = Color.Lerp((Color)toolData.Value, col, 1);
+				toolData.Value = Color.Lerp((Color)toolData.Value, col, strength);
 				return true;
 			}
 			return false;

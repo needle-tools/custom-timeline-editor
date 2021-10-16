@@ -51,7 +51,7 @@ namespace Needle.Timeline
 					tool.AddTarget(viewModel, clip);
 					if (tool is EditorTool et)
 					{
-						Debug.Log("Set active tool: " + et);
+						Debug.Log("Set active tool: " + et + ", " + tool);
 						ToolManager.SetActiveTool(et);
 					}
 				}
@@ -120,6 +120,7 @@ namespace Needle.Timeline
 
 			TimelineWindowUtil.IsInit += () =>
 			{
+				UpdateToolTargets();
 				var active = ToolManager.activeToolType;
 				if (typeof(ICustomClipTool).IsAssignableFrom(active))
 				{

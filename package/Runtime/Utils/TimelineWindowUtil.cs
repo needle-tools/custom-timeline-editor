@@ -25,23 +25,28 @@ namespace Needle.Timeline
 
 
 			await Task.Delay(1);
-			var window = GetOrFindWindow();
-			if (window)
-			{ 
-				// var directors = Object.FindObjectsOfType<PlayableDirector>();
-				var dir = TimelineEditor.inspectedDirector;
-				if(dir)
+			// while (!_isInit)
+			{
+				var window = GetOrFindWindow();
+				if (window)
 				{
-					var lastTime = GetTime(); 
-					if (lastTime >= 0)
+					// var directors = Object.FindObjectsOfType<PlayableDirector>();
+					var dir = TimelineEditor.inspectedDirector;
+					if (dir)
 					{
-						dir.time = lastTime;
-						TimelineHooks.CheckStateChanged(dir);
-						Debug.Log(dir.time);
+						_isInit = true;
+						var lastTime = GetTime();
+						if (lastTime >= 0)
+						{
+							dir.time = lastTime;
+							TimelineHooks.CheckStateChanged(dir);
+							Debug.Log(dir.time);
+						}
+						dir.Evaluate();
+						IsInit?.Invoke();
 					}
-					dir.Evaluate();
 				}
-				IsInit?.Invoke();
+				// else await Task.Delay(500);
 			}
 
 			EditorApplication.update += OnEditorUpdate;
@@ -68,6 +73,7 @@ namespace Needle.Timeline
 			return SessionState.GetFloat("Timeline_Time", -1);
 		}
 
+		private static bool _isInit;
 		internal static event Action IsInit;
 
 		internal static bool TryRepaint()
