@@ -52,7 +52,7 @@ namespace Needle.Timeline
 			{
 				_root = new VisualElement();
 				_root.style.minWidth = 20;
-				_root.style.maxWidth = new StyleLength(new Length(50, LengthUnit.Percent));
+				_root.style.maxWidth = new StyleLength(new Length(100, LengthUnit.Percent));
 				_root.style.backgroundColor = EditorGUIUtility.isProSkin
 					? new Color(0.21f, 0.21f, 0.21f, 0.8f)
 					: new Color(0.8f, 0.8f, 0.8f, 0.8f);
@@ -76,8 +76,8 @@ namespace Needle.Timeline
 			if (_toolsSettings == null)
 			{
 				_toolsSettings = new VisualElement();
-				_toolsSettings.style.minWidth = 0;
-				_toolsSettings.style.maxWidth = new StyleLength(new Length(50, LengthUnit.Percent));
+				// _toolsSettings.style.minWidth = 0;
+				// _toolsSettings.style.maxWidth = new StyleLength(new Length(100, LengthUnit.Percent));
 				_toolsSettings.style.backgroundColor = EditorGUIUtility.isProSkin
 					? new Color(0.21f, 0.21f, 0.21f, 0.8f)
 					: new Color(0.8f, 0.8f, 0.8f, 0.8f);

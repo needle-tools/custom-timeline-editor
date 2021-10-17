@@ -88,44 +88,6 @@ namespace _Sample
 			}
 		}
 
-#if UNITY_EDITOR
-		public class MyTypeEditor : CustomClipToolBase
-		{
-			protected override bool OnSupports(Type type)
-			{
-				return typeof(MyType).IsAssignableFrom(type) || typeof(IList<MyType>).IsAssignableFrom(type);
-			}
-
-			protected override void OnAttach(VisualElement element)
-			{
-				base.OnAttach(element);
-				element.Add(new Button(() =>
-				{
-					foreach (var t in Targets)
-					{
-						if (t.Clip is ICustomClip<List<MyType>> c)
-						{
-							var list = new List<MyType>();
-							for (var i = 0; i < Random.Range(1, 5); i++)
-								list.Add(MyType.GetRandom());
-							c.Add(new CustomKeyframe<List<MyType>>(list, t.TimeF));
-						}
-						else if (t.Clip is ICustomClip<MyType> s)
-						{
-							s.Add(new CustomKeyframe<MyType>(MyType.GetRandom(), t.TimeF));
-						}
-					}
-				}) { name = "Add" });
-			}
-
-			protected override void OnHandleInput()
-			{
-				
-			}
-		}
-
-#endif
-
 		// [Animate]
 		// public List<Vector3> points = new List<Vector3>();
 		//

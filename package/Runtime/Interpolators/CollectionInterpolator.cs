@@ -9,14 +9,15 @@ namespace Needle.Timeline
 	public enum CollectionInterpolationMode
 	{
 		AllAtOnce = 0,
-		Individual = 1
+		Individual = 1,
+		Buckets = 2,
 	}
 	
 	[Priority(-100)]
 	// ReSharper disable once UnusedType.Global
 	public class CollectionInterpolator : IInterpolator
 	{
-		public CollectionInterpolationMode CurrentMode = CollectionInterpolationMode.Individual;
+		public CollectionInterpolationMode CurrentMode = CollectionInterpolationMode.AllAtOnce;
 		
 		public object Instance { get; set; }
 
@@ -99,7 +100,7 @@ namespace Needle.Timeline
 					using (createInstanceMarker.Auto())
 					{
 						var type = val0?.GetType() ?? val1.GetType();
-						instance = Activator.CreateInstance(type);
+						instance = type.TryCreateInstance();
 					}
 				}
 				// Debug.Log(t + ": " + pos.ToString("0.000") + ", " + count + ", " + i);
