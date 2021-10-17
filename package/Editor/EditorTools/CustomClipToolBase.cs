@@ -69,6 +69,8 @@ namespace Needle.Timeline
 			OnGetOrCreateSettings(ref obj);
 			Settings = obj;
 		}
+
+		bool ICustomClipTool.IsValid => this;
 		#endregion
 
 		private static Texture2D _toolIcon;

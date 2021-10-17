@@ -9,9 +9,6 @@ namespace _Sample._Sample
 	{
 		[Animate] public List<Point> Points1 = new List<Point>();
 
-		[Animate]
-		public List<Line> Lines = new List<Line>();
-
 		public struct Point : IInit
 		{
 			public Vector3 Position;
@@ -24,6 +21,9 @@ namespace _Sample._Sample
 				Color = Color.white;
 			}
 		}
+
+		[Animate]
+		public List<Line> Lines = new List<Line>();
 
 		private void OnDrawGizmos()
 		{

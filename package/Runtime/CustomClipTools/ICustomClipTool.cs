@@ -13,6 +13,7 @@ namespace Needle.Timeline
 		internal void Attach(VisualElement el);
 		internal void Detach(VisualElement el);
 		internal void GetOrCreateSettings(ref ScriptableObject obj);
+		internal bool IsValid { get; }
 
 		bool Supports(Type type);
 	}

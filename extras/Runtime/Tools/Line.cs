@@ -8,6 +8,12 @@ public struct Line : IModifySelf, IInit
 	public Vector3 Start;
 	public Vector3 End;
 
+	public void Init(InitStage stage, IToolData data)
+	{
+		if (stage == InitStage.BasicValuesSet && data != null)
+			End = Start + data.DeltaWorld.GetValueOrDefault().normalized;
+	}
+
 	public bool OnInput(IToolData data)
 	{
 #if UNITY_EDITOR
@@ -28,12 +34,6 @@ public struct Line : IModifySelf, IInit
 #else
 		return false;
 #endif
-	}
-
-	public void Init(InitStage stage, IToolData data)
-	{
-		if (stage == InitStage.BasicValuesSet && data != null)
-			End = Start + data.DeltaWorld.GetValueOrDefault().normalized;
 	}
 
 	public void DrawGizmos()
