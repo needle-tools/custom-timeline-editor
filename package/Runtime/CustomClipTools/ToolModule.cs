@@ -77,6 +77,7 @@ namespace Needle.Timeline
 				WorldPosition = PlaneUtils.GetPointOnPlane(Camera.current, out _, out _, out _);
 				LastScreenPosition = ScreenPosition;
 				ScreenPosition = evt.mousePosition;
+				ScreenPosition.y = Screen.height - ScreenPosition.y;
 			}
 			
 			switch (evt.type)
@@ -138,9 +139,13 @@ namespace Needle.Timeline
 
 		public abstract bool CanModify(Type type);
 
-		public virtual bool WantsInput(InputData input) =>
-			(input.Type == InputEventType.Begin || input.Type == InputEventType.Update)
-			&& Event.current.button == 0 && Event.current.modifiers == EventModifiers.None;
+		public virtual bool WantsInput(InputData input)
+		{
+			return (input.Type == InputEventType.Begin || input.Type == InputEventType.Update)
+			       && Event.current.button == 0 && AllowedModifiers(input, Event.current.modifiers);
+		}
+
+		protected virtual bool AllowedModifiers(InputData data, EventModifiers current) => current == EventModifiers.None;
 
 		public virtual bool OnModify(InputData input, ref ToolData toolData)
 		{
@@ -248,6 +253,7 @@ namespace Needle.Timeline
 				if (closestKeyframe.value is ICollection<Vector3> list)
 				{
 					list.Add(pos);
+					closestKeyframe.RaiseValueChangedEvent();
 					return true;
 				}
 
@@ -261,6 +267,7 @@ namespace Needle.Timeline
 						posField!.SetValue(instance, pos);
 						if (instance is IInit init) init.Init(InitStage.BasicValuesSet, input);
 						col.Add(instance);
+						closestKeyframe.RaiseValueChangedEvent();
 						return true;
 					}
 				}
@@ -364,6 +371,11 @@ namespace Needle.Timeline
 			return typeof(Color).IsAssignableFrom(type);
 		}
 
+		protected override bool AllowedModifiers(InputData data, EventModifiers current)
+		{
+			return current == EventModifiers.None || current == EventModifiers.Alt; 
+		}
+
 		public override bool OnModify(InputData input, ref ToolData toolData)
 		{
 			if (toolData.Value is Color col)
@@ -383,9 +395,9 @@ namespace Needle.Timeline
 				Color.RGBToHSV(col, out var h, out var s, out var v);
 				h += input.ScreenDelta.x * .005f;
 				if((Event.current.modifiers & EventModifiers.Alt) != 0)
-					s += input.ScreenDelta.y * -.01f;
+					s += input.ScreenDelta.y * .01f;
 				else
-					v += input.ScreenDelta.y * -.01f;
+					v += input.ScreenDelta.y * .01f;
 				col = Color.HSVToRGB(h, s, v);
 				toolData.Value = Color.Lerp((Color)toolData.Value, col, strength);
 				return true;

@@ -187,17 +187,7 @@ namespace Needle.Timeline
 				Debug.Log("Mouse down");
 
 			input.Update();
-			var eventUsed = false;
-			// foreach (var tool in modulesUI)
-			// {
-			// 	if (!tool.IsActive) continue;
-			// 	foreach (var field in EnumerateTargetFields())
-			// 	{
-			// 		tool.Module.RequestsInput(data);
-			// 	}
-			// }
-
-
+			
 			if (modulesUI.Any(m => m.IsActive && m.Module.WantsInput(input)))
 			{
 				foreach (var mod in modulesUI)
@@ -209,13 +199,17 @@ namespace Needle.Timeline
 					foreach (var tar in Targets)
 					{
 						visibleKeyframes.Clear();
-						if (!tar.IsNull())
+						
+						if (tar.IsNull()) continue;
+						if (tar.Clip is IRecordable rec)
 						{
-							var time = (float)tar.ViewModel.clipTime;
-							var kf = tar.Clip.GetClosest(time);
-							if (kf != null)
-								visibleKeyframes.Add((tar.ViewModel, new ClipKeyframePair(tar.Clip, kf)));
+							if (!rec.IsRecording) continue;
 						}
+						
+						var time = (float)tar.ViewModel.clipTime;
+						var closest = tar.Clip.GetClosest(time);
+						if (closest != null)
+							visibleKeyframes.Add((tar.ViewModel, new ClipKeyframePair(tar.Clip, closest)));
 
 						
 						if (!tar.Clip.SupportedTypes.Any(module.CanModify))
@@ -226,8 +220,10 @@ namespace Needle.Timeline
 								Time = tar.TimeF
 							};
 							// Debug.Log("Modify: " + module + ": " + tar.Clip);
-							if(module.OnModify(input, ref data))
+							if (module.OnModify(input, ref data))
+							{
 								UseEventDelayed();
+							}
 
 							// if (tar.Clip.GetType().IsGenericType)
 							// {
@@ -413,18 +409,15 @@ namespace Needle.Timeline
 					UseEvent();
 					break;
 
-				case (EventType.MouseDrag, EventModifiers.None, 0):
-					if (keyframe != null)
-					{
-						// keyframe.value.Add(GetPoint(pos));
-						keyframe.RaiseValueChangedEvent();
-					}
-					UseEvent();
-					break;
+				// case (EventType.MouseDrag, EventModifiers.None, 0):
+				// 	if (keyframe != null)
+				// 	{
+				// 		// keyframe.value.Add(GetPoint(pos));
+				// 		keyframe.RaiseValueChangedEvent();
+				// 	}
+				// 	UseEvent();
+				// 	break;
 			}
-			
-			if(eventUsed)
-				UseEvent();
 		}
 
 		private void ForEachModule(Action<ToolTarget, ToolModule> callback)

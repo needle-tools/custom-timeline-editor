@@ -17,6 +17,7 @@ namespace Needle.Timeline
 		private readonly float lineHeight = EditorGUIUtility.singleLineHeight * 1.1f;
 		private readonly StringBuilder builder = new StringBuilder();
 		private GUIStyle typeStyle;
+		private GUIStyle recordButtonStyle;
 
 		protected override void OnDrawHeader(Rect rect)
 		{
@@ -48,6 +49,37 @@ namespace Needle.Timeline
 								var col = new Color(0, 0, 0, .1f);
 								GUI.DrawTexture(backgroundRect, Texture2D.whiteTexture, ScaleMode.StretchToFill, true, 1, col, 0, 0);
 
+
+								float endingSpace = 0;
+								if (curves is IRecordable rec)
+								{
+									if (recordButtonStyle == null)
+									{
+										recordButtonStyle = EditorStyles.FromUSS("trackRecordButton");
+										recordButtonStyle.fixedWidth = 0;
+										recordButtonStyle.fixedHeight = 0;
+									}
+									var style = recordButtonStyle;
+									if (rec.IsRecording)
+									{
+										TimelineEditor.GetWindow().Repaint();
+										var remainder = Time.realtimeSinceStartup % 1;
+										if (remainder < 0.22f)
+											style = GUIStyle.none;
+									}
+									var recButtonWidth = new Rect(r);
+									const float factor = 0.75f;
+									recButtonWidth.height = r.height * factor;
+									recButtonWidth.width = recButtonWidth.height;
+									recButtonWidth.y += r.height * (1-factor)*.5f;
+									recButtonWidth.x = rect.width;
+									endingSpace = recButtonWidth.width + 5;
+									if (GUI.Button(recButtonWidth, new GUIContent(string.Empty), style))
+									{
+										rec.IsRecording = !rec.IsRecording;
+									}
+								}
+
 								var tr = new Rect(r);
 								tr.y -= 1.5f;
 								tr.x += 5;
@@ -56,6 +88,7 @@ namespace Needle.Timeline
 
 								tr.width = rect.width - 30;
 								tr.x += rect.x;
+								tr.x -= endingSpace;
 								builder.Clear();
 								StringHelper.GetGenericsString(curves.GetType(), builder);
 								GUI.Label(tr, builder.ToString(), typeStyle);

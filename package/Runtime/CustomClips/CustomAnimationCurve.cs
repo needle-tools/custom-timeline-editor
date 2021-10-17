@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace Needle.Timeline
 {
-	public class CustomAnimationCurve<T> : ICustomClip<T>, IInterpolator<T>, IKeyframesProvider, IHasInterpolator
+	public class CustomAnimationCurve<T> : ICustomClip<T>, IInterpolator<T>, IKeyframesProvider, IHasInterpolator, IRecordable
 	{
 		private IInterpolator _interpolator;
 		private readonly List<ICustomKeyframe<T>> _keyframes;
@@ -16,6 +16,8 @@ namespace Needle.Timeline
 		private readonly ProfilerMarker _interpolationMarker = new ProfilerMarker("CustomAnimationCurve Interpolate " + typeof(T));
 
 		public string Name { get; set; }
+		
+		public bool IsRecording { get; set; }
 		
 		[JsonIgnore]
 		public IInterpolator Interpolator
@@ -228,5 +230,6 @@ namespace Needle.Timeline
 			current /= diff;
 			return current;
 		}
+
 	}
 }
