@@ -16,7 +16,7 @@ namespace Needle.Timeline
 	// ReSharper disable once UnusedType.Global
 	public class CollectionInterpolator : IInterpolator
 	{
-		public CollectionInterpolationMode CurrentMode = CollectionInterpolationMode.Individual;
+		public CollectionInterpolationMode CurrentMode = CollectionInterpolationMode.AllAtOnce;
 		
 		public object Instance { get; set; }
 

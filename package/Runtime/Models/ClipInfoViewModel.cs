@@ -98,6 +98,7 @@ namespace Needle.Timeline
 
 		internal void RenderOnionSkin()
 		{
+			if (!IsValid) return;
 			if (!(Script is IOnionSkin onion)) return;
 			var time = (float)ClipTime;
 

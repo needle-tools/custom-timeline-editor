@@ -12,7 +12,6 @@ namespace _Sample._Sample
 		[Animate]
 		public List<Line> Lines = new List<Line>();
 
-		[Serializable]
 		public struct Point : IInit
 		{
 			public Vector3 Position;
