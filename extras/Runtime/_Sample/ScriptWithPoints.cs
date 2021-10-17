@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using Needle.Timeline;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace _Sample._Sample
 {
 	public class ScriptWithPoints : MonoBehaviour, IAnimated, IOnionSkin
 	{
-		[Animate] public List<Point> Points1 = new List<Point>();
+		[Animate] public List<Point> Points = new List<Point>();
 
 		public struct Point : IInit
 		{
@@ -18,9 +19,10 @@ namespace _Sample._Sample
 			public void Init(InitStage stage, IToolData _)
 			{
 				Weight = .05f;
-				Color = Color.white;
+				Color = Color.white; 
 			}
 		}
+		
 
 		[Animate]
 		public List<Line> Lines = new List<Line>();
@@ -43,9 +45,9 @@ namespace _Sample._Sample
 					onionColor = new Color(0.5f, 1f, .5f, .3f);
 			}
 			
-			if (Points1 != null)
+			if (Points != null)
 			{
-				foreach (var pt in Points1)
+				foreach (var pt in Points)
 				{
 					Gizmos.color = Color.Lerp(pt.Color, onionColor, lerp);
 					Gizmos.DrawSphere(pt.Position, pt.Weight + .01f);

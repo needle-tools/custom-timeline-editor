@@ -26,77 +26,96 @@ namespace Needle.Timeline
 				typeStyle = new GUIStyle(EditorStyles.label);
 				typeStyle.alignment = TextAnchor.MiddleRight;
 			}
-			foreach (var clip in EnumerateClips())
+
+			void ForAllClips(int index, Action<ICustomClip> callback)
 			{
-				if (clip.asset is CodeControlAsset code)
+				foreach (var clip in EnumerateClips())
 				{
-					var row = 0;
+					if (!(clip.asset is CodeControlAsset code)) continue;
 					foreach (var viewModel in code.viewModels)
 					{
-						if (viewModel?.clips != null)
+						var customClip = viewModel.clips[index];
+						callback(customClip);
+					}
+				}
+			}
+			
+			foreach (var clip in EnumerateClips())
+			{
+				if (!(clip.asset is CodeControlAsset code)) continue;
+				var row = 0;
+				foreach (var viewModel in code.viewModels)
+				{
+					if (viewModel?.clips != null)
+					{
+						for (var index = 0; index < viewModel.clips.Count; index++)
 						{
-							foreach (var curves in viewModel.clips)
+							var curves = viewModel.clips[index];
+							if (curves is AnimationCurveWrapper) continue;
+							var r = new Rect();
+							r.x = rect.x;
+							r.width = rect.width;
+							r.height = lineHeight;
+							r.y = rect.y + r.height * row;
+
+							var backgroundRect = new Rect(r);
+							backgroundRect.height -= 2;
+							var col = new Color(0, 0, 0, .1f);
+							GUI.DrawTexture(backgroundRect, Texture2D.whiteTexture, ScaleMode.StretchToFill, true, 1, col, 0, 0);
+
+
+							float endingSpace = 0;
+							if (curves is IRecordable rec)
 							{
-								if (curves is AnimationCurveWrapper) continue;
-								var r = new Rect();
-								r.x = rect.x;
-								r.width = rect.width;
-								r.height = lineHeight;
-								r.y = rect.y + r.height * row;
-
-								var backgroundRect = new Rect(r);
-								backgroundRect.height -= 2;
-								var col = new Color(0, 0, 0, .1f);
-								GUI.DrawTexture(backgroundRect, Texture2D.whiteTexture, ScaleMode.StretchToFill, true, 1, col, 0, 0);
-
-
-								float endingSpace = 0;
-								if (curves is IRecordable rec)
+								if (recordButtonStyle == null)
 								{
-									if (recordButtonStyle == null)
-									{
-										recordButtonStyle = EditorStyles.FromUSS("trackRecordButton");
-										recordButtonStyle.fixedWidth = 0;
-										recordButtonStyle.fixedHeight = 0;
-									}
-									var style = recordButtonStyle;
-									if (rec.IsRecording)
-									{
-										TimelineEditor.GetWindow().Repaint();
-										var remainder = Time.realtimeSinceStartup % 1;
-										if (remainder < 0.22f)
-											style = GUIStyle.none;
-									}
-									var recButtonWidth = new Rect(r);
-									const float factor = 0.75f;
-									recButtonWidth.height = r.height * factor;
-									recButtonWidth.width = recButtonWidth.height;
-									recButtonWidth.y += r.height * (1-factor)*.5f;
-									recButtonWidth.x = rect.width;
-									endingSpace = recButtonWidth.width + 5;
-									if (GUI.Button(recButtonWidth, new GUIContent(string.Empty), style))
-									{
-										rec.IsRecording = !rec.IsRecording;
-									}
+									recordButtonStyle = EditorStyles.FromUSS("trackRecordButton");
+									recordButtonStyle.fixedWidth = 0;
+									recordButtonStyle.fixedHeight = 0;
 								}
-
-								var tr = new Rect(r);
-								tr.y -= 1.5f;
-								tr.x += 5;
-								tr.width = r.width * .5f;
-								GUI.Label(tr, new GUIContent(ObjectNames.NicifyVariableName(curves.Name), viewModel.Script.GetType().Name));
-
-								tr.width = rect.width - 30;
-								tr.x += rect.x;
-								tr.x -= endingSpace;
-								builder.Clear();
-								StringHelper.GetGenericsString(curves.GetType(), builder);
-								GUI.Label(tr, builder.ToString(), typeStyle);
-								++row;
+								var style = recordButtonStyle;
+								if (rec.IsRecording)
+								{
+									TimelineEditor.GetWindow().Repaint();
+									var remainder = Time.realtimeSinceStartup % 1;
+									if (remainder < 0.22f)
+										style = GUIStyle.none;
+								}
+								var recButtonWidth = new Rect(r);
+								const float factor = 0.75f;
+								recButtonWidth.height = r.height * factor;
+								recButtonWidth.width = recButtonWidth.height;
+								recButtonWidth.y += r.height * (1 - factor) * .5f;
+								recButtonWidth.x = rect.width;
+								endingSpace = recButtonWidth.width + 5;
+								if (GUI.Button(recButtonWidth, new GUIContent(string.Empty), style))
+								{
+									var newState = !rec.IsRecording;
+									ForAllClips(index, c =>
+									{
+										if(c is IRecordable r)
+											r.IsRecording = newState;
+									});
+								}
 							}
+
+							var tr = new Rect(r);
+							tr.y -= 1.5f;
+							tr.x += 5;
+							tr.width = r.width * .5f;
+							GUI.Label(tr, new GUIContent(ObjectNames.NicifyVariableName(curves.Name), viewModel.Script.GetType().Name));
+
+							tr.width = rect.width - 30;
+							tr.x += rect.x;
+							tr.x -= endingSpace;
+							builder.Clear();
+							StringHelper.GetGenericsString(curves.GetType(), builder);
+							GUI.Label(tr, builder.ToString(), typeStyle);
+							++row;
 						}
 					}
 				}
+				break;
 			}
 		}
 
