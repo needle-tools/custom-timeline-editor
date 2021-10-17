@@ -11,7 +11,7 @@ namespace Needle.Timeline
 		public Vector3? WorldPosition { get; private set; }
 		public Vector3? WorldNormal;
 		public Vector3? LastWorldPosition;
-		public Vector3? StartWorldPosition;
+		public Vector3? StartWorldPosition { get; private set; }
 
 		private Vector3? deltaWorld;
 

@@ -4,9 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using UnityEditor;
 using UnityEditor.Experimental;
-using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.SocialPlatforms;
 using UnityEngine.UIElements;
@@ -14,93 +12,6 @@ using Random = UnityEngine.Random;
 
 namespace Needle.Timeline
 {
-	public class ModuleView
-	{
-		public ToolModule Module;
-		public VisualElement Container;
-		public TextElement Label;
-
-		private bool active;
-		public bool IsActive => active;
-
-		private bool initOptions;
-		private VisualElement options;
-
-		public void SetActive(bool state)
-		{
-			this.active = state;
-			Label.style.color = this.active ? Color.white : Color.gray;
-
-			options.style.display = new StyleEnum<DisplayStyle>(state ? StyleKeyword.Auto : StyleKeyword.None);
-			options.style.visibility = state ? Visibility.Visible : Visibility.Hidden;
-		}
-
-		public ModuleView(VisualElement container, ToolModule module)
-		{
-			Container = container;
-			this.Module = module;
-
-			options = new VisualElement();
-			// options.style.fle
-			Container.Add(options);
-			foreach (var field in Module.GetType().EnumerateFields())
-			{
-				if (!field.IsPublic)
-				{
-					if (field.GetCustomAttribute<Expose>() == null)
-						continue;
-				}
-				if (field.FieldType == typeof(float))
-				{
-					// Debug.Log("\"" + field.Name + "\"");
-					var range = field.GetCustomAttribute<RangeAttribute>();
-					VisualElement element;
-					if (range != null)
-					{
-						var el = new Slider(field.Name);
-						el.Q<Label>().style.minWidth = 0;
-						el.style.minWidth = 200;
-						el.lowValue = range.min;
-						el.highValue = range.max;
-						el.value = (float)field.GetValue(Module);
-						el.RegisterValueChangedCallback(cb => { field.SetValue(Module, cb.newValue); });
-						element = el;
-						options.Add(el);
-					}
-					else
-					{
-						var el = new FloatField(field.Name);
-						el.Q<Label>().style.minWidth = 0;
-						el.value = (float)field.GetValue(Module);
-						el.RegisterValueChangedCallback(cb => { field.SetValue(Module, cb.newValue); });
-						element = el;
-						options.Add(el);
-					}
-					element.RegisterCallback<MouseUpEvent>(evt =>
-					{
-						if (evt.button == (int)MouseButton.RightMouse)
-						{
-							var menu = new GenericMenu();
-							menu.AddItem(new GUIContent("Test"), false, f => { Debug.Log("OK"); }, null);
-							menu.ShowAsContext();
-						}
-					});
-				}
-				else
-				{
-					var label = new Label();
-					label.text = field.Name;
-					options.Add(label);
-				}
-			}
-		}
-
-		public bool Is(IToolModule mod)
-		{
-			return Module == mod; // TargetField.DeclaringType == field.DeclaringType && TargetField.Name == field.Name;
-		}
-	}
-
 	public class ModularTool : CustomClipToolBase
 	{
 		private ICustomKeyframe keyframe;

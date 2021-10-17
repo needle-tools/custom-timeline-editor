@@ -3,14 +3,14 @@ using UnityEditor;
 using UnityEngine;
 
 
-public struct Line : IModifySelf, IInit
+public struct Line : IModifySelf, ICreationCallbacks
 {
 	public Vector3 Start;
 	public Vector3 End;
 
-	public void Init(InitStage stage, IToolData data)
+	public void Init(CreationStage stage, IToolData data)
 	{
-		if (stage == InitStage.BasicValuesSet && data != null)
+		if (stage == CreationStage.BasicValuesSet && data != null)
 			End = Start + data.DeltaWorld.GetValueOrDefault().normalized;
 	}
 

@@ -185,7 +185,7 @@ MonoBehaviour:
   m_Children: []
   m_Clips:
   - m_Version: 1
-    m_Start: 35.03333333333333
+    m_Start: 22.533333333333335
     m_ClipIn: 0
     m_Asset: {fileID: -88420583372947174}
     m_Duration: 34.983333333333334
@@ -193,7 +193,7 @@ MonoBehaviour:
     m_ParentTrack: {fileID: -2294418804253643794}
     m_EaseInDuration: 0
     m_EaseOutDuration: 0
-    m_BlendInDuration: 12.966666666666669
+    m_BlendInDuration: 2.3500000000000014
     m_BlendOutDuration: -1
     m_MixInCurve:
       serializedVersion: 2
@@ -254,7 +254,7 @@ MonoBehaviour:
     m_PreExtrapolationTime: 0
     m_DisplayName: ScriptWithPoints
   - m_Version: 1
-    m_Start: 23.116666666666667
+    m_Start: 0
     m_ClipIn: 0
     m_Asset: {fileID: -2678599535411948795}
     m_Duration: 24.883333333333336
@@ -263,7 +263,7 @@ MonoBehaviour:
     m_EaseInDuration: 0
     m_EaseOutDuration: 0
     m_BlendInDuration: -1
-    m_BlendOutDuration: 12.966666666666669
+    m_BlendOutDuration: 2.3500000000000014
     m_MixInCurve:
       serializedVersion: 2
       m_Curve:
@@ -290,25 +290,7 @@ MonoBehaviour:
       m_RotationOrder: 4
     m_MixOutCurve:
       serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      - serializedVersion: 3
-        time: 1
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
+      m_Curve: []
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
@@ -320,11 +302,11 @@ MonoBehaviour:
     m_PostExtrapolationMode: 0
     m_PreExtrapolationMode: 0
     m_PostExtrapolationTime: 0
-    m_PreExtrapolationTime: 23.116666666666667
+    m_PreExtrapolationTime: 0
     m_DisplayName: ScriptWithPoints
   m_Markers:
     m_Objects: []
-  dirtyCount: 80997
+  dirtyCount: 83491
   clips:
   - id: eda0e4cb5140de24889234fc5613a0cb@-88420583372947174_AnimatedPoints_0
     clip: {fileID: 9185079662231323250}

@@ -46,7 +46,7 @@ namespace Needle.Timeline
 
 		public virtual bool WantsInput(InputData input)
 		{
-			return (input.Stage == InputEventStage.Begin || input.Stage == InputEventStage.Update)
+			return (input.Stage == InputEventStage.Begin || input.Stage == InputEventStage.Update || input.Stage == InputEventStage.End)
 			       && AllowedButton((MouseButton)Event.current.button) && AllowedModifiers(input, Event.current.modifiers);
 		}
 
@@ -117,11 +117,36 @@ namespace Needle.Timeline
 		}
 	}
 
+	public class CallbackHandler
+	{
+		private readonly object obj;
+		private readonly IList col;
+		private readonly int index;
+
+		public CallbackHandler(object obj, IList col, int index)
+		{
+			this.obj = obj;
+			this.col = col;
+			this.index = index;
+		}
+
+		public void Modify<T>(Func<T, T> mod)
+		{
+			if (!(obj is T t)) return;
+			t = mod(t);
+			col[index] = t;
+		}
+	}
+
 	public class SprayModule : ToolModule
 	{
 		[Range(0,1)]
 		public float Probability = 1;
 		public float Radius = 1;
+		public int Max = 10;
+
+		private readonly List<CallbackHandler> _created = new List<CallbackHandler>();
+		
 
 		public override bool CanModify(Type type)
 		{
@@ -143,6 +168,37 @@ namespace Needle.Timeline
 
 		public override bool OnModify(InputData input, ref ToolData toolData)
 		{
+			switch (input.Stage)
+			{
+				case InputEventStage.Begin:
+					_created.Clear();
+					break;
+				case InputEventStage.Update:
+					foreach (var ad in _created)
+					{
+						ad.Modify<ICreationCallbacks>(i =>
+						{
+							i.Init(CreationStage.InputUpdated, input);
+							return i;
+						});
+					}
+					break;
+				case InputEventStage.End:
+				{
+					foreach (var ad in _created)
+					{
+						ad.Modify<ICreationCallbacks>(i =>
+						{
+							i.Init(CreationStage.InputEnded, input);
+							return i;
+						});
+					}
+					_created.Clear();
+					return true;
+				}
+			}
+			if (Max > 0 && _created.Count >= Max) return true;
+			
 			// if (toolData.Clip.SupportedTypes.Contains(typeof(List<Vector3>)) == false) return false;
 
 			if (toolData.Value != null) return false;
@@ -172,12 +228,14 @@ namespace Needle.Timeline
 					var instance = contentType.TryCreateInstance();
 					if (instance != null)
 					{
-						if(instance is IInit i) i.Init(InitStage.InstanceCreated, input);
+						if(instance is ICreationCallbacks i) i.Init(CreationStage.InstanceCreated, input);
 						var posField = instance.GetType().EnumerateFields().FirstOrDefault(f => f.FieldType == typeof(Vector3));
 						posField!.SetValue(instance, pos);
-						if (instance is IInit init) init.Init(InitStage.BasicValuesSet, input);
+						if (instance is ICreationCallbacks init) init.Init(CreationStage.BasicValuesSet, input);
 						col.Add(instance);
 						closestKeyframe.RaiseValueChangedEvent();
+						if (instance is ICreationCallbacks) 
+							_created.Add(new CallbackHandler(instance, col, col.Count-1));
 						return true;
 					}
 				}
