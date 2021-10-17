@@ -54,6 +54,7 @@ namespace Needle.Timeline
 				{
 					Debug.Log("\"" + field.Name + "\"");
 					var range = field.GetCustomAttribute<RangeAttribute>();
+					VisualElement element;
 					if (range != null)
 					{
 						var el = new Slider(field.Name);
@@ -66,6 +67,7 @@ namespace Needle.Timeline
 						{
 							field.SetValue(Module, cb.newValue);
 						});
+						element = el;
 						options.Add(el);
 					}
 					else
@@ -77,8 +79,21 @@ namespace Needle.Timeline
 						{
 							field.SetValue(Module, cb.newValue);
 						});
+						element = el;
 						options.Add(el);
 					}
+					element.RegisterCallback<MouseUpEvent>(evt =>
+					{
+						if (evt.button == (int)MouseButton.RightMouse)
+						{
+							var menu = new GenericMenu();
+							menu.AddItem(new GUIContent("Test"), false, f =>
+							{
+								Debug.Log("OK");
+							}, null);
+							menu.ShowAsContext();
+						}
+					});
 				}
 				else
 				{
