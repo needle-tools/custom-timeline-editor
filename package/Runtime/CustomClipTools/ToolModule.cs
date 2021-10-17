@@ -259,7 +259,7 @@ namespace Needle.Timeline
 
 		public override bool OnModify(InputData input, ref ToolData toolData)
 		{
-			if (toolData.Value is float vec)
+			if (toolData.Value is float)
 			{
 				if (toolData.Position != null && input.WorldPosition != null)
 				{

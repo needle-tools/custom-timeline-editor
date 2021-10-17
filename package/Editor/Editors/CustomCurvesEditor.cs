@@ -219,6 +219,7 @@ namespace Needle.Timeline
 										r.height = r.width;
 										r.y = rect.y + r.height;
 										r.y += row * lineHeight;
+										if (!rect.Contains(r.max) && !rect.Contains(r.min)) continue;
 										if (Event.current.type == EventType.Repaint)
 										{
 											var col = SelectedClip == timelineClip ? _assetSelectedColor : _normalColor;

@@ -52,7 +52,7 @@ namespace Needle.Timeline
 				}
 				if (field.FieldType == typeof(float))
 				{
-					Debug.Log("\"" + field.Name + "\"");
+					// Debug.Log("\"" + field.Name + "\"");
 					var range = field.GetCustomAttribute<RangeAttribute>();
 					VisualElement element;
 					if (range != null)
