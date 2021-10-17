@@ -97,11 +97,11 @@ namespace Needle.Timeline
 				{
 					void OnClipOnChanged()
 					{
-						// if (!data.Track)
-						// {
-						// 	// clip.Changed -= OnClipOnChanged;
-						// 	// return;
-						// }
+						if (!data.Track)
+						{
+							clip.Changed -= OnClipOnChanged; 
+							return;
+						}
 						Debug.Log("clip changed");
 						EditorUtility.SetDirty(data.Track);
 						// TODO: figure out if we really need this

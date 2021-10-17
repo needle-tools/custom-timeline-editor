@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UIElements;
 using Random = UnityEngine.Random;
 
 namespace Needle.Timeline
@@ -46,9 +47,10 @@ namespace Needle.Timeline
 		public virtual bool WantsInput(InputData input)
 		{
 			return (input.Stage == InputEventStage.Begin || input.Stage == InputEventStage.Update)
-			       && Event.current.button == 0 && AllowedModifiers(input, Event.current.modifiers);
+			       && AllowedButton((MouseButton)Event.current.button) && AllowedModifiers(input, Event.current.modifiers);
 		}
 
+		protected virtual bool AllowedButton(MouseButton button) => button == 0;
 		protected virtual bool AllowedModifiers(InputData data, EventModifiers current) => current == EventModifiers.None;
 
 		public virtual bool OnModify(InputData input, ref ToolData toolData)
@@ -187,6 +189,8 @@ namespace Needle.Timeline
 
 	public class DragVector3 : ToolModule
 	{
+		public float Radius = 1;
+		
 		public override bool CanModify(Type type)
 		{
 			return typeof(Vector3).IsAssignableFrom(type);
@@ -197,7 +201,7 @@ namespace Needle.Timeline
 			if (toolData.Value is Vector3 vec && input.WorldPosition.HasValue)
 			{
 				var dist = Vector3.Distance(input.WorldPosition.Value, (Vector3)toolData.Value);
-				var strength = Mathf.Clamp01(5 * (1 - dist));
+				var strength = Mathf.Clamp01(2 * (Radius - dist)/Radius);
 				if (strength <= 0) return false;
 				var delta = input.DeltaWorld.GetValueOrDefault();
 				var target = vec + delta;
@@ -274,14 +278,23 @@ namespace Needle.Timeline
 
 	public class DragColor : ToolModule
 	{
+		public float Radius = 1;
+		[Range(0.01f, 3)]
+		public float Falloff = 1;
+		
 		public override bool CanModify(Type type)
 		{
 			return typeof(Color).IsAssignableFrom(type);
 		}
 
+		protected override bool AllowedButton(MouseButton button)
+		{
+			return button == MouseButton.LeftMouse || button == MouseButton.RightMouse;
+		}
+
 		protected override bool AllowedModifiers(InputData data, EventModifiers current)
 		{
-			return current == EventModifiers.None || current == EventModifiers.Alt; 
+			return current == EventModifiers.None; 
 		}
 
 		public override bool OnModify(InputData input, ref ToolData toolData)
@@ -292,7 +305,7 @@ namespace Needle.Timeline
 				if (toolData.Position != null && input.StartWorldPosition != null)
 				{
 					var dist = Vector3.Distance(input.StartWorldPosition.Value, toolData.Position.Value);
-					strength = Mathf.Clamp01(2 - dist);
+					strength = Mathf.Clamp01(((Radius - dist)/Radius)/Falloff);
 					if (strength <= 0.001f) return false;
 				}
 				
@@ -302,7 +315,7 @@ namespace Needle.Timeline
 
 				Color.RGBToHSV(col, out var h, out var s, out var v);
 				h += input.ScreenDelta.x * .005f;
-				if((Event.current.modifiers & EventModifiers.Alt) != 0)
+				if((Event.current.button == (int)MouseButton.RightMouse))
 					s += input.ScreenDelta.y * .01f;
 				else
 					v += input.ScreenDelta.y * .01f;

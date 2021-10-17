@@ -31,7 +31,7 @@ namespace Needle.Timeline
 			this.active = state;
 			Label.style.color = this.active ? Color.white : Color.gray;
 
-			options.style.display =  new StyleEnum<DisplayStyle>(state ? StyleKeyword.Auto : StyleKeyword.None);
+			options.style.display = new StyleEnum<DisplayStyle>(state ? StyleKeyword.Auto : StyleKeyword.None);
 			options.style.visibility = state ? Visibility.Visible : Visibility.Hidden;
 		}
 
@@ -40,15 +40,15 @@ namespace Needle.Timeline
 			Container = container;
 			this.Module = module;
 
-			options = new VisualElement(); 
+			options = new VisualElement();
 			// options.style.fle
 			Container.Add(options);
 			foreach (var field in Module.GetType().EnumerateFields())
 			{
 				if (!field.IsPublic)
 				{
-					// TODO: check if [Exposed] attribute or so exists
-					continue;
+					if (field.GetCustomAttribute<Expose>() == null)
+						continue;
 				}
 				if (field.FieldType == typeof(float))
 				{
@@ -63,10 +63,7 @@ namespace Needle.Timeline
 						el.lowValue = range.min;
 						el.highValue = range.max;
 						el.value = (float)field.GetValue(Module);
-						el.RegisterValueChangedCallback(cb =>
-						{
-							field.SetValue(Module, cb.newValue);
-						});
+						el.RegisterValueChangedCallback(cb => { field.SetValue(Module, cb.newValue); });
 						element = el;
 						options.Add(el);
 					}
@@ -75,10 +72,7 @@ namespace Needle.Timeline
 						var el = new FloatField(field.Name);
 						el.Q<Label>().style.minWidth = 0;
 						el.value = (float)field.GetValue(Module);
-						el.RegisterValueChangedCallback(cb =>
-						{
-							field.SetValue(Module, cb.newValue);
-						});
+						el.RegisterValueChangedCallback(cb => { field.SetValue(Module, cb.newValue); });
 						element = el;
 						options.Add(el);
 					}
@@ -87,10 +81,7 @@ namespace Needle.Timeline
 						if (evt.button == (int)MouseButton.RightMouse)
 						{
 							var menu = new GenericMenu();
-							menu.AddItem(new GUIContent("Test"), false, f =>
-							{
-								Debug.Log("OK");
-							}, null);
+							menu.AddItem(new GUIContent("Test"), false, f => { Debug.Log("OK"); }, null);
 							menu.ShowAsContext();
 						}
 					});
@@ -222,7 +213,7 @@ namespace Needle.Timeline
 				Debug.Log("Mouse down");
 
 			input.Update();
-			
+
 			if (modulesUI.Any(m => m.IsActive && m.Module.WantsInput(input)))
 			{
 				foreach (var mod in modulesUI)
@@ -234,19 +225,19 @@ namespace Needle.Timeline
 					foreach (var tar in Targets)
 					{
 						visibleKeyframes.Clear();
-						
+
 						if (tar.IsNull()) continue;
 						if (tar.Clip is IRecordable rec)
 						{
 							if (!rec.IsRecording) continue;
 						}
-						
+
 						var time = (float)tar.ViewModel.clipTime;
 						var closest = tar.Clip.GetClosest(time);
 						if (closest != null)
 							visibleKeyframes.Add((tar.ViewModel, new ClipKeyframePair(tar.Clip, closest)));
 
-						
+
 						if (!tar.Clip.SupportedTypes.Any(module.CanModify))
 						{
 							var data = new ToolData()
@@ -269,14 +260,14 @@ namespace Needle.Timeline
 							// 	CustomUndo.Register(new CreateKeyframe(kf, tar.Clip));
 							// }
 						}
-						
-						if(visibleKeyframes.Count > 0)
+
+						if (visibleKeyframes.Count > 0)
 						{
 							foreach (var (read, pair) in visibleKeyframes)
 							{
 								var kf = pair?.Keyframe;
 								if (kf == null) continue;
-						
+
 								if (mod.IsActive && mod.Module.WantsInput(input))
 								{
 									var value = kf.value;
