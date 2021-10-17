@@ -1,4 +1,6 @@
-﻿using Needle.Timeline;
+﻿using System;
+using Needle.Timeline;
+using Newtonsoft.Json;
 using UnityEditor;
 using UnityEngine;
 
@@ -8,10 +10,20 @@ public struct Line : IModifySelf, ICreationCallbacks
 	public Vector3 Start;
 	public Vector3 End;
 
+	// the following is not an option because types should easily be set to shaders
+	// [NonSerialized, JsonIgnore]
+	// private Vector3 _deltaSum;
+
 	public void Init(CreationStage stage, IToolData data)
 	{
-		if (stage == CreationStage.BasicValuesSet && data != null)
+		if (data == null) return;
+		if (stage == CreationStage.BasicValuesSet)
+		{
 			End = Start + data.DeltaWorld.GetValueOrDefault().normalized;
+			// if (stage == CreationStage.BasicValuesSet) _deltaSum = data.DeltaWorld.GetValueOrDefault().normalized;
+			// _deltaSum += data.DeltaWorld.GetValueOrDefault() * Time.deltaTime * .3f;
+			// End = Start + _deltaSum;
+		}
 	}
 
 	public bool OnInput(IToolData data)

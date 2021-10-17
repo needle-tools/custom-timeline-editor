@@ -144,6 +144,7 @@ namespace Needle.Timeline
 		public float Probability = 1;
 		public float Radius = 1;
 		public int Max = 10;
+		
 
 		private readonly List<CallbackHandler> _created = new List<CallbackHandler>();
 		
@@ -207,6 +208,10 @@ namespace Needle.Timeline
 
 			EnsureKeyframe(ref toolData);
 			var closestKeyframe = toolData.Keyframe; 
+			
+			// IDEA: could created objects have creation-properties that could/should be exposed in ui?
+			// or is that something that should be handled in creation callbacks and not be exposed?
+			// would be cool if types could react differently to input (e.g. create arrows with velocity or fixed length)
 			
 			if (closestKeyframe != null)
 			{
