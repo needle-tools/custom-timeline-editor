@@ -44,6 +44,11 @@ namespace Needle.Timeline
 			Container.Add(options);
 			foreach (var field in Module.GetType().EnumerateFields())
 			{
+				if (!field.IsPublic)
+				{
+					// TODO: check if [Exposed] attribute or so exists
+					continue;
+				}
 				if (field.FieldType == typeof(float))
 				{
 					var el = new FloatField(field.Name);

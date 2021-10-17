@@ -81,8 +81,10 @@ namespace Needle.Timeline
 					var current = _keyframes[index];
 					if (current.time <= time)
 					{
+						if (Mathf.Abs(current.time - time) < Mathf.Epsilon) return current.value;
+						
 						anyBefore = true;
-						// if this is the last keyframe return its value
+						// if thisis the last keyframe return its value
 						if (index + 1 >= _keyframes.Count) return current.value;
 						var next = _keyframes[index + 1];
 						// if the next keyframe is also <= time we have not found the closest keyframe yet

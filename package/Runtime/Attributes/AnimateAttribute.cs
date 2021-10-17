@@ -2,6 +2,7 @@
 
 namespace Needle.Timeline
 {
+	[AttributeUsage(AttributeTargets.Field)]
 	public class AnimateAttribute : Attribute
 	{
 		public bool AllowInterpolation = true;

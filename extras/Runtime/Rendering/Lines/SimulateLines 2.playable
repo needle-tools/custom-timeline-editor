@@ -25,8 +25,8 @@ MonoBehaviour:
     m_Start: 0
     m_ClipIn: 0
     m_Asset: {fileID: -88420583372947174}
-    m_Duration: 13.883333333333333
-    m_TimeScale: 0.501502376098368
+    m_Duration: 34.983333333333334
+    m_TimeScale: 0.19902404920911893
     m_ParentTrack: {fileID: -2294418804253643794}
     m_EaseInDuration: 0
     m_EaseOutDuration: 0
@@ -92,7 +92,7 @@ MonoBehaviour:
     m_DisplayName: ScriptWithPoints
   m_Markers:
     m_Objects: []
-  dirtyCount: 62634
+  dirtyCount: 66344
   clips:
   - id: eda0e4cb5140de24889234fc5613a0cb@-88420583372947174_AnimatedPoints_0
     clip: {fileID: 9185079662231323250}

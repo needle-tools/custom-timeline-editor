@@ -1,6 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Unity.Profiling;
+using UnityEditor;
+using UnityEditor.Profiling;
+using UnityEngine;
 using UnityEngine.Playables;
 
 namespace Needle.Timeline
@@ -9,11 +12,11 @@ namespace Needle.Timeline
 	{
 		private readonly ProfilerMarker mixerMarker = new ProfilerMarker(nameof(CodeControlTrackMixer));
 		private readonly List<object> valuesToMix = new List<object>();
-		
+
 		public override void ProcessFrame(Playable playable, FrameData info, object playerData)
 		{
 			using var auto = mixerMarker.Auto();
-			
+
 			var inputCount = playable.GetInputCount();
 			var inputPlayable = (ScriptPlayable<CodeControlBehaviour>)playable.GetInput(0);
 			var behaviour = inputPlayable.GetBehaviour();
@@ -32,10 +35,9 @@ namespace Needle.Timeline
 
 					inputPlayable = (ScriptPlayable<CodeControlBehaviour>)playable.GetInput(i);
 					var b = inputPlayable.GetBehaviour();
-
 					var viewModel = b.viewModels[viewModelIndex];
 					viewModel.Script.OnProcessFrame(frameInfo);
-					
+
 					var soloing = b.viewModels.Where(s => s.Solo && s.IsValid && s.currentlyInClipTime);
 					var anySolo = soloing.Any();
 
@@ -66,24 +68,28 @@ namespace Needle.Timeline
 						else if (inputWeight < 1f && valuesToMix.Count > index)
 						{
 							var prev = valuesToMix[index];
-							var final = clip.Interpolate(prev, val, inputWeight);
+							var next = val;
+							var final = clip.Interpolate(prev, next, inputWeight);
 							viewModel.values[index].SetValue(final);
+							if(viewModel.Script is IOnionSkin)
+								viewModel.StoreEvaluatedResult(viewModel.values[index], clip, final);
 						}
 						else
 						{
 							viewModel.values[index].SetValue(val);
+							if(viewModel.Script is IOnionSkin)
+								viewModel.StoreEvaluatedResult(viewModel.values[index], clip, val);
 						}
 					}
-					// break; 
 				}
-				
-			
+
+
 				var graph = playable.GetGraph();
 				var vm = behaviour.viewModels[viewModelIndex];
 				if (graph.GetResolver() is PlayableDirector dir)
 				{
 					TimelineHooks.CheckStateChanged(dir);
-					
+
 					frameInfo.Time = (float)dir.time;
 					vm.OnProcessedFrame(frameInfo);
 				}
@@ -91,8 +97,18 @@ namespace Needle.Timeline
 				{
 					vm.OnProcessedFrame(frameInfo);
 				}
-
 			}
 		}
+
+#if UNITY_EDITOR
+		[DrawGizmo(GizmoType.NonSelected | GizmoType.Selected)]
+		private static void DrawGizmos(PlayableDirector component, GizmoType gizmoType)
+		{
+			foreach (var vm in ClipInfoViewModel.ActiveInstances)
+			{
+				vm.RenderOnionSkin();
+			}
+		}
+#endif
 	}
 }

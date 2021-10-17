@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace _Sample._Sample
 {
-	public class ScriptWithPoints : MonoBehaviour, IAnimated
+	public class ScriptWithPoints : MonoBehaviour, IAnimated, IOnionSkin
 	{
 		[Animate] public List<Point> Points1 = new List<Point>();
 
@@ -28,18 +28,34 @@ namespace _Sample._Sample
 
 		private void OnDrawGizmos()
 		{
+			RenderOnionSkin(0);
+		}
+
+		public void RenderOnionSkin(int level)
+		{
+			var onionColor = new Color(1, 1, 1, .3f);
+			var lerp = 0f;
+			if (level != 0)
+			{
+				lerp = 1f;
+				if(level < 0)
+					onionColor = new Color(1f, .5f, .5f, .3f);
+				else
+					onionColor = new Color(0.5f, 1f, .5f, .3f);
+			}
+			
 			if (Points1 != null)
 			{
 				foreach (var pt in Points1)
 				{
-					Gizmos.color = pt.Color;
+					Gizmos.color = Color.Lerp(pt.Color, onionColor, lerp);
 					Gizmos.DrawSphere(pt.Position, pt.Weight + .01f);
 				}
 			}
 
 			if (Lines != null)
 			{
-				Gizmos.color = Color.white;
+				Gizmos.color = Color.Lerp(Color.white, onionColor, lerp);
 				foreach (var line in Lines)
 				{
 					line.DrawGizmos();
