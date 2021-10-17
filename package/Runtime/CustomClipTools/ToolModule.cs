@@ -4,107 +4,11 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEditor;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
 namespace Needle.Timeline
 {
-	public class InputData : IToolData
-	{
-		public bool IsIn2DMode;
-		
-		
-		public Vector3? WorldPosition { get; private set; }
-		public Vector3? LastWorldPosition;
-		public Vector3? StartWorldPosition;
-
-		private Vector3? deltaWorld;
-
-		public Vector3? DeltaWorld
-		{
-			get
-			{
-				if (deltaWorld == null && WorldPosition.HasValue && LastWorldPosition.HasValue)
-					return deltaWorld = WorldPosition.Value - LastWorldPosition.Value;
-				return deltaWorld.GetValueOrDefault();
-			}
-			private set => deltaWorld = value;
-		}
-
-		public Vector2 ToScreenPoint(Vector3 worldPoint)
-		{
-			return Camera.current.WorldToScreenPoint(worldPoint);
-		}
-
-		public Vector2 ScreenPosition;
-		public Vector2 LastScreenPosition;
-		public Vector2 StartScreenPosition;
-		
-		public Vector2 ScreenDelta => ScreenPosition - LastScreenPosition;
-		public InputEventType Type;
-
-		internal void Update()
-		{
-			var evt = Event.current;
-			if (evt == null) return;
-			if (evt.type == EventType.Used) return;
-
-			#if UNITY_EDITOR
-			IsIn2DMode = SceneView.lastActiveSceneView?.in2DMode ?? false;
-			#endif
-			
-			switch (evt.type)
-			{
-				case EventType.MouseDown:
-					Type = InputEventType.Begin;
-					break;
-				case EventType.MouseDrag:
-					Type = InputEventType.Update;
-					break;
-				case EventType.MouseUp:
-					Type = InputEventType.End;
-					break;
-				default:
-					Type = InputEventType.Unknown;
-					break;
-			}
-
-			void RecordCurrent()
-			{
-				DeltaWorld = null;
-				LastWorldPosition = WorldPosition;
-				WorldPosition = PlaneUtils.GetPointOnPlane(Camera.current, out _, out _, out _);
-				LastScreenPosition = ScreenPosition;
-				ScreenPosition = evt.mousePosition;
-				ScreenPosition.y = Screen.height - ScreenPosition.y;
-			}
-			
-			switch (evt.type)
-			{
-				case EventType.MouseDown:
-					RecordCurrent();
-					StartWorldPosition = WorldPosition;
-					StartScreenPosition = ScreenPosition;
-					break;
-				case EventType.MouseDrag:
-				case EventType.MouseUp:
-				case EventType.MouseMove:
-					RecordCurrent();
-					break;
-			}
-		}
-	}
-
-	public enum InputEventType
-	{
-		Begin = 0,
-		Update = 1,
-		End = 2,
-		Cancel = 3,
-		Unknown = 4,
-	}
-
 	public interface IToolModule
 	{
 		bool CanModify(Type type);
@@ -141,7 +45,7 @@ namespace Needle.Timeline
 
 		public virtual bool WantsInput(InputData input)
 		{
-			return (input.Type == InputEventType.Begin || input.Type == InputEventType.Update)
+			return (input.Stage == InputEventStage.Begin || input.Stage == InputEventStage.Update)
 			       && Event.current.button == 0 && AllowedModifiers(input, Event.current.modifiers);
 		}
 
@@ -213,16 +117,26 @@ namespace Needle.Timeline
 
 	public class SprayModule : ToolModule
 	{
+		[Range(0,1)]
+		public float Probability = 1;
 		public float Radius = 1;
-
-		public override bool WantsInput(InputData input)
-		{
-			return base.WantsInput(input);
-		}
 
 		public override bool CanModify(Type type)
 		{
 			return typeof(Vector3).IsAssignableFrom(type);
+		}
+
+		protected void EnsureKeyframe(ref ToolData toolData)
+		{
+			toolData.Keyframe ??= toolData.Clip.GetClosest(toolData.Time);
+			if (toolData.Keyframe == null || Mathf.Abs(toolData.Keyframe.time - toolData.Time) > Mathf.Epsilon)
+			{
+				var clipType = toolData.Clip.SupportedTypes.FirstOrDefault();
+				if (clipType == null) throw new Exception("Expecting at least one clip type");
+				toolData.Keyframe = toolData.Clip.AddKeyframe(toolData.Time, Activator.CreateInstance(clipType));
+				if (toolData.Keyframe != null)
+					toolData.Keyframe.time = toolData.Time;
+			}
 		}
 
 		public override bool OnModify(InputData input, ref ToolData toolData)
@@ -231,23 +145,17 @@ namespace Needle.Timeline
 
 			if (toolData.Value != null) return false;
 			if (input.WorldPosition == null) return false;
-			var pos = input.WorldPosition.Value + Random.insideUnitSphere * Radius;
-			if (input.IsIn2DMode) pos.z = 0;
+			if (Random.value > Probability) return false;
 
+			EnsureKeyframe(ref toolData);
 			var closestKeyframe = toolData.Keyframe; 
-			closestKeyframe ??= toolData.Clip.GetClosest(toolData.Time);
-
-			if (closestKeyframe == null || Mathf.Abs(closestKeyframe.time - toolData.Time) > .1f)
-			{
-				var clipType = toolData.Clip.SupportedTypes.FirstOrDefault();
-				if (clipType == null) throw new Exception("Expecting at least one clip type");
-				closestKeyframe = toolData.Clip.AddKeyframe(toolData.Time, Activator.CreateInstance(clipType));
-				if (closestKeyframe != null)
-					closestKeyframe.time = toolData.Time;
-			}
-
+			
 			if (closestKeyframe != null)
 			{
+				var offset = Random.insideUnitSphere * Radius;
+				var pos = input.WorldPosition.Value + offset + input.WorldNormal.GetValueOrDefault() * Radius;
+				if (input.IsIn2DMode) pos.z = 0;
+				
 				var contentType = closestKeyframe.TryRetrieveKeyframeContentType();
 
 				if (closestKeyframe.value is ICollection<Vector3> list)
@@ -256,7 +164,7 @@ namespace Needle.Timeline
 					closestKeyframe.RaiseValueChangedEvent();
 					return true;
 				}
-
+				
 				if (closestKeyframe.value is IList col && contentType != typeof(Vector3) && contentType != null)
 				{
 					var instance = contentType.TryCreateInstance();
@@ -289,7 +197,7 @@ namespace Needle.Timeline
 			if (toolData.Value is Vector3 vec && input.WorldPosition.HasValue)
 			{
 				var dist = Vector3.Distance(input.WorldPosition.Value, (Vector3)toolData.Value);
-				var strength = Mathf.Clamp01(10 * (1 - dist));
+				var strength = Mathf.Clamp01(5 * (1 - dist));
 				if (strength <= 0) return false;
 				var delta = input.DeltaWorld.GetValueOrDefault();
 				var target = vec + delta;

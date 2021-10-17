@@ -4,7 +4,22 @@ namespace Needle.Timeline
 {
 	public static class PlaneUtils
 	{
-		public static Vector3 GetPointOnPlane(Camera cam, out Ray ray, out Plane plane, out float dist)
+		public static Vector3 GetPointInWorld(Camera cam, out Vector3 normal)
+		{
+			var mp = GetMousePoint();
+			var ray = cam.ScreenPointToRay(mp);
+			var rc = Physics.Raycast(ray, out var rch);
+			if (rc)
+			{
+				normal = rch.normal;
+				return rch.point;
+			}
+			var point = GetPointOnPlane(cam, out _, out var plane, out _);
+			normal = plane.normal;
+			return point;
+		}
+
+		private static Vector2 GetMousePoint()
 		{
 #if UNITY_EDITOR
 			var mp = Application.isPlaying ? (Vector2)Input.mousePosition : Event.current.mousePosition;
@@ -16,7 +31,12 @@ namespace Needle.Timeline
 #else
 			var mp = Input.mousePosition;
 #endif
+			return mp;
+		}
 
+		public static Vector3 GetPointOnPlane(Camera cam, out Ray ray, out Plane plane, out float dist)
+		{
+			var mp = GetMousePoint();
 			ray = cam.ScreenPointToRay(mp);
 			return GetPointOnPlane(ray, out plane, out dist, cam.transform.forward);
 		}

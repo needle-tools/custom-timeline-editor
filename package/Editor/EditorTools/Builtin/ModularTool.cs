@@ -8,6 +8,7 @@ using UnityEditor;
 using UnityEditor.Experimental;
 using UnityEditor.UIElements;
 using UnityEngine;
+using UnityEngine.SocialPlatforms;
 using UnityEngine.UIElements;
 using Random = UnityEngine.Random;
 
@@ -51,13 +52,33 @@ namespace Needle.Timeline
 				}
 				if (field.FieldType == typeof(float))
 				{
-					var el = new FloatField(field.Name);
-					el.value = (float)field.GetValue(Module);
-					el.RegisterValueChangedCallback(cb =>
+					Debug.Log("\"" + field.Name + "\"");
+					var range = field.GetCustomAttribute<RangeAttribute>();
+					if (range != null)
 					{
-						field.SetValue(Module, cb.newValue);
-					});
-					options.Add(el);
+						var el = new Slider(field.Name);
+						el.Q<Label>().style.minWidth = 0;
+						el.style.minWidth = 200;
+						el.lowValue = range.min;
+						el.highValue = range.max;
+						el.value = (float)field.GetValue(Module);
+						el.RegisterValueChangedCallback(cb =>
+						{
+							field.SetValue(Module, cb.newValue);
+						});
+						options.Add(el);
+					}
+					else
+					{
+						var el = new FloatField(field.Name);
+						el.Q<Label>().style.minWidth = 0;
+						el.value = (float)field.GetValue(Module);
+						el.RegisterValueChangedCallback(cb =>
+						{
+							field.SetValue(Module, cb.newValue);
+						});
+						options.Add(el);
+					}
 				}
 				else
 				{
@@ -147,19 +168,13 @@ namespace Needle.Timeline
 		{
 			if (buffer.Count <= 0) return;
 
-			VisualElement container = null;
 			foreach (var mod in buffer)
 			{
 				var entry = modulesUI.FirstOrDefault(e => e.Is(mod));
 				if (entry != null) continue;
 
-				if (container == null)
-				{
-					container = new VisualElement();
-					modulesContainer.Add(container);
-					// var label = new Label(field.Name + " : " + field.FieldType.Name);
-					// container.Add(label);
-				}
+				var container = new VisualElement();
+				modulesContainer.Add(container);
 
 				entry = new ModuleView(modulesContainer, (ToolModule)mod);
 				modulesUI.Add(entry);
@@ -167,11 +182,11 @@ namespace Needle.Timeline
 				Button button = null;
 				button = new Button(() =>
 				{
-					// foreach (var e in modulesUI)
-					// {
-					// 	if (e == entry) continue;
-					// 	e.SetActive(false);
-					// }
+					foreach (var e in modulesUI)
+					{
+						if (e == entry) continue;
+						e.SetActive(false);
+					}
 					entry.SetActive(!entry.IsActive);
 				})
 				{

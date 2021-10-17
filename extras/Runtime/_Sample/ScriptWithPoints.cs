@@ -30,14 +30,14 @@ namespace _Sample._Sample
 			RenderOnionSkin(0);
 		}
 
-		public void RenderOnionSkin(int level)
+		public void RenderOnionSkin(int layer)
 		{
 			var onionColor = new Color(1, 1, 1, .3f);
 			var lerp = 0f;
-			if (level != 0)
+			if (layer != 0)
 			{
 				lerp = 1f;
-				if(level < 0)
+				if(layer < 0)
 					onionColor = new Color(1f, .5f, .5f, .3f);
 				else
 					onionColor = new Color(0.5f, 1f, .5f, .3f);

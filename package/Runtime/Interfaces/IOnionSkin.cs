@@ -8,7 +8,7 @@
 		/// <summary>
 		/// callback to render onion skin
 		/// </summary>
-		/// <param name="level">before or after</param>
-		void RenderOnionSkin(int level);
+		/// <param name="layer">before or after</param>
+		void RenderOnionSkin(int layer);
 	}
 }
