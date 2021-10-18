@@ -28,7 +28,7 @@ namespace Needle.Timeline
 	[Serializable]
 	public class ComputeShaderInfo : ShaderFileInfo
 	{
-		public ComputeShader? Shader;
+		public ComputeShader Shader;
 		public List<ComputeShaderKernelInfo> Kernels = new List<ComputeShaderKernelInfo>();
 
 		// TODO: implement keywords and includes
@@ -104,13 +104,14 @@ namespace Needle.Timeline
 		}
 	}
 
-	public static class ComputeShaderReflectionUtil
+	public static partial class ComputeShaderUtils
 	{
 		public static bool TryParse(this ComputeShader? shader, out ComputeShaderInfo? shaderInfo)
 		{
 			shaderInfo = null;
 			if (!shader) return false;
 			shaderInfo = new ComputeShaderInfo();
+			shaderInfo.Shader = shader!;
 			var asset = AssetDatabase.GetAssetPath(shader);
 			return TryParse(asset, shaderInfo);
 		}
@@ -264,7 +265,7 @@ namespace Needle.Timeline
 			return true;
 		}
 
-		private static readonly char[] allowedSurroundingVariableName = new[] { ' ', '+', '-', '*', '/', '=', '|', ';' };
+		private static readonly char[] allowedSurroundingVariableName = new[] { ' ', '+', '-', '*', '/', '=', '|', ';', '[' };
 		
 		// https://regex101.com/r/SBWf77/2
 		private static readonly Regex fieldRegex = new Regex("((?<field_type>.+?)(<(?<generic_type>.+?)>)?) (?<field_names>.+);",

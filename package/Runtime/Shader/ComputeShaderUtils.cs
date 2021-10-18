@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Needle.Timeline
 {
-	public static class ComputeShaderUtils
+	public static partial class ComputeShaderUtils
 	{
 		public static void StartWatching(this ComputeShader shader)
 		{

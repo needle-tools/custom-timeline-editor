@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
+using UnityEditor.VersionControl;
 using UnityEngine;
 
 namespace Needle.Timeline.Tests
@@ -115,6 +116,25 @@ namespace Needle.Timeline.Tests
 		
 		
 		
+		[Test]
+		public static void SetValues_BufferWithFloat()
+		{
+			var shader = LoadShader("SetValues/BufferWithFloat");
+			shader.TryParse(out var shaderInfo);
+			Assert.NotNull(shaderInfo);
+
+			var list = new List<ComputeShaderBinding>();
+			var source = new BufferWithFloatType();
+			shaderInfo.SetValues(source, list);
+			Assert.AreEqual(1, list.Count);
+		}
+
+		private class BufferWithFloatType
+		{
+			public List<float> MyBuffer;
+		}
+		
+		
 		
 		
 		
@@ -128,6 +148,7 @@ namespace Needle.Timeline.Tests
 
 		private static void AssertDefaults(this ComputeShaderInfo shaderInfo)
 		{
+			Assert.NotNull(shaderInfo.Shader);
 			Assert.Greater(shaderInfo.Kernels.Count, 0);
 			foreach(var k in shaderInfo.Kernels) 
 				k.AssertDefaults();
