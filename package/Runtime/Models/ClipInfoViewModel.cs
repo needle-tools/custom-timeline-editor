@@ -125,8 +125,9 @@ namespace Needle.Timeline
 					}
 				}
 			}
+
 			if (renderPrev)
-				onion.RenderOnionSkin(-1);
+				onion.RenderOnionSkin(new OnionData(-1));
 
 			var renderNext = false;
 			for (var index = 0; index < clips.Count; index++)
@@ -143,7 +144,7 @@ namespace Needle.Timeline
 				}
 			}
 			if (renderNext)
-				onion.RenderOnionSkin(1);
+				onion.RenderOnionSkin(new OnionData(1));
 
 			foreach (var stored in storedValues)
 			{
