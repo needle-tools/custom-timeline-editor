@@ -85,7 +85,7 @@ namespace Needle.Timeline
 	
 	public static partial class ComputeShaderUtils
 	{
-		public static bool Bind(this ComputeShaderInfo shaderInfo, object source, IResourceProvider resources, List<ComputeShaderBinding>? bindings = null)
+		public static bool Bind(this ComputeShaderInfo shaderInfo, object source, List<ComputeShaderBinding> bindings, IResourceProvider resources)
 		{
 			var type = source.GetType();
 			var fieldInType = type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static);
@@ -94,7 +94,13 @@ namespace Needle.Timeline
 				var found = false;
 				foreach (var typeField in fieldInType)
 				{
-					if (typeField.Name != shaderField.FieldName) continue;
+					if (typeField.Name != shaderField.FieldName)
+					{
+						var mapping = typeField.GetCustomAttribute<ShaderField>();
+						if(mapping == null || mapping.Name == null || mapping.Name != shaderField.FieldName)
+							continue;
+					}
+					
 					var stride = typeField.FieldType.GetStride();
 					if (stride != shaderField.Stride)
 					{
@@ -116,6 +122,7 @@ namespace Needle.Timeline
 					Debug.LogWarning("Did not find " + shaderField);
 				}
 			}
+			
 			return true;
 		}
 	}

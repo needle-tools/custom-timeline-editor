@@ -112,10 +112,17 @@ namespace Needle.Timeline.Tests
 			Assert.NotNull(shaderInfo.Fields[0].GenericType, "Failed finding buffer generic type");
 			Assert.AreEqual("MyType", shaderInfo.Fields[0].GenericType.Name);
 		}
+
+
+
+
+		private static IResourceProvider TestsResourceProvider => new ResourceProvider(new DefaultComputeBufferProvider());
 		
-		
-		
-		
+
+		private class BufferWithFloatType
+		{
+			public readonly List<float> MyBuffer = new List<float>();
+		}
 		
 		[Test]
 		public static void SetValues_BufferWithFloat()
@@ -123,11 +130,28 @@ namespace Needle.Timeline.Tests
 			var shader = LoadShader("SetValues/BufferWithFloat");
 			shader.TryParse(out var shaderInfo);
 			Assert.NotNull(shaderInfo);
-
+			
+			var source = new BufferWithFloatType();
+			source.MyBuffer.Add(0);
+			
 			var list = new List<ComputeShaderBinding>();
+			shaderInfo.Bind(source, list, TestsResourceProvider);
+			
+			Assert.AreEqual(1, list.Count);
+		}
+		
+		[Test]
+		public static void SetValues_BufferWithFloat_SetValues()
+		{
+			var shader = LoadShader("SetValues/BufferWithFloat");
+			shader.TryParse(out var shaderInfo);
+			Assert.NotNull(shaderInfo);
+
 			var source = new BufferWithFloatType();
 			source.MyBuffer.Add(42);
-			shaderInfo.Bind(source, new ResourceProvider(DefaultResources.GlobalComputeBufferProvider), list);
+			
+			var list = new List<ComputeShaderBinding>();
+			shaderInfo.Bind(source, list, TestsResourceProvider);
 			Assert.AreEqual(1, list.Count);
 			
 			list[0].SetValue();
@@ -137,12 +161,35 @@ namespace Needle.Timeline.Tests
 			Assert.AreEqual(43,val.GetValue(0));
 		}
 
-		private class BufferWithFloatType
+		private class MappingType
 		{
-			public List<float> MyBuffer = new List<float>();
+			[ShaderField("MyBuffer")]
+			public readonly List<float> MyList = new List<float>();
+		}
+		
+		[Test]
+		public static void SetValues_MapField()
+		{
+			var shader = LoadShader("SetValues/BufferWithFloat");
+			shader.TryParse(out var shaderInfo);
+			Assert.NotNull(shaderInfo);
+
+			var source = new MappingType();
+			source.MyList.Add(0);
+			
+			var list = new List<ComputeShaderBinding>();
+			shaderInfo.Bind(source, list, TestsResourceProvider);
+			Assert.AreEqual(1, list.Count);
+			Assert.IsTrue(list[0].TypeField.Name == nameof(MappingType.MyList));
+			Assert.IsTrue(list[0].ShaderField.FieldName == "MyBuffer");
 		}
 
 
+		
+		
+		// UTILS
+		// ---------------------
+		
 		private static ComputeShader LoadShader(string name)
 		{
 			var shader = Resources.Load<ComputeShader>(name);
