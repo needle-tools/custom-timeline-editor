@@ -5,7 +5,7 @@ using UnityEditor;
 using UnityEngine;
 
 
-public struct Line : IModifySelf, ICreationCallbacks
+public struct Direction : IModifySelf, ICreationCallbacks
 {
 	public Vector3 Start;
 	public Vector3 End;
@@ -19,10 +19,13 @@ public struct Line : IModifySelf, ICreationCallbacks
 		if (data == null) return;
 		if (stage == CreationStage.BasicValuesSet)
 		{
+			// Debug.Log(data.DeltaWorld.GetValueOrDefault());
 			End = Start + data.DeltaWorld.GetValueOrDefault().normalized;
+		}
+		else if (stage == CreationStage.InputUpdated)
+		{
 			// if (stage == CreationStage.BasicValuesSet) _deltaSum = data.DeltaWorld.GetValueOrDefault().normalized;
-			// _deltaSum += data.DeltaWorld.GetValueOrDefault() * Time.deltaTime * .3f;
-			// End = Start + _deltaSum;
+			End += data.DeltaWorld.GetValueOrDefault() * 0.005f;
 		}
 	}
 

@@ -12,7 +12,7 @@ public class LineTool : CustomClipToolBase
 
 	protected override bool OnSupports(Type type)
 	{
-		return typeof(List<Line>).IsAssignableFrom(type);
+		return typeof(List<Direction>).IsAssignableFrom(type);
 	}
 
 	protected override void OnHandleInput()
@@ -57,16 +57,16 @@ public class LineTool : CustomClipToolBase
 				var clip = target.Clip;
 				var time = (float)target.Time;
 				var kf = clip.GetClosest(time);
-				var guide = new Line() { Start = startPt.GetValueOrDefault(), End = GetCurrentMousePositionInScene() };
+				var guide = new Direction() { Start = startPt.GetValueOrDefault(), End = GetCurrentMousePositionInScene() };
 				if (kf != null && Mathf.Abs(time - kf.time) < .1f)
 				{
-					var lines = kf.value as List<Line>;
+					var lines = kf.value as List<Direction>;
 					lines.Add(guide);
 					kf.RaiseValueChangedEvent();
 				}
 				else
 				{
-					clip.Add(new CustomKeyframe<List<Line>>(new List<Line>() { guide }, time));
+					clip.Add(new CustomKeyframe<List<Direction>>(new List<Direction>() { guide }, time));
 				}
 				startPt = null;
 			}

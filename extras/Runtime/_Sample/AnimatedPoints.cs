@@ -11,7 +11,7 @@ namespace _Sample._Sample
 		[Animate(AllowInterpolation = true), NonSerialized]
 		public List<Vector3> points = new List<Vector3>();
 
-		[Animate, NonSerialized] public List<Line> guides = new List<Line>();
+		[Animate, NonSerialized] public List<Direction> guides = new List<Direction>();
 
 
 		public float gizmoSizeFactor = 1;

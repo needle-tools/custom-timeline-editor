@@ -27,7 +27,7 @@ namespace _Sample._Sample
 		
 
 		[Animate]
-		public List<Line>? Lines = new List<Line>();
+		public List<Direction>? Lines = new List<Direction>();
 
 		[Animate]
 		public List<Circle>? Circles = new List<Circle>();

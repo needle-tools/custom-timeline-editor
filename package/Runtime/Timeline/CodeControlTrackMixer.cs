@@ -106,7 +106,8 @@ namespace Needle.Timeline
 		{
 			foreach (var vm in ClipInfoViewModel.ActiveInstances)
 			{
-				vm.RenderOnionSkin();
+				if(vm.IsValid)
+					vm.RenderOnionSkin();
 			}
 		}
 #endif
