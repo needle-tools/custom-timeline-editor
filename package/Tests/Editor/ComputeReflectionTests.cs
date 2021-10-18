@@ -10,47 +10,43 @@ namespace Needle.Timeline.Tests
 		// TODO: add tests with cginc
 		// TODO: add tests with multi_compile
 		
-		private static ComputeShader LoadShader(string name)
-		{
-			var shader = Resources.Load<ComputeShader>(name);
-			Assert.NotNull(shader);
-			return shader;
-		}
 
 		[Test]
-		public static void Basic_1()
+		public static void SimpleShader()
 		{
-			var shader = LoadShader("ComputeShaderTest01");
+			var shader = LoadShader("Simple");
 			shader.TryParse(out var shaderInfo);
 
 			Debug.Log(shaderInfo);
 
 			Assert.NotNull(shaderInfo);
 			shaderInfo.AssertDefaults();
-			Assert.AreEqual(shaderInfo.Kernels.Count, 1);
-			Assert.AreEqual(shaderInfo.Fields.Count, 1);
-			Assert.AreEqual(shaderInfo.Structs.Count, 0);
+			Assert.AreEqual( 1, shaderInfo.Kernels.Count);
+			Assert.AreEqual(1, shaderInfo.Fields.Count);
+			Assert.AreEqual(0, shaderInfo.Structs.Count);
 		}
 
 		[Test]
-		public static void Basic_2()
+		public static void ShaderWithFieldsAndStruct()
 		{
-			var shader = LoadShader("ComputeShaderTest02");
+			var shader = LoadShader("ShaderWithFieldsAndStruct");
 			shader.TryParse(out var shaderInfo);
 
 			Debug.Log(shaderInfo);
 
 			Assert.NotNull(shaderInfo);
 			shaderInfo.AssertDefaults();
-			Assert.AreEqual(shaderInfo.Kernels.Count, 1);
-			Assert.AreEqual(shaderInfo.Fields.Count, 7);
-			Assert.AreEqual(shaderInfo.Structs.Count, 1);
+			Assert.AreEqual( 1, shaderInfo.Kernels.Count);
+			Assert.AreEqual(7, shaderInfo.Fields.Count);
+			Assert.AreEqual(1, shaderInfo.Structs.Count);
+			Assert.AreEqual(12, shaderInfo.Structs[0].CalcStride());
+			Assert.AreEqual(2, shaderInfo.Structs[0].Fields.Count);
 		}
 
 		[Test]
-		public static void Basic_3_UsingFields()
+		public static void FieldUsedInKernel()
 		{
-			var shader = LoadShader("ComputeShader_Kernel_UsingFields_1");
+			var shader = LoadShader("FieldUsedInKernel");
 			shader.TryParse(out var shaderInfo);
 
 			Debug.Log(shaderInfo);
@@ -64,9 +60,9 @@ namespace Needle.Timeline.Tests
 		}
 
 		[Test]
-		public static void Basic_3_UsingFields2()
+		public static void FieldNotUsedInKernel()
 		{
-			var shader = LoadShader("ComputeShader_Kernel_UsingFields_2");
+			var shader = LoadShader("FieldNotUsedInKernel");
 			shader.TryParse(out var shaderInfo);
 
 			Debug.Log(shaderInfo);
@@ -79,20 +75,54 @@ namespace Needle.Timeline.Tests
 		}
 
 		[Test]
-		public static void FindFieldsTest_MultipleKernels()
+		public static void ShaderWithTwoKernels()
 		{
-			var shader = LoadShader("ComputeShader_MultipleKernels");
+			var shader = LoadShader("ShaderWithTwoKernels");
 			shader.TryParse(out var shaderInfo);
 
 			Debug.Log(shaderInfo);
 
 			Assert.NotNull(shaderInfo);
 			shaderInfo.AssertDefaults();
-			Assert.AreEqual(shaderInfo.Kernels.Count, 2);
-			Assert.AreEqual(shaderInfo.Fields.Count, 0);
-			Assert.AreEqual(shaderInfo.Structs.Count, 0);
-			Assert.AreEqual(shaderInfo.Kernels[0].Threads, new Vector3Int(8, 1, 128), shaderInfo.Kernels[0].ToString());
-			Assert.AreEqual(shaderInfo.Kernels[1].Threads, new Vector3Int(1, 32, 32), shaderInfo.Kernels[1].ToString());
+			Assert.AreEqual(2, shaderInfo.Kernels.Count);
+			Assert.AreEqual(0, shaderInfo.Fields.Count);
+			Assert.AreEqual(0, shaderInfo.Structs.Count);
+			Assert.AreEqual(new Vector3Int(1, 1, 128), shaderInfo.Kernels[0].Threads, shaderInfo.Kernels[0].ToString());
+			Assert.AreEqual(new Vector3Int(8, 24, 32), shaderInfo.Kernels[1].Threads, shaderInfo.Kernels[1].ToString());
+		}
+		
+		[Test]
+		public static void BufferWithStruct()
+		{
+			var shader = LoadShader("BufferWithStruct");
+			shader.TryParse(out var shaderInfo);
+
+			Debug.Log(shaderInfo);
+
+			Assert.NotNull(shaderInfo);
+			shaderInfo.AssertDefaults();
+			Assert.AreEqual(1, shaderInfo.Kernels.Count);
+			Assert.AreEqual(1, shaderInfo.Fields.Count);
+			Assert.AreEqual(1, shaderInfo.Structs.Count);
+			Assert.AreEqual("BufferWithStruct", shaderInfo.Fields[0].FieldName);
+			Assert.AreNotEqual(-1, shaderInfo.Fields[0].Stride);
+			Assert.AreEqual(4, shaderInfo.Fields[0].Stride);
+			Assert.AreEqual("MyType", shaderInfo.Fields[0].GenericTypeName);
+		}
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		private static ComputeShader LoadShader(string name)
+		{
+			var shader = Resources.Load<ComputeShader>(name);
+			Assert.NotNull(shader);
+			return shader;
 		}
 
 		private static void AssertDefaults(this ComputeShaderInfo shaderInfo)

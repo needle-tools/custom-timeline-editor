@@ -57,6 +57,7 @@ namespace Needle.Timeline
 	[Serializable]
 	public class ComputeShaderFieldInfo
 	{
+		// TODO: currently we only check in kernel methods if the field is used
 		public List<ComputeShaderKernelInfo>? Kernels;
 		public string FilePath;
 		public string FieldName;
@@ -64,13 +65,18 @@ namespace Needle.Timeline
 		public string TypeName;
 		public int Stride;
 		public bool RandomWrite;
+		public string? GenericTypeName;
+		/// <summary>
+		/// If the type is a known struct
+		/// </summary>
 		public ComputeShaderStructInfo? StructInfo;
 
 		public override string ToString()
 		{
-			return "Name=" + FieldName + ", Type=" + FieldType?.FullName + ", Stride=" + Stride + "bytes , RandomWrite:" + RandomWrite + 
-			       ", Used in Kernels: " +
-			       string.Join(", ", Kernels?.Select(k => k.Name) ?? Enumerable.Empty<string>());
+			var res = "Name=" + FieldName + ", Type=" + FieldType?.FullName + ", Stride= " + Stride + " bytes, RandomWrite=" + RandomWrite;
+			if (GenericTypeName != null) res += ", GenericType=" + GenericTypeName;
+			if(Kernels != null) res += ", Used in Kernels: " + string.Join(", ", Kernels.Select(k => k.Name));
+			return res;
 		}
 	}
 
@@ -195,7 +201,6 @@ namespace Needle.Timeline
 					if (inKernelFunction)
 					{
 						if (currentKernelMethod == null) throw new Exception("Current Kernel method is unknown");
-						Debug.Log("InKernel: " + line);
 						foreach (var field in shaderInfo.Fields)
 						{
 							foreach (var i in line.AllIndexesOf(field.FieldName))
@@ -212,7 +217,8 @@ namespace Needle.Timeline
 						}
 					}
 				}
-				else
+				
+				if(blockLevel == 0 || inStruct)
 				{
 					var fieldMatch = fieldRegex.Match(line.Trim());
 					if (fieldMatch.Success)
@@ -228,8 +234,20 @@ namespace Needle.Timeline
 							field.FieldName = name;
 							field.FilePath = shaderPath;
 							field.SetType(type);
-							field.Stride = TryGetStride(field.TypeName) ?? TryGetStride(generics) ?? -1;
+							if(!string.IsNullOrEmpty(generics))
+								field.GenericTypeName = generics;
+							field.Stride = TryGetStride(field.TypeName) ?? TryGetStride(generics) ?? TryFindStrideFromDeclaredStruct() ?? -1;
 
+							int? TryFindStrideFromDeclaredStruct()
+							{
+								foreach (var str in shaderInfo.Structs)
+								{
+									if (str.Name == generics)
+										return str.CalcStride();
+								}
+								return null;
+							}
+							
 							if (inStruct)
 							{
 								currentStructInfo!.Fields.Add(field);

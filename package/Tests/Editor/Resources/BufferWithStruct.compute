@@ -1,0 +1,13 @@
+﻿#pragma kernel CSMain
+
+struct MyType
+{
+    float myValue;
+};
+
+StructuredBuffer<MyType> BufferWithStruct;
+
+[numthreads(8,1,1)]
+void CSMain(uint3 id : SV_DispatchThreadID)
+{
+}
