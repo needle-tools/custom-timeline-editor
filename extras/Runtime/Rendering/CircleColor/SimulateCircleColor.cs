@@ -12,7 +12,7 @@ public class SimulateCircleColor : MonoBehaviour, IAnimated, IOnionSkin
 	public List<Circle> Circles;
 
 	[SerializeField]
-	private  List<ShaderFieldInfo> infos = new List<ShaderFieldInfo>();
+	private  List<ComputeShaderFieldInfo> infos = new List<ComputeShaderFieldInfo>();
 
 	private void OnValidate()
 	{

@@ -11,36 +11,26 @@ using UnityEngine;
 namespace Needle.Timeline
 {
 	[Serializable]
-	public class ShaderFieldInfo
+	public class ComputeShaderFieldInfo
 	{
-		public ComputeShader Shader;
-		public string ShaderPath;
-		public int KernelIndex;
+		public string FilePath;
+		public List<int>? Kernels;
 		public string FieldName;
 		public Type? FieldType;
 		public string TypeName;
-
-		public ShaderFieldInfo(ComputeShader shader, string shaderPath, int kernelIndex, string fieldName, Type? fieldType, string typeName)
-		{
-			Shader = shader;
-			ShaderPath = shaderPath;
-			KernelIndex = kernelIndex;
-			FieldName = fieldName;
-			FieldType = fieldType;
-			TypeName = typeName;
-		}
+		public int Stride;
 	}
 	
 	public static class ComputeShaderReflectionUtils
 	{
-		public static void FindFields(this ComputeShader? shader, List<ShaderFieldInfo> entries)
+		public static void FindFields(this ComputeShader? shader, List<ComputeShaderFieldInfo> fields)
 		{
 			if (!shader) return;
 			var asset = AssetDatabase.GetAssetPath(shader);
-			FindFields(asset, entries);
+			FindFields(asset, fields);
 		}
 		
-		public static void FindFields(string shaderPath, List<ShaderFieldInfo> entries)
+		public static void FindFields(string shaderPath, List<ComputeShaderFieldInfo> fields)
 		{
 			if (!shaderPath.EndsWith(".compute") && !shaderPath.EndsWith(".cginc")) return;
 			var txt = File.ReadLines(shaderPath);
