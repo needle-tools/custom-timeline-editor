@@ -16,6 +16,8 @@ namespace Needle.Timeline
 			if (clip.GetType().IsGenericType)
 			{
 				var clipType = clip.GetType().GetGenericArguments().FirstOrDefault();
+				Debug.Log(clipType + " == " + clip.GetType().GetElementType());
+				// Debug.Assert(clipType == clip.GetType().GetElementType());
 				var keyframeType = typeof(CustomKeyframe<>).MakeGenericType(clipType);
 				if (Activator.CreateInstance(keyframeType) is ICustomKeyframe kf)
 				{

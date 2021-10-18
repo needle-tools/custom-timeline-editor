@@ -1,9 +1,10 @@
 ﻿#pragma kernel CSMain
 
-StructuredBuffer<float> MyBuffer;
+RWStructuredBuffer<float> MyBuffer;
 
 [numthreads(8,1,1)]
 void CSMain(uint3 id : SV_DispatchThreadID)
 {
     float val = MyBuffer[id.x];
+    MyBuffer[id.x] = val+1;
 }

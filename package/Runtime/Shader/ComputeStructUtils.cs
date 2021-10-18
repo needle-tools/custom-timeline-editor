@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -37,7 +38,15 @@ namespace Needle.Timeline
 				throw new Exception("Level exceeded: " + level);
 			}
 			var sum = 0;
-			foreach (var m in type.GetFields(flags)) sum += GetSize(m.FieldType, level);
+			if (typeof(IList).IsAssignableFrom(type) && type.IsGenericType)
+			{
+				sum += GetSize(type.GetGenericArguments().FirstOrDefault(), level);
+			}
+			if (sum == 0)
+			{
+				foreach (var m in type.GetFields(flags)) 
+					sum += GetSize(m.FieldType, level);
+			}
 			lookup.Add((type, sum));
 			return sum;
 		}

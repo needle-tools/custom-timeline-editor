@@ -8,7 +8,6 @@ namespace Needle.Timeline
 	{
 		private static readonly Dictionary<string, ComputeBuffer> _buffers = new Dictionary<string, ComputeBuffer>();
 
-		
 		public static ComputeBuffer GetBuffer<T>(string id, List<T> data, int stride, int? size = null) where T : struct
 		{
 			if (_buffers.TryGetValue(id, out var buffer))
@@ -43,12 +42,12 @@ namespace Needle.Timeline
 			return tex;
 		}
 
-		public static ComputeBuffer SafeCreate(ref ComputeBuffer buffer, int size, int stride)
+		public static ComputeBuffer SafeCreate(ref ComputeBuffer buffer, int size, int stride, ComputeBufferType? type = null, ComputeBufferMode? mode = null)
 		{
 			if (buffer == null || !buffer.IsValid() || buffer.count != size || buffer.stride != stride)
 			{
 				buffer.SafeDispose();
-				buffer = new ComputeBuffer(size, stride);
+				buffer = new ComputeBuffer(size, stride, type ?? ComputeBufferType.Default, mode ?? ComputeBufferMode.Immutable);
 				Debug.Log("Create ComputeBuffer, size=" + size + ", stride=" + stride);
 			}
 			return buffer;

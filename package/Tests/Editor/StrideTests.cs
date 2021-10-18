@@ -1,11 +1,29 @@
-﻿using NUnit.Framework;
+﻿using System.Collections.Generic;
+using NUnit.Framework;
 using UnityEngine;
 
 namespace Needle.Timeline.Tests
 {
 	public class StrideTests
 	{
+		[Test]
+		public void List_Int()
+		{
+			Assert.IsTrue(typeof(List<int>).GetStride() == 4);
+		}
 		
+		[Test]
+		public void List_Float()
+		{
+			Assert.IsTrue(typeof(List<float>).GetStride() == 4);
+		}
+		
+		[Test]
+		public void List_Matrix()
+		{
+			Assert.AreEqual((sizeof(float)*4*4), typeof(List<Matrix4x4>).GetStride());
+		}
+
 		[Test]
 		public void Struct_Int()
 		{

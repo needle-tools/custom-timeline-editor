@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using UnityEditor.VersionControl;
@@ -125,20 +126,23 @@ namespace Needle.Timeline.Tests
 
 			var list = new List<ComputeShaderBinding>();
 			var source = new BufferWithFloatType();
-			shaderInfo.SetValues(source, list);
+			source.MyBuffer.Add(42);
+			shaderInfo.Bind(source, new ResourceProvider(DefaultResources.GlobalComputeBufferProvider), list);
 			Assert.AreEqual(1, list.Count);
+			
+			list[0].SetValue();
+			shaderInfo.Shader.Dispatch(0, 1, 1, 1);
+			var val = list[0].GetValue() as Array;
+			Assert.NotNull(val);
+			Assert.AreEqual(43,val.GetValue(0));
 		}
 
 		private class BufferWithFloatType
 		{
-			public List<float> MyBuffer;
+			public List<float> MyBuffer = new List<float>();
 		}
-		
-		
-		
-		
-		
-		
+
+
 		private static ComputeShader LoadShader(string name)
 		{
 			var shader = Resources.Load<ComputeShader>(name);
