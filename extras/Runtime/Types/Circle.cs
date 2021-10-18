@@ -35,6 +35,7 @@ public struct Circle : IToolEvents, ICustomControls, IOnionSkin
 
 	public void RenderOnionSkin(IOnionData data)
 	{
+#if UNITY_EDITOR
 		Handles.color = Color.gray;
 		Handles.color = Color.Lerp(Handles.color, data.ColorOnion, data.WeightOnion);
 		if (Radius > 2)
@@ -43,5 +44,6 @@ public struct Circle : IToolEvents, ICustomControls, IOnionSkin
 			Gizmos.DrawSphere(Position, .05f);
 		}
 		Handles.DrawWireDisc(Position, Camera.current.transform.forward, Radius);
+#endif
 	}
 }

@@ -1,0 +1,21 @@
+﻿#pragma kernel CSMain
+
+float4x4 someMatrix;
+float3 color, dist;
+StructuredBuffer<float3> myFloat3s;
+StructuredBuffer<float> myFloats; 
+
+struct SomeType
+{
+    float value;
+    int2 anotherValue;
+};
+
+RWStructuredBuffer<SomeType> myType;
+
+RWTexture2D<float4> tex;
+
+[numthreads(8,1,1)]
+void CSMain(uint3 id : SV_DispatchThreadID)
+{
+}

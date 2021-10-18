@@ -1,0 +1,13 @@
+﻿#pragma kernel CSMain
+#pragma kernel CSMain2
+
+
+[numthreads(8,1,128)]
+void CSMain(uint3 id : SV_DispatchThreadID)
+{
+}
+
+[numthreads(1,32,32)]
+void CSMain2(uint3 id : SV_DispatchThreadID)
+{
+}

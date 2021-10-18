@@ -1,8 +1,10 @@
 ﻿#pragma kernel CSMain
 
-float test;
+float3 color, dist;
 
 [numthreads(8,1,1)]
 void CSMain(uint3 id : SV_DispatchThreadID)
 {
+    float3 col = color;
+    col += dist;
 }

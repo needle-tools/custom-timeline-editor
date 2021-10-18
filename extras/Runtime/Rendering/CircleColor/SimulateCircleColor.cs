@@ -14,15 +14,16 @@ public class SimulateCircleColor : MonoBehaviour, IAnimated, IOnionSkin
 	[SerializeField]
 	private  List<ComputeShaderFieldInfo> infos = new List<ComputeShaderFieldInfo>();
 
-	private void OnValidate()
-	{
-		Shader.FindFields(infos);
-	}
-
-	private void OnEnable()
-	{
-		Shader.FindFields(infos);
-	}
+	// private void OnValidate()
+	// {
+	// 	if(enabled)
+	// 		Shader.TryParse(infos);
+	// }
+	//
+	// private void OnEnable()
+	// {
+	// 	Shader.TryParse(infos);
+	// }
 
 	private void OnDrawGizmos()
 	{

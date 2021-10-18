@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace Needle.Timeline
 {
-	public static class IClipAndKeyframeExtensions
+	public static class ClipAndKeyframeExtensions
 	{
 		public static ICustomKeyframe? AddKeyframe(this ICustomClip clip, float time, object? value = null)
 		{
