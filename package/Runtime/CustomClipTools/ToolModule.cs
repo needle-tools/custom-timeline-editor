@@ -4,6 +4,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using NUnit.Framework;
+using Unity.Mathematics;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Random = UnityEngine.Random;
@@ -50,6 +53,19 @@ namespace Needle.Timeline
 			       && AllowedButton((MouseButton)Event.current.button) && AllowedModifiers(input, Event.current.modifiers);
 		}
 
+		public virtual void OnDrawGizmos(InputData input)
+		{
+			if (input.WorldPosition != null)
+			{
+				Gizmos.color = new Color(.5f, .5f, .5f, .1f);
+				Handles.DrawWireDisc(input.WorldPosition.Value, input.WorldNormal!.Value, 1f);
+				Gizmos.color = Color.green;
+				GizmoUtils.DrawArrow(input.WorldPosition.Value, input.WorldPosition.Value + input.WorldNormal.Value);
+				// Handles.DrawWireDisc(input.WorldPosition.Value, Camera.current.transform.forward, 1);
+				// Handles.SphereHandleCap(0, input.WorldPosition.Value,  Quaternion.identity, .2f, EventType.Repaint);
+			}
+		}
+
 		protected virtual bool AllowedButton(MouseButton button) => button == 0;
 		protected virtual bool AllowedModifiers(InputData data, EventModifiers current) => current == EventModifiers.None;
 
@@ -94,11 +110,11 @@ namespace Needle.Timeline
 		#endregion
 	}
 
-	public class ModifySelf : ToolModule
+	public class HandlesModule : ToolModule
 	{
 		public override bool CanModify(Type type)
 		{
-			return typeof(IModifySelf).IsAssignableFrom(type);
+			return typeof(IReceiveInput).IsAssignableFrom(type);
 		}
 
 		public override bool WantsInput(InputData input)
@@ -109,7 +125,7 @@ namespace Needle.Timeline
 		public override bool OnModify(InputData input, ref ToolData toolData)
 		{
 			if (toolData.Value == null) return false;
-			if (toolData.Value is IModifySelf mod)
+			if (toolData.Value is IReceiveInput mod)
 			{
 				return mod.OnInput(input);
 			}
@@ -140,11 +156,13 @@ namespace Needle.Timeline
 
 	public class SprayModule : ToolModule
 	{
-		[Range(0,1)]
+		[UnityEngine.Range(0,1)]
 		public float Probability = 1;
 		public float Radius = 1;
 		public int Max = 10;
-		
+		[UnityEngine.Range(0,1)]
+		public float Offset = 1;
+		public bool OnSurface = false;
 
 		private readonly List<CallbackHandler> _created = new List<CallbackHandler>();
 		
@@ -216,7 +234,19 @@ namespace Needle.Timeline
 			if (closestKeyframe != null)
 			{
 				var offset = Random.insideUnitSphere * Radius;
-				var pos = input.WorldPosition.Value + offset + input.WorldNormal.GetValueOrDefault() * Radius;
+				var pos = input.WorldPosition.Value + offset;
+
+				if (OnSurface && input.WorldNormal != null)
+				{
+					if (Physics.SphereCast(pos, Radius * .5f, -input.WorldNormal.Value, out var hit, Radius * 2f))
+						pos = hit.point;
+					else
+					{
+						return true;
+					}
+				}
+				pos += Offset * input.WorldNormal.GetValueOrDefault() * Radius;
+				
 				if (input.IsIn2DMode) pos.z = 0;
 				
 				var contentType = closestKeyframe.TryRetrieveKeyframeContentType();
@@ -342,7 +372,7 @@ namespace Needle.Timeline
 	public class DragColor : ToolModule
 	{
 		public float Radius = 1;
-		[Range(0.01f, 3)]
+		[UnityEngine.Range(0.01f, 3)]
 		public float Falloff = 1;
 		
 		public override bool CanModify(Type type)

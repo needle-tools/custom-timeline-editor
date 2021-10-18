@@ -3,10 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
-using UnityEditor.Experimental;
+using UnityEditor;
 using UnityEngine;
-using UnityEngine.SocialPlatforms;
+using UnityEngine.Playables;
 using UnityEngine.UIElements;
 using Random = UnityEngine.Random;
 
@@ -85,15 +84,17 @@ namespace Needle.Timeline
 		{
 			if (buffer.Count <= 0) return;
 
-			foreach (var mod in buffer)
+			foreach (var module in buffer)
 			{
-				var entry = modulesUI.FirstOrDefault(e => e.Is(mod));
+				var entry = modulesUI.FirstOrDefault(e => e.Is(module));
 				if (entry != null) continue;
+				var type = module.GetType();
+				var meta = type.GetCustomAttribute<Meta>();
 
 				var container = new VisualElement();
 				modulesContainer.Add(container);
 
-				entry = new ModuleView(modulesContainer, (ToolModule)mod);
+				entry = new ModuleView(modulesContainer, (ToolModule)module);
 				modulesUI.Add(entry);
 
 				Button button = null;
@@ -105,10 +106,8 @@ namespace Needle.Timeline
 						e.SetActive(false);
 					}
 					entry.SetActive(!entry.IsActive);
-				})
-				{
-					text = mod.GetType().Name
-				};
+				});
+				button.text = ObjectNames.NicifyVariableName(meta?.Name ?? module.GetType().Name);
 				entry.Label = button;
 				container.Add(button);
 				entry.SetActive(false);
@@ -117,6 +116,30 @@ namespace Needle.Timeline
 
 		private readonly InputData input = new InputData();
 		private readonly List<(IReadClipTime time, IClipKeyframePair val)> visibleKeyframes = new List<(IReadClipTime time, IClipKeyframePair val)>();
+		
+		
+		[DrawGizmo(GizmoType.NonSelected | GizmoType.Selected)]
+		private static void DrawGizmos(PlayableDirector component, GizmoType gizmoType)
+		{
+			foreach (var tools in ToolsHandler.ActiveTools)
+			{
+				if (tools is ModularTool mod)
+				{
+					if (mod.modulesUI == null) continue;
+					if (mod.modulesUI.Any(m => m.IsActive))
+					{
+						mod.input.Update();
+						foreach (var view in mod.modulesUI)
+						{
+							if (!view.IsActive) continue;
+							var module = view.Module;
+							module.OnDrawGizmos(mod.input);
+						}
+					}
+				}
+			}
+		}
+		
 
 		protected override void OnHandleInput()
 		{
@@ -125,13 +148,15 @@ namespace Needle.Timeline
 
 			input.Update();
 
-			if (modulesUI.Any(m => m.IsActive && m.Module.WantsInput(input)))
+			if (modulesUI.Any(m => m.IsActive))
 			{
 				foreach (var mod in modulesUI)
 				{
 					if (!mod.IsActive) continue;
-					if (!mod.Module.WantsInput(input)) continue;
+					
 					var module = mod.Module;
+					
+					if (!mod.Module.WantsInput(input)) continue;
 
 					foreach (var tar in Targets)
 					{

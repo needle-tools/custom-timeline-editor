@@ -5,6 +5,7 @@ using System.Linq;
 using Needle.Timeline;
 using UnityEditor;
 using UnityEngine;
+using Handles = UnityEditor.Handles;
 
 public class LineTool : CustomClipToolBase
 {

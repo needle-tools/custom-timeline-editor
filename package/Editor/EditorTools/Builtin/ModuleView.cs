@@ -72,6 +72,18 @@ namespace Needle.Timeline
 					element = el;
 					options.Add(el);
 				}
+
+				void CreateToggle(Toggle el)
+				{
+					el.Q<Label>().style.minWidth = labelMinWidth;
+					el.value = (bool)field.GetValue(Module);
+					el.RegisterValueChangedCallback(cb =>
+					{
+						field.SetValue(Module, cb.newValue);
+					});
+					element = el;
+					options.Add(el);
+				}
 				
 				if (field.FieldType == typeof(float))
 				{
@@ -98,6 +110,11 @@ namespace Needle.Timeline
 						var el = new IntegerField(field.Name);
 						CreateTextField(el);
 					}
+				}
+				else if (field.FieldType == typeof(bool))
+				{
+					var el = new Toggle(field.Name);
+					CreateToggle(el);
 				}
 				else
 				{

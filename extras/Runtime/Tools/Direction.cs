@@ -3,9 +3,10 @@ using Needle.Timeline;
 using Newtonsoft.Json;
 using UnityEditor;
 using UnityEngine;
+using Handles = UnityEditor.Handles;
 
 
-public struct Direction : IModifySelf, ICreationCallbacks
+public struct Direction : IReceiveInput, ICreationCallbacks
 {
 	public Vector3 Start;
 	public Vector3 End;

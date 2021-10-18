@@ -112,7 +112,7 @@ namespace Needle.Timeline
                 return;
 
             //Draw a positional Handle.
-            Handles.DrawWireDisc(GetCurrentMousePositionInScene(), Vector3.up, 0.5f);
+            UnityEditor.Handles.DrawWireDisc(GetCurrentMousePositionInScene(), Vector3.up, 0.5f);
 
             //If the user clicked, clone the selected object, place it at the current mouse position.
             if (_receivedClickUpEvent)

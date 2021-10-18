@@ -31,7 +31,7 @@ namespace Needle.Timeline
 			return Camera.current.WorldToScreenPoint(worldPoint);
 		}
 
-		public Vector2 ScreenPosition;
+		public Vector2 ScreenPosition { get; private set; }
 		public Vector2 LastScreenPosition;
 		public Vector2 StartScreenPosition;
 		
@@ -70,9 +70,10 @@ namespace Needle.Timeline
 				LastWorldPosition = WorldPosition;
 				WorldPosition = PlaneUtils.GetPointInWorld(Camera.current, out var normal);
 				WorldNormal = normal;
+				// Debug.DrawLine(WorldPosition.Value, WorldPosition.Value + WorldNormal.Value, Color.white, 1);
 				LastScreenPosition = ScreenPosition;
-				ScreenPosition = evt.mousePosition;
-				ScreenPosition.y = Screen.height - ScreenPosition.y;
+				var sp = evt.GetCurrentMousePositionBottomTop();
+				ScreenPosition = sp;
 			}
 			
 			switch (evt.type)

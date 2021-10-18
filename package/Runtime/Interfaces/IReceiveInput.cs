@@ -1,6 +1,6 @@
 ﻿namespace Needle.Timeline
 {
-	public interface IModifySelf
+	public interface IReceiveInput
 	{
 		bool OnInput(IToolData data);
 	}
