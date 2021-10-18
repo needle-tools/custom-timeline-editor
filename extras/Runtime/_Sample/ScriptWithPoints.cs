@@ -3,10 +3,7 @@ using System;
 using System.Collections.Generic;
 using Needle.Timeline;
 using UnityEditor;
-using UnityEditor.IMGUI.Controls;
 using UnityEngine;
-using UnityEngine.Serialization;
-using Handles = UnityEditor.Handles;
 
 namespace _Sample._Sample
 {
@@ -14,40 +11,39 @@ namespace _Sample._Sample
 	{
 		[Animate] public List<Point>? Points = new List<Point>();
 
-		public struct Point : ICreationCallbacks
+		public struct Point : IToolEvents
 		{
 			public Vector3 Position;
 			public float Weight;
 			public Color Color;
 
-			public void Init(CreationStage stage, IToolData? _)
+			public void OnToolEvent(ToolStage stage, IToolData? _)
 			{
 				Weight = .05f;
-				Color = Color.white; 
+				Color = Color.white;
 			}
 		}
-		
 
-		[Animate]
-		public List<Direction>? Lines = new List<Direction>();
 
-		[Animate]
-		public List<Circle>? Circles = new List<Circle>();
+		[Animate] public List<Direction>? Lines = new List<Direction>();
 
-		public struct Circle : ICreationCallbacks, IReceiveInput
+		[Animate] public List<Circle>? Circles = new List<Circle>();
+
+		public struct Circle : IToolEvents, ICustomControls
 		{
 			public Vector3 Position;
 			public float Radius;
-			
-			public void Init(CreationStage stage, IToolData? data)
+
+			public void OnToolEvent(ToolStage stage, IToolData? data)
 			{
 				if (data == null) return;
-				if(data.WorldPosition != null && data.StartWorldPosition != null)
+				if (data.WorldPosition != null && data.StartWorldPosition != null)
 					Radius = (data.WorldPosition.Value - data.StartWorldPosition.Value).magnitude * .1f;
 			}
 
-			public bool OnInput(IToolData data)
+			public bool OnCustomControls(IToolData data, IToolModule tool)
 			{
+#if UNITY_EDITOR
 				var sp = data.ToScreenPoint(Position);
 				var dist = (sp - data.ScreenPosition).magnitude;
 				// Handles.Label(Position, sp + "\n" + dist + "\n" + data.ScreenPosition + "\n" + Screen.height);
@@ -57,6 +53,9 @@ namespace _Sample._Sample
 				var changed = Math.Abs(newRadius - Radius) > Mathf.Epsilon;
 				Radius = newRadius;
 				return changed;
+#else
+				return false;
+#endif
 			}
 		}
 
@@ -72,12 +71,12 @@ namespace _Sample._Sample
 			if (layer != 0)
 			{
 				onionColor01 = 1f;
-				if(layer < 0)
+				if (layer < 0)
 					onionColor = new Color(1f, .5f, .5f, .3f);
 				else
 					onionColor = new Color(0.5f, 1f, .5f, .3f);
 			}
-			
+
 			if (Points != null)
 			{
 				foreach (var pt in Points)
@@ -89,7 +88,7 @@ namespace _Sample._Sample
 
 			if (Lines != null)
 			{
-				Gizmos.color = Color.Lerp(Color.white, onionColor, onionColor01);
+				Gizmos.color = Color.Lerp(Color.gray, onionColor, onionColor01);
 				foreach (var line in Lines)
 				{
 					line.DrawGizmos();

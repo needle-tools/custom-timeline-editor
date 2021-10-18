@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Needle.Timeline
 {
-	public enum CreationStage
+	public enum ToolStage
 	{
 		InstanceCreated = 0,
 		BasicValuesSet = 1,
@@ -20,8 +20,11 @@ namespace Needle.Timeline
 		Vector2 ToScreenPoint(Vector3 worldPoint);
 	}
 
-	public interface ICreationCallbacks
+	/// <summary>
+	/// Implement on type to receive events when creating new instances
+	/// </summary>
+	public interface IToolEvents
 	{
-		void Init(CreationStage stage, IToolData? data);
+		void OnToolEvent(ToolStage stage, IToolData? data);
 	}
 }

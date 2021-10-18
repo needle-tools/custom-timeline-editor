@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using NUnit.Framework;
 using Unity.Mathematics;
 using UnityEditor;
@@ -57,13 +58,31 @@ namespace Needle.Timeline
 		{
 			if (input.WorldPosition != null)
 			{
-				Gizmos.color = new Color(.5f, .5f, .5f, .1f);
-				Handles.DrawWireDisc(input.WorldPosition.Value, input.WorldNormal!.Value, 1f);
+				Handles.color = new Color(.5f, .5f, .5f, .5f);
+				Handles.DrawWireDisc(input.WorldPosition.Value, input.WorldNormal!.Value, GetRadius());
 				Gizmos.color = Color.green;
 				GizmoUtils.DrawArrow(input.WorldPosition.Value, input.WorldPosition.Value + input.WorldNormal.Value);
 				// Handles.DrawWireDisc(input.WorldPosition.Value, Camera.current.transform.forward, 1);
 				// Handles.SphereHandleCap(0, input.WorldPosition.Value,  Quaternion.identity, .2f, EventType.Repaint);
 			}
+		}
+
+		private bool didSearchRadius;
+		private FieldInfo radiusField;
+		protected virtual float GetRadius()
+		{
+			if (radiusField != null) return (float)radiusField.GetValue(this);
+			if (didSearchRadius) return .1f;
+			didSearchRadius = true; 
+			foreach (var field in GetType().GetRuntimeFields())
+			{
+				if (field.FieldType == typeof(float) && field.Name.Equals("radius", StringComparison.InvariantCultureIgnoreCase))
+				{
+					radiusField = field;
+					break;
+				}
+			}
+			return (float)(radiusField?.GetValue(this) ?? 0.1f);
 		}
 
 		protected virtual bool AllowedButton(MouseButton button) => button == 0;
@@ -114,7 +133,7 @@ namespace Needle.Timeline
 	{
 		public override bool CanModify(Type type)
 		{
-			return typeof(IReceiveInput).IsAssignableFrom(type);
+			return typeof(ICustomControls).IsAssignableFrom(type);
 		}
 
 		public override bool WantsInput(InputData input)
@@ -125,9 +144,9 @@ namespace Needle.Timeline
 		public override bool OnModify(InputData input, ref ToolData toolData)
 		{
 			if (toolData.Value == null) return false;
-			if (toolData.Value is IReceiveInput mod)
+			if (toolData.Value is ICustomControls mod)
 			{
-				return mod.OnInput(input);
+				return mod.OnCustomControls(input, this);
 			}
 			return false;
 		}
@@ -159,7 +178,7 @@ namespace Needle.Timeline
 		[UnityEngine.Range(0,1)]
 		public float Probability = 1;
 		public float Radius = 1;
-		public int Max = 10;
+		public int Max = 1000;
 		[UnityEngine.Range(0,1)]
 		public float Offset = 1;
 		public bool OnSurface = false;
@@ -195,9 +214,9 @@ namespace Needle.Timeline
 				case InputEventStage.Update:
 					foreach (var ad in _created)
 					{
-						ad.Modify<ICreationCallbacks>(i =>
+						ad.Modify<IToolEvents>(i =>
 						{
-							i.Init(CreationStage.InputUpdated, input);
+							i.OnToolEvent(ToolStage.InputUpdated, input);
 							return i;
 						});
 					}
@@ -206,9 +225,9 @@ namespace Needle.Timeline
 				{
 					foreach (var ad in _created)
 					{
-						ad.Modify<ICreationCallbacks>(i =>
+						ad.Modify<IToolEvents>(i =>
 						{
-							i.Init(CreationStage.InputEnded, input);
+							i.OnToolEvent(ToolStage.InputEnded, input);
 							return i;
 						});
 					}
@@ -263,13 +282,13 @@ namespace Needle.Timeline
 					var instance = contentType.TryCreateInstance();
 					if (instance != null)
 					{
-						if(instance is ICreationCallbacks i) i.Init(CreationStage.InstanceCreated, input);
+						if(instance is IToolEvents i) i.OnToolEvent(ToolStage.InstanceCreated, input);
 						var posField = instance.GetType().EnumerateFields().FirstOrDefault(f => f.FieldType == typeof(Vector3));
 						posField!.SetValue(instance, pos);
-						if (instance is ICreationCallbacks init) init.Init(CreationStage.BasicValuesSet, input);
+						if (instance is IToolEvents init) init.OnToolEvent(ToolStage.BasicValuesSet, input);
 						col.Add(instance);
 						closestKeyframe.RaiseValueChangedEvent();
-						if (instance is ICreationCallbacks) 
+						if (instance is IToolEvents) 
 							_created.Add(new CallbackHandler(instance, col, col.Count-1));
 						return true;
 					}

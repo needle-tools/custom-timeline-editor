@@ -1,4 +1,4 @@
-﻿namespace Needle.Timeline.Interfaces
+﻿namespace Needle.Timeline
 {
 	public interface ICanConvert<in TInput, out TOutput>
 	{

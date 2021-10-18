@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Needle.Timeline;
-using Needle.Timeline.Interfaces;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Random = UnityEngine.Random;

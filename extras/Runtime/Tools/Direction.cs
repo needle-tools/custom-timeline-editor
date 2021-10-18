@@ -3,10 +3,9 @@ using Needle.Timeline;
 using Newtonsoft.Json;
 using UnityEditor;
 using UnityEngine;
-using Handles = UnityEditor.Handles;
 
 
-public struct Direction : IReceiveInput, ICreationCallbacks
+public struct Direction : ICustomControls, IToolEvents
 {
 	public Vector3 Start;
 	public Vector3 End;
@@ -15,22 +14,22 @@ public struct Direction : IReceiveInput, ICreationCallbacks
 	// [NonSerialized, JsonIgnore]
 	// private Vector3 _deltaSum;
 
-	public void Init(CreationStage stage, IToolData data)
+	public void OnToolEvent(ToolStage stage, IToolData data)
 	{
 		if (data == null) return;
-		if (stage == CreationStage.BasicValuesSet)
+		if (stage == ToolStage.BasicValuesSet)
 		{
 			// Debug.Log(data.DeltaWorld.GetValueOrDefault());
 			End = Start + data.DeltaWorld.GetValueOrDefault().normalized;
 		}
-		else if (stage == CreationStage.InputUpdated)
+		else if (stage == ToolStage.InputUpdated)
 		{
 			// if (stage == CreationStage.BasicValuesSet) _deltaSum = data.DeltaWorld.GetValueOrDefault().normalized;
 			End += data.DeltaWorld.GetValueOrDefault() * 0.005f;
 		}
 	}
 
-	public bool OnInput(IToolData data)
+	public bool OnCustomControls(IToolData data, IToolModule module)
 	{
 #if UNITY_EDITOR
 		if (data.WorldPosition != null)
