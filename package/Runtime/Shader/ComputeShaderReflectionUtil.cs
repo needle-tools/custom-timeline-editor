@@ -64,17 +64,17 @@ namespace Needle.Timeline
 		public Type? FieldType;
 		public string TypeName;
 		public int Stride;
-		public bool RandomWrite;
-		public string? GenericTypeName;
+		public bool? RandomWrite;
 		/// <summary>
 		/// If the type is a known struct
 		/// </summary>
-		public ComputeShaderStructInfo? StructInfo;
+		public ComputeShaderStructInfo? GenericType;
 
 		public override string ToString()
 		{
-			var res = "Name=" + FieldName + ", Type=" + FieldType?.FullName + ", Stride= " + Stride + " bytes, RandomWrite=" + RandomWrite;
-			if (GenericTypeName != null) res += ", GenericType=" + GenericTypeName;
+			var res = "Name=" + FieldName + ", Type=" + FieldType?.FullName + ", Stride=" + Stride + "bytes";
+			if (RandomWrite != null) res += ", RandomWrite=" + RandomWrite;
+			if (GenericType != null) res += ", GenericType=" + GenericType;
 			if(Kernels != null) res += ", Used in Kernels: " + string.Join(", ", Kernels.Select(k => k.Name));
 			return res;
 		}
@@ -234,8 +234,6 @@ namespace Needle.Timeline
 							field.FieldName = name;
 							field.FilePath = shaderPath;
 							field.SetType(type);
-							if(!string.IsNullOrEmpty(generics))
-								field.GenericTypeName = generics;
 							field.Stride = TryGetStride(field.TypeName) ?? TryGetStride(generics) ?? TryFindStrideFromDeclaredStruct() ?? -1;
 
 							int? TryFindStrideFromDeclaredStruct()
@@ -243,7 +241,10 @@ namespace Needle.Timeline
 								foreach (var str in shaderInfo.Structs)
 								{
 									if (str.Name == generics)
+									{
+										field.GenericType = str;
 										return str.CalcStride();
+									}
 								}
 								return null;
 							}
@@ -314,6 +315,7 @@ namespace Needle.Timeline
 
 				case "StructuredBuffer":
 					field.FieldType = typeof(ComputeBuffer);
+					field.RandomWrite = false;
 					break;
 				case "RWStructuredBuffer":
 					field.FieldType = typeof(ComputeBuffer);
@@ -321,6 +323,7 @@ namespace Needle.Timeline
 					break;
 				case "Texture2D":
 					field.FieldType = typeof(Texture2D);
+					field.RandomWrite = false;
 					break;
 				case "RWTexture2D":
 					field.FieldType = typeof(Texture2D);

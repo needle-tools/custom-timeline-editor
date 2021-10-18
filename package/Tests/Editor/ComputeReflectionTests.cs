@@ -107,7 +107,8 @@ namespace Needle.Timeline.Tests
 			Assert.AreEqual("BufferWithStruct", shaderInfo.Fields[0].FieldName);
 			Assert.AreNotEqual(-1, shaderInfo.Fields[0].Stride);
 			Assert.AreEqual(4, shaderInfo.Fields[0].Stride);
-			Assert.AreEqual("MyType", shaderInfo.Fields[0].GenericTypeName);
+			Assert.NotNull(shaderInfo.Fields[0].GenericType, "Failed finding buffer generic type");
+			Assert.AreEqual("MyType", shaderInfo.Fields[0].GenericType.Name);
 		}
 		
 		
