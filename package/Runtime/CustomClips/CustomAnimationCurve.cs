@@ -16,9 +16,20 @@ namespace Needle.Timeline
 		private readonly ProfilerMarker _interpolationMarker = new ProfilerMarker("CustomAnimationCurve Interpolate " + typeof(T));
 
 		public string Name { get; set; }
-		
-		public bool IsRecording { get; set; }
-		
+
+		public bool IsRecording
+		{
+			get => isRecording;
+			set
+			{
+				if (value == isRecording) return;
+				isRecording = value;
+				RecordingStateChanged?.Invoke();
+			}
+		}
+
+		public event Action RecordingStateChanged;
+
 		[JsonIgnore]
 		public IInterpolator Interpolator
 		{
@@ -167,6 +178,7 @@ namespace Needle.Timeline
 
 		private bool keyframesTimeChanged, keyframeAdded;
 		private bool didRegisterKeyframeEvents;
+		private bool isRecording;
 
 		private void RegisterKeyframeEvents()
 		{

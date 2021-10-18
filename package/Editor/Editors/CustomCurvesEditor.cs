@@ -34,6 +34,8 @@ namespace Needle.Timeline
 					if (!(clip.asset is CodeControlAsset code)) continue;
 					foreach (var viewModel in code.viewModels)
 					{
+						if (!viewModel.IsValid) continue;
+						if (viewModel.clips.Count <= index) continue;
 						var customClip = viewModel.clips[index];
 						callback(customClip);
 					}

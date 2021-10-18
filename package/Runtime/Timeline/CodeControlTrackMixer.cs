@@ -104,6 +104,8 @@ namespace Needle.Timeline
 		[DrawGizmo(GizmoType.NonSelected | GizmoType.Selected)]
 		private static void DrawGizmos(PlayableDirector component, GizmoType gizmoType)
 		{
+			if (CustomTimelineSettings.Instance.RenderOnionSkin == false) return;
+			
 			foreach (var vm in ClipInfoViewModel.ActiveInstances)
 			{
 				if(vm.IsValid)

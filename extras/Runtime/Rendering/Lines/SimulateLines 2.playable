@@ -272,25 +272,7 @@ MonoBehaviour:
       m_RotationOrder: 4
     m_MixOutCurve:
       serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      - serializedVersion: 3
-        time: 1
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
+      m_Curve: []
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
@@ -306,7 +288,7 @@ MonoBehaviour:
     m_DisplayName: ScriptWithPoints
   m_Markers:
     m_Objects: []
-  dirtyCount: 98979
+  dirtyCount: 99275
   clips:
   - id: eda0e4cb5140de24889234fc5613a0cb@-88420583372947174_AnimatedPoints_0
     clip: {fileID: 9185079662231323250}

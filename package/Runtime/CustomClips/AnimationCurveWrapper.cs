@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using UnityEditor;
 using UnityEngine;
 
 namespace Needle.Timeline
@@ -20,7 +21,17 @@ namespace Needle.Timeline
 			SupportedTypes = new[] { typeof(float) };
 			Instance = null;
 			ViewModel = null;
+			#if UNITY_EDITOR
+			AnimationUtility.onCurveWasModified += OnModify;
+			#endif
 		}
+
+		#if UNITY_EDITOR
+		private void OnModify(AnimationClip clip, EditorCurveBinding binding, AnimationUtility.CurveModifiedType type)
+		{
+			// TODO: use to update keyframes?!
+		}
+		#endif
 
 
 		public float Evaluate(float time)

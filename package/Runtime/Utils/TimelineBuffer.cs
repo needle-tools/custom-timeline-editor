@@ -13,7 +13,11 @@ namespace Needle.Timeline
 {
 	internal static class TimelineBuffer
 	{
-		public static bool AllowBuffering = false;
+		public static bool Enabled
+		{
+			get => CustomTimelineSettings.Instance.AllowBuffering;
+			set => CustomTimelineSettings.Instance.AllowBuffering = value;
+		}
 		
 		[InitializeOnLoadMethod]
 		private static void Init()
@@ -62,7 +66,7 @@ namespace Needle.Timeline
 		private static bool isBuffering = false;
 		private static Task Buffer(PlayableDirector dir, float seconds = 10, double? fromTime = null)
 		{
-			if (!AllowBuffering) return Task.CompletedTask;
+			if (!Enabled) return Task.CompletedTask;
 			if (isBuffering) return Task.CompletedTask;
 			isBuffering = true;
 			Debug.Log("BUFFER");
