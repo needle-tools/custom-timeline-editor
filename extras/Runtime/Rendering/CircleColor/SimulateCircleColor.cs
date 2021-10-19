@@ -16,17 +16,28 @@ public class SimulateCircleColor : MonoBehaviour, IAnimated, IOnionSkin, IAnimat
 
 	public float TimeFactor = 1;
 	public float OffsetY;
+	[Range(0,1), ShaderField("MyField")]
+	public float XOffset;
+	
+	
+	[Header("Debug")] 
+	public Renderer Output;
+	
+	
+	
 	
 	
 	
 	[SerializeField, HideInInspector] 
 	private ComputeShader lastShader;
+	
+	
+	
+	
+	
 	[SerializeField] private ComputeShaderInfo info;
 	private List<ComputeShaderBinding> bindings = new List<ComputeShaderBinding>();
 	private IResourceProvider resources = ResourceProvider.CreateDefault();
-
-	[Header("Debug")] 
-	public Renderer Output;
 
 	private void OnValidate()
 	{

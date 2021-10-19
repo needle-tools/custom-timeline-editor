@@ -490,7 +490,7 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!84 &446568232
+--- !u!84 &352717072
 RenderTexture:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -811,9 +811,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Shader: {fileID: 7200000, guid: c0111fdf13ba422ea4a8b170242058a8, type: 3}
-  Result: {fileID: 446568232}
+  Result: {fileID: 352717072}
   TimeFactor: 0
   OffsetY: 0
+  MyField: 5.97
   lastShader: {fileID: 7200000, guid: c0111fdf13ba422ea4a8b170242058a8, type: 3}
   info:
     Path: Packages/com.needle.timeline-editor-extras/Runtime/Rendering/CircleColor/SimulateCircleColor.compute
@@ -831,6 +832,18 @@ MonoBehaviour:
         Threads: {x: 8, y: 1, z: 1}
       FilePath: Packages/com.needle.timeline-editor-extras/Runtime/Rendering/CircleColor/SimulateCircleColor.compute
     - FieldName: OffsetY
+      TypeName: float
+      Stride: 4
+      GenericType:
+        Name: 
+        FileName: 
+        Fields: []
+      Kernels:
+      - Name: CSMain
+        Index: 0
+        Threads: {x: 8, y: 1, z: 1}
+      FilePath: Packages/com.needle.timeline-editor-extras/Runtime/Rendering/CircleColor/SimulateCircleColor.compute
+    - FieldName: MyField
       TypeName: float
       Stride: 4
       GenericType:

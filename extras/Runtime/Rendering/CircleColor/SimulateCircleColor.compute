@@ -8,9 +8,10 @@ struct Circle
 
 float TimeFactor;
 float OffsetY;
+float MyField;
 
 float4 _Time;
-RWStructuredBuffer<Circle> Circles;
+RWStructuredBuffer<Circle> Circles; 
 RWTexture2D<float4> Result;
 
 [numthreads(8,1,1)]
@@ -19,7 +20,7 @@ void CSMain(uint3 id : SV_DispatchThreadID)
     uint width, height;
     Result.GetDimensions(width, height);
     float2 uv = id.xy/float2(width,height);
-    uv.x += _Time.x * TimeFactor;
+    uv.x += _Time.x * TimeFactor + MyField;
     uv.y += OffsetY;
     uv %= 1;
     float4 res = float4(uv.x,uv.y,0,1);
