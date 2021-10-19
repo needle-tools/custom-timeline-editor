@@ -50,6 +50,12 @@ namespace Needle.Timeline
 		public int Index;
 		public Vector3Int Threads;
 
+		public ComputeShaderKernelInfo(string name, int index)
+		{
+			Name = name;
+			Index = index;
+		}
+
 		public override string ToString()
 		{
 			return Name + ", " + Index + ", " + Threads;
@@ -141,8 +147,10 @@ namespace Needle.Timeline
 					var kernelMatch = kernelRegex.Match(line);
 					if (kernelMatch.Success)
 					{
-						var kernel = new ComputeShaderKernelInfo();
-						kernel.Name = kernelMatch.Groups["kernel_name"].Value;
+						var kernel = new ComputeShaderKernelInfo(
+							kernelMatch.Groups["kernel_name"].Value, 
+							shaderInfo.Kernels.Count
+							);
 						shaderInfo.Kernels.Add(kernel);
 					}
 				}

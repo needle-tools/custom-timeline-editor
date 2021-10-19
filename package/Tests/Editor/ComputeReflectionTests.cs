@@ -4,6 +4,7 @@ using System.Linq;
 using NUnit.Framework;
 using UnityEditor.VersionControl;
 using UnityEngine;
+using UnityEngine.Experimental.Rendering;
 
 namespace Needle.Timeline.Tests
 {
@@ -91,6 +92,31 @@ namespace Needle.Timeline.Tests
 			Assert.AreEqual(0, shaderInfo.Structs.Count);
 			Assert.AreEqual(new Vector3Int(1, 1, 128), shaderInfo.Kernels[0].Threads, shaderInfo.Kernels[0].ToString());
 			Assert.AreEqual(new Vector3Int(8, 24, 32), shaderInfo.Kernels[1].Threads, shaderInfo.Kernels[1].ToString());
+			Assert.AreEqual(0, shaderInfo.Kernels![0].Index);
+			Assert.AreEqual(1, shaderInfo.Kernels![1].Index);
+		}
+
+		[Test]
+		public static void FindTextures()
+		{
+			var shader = LoadShader("FindTextures2D");
+			shader.TryParse(out var shaderInfo);
+
+			Debug.Log(shaderInfo);
+
+			Assert.NotNull(shaderInfo);
+			shaderInfo.AssertDefaults();
+			Assert.AreEqual(1, shaderInfo.Kernels.Count);
+			Assert.AreEqual(3, shaderInfo.Fields.Count);
+			Assert.AreEqual(0, shaderInfo.Structs.Count);
+			Assert.AreEqual(typeof(Texture2D), shaderInfo.Fields[0].FieldType);
+			Assert.AreEqual(typeof(Texture2D), shaderInfo.Fields[1].FieldType);
+			Assert.AreEqual(typeof(Texture2D), shaderInfo.Fields[2].FieldType);
+			
+			Assert.AreEqual(false, shaderInfo.Fields[0].RandomWrite);
+			Assert.AreEqual(true, shaderInfo.Fields[2].RandomWrite);
+			
+			Assert.AreEqual(4, shaderInfo.Fields[0].Stride);
 		}
 		
 		[Test]
@@ -165,7 +191,7 @@ namespace Needle.Timeline.Tests
 		}
 		
 		[Test]
-		public static void Auto_BindAndDispatch_FloatBuffer()
+		public static void Auto_Bind_FloatBuffer_AndDispatch()
 		{
 			var shader = LoadShader("SetValues/BufferWithFloat");
 			shader.TryParse(out var shaderInfo);
@@ -204,6 +230,28 @@ namespace Needle.Timeline.Tests
 			Assert.IsTrue(list[0].ShaderField.FieldName == "MyBuffer");
 		}
 
+		private class BindTexture2D
+		{
+			[TextureInfo(1024, 1024, TextureFormat = TextureFormat.RFloat)]
+			public RenderTexture MyTexture;
+		}
+		
+		[Test]
+		public static void Auto_Bind_Texture2D()
+		{
+			var shader = LoadShader("SetValues/Bind_Texture2D");
+			shader.TryParse(out var shaderInfo);
+			Assert.NotNull(shaderInfo);
+			
+			var list = new List<ComputeShaderBinding>();
+			shaderInfo.Bind(typeof(BindTexture2D), list, TestsResourceProvider);
+			
+			Assert.AreEqual(1, list.Count);
+			var instance = new BindTexture2D();
+			shaderInfo.Dispatch(instance, 0, list);
+			Assert.NotNull(instance.MyTexture);
+			Assert.AreEqual(GraphicsFormat.R32_SFloat, instance.MyTexture.graphicsFormat);
+		}
 
 		
 		

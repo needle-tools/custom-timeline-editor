@@ -10,6 +10,9 @@ using System.Runtime.InteropServices;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
+using UnityEngine.Experimental.Rendering;
+
+// ReSharper disable ReplaceWithSingleAssignment.False
 
 namespace Needle.Timeline
 {
@@ -39,6 +42,7 @@ namespace Needle.Timeline
 		public bool SetValue(int kernelIndex)
 		{
 			var value = TypeField.GetValue(Instance);
+			
 			if (value is IList list)
 			{
 				var buffer = Resources.ComputeBufferProvider.GetBuffer(ShaderField.FieldName, list.Count, ShaderField.Stride,
@@ -53,6 +57,26 @@ namespace Needle.Timeline
 				}
 				ShaderInfo.Shader.SetBuffer(kernelIndex, ShaderField.FieldName, buffer);
 				return true;
+			}
+
+			if (typeof(Texture).IsAssignableFrom(TypeField.FieldType))
+			{
+				var info = TypeField.GetCustomAttribute<TextureInfo>();
+				if (info != null)
+				{
+					if (value == null)
+					{
+						GraphicsFormat? graphicsFormat = info.GraphicsFormat;
+						if ((int)graphicsFormat == 0 && (int)info.TextureFormat != 0) 
+							graphicsFormat = GraphicsFormatUtility.GetGraphicsFormat(info.TextureFormat, false);
+						var rt = Resources.RenderTextureProvider.GetTexture(TypeField.Name, info.Width, info.Height, 
+							info.Depth.GetValueOrDefault(), graphicsFormat);
+						value = rt;
+						ShaderInfo.Shader.SetTexture(kernelIndex, ShaderField.FieldName, rt);
+						TypeField.SetValue(Instance, value);
+						return true;
+					}
+				}
 			}
 			
 			switch (value)
@@ -175,8 +199,17 @@ namespace Needle.Timeline
 					var stride = typeField.FieldType.GetStride();
 					if (stride != shaderField.Stride)
 					{
-						Debug.LogError("Found stride mismatch: " + typeField.Name + " != " + shaderField.FieldName + " - TODO: Handle properly?");
-						continue;
+						var handledStrideMismatch = false;
+						if (typeof(Texture).IsAssignableFrom(typeField.FieldType))
+						{
+							handledStrideMismatch = true;
+						}
+
+						if (!handledStrideMismatch)
+						{
+							Debug.LogError($"Found unknown stride mismatch: {typeField.Name} ({stride}) != {shaderField.FieldName} ({shaderField.Stride})");
+							continue;
+						}
 					}
 					found = true;
 
