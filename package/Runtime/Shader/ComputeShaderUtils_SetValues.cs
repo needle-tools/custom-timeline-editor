@@ -43,20 +43,29 @@ namespace Needle.Timeline
 		{
 			var value = TypeField.GetValue(Instance);
 			
-			if (value is IList list)
+			// TODO: handle when list is null
+			if (typeof(IList).IsAssignableFrom(TypeField.FieldType))
 			{
-				var buffer = Resources.ComputeBufferProvider.GetBuffer(ShaderField.FieldName, list.Count, ShaderField.Stride,
-					ShaderField.RandomWrite.GetValueOrDefault() ? ComputeBufferType.Structured : ComputeBufferType.Default);
-				if (list is Array arr) buffer.SetData(arr);
+				var list = value as IList;
+				if (list == null)
+				{
+					
+				}
 				else
 				{
-					// TODO: find better way of setting content to buffer
-					list_backingArray ??= list.GetType().GetField("_items", BindingFlags.Instance | BindingFlags.NonPublic);
-					var backingArray = list_backingArray.GetValue(list) as Array;
-					buffer.SetData(backingArray, 0, 0, list.Count);
+					var buffer = Resources.ComputeBufferProvider.GetBuffer(ShaderField.FieldName, list.Count, ShaderField.Stride,
+						ShaderField.RandomWrite.GetValueOrDefault() ? ComputeBufferType.Structured : ComputeBufferType.Default);
+					if (list is Array arr) buffer.SetData(arr);
+					else
+					{
+						// TODO: find better way of setting content to buffer
+						list_backingArray ??= list.GetType().GetField("_items", BindingFlags.Instance | BindingFlags.NonPublic);
+						var backingArray = list_backingArray.GetValue(list) as Array;
+						buffer.SetData(backingArray, 0, 0, list.Count);
+					}
+					ShaderInfo.Shader.SetBuffer(kernelIndex, ShaderField.FieldName, buffer);
+					return true;
 				}
-				ShaderInfo.Shader.SetBuffer(kernelIndex, ShaderField.FieldName, buffer);
-				return true;
 			}
 
 			if (typeof(Texture).IsAssignableFrom(TypeField.FieldType))
