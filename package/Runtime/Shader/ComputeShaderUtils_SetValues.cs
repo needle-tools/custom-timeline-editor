@@ -64,13 +64,13 @@ namespace Needle.Timeline
 				var info = TypeField.GetCustomAttribute<TextureInfo>();
 				if (info != null)
 				{
-					if (value == null)
+					// if (value == null)
 					{
 						GraphicsFormat? graphicsFormat = info.GraphicsFormat;
 						if ((int)graphicsFormat == 0 && (int)info.TextureFormat != 0) 
 							graphicsFormat = GraphicsFormatUtility.GetGraphicsFormat(info.TextureFormat, false);
 						var rt = Resources.RenderTextureProvider.GetTexture(TypeField.Name, info.Width, info.Height, 
-							info.Depth.GetValueOrDefault(), graphicsFormat);
+							info.Depth.GetValueOrDefault(), graphicsFormat, ShaderField.RandomWrite);
 						value = rt;
 						ShaderInfo.Shader.SetTexture(kernelIndex, ShaderField.FieldName, rt);
 						TypeField.SetValue(Instance, value);
@@ -170,10 +170,11 @@ namespace Needle.Timeline
 						var threads = k.Threads;
 						if (kernelGroupSize != null)
 						{
-							threads.x = Mathf.CeilToInt((float)threads.x / kernelGroupSize.Value.x);
-							threads.y = Mathf.CeilToInt((float)threads.y / kernelGroupSize.Value.y);
-							threads.z = Mathf.CeilToInt((float)threads.z / kernelGroupSize.Value.z);
+							threads.x = Mathf.CeilToInt(kernelGroupSize.Value.x / (float)threads.x);
+							threads.y = Mathf.CeilToInt(kernelGroupSize.Value.y / (float)threads.y);
+							threads.z = Mathf.CeilToInt(kernelGroupSize.Value.z / (float)threads.z);
 						}
+						Debug.Log($"Dispatch {k.Name} with {threads} threads");
 						shaderInfo.Shader.Dispatch(k.Index, threads.x, threads.y, threads.z);
 					}
 				}

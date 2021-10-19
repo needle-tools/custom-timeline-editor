@@ -6,9 +6,17 @@ struct Circle
     float Radius;
 };
 
+float4 _Time;
 RWStructuredBuffer<Circle> Circles;
+RWTexture2D<float4> Result;
 
 [numthreads(8,1,1)]
 void CSMain(uint3 id : SV_DispatchThreadID)
 {
+    uint width, height;
+    Result.GetDimensions(width, height);
+    float2 uv = id.xy/float2(width,height);
+    uv.x += _Time.x;
+    uv.x %= 1;
+    Result[id.xy] = float4(uv.x,uv.y,0,1);
 }
