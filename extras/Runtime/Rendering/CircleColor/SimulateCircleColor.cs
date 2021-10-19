@@ -13,7 +13,7 @@ public class SimulateCircleColor : MonoBehaviour, IAnimated, IOnionSkin, IAnimat
 	[TextureInfo(11, 11, TextureFormat = TextureFormat.RGBA32)]
 	public RenderTexture Result;
 
-	
+	public float OffsetY;
 	
 	
 	
@@ -28,7 +28,7 @@ public class SimulateCircleColor : MonoBehaviour, IAnimated, IOnionSkin, IAnimat
 
 	private void OnValidate()
 	{
-		Bind();
+		OnUpdate();
 	}
 
 	private void OnEnable()
@@ -64,6 +64,11 @@ public class SimulateCircleColor : MonoBehaviour, IAnimated, IOnionSkin, IAnimat
 	}
 
 	public void OnEvaluated(FrameInfo frame)
+	{
+		OnUpdate();
+	}
+
+	private void OnUpdate()
 	{
 		Bind();
 		if (bindings == null) return;
