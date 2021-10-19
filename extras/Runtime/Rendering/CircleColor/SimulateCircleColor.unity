@@ -769,13 +769,72 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1849834647}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 37bde4298a0b441f94ec5b74321efcb9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   Shader: {fileID: 7200000, guid: c0111fdf13ba422ea4a8b170242058a8, type: 3}
-  infos: []
+  lastShader: {fileID: 7200000, guid: c0111fdf13ba422ea4a8b170242058a8, type: 3}
+  info:
+    Path: Packages/com.needle.timeline-editor-extras/Runtime/Rendering/CircleColor/SimulateCircleColor.compute
+    Fields:
+    - FieldName: Circles
+      TypeName: RWStructuredBuffer
+      Stride: 16
+      GenericType:
+        Name: Circle
+        FileName: Packages/com.needle.timeline-editor-extras/Runtime/Rendering/CircleColor/SimulateCircleColor.compute
+        Fields:
+        - FieldName: Position
+          TypeName: float3
+          Stride: 12
+          GenericType:
+            Name: 
+            FileName: 
+            Fields: []
+          Kernels: []
+          FilePath: Packages/com.needle.timeline-editor-extras/Runtime/Rendering/CircleColor/SimulateCircleColor.compute
+        - FieldName: Radius
+          TypeName: float
+          Stride: 4
+          GenericType:
+            Name: 
+            FileName: 
+            Fields: []
+          Kernels: []
+          FilePath: Packages/com.needle.timeline-editor-extras/Runtime/Rendering/CircleColor/SimulateCircleColor.compute
+      Kernels: []
+      FilePath: Packages/com.needle.timeline-editor-extras/Runtime/Rendering/CircleColor/SimulateCircleColor.compute
+    Structs:
+    - Name: Circle
+      FileName: Packages/com.needle.timeline-editor-extras/Runtime/Rendering/CircleColor/SimulateCircleColor.compute
+      Fields:
+      - FieldName: Position
+        TypeName: float3
+        Stride: 12
+        GenericType:
+          Name: 
+          FileName: 
+          Fields: []
+        Kernels: []
+        FilePath: Packages/com.needle.timeline-editor-extras/Runtime/Rendering/CircleColor/SimulateCircleColor.compute
+      - FieldName: Radius
+        TypeName: float
+        Stride: 4
+        GenericType:
+          Name: 
+          FileName: 
+          Fields: []
+        Kernels: []
+        FilePath: Packages/com.needle.timeline-editor-extras/Runtime/Rendering/CircleColor/SimulateCircleColor.compute
+    Shader: {fileID: 7200000, guid: c0111fdf13ba422ea4a8b170242058a8, type: 3}
+    Kernels:
+    - Name: CSMain
+      Index: 0
+      Threads: {x: 8, y: 1, z: 1}
+    Keywords: []
+    Includes: []
 --- !u!1 &1888973582
 GameObject:
   m_ObjectHideFlags: 0

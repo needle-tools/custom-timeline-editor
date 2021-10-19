@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Experimental.Rendering;
 
 namespace Needle.Timeline
 {
@@ -10,14 +11,16 @@ namespace Needle.Timeline
 		void DisposeBuffer(string id);
 	}
 
-	public interface ITextureProvider : IDisposable
+	public interface IRenderTextureProvider : IDisposable
 	{
-		Texture GetTexture(string id, int width, int height);
+		RenderTexture GetTexture(string id, int width, int height, int depth, 
+			GraphicsFormat? format = null, bool? randomWrite = null);
 	}
 
 	public interface IResourceProvider
 	{
 		IComputeBufferProvider ComputeBufferProvider { get; }
+		IRenderTextureProvider RenderTextureProvider { get; }
 	}
 
 	public static class DefaultResources
@@ -28,29 +31,62 @@ namespace Needle.Timeline
 
 	public class ResourceProvider : IResourceProvider
 	{
-		public ResourceProvider(IComputeBufferProvider computeBufferProvider)
+		public static IResourceProvider CreateDefault() => new ResourceProvider(new DefaultComputeBufferProvider(), new DefaultRenderTextureProvider());
+		
+		public ResourceProvider(IComputeBufferProvider computeBufferProvider, IRenderTextureProvider renderTextureProvider)
 		{
 			ComputeBufferProvider = computeBufferProvider;
+			RenderTextureProvider = renderTextureProvider;
 		}
 
 		public IComputeBufferProvider ComputeBufferProvider { get; }
+		public IRenderTextureProvider RenderTextureProvider { get; }
+	}
+
+	public class DefaultRenderTextureProvider : IRenderTextureProvider
+	{
+		private readonly Dictionary<string, RenderTexture> cache = new Dictionary<string, RenderTexture>();
+		
+		public void Dispose()
+		{
+			foreach (var c in cache.Values)
+			{
+				if(c && c.IsCreated()) c.Release();
+			}
+			cache.Clear(); 
+		}
+
+		public RenderTexture GetTexture(string id, int width, int height, int depth, GraphicsFormat? format = null, bool? randomWrite = null)
+		{
+			if(cache.TryGetValue(id, out var rt))
+			{
+				rt = rt.SafeCreate(ref rt, width, height, depth, format ?? GraphicsFormat.None, randomWrite ?? false);
+				cache[id] = rt;
+			}
+			else
+			{
+				rt = ComputeBufferUtils.SafeCreate(null, ref rt, width, height, depth, format ?? GraphicsFormat.None, randomWrite ?? false);
+				cache.Add(id, rt);
+			}
+			return rt;
+		}
 	}
 
 	public class DefaultComputeBufferProvider : IComputeBufferProvider
 	{
-		private readonly Dictionary<string, ComputeBuffer> _buffers = new Dictionary<string, ComputeBuffer>();
+		private readonly Dictionary<string, ComputeBuffer> cache = new Dictionary<string, ComputeBuffer>();
 
 		public ComputeBuffer GetBuffer(string id, int count, int stride, ComputeBufferType? type = null, ComputeBufferMode? mode = null)
 		{
-			if (_buffers.TryGetValue(id, out var buffer))
+			if (cache.TryGetValue(id, out var buffer))
 			{
 				buffer = ComputeBufferUtils.SafeCreate(ref buffer, count, stride, type, mode);
-				_buffers[id] = buffer;
+				cache[id] = buffer;
 			}
 			else
 			{
 				buffer = ComputeBufferUtils.SafeCreate(ref buffer, count, stride);
-				_buffers.Add(id, buffer);
+				cache.Add(id, buffer);
 			}
 			
 			return buffer;
@@ -58,7 +94,7 @@ namespace Needle.Timeline
 
 		public void DisposeBuffer(string id)
 		{
-			if (_buffers.TryGetValue(id, out var buffer) && buffer.IsValid())
+			if (cache.TryGetValue(id, out var buffer) && buffer.IsValid())
 			{
 				buffer.Dispose();
 			}
@@ -66,11 +102,12 @@ namespace Needle.Timeline
 
 		public void Dispose()
 		{
-			foreach (var buf in _buffers.Values)
+			foreach (var buf in cache.Values)
 			{
 				if(buf.IsValid())
 					buf.Dispose();
 			}
+			cache.Clear();
 		}
 	}
 }

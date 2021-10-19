@@ -13,7 +13,7 @@ public class SimulateCircleColor : MonoBehaviour, IAnimated, IOnionSkin, IAnimat
 
 	[SerializeField] private ComputeShaderInfo info;
 	private List<ComputeShaderBinding> bindings = new List<ComputeShaderBinding>();
-	private IResourceProvider resources = new ResourceProvider(new DefaultComputeBufferProvider());
+	private IResourceProvider resources = ResourceProvider.CreateDefault();
 
 	private void OnValidate()
 	{

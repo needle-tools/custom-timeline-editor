@@ -116,7 +116,7 @@ namespace Needle.Timeline.Tests
 
 
 
-		private static IResourceProvider TestsResourceProvider => new ResourceProvider(new DefaultComputeBufferProvider());
+		private static IResourceProvider TestsResourceProvider => new ResourceProvider(new DefaultComputeBufferProvider(), new DefaultRenderTextureProvider());
 		
 		private class TypeWithSomeFields
 		{
