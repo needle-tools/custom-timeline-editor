@@ -35,6 +35,8 @@ namespace Needle.Timeline
 		public List<string>? Keywords;
 		public List<string>? Includes;
 
+		public int? TryGetKernelIndex(string name) => Kernels.FirstOrDefault(x => x.Name == name)?.Index ?? null;
+
 		public override string ToString()
 		{
 			return "Kernels:\n" + string.Join("\n", Kernels.Select(s => s.ToString())) + "\n\n" + base.ToString();

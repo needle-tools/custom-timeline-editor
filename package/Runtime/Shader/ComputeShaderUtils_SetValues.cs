@@ -21,9 +21,8 @@ namespace Needle.Timeline
 		public readonly ComputeShaderInfo ShaderInfo;
 		public readonly IResourceProvider Resources;
 
-		public ComputeShaderBinding(object? instance, FieldInfo typeField, ComputeShaderFieldInfo shaderField, ComputeShaderInfo shaderInfo, IResourceProvider resourceProvider)
+		public ComputeShaderBinding(FieldInfo typeField, ComputeShaderFieldInfo shaderField, ComputeShaderInfo shaderInfo, IResourceProvider resourceProvider)
 		{
-			Instance = instance;
 			TypeField = typeField;
 			ShaderField = shaderField;
 			ShaderInfo = shaderInfo;
@@ -31,13 +30,18 @@ namespace Needle.Timeline
 		}
 
 		private static FieldInfo? list_backingArray;
+
+		public void Bind(object instance)
+		{
+			this.Instance = instance;
+		}
 		
-		public void SetValue()
+		public bool SetValue(int kernelIndex)
 		{
 			var value = TypeField.GetValue(Instance);
 			if (value is IList list)
 			{
-				var buffer = Resources.ComputeBufferProvider.GetBuffer(ShaderField.FieldName, list.Count, ShaderField.Stride, 
+				var buffer = Resources.ComputeBufferProvider.GetBuffer(ShaderField.FieldName, list.Count, ShaderField.Stride,
 					ShaderField.RandomWrite.GetValueOrDefault() ? ComputeBufferType.Structured : ComputeBufferType.Default);
 				if (list is Array arr) buffer.SetData(arr);
 				else
@@ -47,8 +51,43 @@ namespace Needle.Timeline
 					var backingArray = list_backingArray.GetValue(list) as Array;
 					buffer.SetData(backingArray, 0, 0, list.Count);
 				}
-				ShaderInfo.Shader.SetBuffer(ShaderField.Kernels!.First().Index, ShaderField.FieldName, buffer);
+				ShaderInfo.Shader.SetBuffer(kernelIndex, ShaderField.FieldName, buffer);
+				return true;
 			}
+			
+			switch (value)
+			{
+				case float val:
+					ShaderInfo.Shader.SetFloat(ShaderField.FieldName, val);
+					break;
+				case Vector2 val:
+					ShaderInfo.Shader.SetVector(ShaderField.FieldName, val);
+					break;
+				case Vector3 val:
+					ShaderInfo.Shader.SetVector(ShaderField.FieldName, val);
+					break;
+				case Vector4 val:
+					ShaderInfo.Shader.SetVector(ShaderField.FieldName, val);
+					break;
+				case int val:
+					ShaderInfo.Shader.SetInt(ShaderField.FieldName, val);
+					break;
+				case uint val:
+					ShaderInfo.Shader.SetInt(ShaderField.FieldName, (int)val);
+					break;
+				case Vector2Int val:
+					ShaderInfo.Shader.SetVector(ShaderField.FieldName, (Vector2)val);
+					break;
+				case Vector3Int val:
+					ShaderInfo.Shader.SetVector(ShaderField.FieldName, (Vector3)val);
+					break;
+				case Matrix4x4 val:
+					ShaderInfo.Shader.SetMatrix(ShaderField.FieldName, val);
+					break;
+				default:
+					return false;
+			}
+			return true;
 		}
 
 		public object GetValue()
@@ -65,35 +104,67 @@ namespace Needle.Timeline
 			return null;
 		}
 
-		internal void Assert()
-		{
-			var value = TypeField.GetValue(Instance);
-			SetValue();
-			ShaderInfo.Shader.Dispatch(0, 1, 1, 1);
-			if (value is IList list)
-			{
-				var buffer = Resources.ComputeBufferProvider.GetBuffer(ShaderField.FieldName, list.Count, ShaderField.Stride, 
-					ShaderField.RandomWrite.GetValueOrDefault() ? ComputeBufferType.Structured : ComputeBufferType.Default);
-				var arr = Array.CreateInstance(list.GetType().GetGenericArguments().First(), list.Count);
-				buffer.GetData(arr);
-				Debug.Assert(arr.Length == list.Count);
-				Debug.Assert(arr.GetValue(0) != null);
-				Debug.Assert(Equals(arr.GetValue(0), list[0]));
-			}
-		}
+		// internal void Assert()
+		// {
+		// 	var value = TypeField.GetValue(Instance);
+		// 	SetValue();
+		// 	ShaderInfo.Shader.Dispatch(0, 1, 1, 1);
+		// 	if (value is IList list)
+		// 	{
+		// 		var buffer = Resources.ComputeBufferProvider.GetBuffer(ShaderField.FieldName, list.Count, ShaderField.Stride, 
+		// 			ShaderField.RandomWrite.GetValueOrDefault() ? ComputeBufferType.Structured : ComputeBufferType.Default);
+		// 		var arr = Array.CreateInstance(list.GetType().GetGenericArguments().First(), list.Count);
+		// 		buffer.GetData(arr);
+		// 		Debug.Assert(arr.Length == list.Count);
+		// 		Debug.Assert(arr.GetValue(0) != null);
+		// 		Debug.Assert(Equals(arr.GetValue(0), list[0]));
+		// 	}
+		// }
 	}
 	
 	public static partial class ComputeShaderUtils
 	{
-		public static bool Bind(this ComputeShaderInfo shaderInfo, object source, List<ComputeShaderBinding> bindings, IResourceProvider resources)
+		public static void Dispatch(this ComputeShaderInfo shaderInfo, object instance, int kernelIndex, List<ComputeShaderBinding> bindings, Vector3Int? kernelGroupSize = null)
 		{
-			var type = source.GetType();
+			foreach (var k in shaderInfo.Kernels)
+			{
+				if (k.Index == kernelIndex)
+				{
+					if (bindings != null && bindings.Count > 0)
+					{
+						foreach (var b in bindings)
+						{
+							if (b.ShaderField.Kernels?.Any(x => x.Name == k.Name) ?? false)
+							{
+								b.Bind(instance);
+								if (!b.SetValue(kernelIndex))
+								{
+									Debug.LogError("Failed setting " + b.ShaderField.TypeName + " " + b.ShaderField.FieldName);
+								}
+							}
+						}
+						var threads = k.Threads;
+						if (kernelGroupSize != null)
+						{
+							threads.x = Mathf.CeilToInt((float)threads.x / kernelGroupSize.Value.x);
+							threads.y = Mathf.CeilToInt((float)threads.y / kernelGroupSize.Value.y);
+							threads.z = Mathf.CeilToInt((float)threads.z / kernelGroupSize.Value.z);
+						}
+						shaderInfo.Shader.Dispatch(k.Index, threads.x, threads.y, threads.z);
+					}
+				}
+			}
+		}
+
+		public static bool Bind(this ComputeShaderInfo shaderInfo, Type type, List<ComputeShaderBinding> bindings, IResourceProvider resources)
+		{
 			var fieldInType = type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static);
 			foreach (var shaderField in shaderInfo.Fields)
 			{
 				var found = false;
 				foreach (var typeField in fieldInType)
 				{
+					if (found) break;
 					if (typeField.Name != shaderField.FieldName)
 					{
 						var mapping = typeField.GetCustomAttribute<ShaderField>();
@@ -113,7 +184,7 @@ namespace Needle.Timeline
 						
 					if (bindings != null)
 					{
-						var binding = new ComputeShaderBinding(source, typeField, shaderField, shaderInfo, resources);
+						var binding = new ComputeShaderBinding(typeField, shaderField, shaderInfo, resources);
 						bindings.Add(binding);
 					}
 				}

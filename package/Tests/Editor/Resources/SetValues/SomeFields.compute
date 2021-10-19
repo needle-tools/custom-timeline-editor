@@ -1,0 +1,23 @@
+﻿#pragma kernel CSMain
+
+int myInt;
+float myFloat;
+uint myUint;
+int2 myVector2Int;
+float2 myVector2;
+float3 myVector3;
+float4 myVector4;
+float4x4 myMatrix;
+
+[numthreads(8,1,1)]
+void CSMain(uint3 id : SV_DispatchThreadID)
+{
+    myInt = 0;
+    myFloat = 0;
+    myUint = 0;
+    myVector2Int = 0;
+    myVector2 = 0;
+    myVector3 = 0;
+    myVector4 = 0;
+    myMatrix = 0;
+}

@@ -118,30 +118,54 @@ namespace Needle.Timeline.Tests
 
 		private static IResourceProvider TestsResourceProvider => new ResourceProvider(new DefaultComputeBufferProvider());
 		
+		private class TypeWithSomeFields
+		{
+			int myInt;
+			float myFloat;
+			uint myUint;
+			Vector2Int myVector2Int;
+			Vector2 myVector2;
+			Vector3 myVector3;
+			Vector4 myVector4;
+			Matrix4x4 myMatrix;
+		}
+		
+		[Test]
+		public static void Auto_Bind_TypeWithSomeFields()
+		{
+			var shader = LoadShader("SetValues/SomeFields");
+			shader.TryParse(out var shaderInfo);
+			Assert.NotNull(shaderInfo);
+			Assert.AreEqual(8, shaderInfo.Fields.Count, "Did not find all fields in shader");
+			
+			var list = new List<ComputeShaderBinding>();
+			shaderInfo.Bind(typeof(TypeWithSomeFields), list, TestsResourceProvider);
+			Assert.AreEqual(8, list.Count, "Failed binding all fields to shader fields");
+
+			shaderInfo.Dispatch(new TypeWithSomeFields(), 0, list);
+		}
 
 		private class BufferWithFloatType
 		{
+			// ReSharper disable once CollectionNeverQueried.Local
 			public readonly List<float> MyBuffer = new List<float>();
 		}
 		
 		[Test]
-		public static void SetValues_BufferWithFloat()
+		public static void Auto_Bind_FloatBuffer()
 		{
 			var shader = LoadShader("SetValues/BufferWithFloat");
 			shader.TryParse(out var shaderInfo);
 			Assert.NotNull(shaderInfo);
 			
-			var source = new BufferWithFloatType();
-			source.MyBuffer.Add(0);
-			
 			var list = new List<ComputeShaderBinding>();
-			shaderInfo.Bind(source, list, TestsResourceProvider);
+			shaderInfo.Bind(typeof(BufferWithFloatType), list, TestsResourceProvider);
 			
 			Assert.AreEqual(1, list.Count);
 		}
 		
 		[Test]
-		public static void SetValues_BufferWithFloat_SetValues()
+		public static void Auto_BindAndDispatch_FloatBuffer()
 		{
 			var shader = LoadShader("SetValues/BufferWithFloat");
 			shader.TryParse(out var shaderInfo);
@@ -151,11 +175,10 @@ namespace Needle.Timeline.Tests
 			source.MyBuffer.Add(42);
 			
 			var list = new List<ComputeShaderBinding>();
-			shaderInfo.Bind(source, list, TestsResourceProvider);
+			shaderInfo.Bind(typeof(BufferWithFloatType), list, TestsResourceProvider);
 			Assert.AreEqual(1, list.Count);
-			
-			list[0].SetValue();
-			shaderInfo.Shader.Dispatch(0, 1, 1, 1);
+
+			shaderInfo.Dispatch(source, 0, list);
 			var val = list[0].GetValue() as Array;
 			Assert.NotNull(val);
 			Assert.AreEqual(43,val.GetValue(0));
@@ -168,17 +191,14 @@ namespace Needle.Timeline.Tests
 		}
 		
 		[Test]
-		public static void SetValues_MapField()
+		public static void Auto_ReMapBoundField()
 		{
 			var shader = LoadShader("SetValues/BufferWithFloat");
 			shader.TryParse(out var shaderInfo);
 			Assert.NotNull(shaderInfo);
 
-			var source = new MappingType();
-			source.MyList.Add(0);
-			
 			var list = new List<ComputeShaderBinding>();
-			shaderInfo.Bind(source, list, TestsResourceProvider);
+			shaderInfo.Bind(typeof(MappingType), list, TestsResourceProvider);
 			Assert.AreEqual(1, list.Count);
 			Assert.IsTrue(list[0].TypeField.Name == nameof(MappingType.MyList));
 			Assert.IsTrue(list[0].ShaderField.FieldName == "MyBuffer");
