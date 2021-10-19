@@ -39,8 +39,13 @@ namespace Needle.Timeline
 			}
 			var sum = 0;
 			if (typeof(IList).IsAssignableFrom(type) && type.IsGenericType)
-			{
-				sum += GetSize(type.GetGenericArguments().FirstOrDefault(), level);
+			{ 
+				var gt = type.GetGenericArguments().FirstOrDefault();
+				if (gt == null) throw new Exception("Failed getting generic");
+				if (gt.IsPrimitive)
+					sum += GetSize(gt, level);
+				else 
+					sum += InternalGetStride(gt, level);
 			}
 			if (sum == 0)
 			{

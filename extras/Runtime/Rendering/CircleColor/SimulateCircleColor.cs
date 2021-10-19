@@ -7,20 +7,21 @@ using UnityEngine;
 public class SimulateCircleColor : MonoBehaviour, IAnimated, IOnionSkin, IAnimatedEvents
 {
 	public ComputeShader Shader;
+	[SerializeField, HideInInspector] private ComputeShader lastShader;
 
-	[Animate]
-	public List<Circle> Circles;
+	[Animate] public List<Circle> Circles;
 
-	[SerializeField]
-	private ComputeShaderInfo info;
+	[SerializeField] private ComputeShaderInfo info;
 	private List<ComputeShaderBinding> bindings = new List<ComputeShaderBinding>();
 	private IResourceProvider resources = new ResourceProvider(new DefaultComputeBufferProvider());
 
 	private void OnValidate()
 	{
+		if (lastShader == Shader) return;
+		lastShader = Shader;
 		Shader.TryParse(out info);
 	}
-	
+
 	private void OnEnable()
 	{
 		Shader.TryParse(out info);
@@ -30,7 +31,7 @@ public class SimulateCircleColor : MonoBehaviour, IAnimated, IOnionSkin, IAnimat
 	{
 		RenderOnionSkin(OnionData.Default);
 	}
-	
+
 	public void RenderOnionSkin(IOnionData data)
 	{
 		if (Circles != null)
@@ -44,7 +45,6 @@ public class SimulateCircleColor : MonoBehaviour, IAnimated, IOnionSkin, IAnimat
 
 	public void OnReset()
 	{
-		
 	}
 
 	public void OnEvaluated(FrameInfo frame)
