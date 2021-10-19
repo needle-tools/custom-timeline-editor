@@ -17,7 +17,7 @@ namespace Needle.Timeline
 			GraphicsFormat? graphicsFormat = null, bool? randomWrite = null);
 	}
 
-	public interface IResourceProvider
+	public interface IResourceProvider : IDisposable
 	{
 		IComputeBufferProvider ComputeBufferProvider { get; }
 		IRenderTextureProvider RenderTextureProvider { get; }
@@ -44,6 +44,12 @@ namespace Needle.Timeline
 
 		public IComputeBufferProvider ComputeBufferProvider { get; }
 		public IRenderTextureProvider RenderTextureProvider { get; }
+
+		public void Dispose()
+		{
+			ComputeBufferProvider?.Dispose();
+			RenderTextureProvider?.Dispose();
+		}
 	}
 
 	public class DefaultRenderTextureProvider : IRenderTextureProvider
@@ -79,11 +85,14 @@ namespace Needle.Timeline
 	{
 		private readonly Dictionary<string, ComputeBuffer> cache = new Dictionary<string, ComputeBuffer>();
 
+		public bool MaxCount = true;
+
 		public ComputeBuffer GetBuffer(string id, int count, int stride, ComputeBufferType? type = null, ComputeBufferMode? mode = null)
 		{
 			if (cache.TryGetValue(id, out var buffer))
 			{
-				buffer = ComputeBufferUtils.SafeCreate(ref buffer, count, stride, type, mode);
+				var expectedCount = MaxCount ? Mathf.Max(count, buffer.count) : count;
+				buffer = ComputeBufferUtils.SafeCreate(ref buffer, expectedCount, stride, type, mode);
 				cache[id] = buffer;
 			}
 			else

@@ -174,7 +174,7 @@ namespace Needle.Timeline
 							threads.y = Mathf.CeilToInt(kernelGroupSize.Value.y / (float)threads.y);
 							threads.z = Mathf.CeilToInt(kernelGroupSize.Value.z / (float)threads.z);
 						}
-						Debug.Log($"Dispatch {k.Name} with {threads} threads");
+						// Debug.Log($"Dispatch {k.Name} with {threads} threads");
 						shaderInfo.Shader.Dispatch(k.Index, threads.x, threads.y, threads.z);
 					}
 				}
@@ -224,7 +224,8 @@ namespace Needle.Timeline
 				}
 				if (!found)
 				{
-					Debug.LogWarning("Did not find " + shaderField);
+					if(shaderField.FieldName != "_Time" && shaderField.FieldType != typeof(Vector4))
+						Debug.LogWarning("Did not find " + shaderField);
 				}
 			}
 			
