@@ -59,9 +59,6 @@ namespace Needle.Timeline
 	[Serializable]
 	public class ComputeShaderFieldInfo
 	{
-		// TODO: currently we only check in kernel methods if the field is used
-		public List<ComputeShaderKernelInfo>? Kernels;
-		public string FilePath;
 		public string FieldName;
 		public Type? FieldType;
 		public string TypeName;
@@ -71,6 +68,11 @@ namespace Needle.Timeline
 		/// If the type is a known struct
 		/// </summary>
 		public ComputeShaderStructInfo? GenericType;
+		
+		// TODO: currently we only check in kernel methods if the field is used
+		public List<ComputeShaderKernelInfo>? Kernels;
+		
+		public string FilePath;
 
 		public override string ToString()
 		{

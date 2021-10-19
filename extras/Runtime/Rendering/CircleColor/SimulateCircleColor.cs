@@ -4,7 +4,7 @@ using Needle.Timeline;
 using UnityEngine;
 
 [ExecuteInEditMode]
-public class SimulateCircleColor : MonoBehaviour, IAnimated, IOnionSkin
+public class SimulateCircleColor : MonoBehaviour, IAnimated, IOnionSkin, IAnimatedEvents
 {
 	public ComputeShader Shader;
 
@@ -12,18 +12,19 @@ public class SimulateCircleColor : MonoBehaviour, IAnimated, IOnionSkin
 	public List<Circle> Circles;
 
 	[SerializeField]
-	private  List<ComputeShaderFieldInfo> infos = new List<ComputeShaderFieldInfo>();
+	private ComputeShaderInfo info;
+	private List<ComputeShaderBinding> bindings = new List<ComputeShaderBinding>();
+	private IResourceProvider resources = new ResourceProvider(new DefaultComputeBufferProvider());
 
-	// private void OnValidate()
-	// {
-	// 	if(enabled)
-	// 		Shader.TryParse(infos);
-	// }
-	//
-	// private void OnEnable()
-	// {
-	// 	Shader.TryParse(infos);
-	// }
+	private void OnValidate()
+	{
+		Shader.TryParse(out info);
+	}
+	
+	private void OnEnable()
+	{
+		Shader.TryParse(out info);
+	}
 
 	private void OnDrawGizmos()
 	{
@@ -39,5 +40,17 @@ public class SimulateCircleColor : MonoBehaviour, IAnimated, IOnionSkin
 				c.RenderOnionSkin(data);
 			}
 		}
+	}
+
+	public void OnReset()
+	{
+		
+	}
+
+	public void OnEvaluated(FrameInfo frame)
+	{
+		bindings.Clear();
+		info.Bind(GetType(), bindings, resources);
+		info.Dispatch(this, 0, bindings);
 	}
 }
