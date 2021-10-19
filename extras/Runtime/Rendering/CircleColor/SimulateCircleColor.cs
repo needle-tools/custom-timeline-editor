@@ -10,9 +10,11 @@ public class SimulateCircleColor : MonoBehaviour, IAnimated, IOnionSkin, IAnimat
 
 	[Animate] public List<Circle> Circles;
 
-	[TextureInfo(11, 11, TextureFormat = TextureFormat.RGBA32)]
+	[TextureInfo(1024, 1024, TextureFormat = TextureFormat.RGBA32)]
 	public RenderTexture Result;
 
+
+	public float TimeFactor = 1;
 	public float OffsetY;
 	
 	
@@ -33,7 +35,8 @@ public class SimulateCircleColor : MonoBehaviour, IAnimated, IOnionSkin, IAnimat
 
 	private void OnEnable()
 	{
-		Bind();
+		info = null;
+		EnsureShaderParsed();
 	}
 
 	private void OnDrawGizmos()
@@ -52,7 +55,7 @@ public class SimulateCircleColor : MonoBehaviour, IAnimated, IOnionSkin, IAnimat
 		}
 	}
 
-	private void Bind()
+	private void EnsureShaderParsed()
 	{
 		if (lastShader == Shader && info == null) return;
 		lastShader = Shader;
@@ -61,6 +64,7 @@ public class SimulateCircleColor : MonoBehaviour, IAnimated, IOnionSkin, IAnimat
 
 	public void OnReset()
 	{
+		info = null;
 	}
 
 	public void OnEvaluated(FrameInfo frame)
@@ -70,9 +74,10 @@ public class SimulateCircleColor : MonoBehaviour, IAnimated, IOnionSkin, IAnimat
 
 	private void OnUpdate()
 	{
-		Bind();
+		EnsureShaderParsed();
+		if (info == null) return;
 		if (bindings == null) return;
-		
+
 		bindings.Clear();
 		this.SetTime(Shader);
 		info.Bind(GetType(), bindings, resources);

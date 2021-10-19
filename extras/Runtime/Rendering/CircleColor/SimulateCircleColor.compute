@@ -6,6 +6,7 @@ struct Circle
     float Radius;
 };
 
+float TimeFactor;
 float OffsetY;
 
 float4 _Time;
@@ -18,8 +19,17 @@ void CSMain(uint3 id : SV_DispatchThreadID)
     uint width, height;
     Result.GetDimensions(width, height);
     float2 uv = id.xy/float2(width,height);
-    uv.x += _Time.x;
-    uv.x %= 1;
+    uv.x += _Time.x * TimeFactor;
     uv.y += OffsetY;
-    Result[id.xy] = float4(uv.x,uv.y,0,1);
+    uv %= 1;
+    float4 res = float4(uv.x,uv.y,0,1);
+
+    uint circleCount, _;
+    Circles.GetDimensions(circleCount, _);
+    for(int i = 0; i < circleCount; i++)
+    {
+        Circle circle = Circles[i];
+        res.z += 1 * circle.Radius / circleCount;
+    }
+    Result[id.xy] = res;
 }
