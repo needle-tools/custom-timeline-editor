@@ -230,7 +230,7 @@ namespace Needle.Timeline.Tests
 			Assert.IsTrue(list[0].ShaderField.FieldName == "MyBuffer");
 		}
 
-		private class BindTexture2D
+		private class TestBindTexture2D
 		{
 			[TextureInfo(1024, 1024, TextureFormat = TextureFormat.RFloat)]
 			public RenderTexture MyTexture;
@@ -244,13 +244,15 @@ namespace Needle.Timeline.Tests
 			Assert.NotNull(shaderInfo);
 			
 			var list = new List<ComputeShaderBinding>();
-			shaderInfo.Bind(typeof(BindTexture2D), list, TestsResourceProvider);
+			shaderInfo.Bind(typeof(TestBindTexture2D), list, TestsResourceProvider);
 			
 			Assert.AreEqual(1, list.Count);
-			var instance = new BindTexture2D();
+			var instance = new TestBindTexture2D();
 			shaderInfo.Dispatch(instance, 0, list);
 			Assert.NotNull(instance.MyTexture);
 			Assert.AreEqual(GraphicsFormat.R32_SFloat, instance.MyTexture.graphicsFormat);
+			Assert.AreEqual(1024, instance.MyTexture.width);
+			Assert.AreEqual(1024, instance.MyTexture.height);
 		}
 
 		
