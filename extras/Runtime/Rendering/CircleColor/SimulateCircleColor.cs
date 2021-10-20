@@ -4,7 +4,7 @@ using Needle.Timeline;
 using UnityEngine;
 
 [ExecuteInEditMode]
-public class SimulateCircleColor : MonoBehaviour, IAnimated, IOnionSkin, IAnimatedEvents
+public class SimulateCircleColor : Animated, IOnionSkin, IAnimatedEvents
 {
 	public ComputeShader Shader;
 
@@ -25,31 +25,6 @@ public class SimulateCircleColor : MonoBehaviour, IAnimated, IOnionSkin, IAnimat
 	
 	
 	
-	
-	
-	
-	[SerializeField, HideInInspector] 
-	private ComputeShader lastShader;
-	
-	
-	
-	
-	
-	[SerializeField] private ComputeShaderInfo info;
-	private List<ComputeShaderBinding> bindings = new List<ComputeShaderBinding>();
-	private IResourceProvider resources = ResourceProvider.CreateDefault();
-
-	private void OnValidate()
-	{
-		OnUpdate();
-	}
-
-	private void OnEnable()
-	{
-		info = null;
-		EnsureShaderParsed();
-	}
-
 	private void OnDrawGizmos()
 	{
 		RenderOnionSkin(OnionData.Default);
@@ -66,34 +41,9 @@ public class SimulateCircleColor : MonoBehaviour, IAnimated, IOnionSkin, IAnimat
 		}
 	}
 
-	private void EnsureShaderParsed()
+	protected override void OnEndOfDispatch()
 	{
-		if (lastShader == Shader && info == null) return;
-		lastShader = Shader;
-		Shader.TryParse(out info);
-	}
-
-	public void OnReset()
-	{
-		info = null;
-	}
-
-	public void OnEvaluated(FrameInfo frame)
-	{
-		OnUpdate();
-	}
-
-	private void OnUpdate()
-	{
-		EnsureShaderParsed();
-		if (info == null) return;
-		if (bindings == null) return;
-
-		bindings.Clear();
-		this.SetTime(Shader);
-		info.Bind(GetType(), bindings, resources);
-		info.Dispatch(this, 0, bindings, new Vector3Int(Result.width, Result.height, 1));
-
+		base.OnEndOfDispatch();
 		block ??= new MaterialPropertyBlock();
 		block.SetTexture("_MainTex", Result);
 		Output.SetPropertyBlock(block);

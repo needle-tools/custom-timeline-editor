@@ -38,18 +38,17 @@ namespace Needle.Timeline
 		{
 			this.Instance = instance;
 		}
-		
+
 		public bool SetValue(int kernelIndex)
 		{
 			var value = TypeField.GetValue(Instance);
-			
+
 			// TODO: handle when list is null
 			if (typeof(IList).IsAssignableFrom(TypeField.FieldType))
 			{
 				var list = value as IList;
 				if (list == null)
 				{
-					
 				}
 				else
 				{
@@ -76,9 +75,9 @@ namespace Needle.Timeline
 					// if (value == null)
 					{
 						GraphicsFormat? graphicsFormat = info.GraphicsFormat;
-						if ((int)graphicsFormat == 0 && (int)info.TextureFormat != 0) 
+						if ((int)graphicsFormat == 0 && (int)info.TextureFormat != 0)
 							graphicsFormat = GraphicsFormatUtility.GetGraphicsFormat(info.TextureFormat, false);
-						var rt = Resources.RenderTextureProvider.GetTexture(TypeField.Name, info.Width, info.Height, 
+						var rt = Resources.RenderTextureProvider.GetTexture(TypeField.Name, info.Width, info.Height,
 							info.Depth.GetValueOrDefault(), graphicsFormat, ShaderField.RandomWrite);
 						value = rt;
 						ShaderInfo.Shader.SetTexture(kernelIndex, ShaderField.FieldName, rt);
@@ -87,7 +86,7 @@ namespace Needle.Timeline
 					}
 				}
 			}
-			
+
 			switch (value)
 			{
 				case float val:
@@ -128,7 +127,7 @@ namespace Needle.Timeline
 			if (typeof(IList).IsAssignableFrom(TypeField.FieldType))
 			{
 				var list = TypeField.GetValue(Instance) as IList;
-				var buffer = Resources.ComputeBufferProvider.GetBuffer(ShaderField.FieldName, list!.Count, ShaderField.Stride, 
+				var buffer = Resources.ComputeBufferProvider.GetBuffer(ShaderField.FieldName, list!.Count, ShaderField.Stride,
 					ShaderField.RandomWrite.GetValueOrDefault() ? ComputeBufferType.Structured : ComputeBufferType.Default);
 				var arr = Array.CreateInstance(list.GetType().GetGenericArguments().First(), list.Count);
 				buffer.GetData(arr, 0, 0, list.Count);
@@ -154,10 +153,14 @@ namespace Needle.Timeline
 		// 	}
 		// }
 	}
-	
+
 	public static partial class ComputeShaderUtils
 	{
-		public static void Dispatch(this ComputeShaderInfo shaderInfo, object instance, int kernelIndex, List<ComputeShaderBinding> bindings, Vector3Int? kernelGroupSize = null)
+		public static void Dispatch(this ComputeShaderInfo shaderInfo,
+			object instance,
+			int kernelIndex,
+			List<ComputeShaderBinding> bindings,
+			Vector3Int? kernelGroupSize = null)
 		{
 			foreach (var k in shaderInfo.Kernels)
 			{
@@ -179,9 +182,13 @@ namespace Needle.Timeline
 						var threads = k.Threads;
 						if (kernelGroupSize != null)
 						{
-							threads.x = Mathf.CeilToInt(kernelGroupSize.Value.x / (float)threads.x);
-							threads.y = Mathf.CeilToInt(kernelGroupSize.Value.y / (float)threads.y);
-							threads.z = Mathf.CeilToInt(kernelGroupSize.Value.z / (float)threads.z);
+							var gs = kernelGroupSize.Value;
+							if (gs.x > 0)
+								threads.x = Mathf.CeilToInt(gs.x / (float)threads.x);
+							if (gs.y > 0)
+								threads.y = Mathf.CeilToInt(gs.y / (float)threads.y);
+							if (gs.z > 0)
+								threads.z = Mathf.CeilToInt(gs.z / (float)threads.z);
 						}
 						// Debug.Log($"Dispatch {k.Name} with {threads} threads");
 						shaderInfo.Shader.Dispatch(k.Index, threads.x, threads.y, threads.z);
@@ -202,10 +209,10 @@ namespace Needle.Timeline
 					if (typeField.Name != shaderField.FieldName)
 					{
 						var mapping = typeField.GetCustomAttribute<ShaderField>();
-						if(mapping == null || mapping.Name == null || mapping.Name != shaderField.FieldName)
+						if (mapping == null || mapping.Name == null || mapping.Name != shaderField.FieldName)
 							continue;
 					}
-					
+
 					var stride = typeField.FieldType.GetStride();
 					if (stride != shaderField.Stride)
 					{
@@ -224,7 +231,7 @@ namespace Needle.Timeline
 					found = true;
 
 					// throw new NotImplementedException("TODO");
-						
+
 					if (bindings != null)
 					{
 						var binding = new ComputeShaderBinding(typeField, shaderField, shaderInfo, resources);
@@ -233,11 +240,11 @@ namespace Needle.Timeline
 				}
 				if (!found)
 				{
-					if(shaderField.FieldName != "_Time" && shaderField.FieldType != typeof(Vector4))
+					if (shaderField.FieldName != "_Time" && shaderField.FieldType != typeof(Vector4))
 						Debug.LogWarning("Did not find " + shaderField);
 				}
 			}
-			
+
 			return true;
 		}
 	}
