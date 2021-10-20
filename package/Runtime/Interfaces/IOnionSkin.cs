@@ -19,6 +19,7 @@ namespace Needle.Timeline
 		int Layer { get; }
 		Color ColorOnion { get; }
 		float WeightOnion { get; }
+		Color GetColor(Color col);
 	}
 
 	public struct OnionData : IOnionData
@@ -26,6 +27,10 @@ namespace Needle.Timeline
 		public int Layer { get; set; }
 		public Color ColorOnion { get; set; }
 		public float WeightOnion { get; set; }
+		public Color GetColor(Color col)
+		{
+			return Color.Lerp(col, ColorOnion, WeightOnion);
+		}
 
 		public OnionData(int layer)
 		{

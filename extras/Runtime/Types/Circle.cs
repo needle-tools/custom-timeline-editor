@@ -24,8 +24,11 @@ public struct Circle : IToolEvents, ICustomControls, IOnionSkin
 		// Handles.Label(Position, sp + "\n" + dist + "\n" + data.ScreenPosition + "\n" + Screen.height);
 		if (dist > Screen.width * .25f) return false;
 		Handles.color = new Color(0, 1, 1, .5f);
+		var newPosition = Handles.PositionHandle(Position, Quaternion.identity);
+		var changed = newPosition != Position;
+		Position = newPosition;
 		var newRadius = Handles.RadiusHandle(Quaternion.LookRotation(Camera.current.transform.forward), Position, Radius, true);
-		var changed = Math.Abs(newRadius - Radius) > Mathf.Epsilon;
+		changed |= Math.Abs(newRadius - Radius) > Mathf.Epsilon;
 		Radius = newRadius;
 		return changed;
 #else
