@@ -173,7 +173,9 @@ namespace Needle.Timeline
 						if (closest != null)
 							visibleKeyframes.Add((tar.ViewModel, new ClipKeyframePair(tar.Clip, closest)));
 
+						// TODO: currently it is possible that modules receive events multiple times
 
+						var didModify = false;
 						if (!tar.Clip.SupportedTypes.Any(module.CanModify))
 						{
 							var data = new ToolData()
@@ -184,6 +186,7 @@ namespace Needle.Timeline
 							// Debug.Log("Modify: " + module + ": " + tar.Clip);
 							if (module.OnModify(input, ref data))
 							{
+								// didModify = true;
 								UseEventDelayed();
 							}
 
@@ -197,7 +200,7 @@ namespace Needle.Timeline
 							// }
 						}
 
-						if (visibleKeyframes.Count > 0)
+						if (!didModify && visibleKeyframes.Count > 0)
 						{
 							foreach (var (read, pair) in visibleKeyframes)
 							{
@@ -254,6 +257,7 @@ namespace Needle.Timeline
 															field.SetValue(listEntry, data.Value);
 															changed = true;
 															UseEventDelayed();
+															break;
 														}
 													}
 												}
@@ -320,16 +324,6 @@ namespace Needle.Timeline
 							break;
 					}
 					break;
-
-				// case EventType.MouseDown:
-				// 	ForEachModule((toolTarget, module) => module.BeginInput(toolTarget));
-				// 	break;
-				// case EventType.MouseDrag:
-				// 	ForEachModule((toolTarget, module) => module.UpdateInput(toolTarget));
-				// 	break;
-				// case EventType.MouseUp:
-				// 	ForEachModule((toolTarget, module) => module.EndInput(toolTarget));
-				// 	break;
 			}
 
 

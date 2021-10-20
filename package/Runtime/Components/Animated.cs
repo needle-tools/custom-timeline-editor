@@ -1,8 +1,10 @@
 ﻿#nullable enable
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using UnityEditor;
 using UnityEngine;
 
 namespace Needle.Timeline
@@ -19,18 +21,33 @@ namespace Needle.Timeline
 		{
 			didSearchFields = false;
 			InternalInit();
+			ComputeShaderUtils.ComputeShaderChanged += OnShaderChanged;
+		}
+
+		private void OnDisable()
+		{
+			ComputeShaderUtils.ComputeShaderChanged -= OnShaderChanged;
+		}
+
+		private void OnShaderChanged(ComputeShader obj)
+		{
+			if (!obj) return;
+			if (shaderInfos.Any(s => s != null && s.Shader == obj))
+			{
+				OnInternalEvaluate();
+			}
 		}
 
 		private void InternalInit()
 		{
 			// didSearchFields = false;
-			
+
 			if (!didSearchFields)
-			{ 
+			{
 				didSearchFields = true;
 				computeShaderFields.Clear();
 				var type = GetType();
-				var fields = type.GetFields( BindingFlags.Default | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+				var fields = type.GetFields(BindingFlags.Default | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 				foreach (var field in fields)
 				{
 					if (typeof(ComputeShader).IsAssignableFrom(field.FieldType))
@@ -41,14 +58,19 @@ namespace Needle.Timeline
 				Debug.Log("Found " + computeShaderFields.Count + " compute shader fields");
 			}
 
-			var changed = true; 
+			var changed = true;
 			bindings.Clear();
 			for (var index = 0; index < computeShaderFields.Count; index++)
 			{
 				var cs = computeShaderFields[index];
 				ComputeShaderInfo? info;
 				var shader = cs.GetValue(this) as ComputeShader;
-				if (shader) shader.TryParse(out info);
+
+
+				if (shader)
+				{
+					shader.TryParse(out info);
+				}
 				else info = null;
 
 				if (index >= shaderInfos.Count)
@@ -115,12 +137,10 @@ namespace Needle.Timeline
 
 		protected virtual void OnDispatched(DispatchInfo info)
 		{
-			
 		}
 
 		protected virtual void OnAfterEvaluation()
 		{
-			
 		}
 
 		private void DispatchNow(DispatchInfo info)
@@ -140,7 +160,7 @@ namespace Needle.Timeline
 				this.SetTime(shader.Shader);
 				bindings.Clear();
 				shader.Bind(GetType(), bindings, resources);
-				
+
 
 				// if (AllowAutoThreadGroupSize() && info.GroupsX == null && info.GroupsY == null && info.GroupsZ == null)
 				// {
@@ -155,7 +175,7 @@ namespace Needle.Timeline
 				// 		}
 				// 	}
 				// }
-				
+
 				shader.Dispatch(this, kernel.Index, bindings,
 					new Vector3Int(info.GroupsX.GetValueOrDefault(), info.GroupsY.GetValueOrDefault(), info.GroupsZ.GetValueOrDefault()));
 				return;

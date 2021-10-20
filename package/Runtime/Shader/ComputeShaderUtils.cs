@@ -1,10 +1,20 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Needle.Timeline
 {
 	public static partial class ComputeShaderUtils
 	{
+		public static event Action<ComputeShader> ComputeShaderChanged;
+
+		internal static bool CanRaiseShaderChangedEvent => ComputeShaderChanged != null;
+		internal static void RaiseShaderChangedEvent(this ComputeShader shader)
+		{
+			if(shader)
+				ComputeShaderChanged?.Invoke(shader);
+		}
+		
 		public static void StartWatching(this ComputeShader shader)
 		{
 			if (!shader) return;

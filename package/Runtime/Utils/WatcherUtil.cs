@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -12,6 +13,7 @@ namespace Needle.Timeline
 			var id = GetId(obj);
 			if (id == null) return;
 			if (watchList.Contains(id)) return;
+			Debug.Log("Start watching " + obj, obj);
 			watchList.Add(id);
 		}
 
@@ -49,11 +51,27 @@ namespace Needle.Timeline
 					{
 						Debug.Log("CHANGED: " +ch);
 #pragma warning disable CS4014
-						TimelineBuffer.RequestBufferCurrentInspectedTimeline(30);
+						if(TimelineBuffer.Enabled)
+							TimelineBuffer.RequestBufferCurrentInspectedTimeline(30);
 #pragma warning restore CS4014
+					}
+
+					if (ch.EndsWith(".compute"))
+					{
+						RaiseComputeShaderChangedEventDelayed(ch);
 					}
 				}
 			}
+
+			private async void RaiseComputeShaderChangedEventDelayed(string path)
+			{
+				if (ComputeShaderUtils.CanRaiseShaderChangedEvent)
+				{
+					await Task.Delay(10);
+					var shader = AssetDatabase.LoadAssetAtPath<ComputeShader>(path);
+					shader.RaiseShaderChangedEvent();
+				}
+			} 
 		}
 #endif
 	}

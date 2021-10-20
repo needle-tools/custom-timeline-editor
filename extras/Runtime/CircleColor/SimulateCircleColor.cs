@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using log4net.Appender;
+﻿using System.Collections.Generic;
 using Needle.Timeline;
 using UnityEngine;
 
@@ -9,23 +7,15 @@ public class SimulateCircleColor : Animated, IOnionSkin
 {
 	public ComputeShader Shader;
 
-	[Animate] public List<Circle> Circles;
+	[Animate] public List<Circle> Circles; 
 
 	[TextureInfo(1024, 1024, TextureFormat = TextureFormat.RGBA32)]
 	public RenderTexture Result;
 
 	public Vector2 WorldScale;
-
-
-	public float TimeFactor = 1;
-	public float OffsetY;
-	[Range(0,1), ShaderField("MyField")]
-	public float XOffset;
-	
 	
 	[Header("Debug")] 
-	public Renderer Output;
-	
+	public Renderer Output; 
 
 	protected override IEnumerable<DispatchInfo> OnDispatch()
 	{
@@ -46,10 +36,6 @@ public class SimulateCircleColor : Animated, IOnionSkin
 	}
 
 	private MaterialPropertyBlock block;
-	
-	
-	
-	
 	private void OnDrawGizmos()
 	{
 		RenderOnionSkin(OnionData.Default);

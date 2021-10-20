@@ -131,6 +131,8 @@ namespace Needle.Timeline
 
 	public class HandlesModule : ToolModule
 	{
+		// TODO: how can we delete elements
+		
 		public override bool CanModify(Type type)
 		{
 			return typeof(ICustomControls).IsAssignableFrom(type);
@@ -204,11 +206,14 @@ namespace Needle.Timeline
 			}
 		}
 
+		private bool didBegin = false;
 		public override bool OnModify(InputData input, ref ToolData toolData)
 		{
 			switch (input.Stage)
 			{
 				case InputEventStage.Begin:
+					if (didBegin) return false;
+					didBegin = true;
 					_created.Clear();
 					break;
 				case InputEventStage.Update:
@@ -223,6 +228,7 @@ namespace Needle.Timeline
 					break;
 				case InputEventStage.End:
 				{
+					didBegin = false;
 					foreach (var ad in _created)
 					{
 						ad.Modify<IToolEvents>(i =>

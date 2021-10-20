@@ -175,7 +175,7 @@ namespace Needle.Timeline
 								b.Bind(instance);
 								if (!b.SetValue(kernelIndex))
 								{
-									Debug.LogError("Failed setting " + b.ShaderField.TypeName + " " + b.ShaderField.FieldName);
+									Debug.LogWarning("Failed setting " + b.ShaderField.TypeName + " " + b.ShaderField.FieldName);
 								}
 							}
 						}

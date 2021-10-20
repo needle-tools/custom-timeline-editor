@@ -6,11 +6,7 @@ struct Circle
     float Radius;
 };
 
-float TimeFactor;
-float OffsetY;
-float MyField;
 float2 WorldScale;
-
 float4 _Time;
 RWStructuredBuffer<Circle> Circles; 
 RWTexture2D<float4> Result;
@@ -18,21 +14,28 @@ RWTexture2D<float4> Result;
 [numthreads(8,1,1)]
 void CSMain(uint3 id : SV_DispatchThreadID)
 {
-    uint width, height;
+    uint width, height; 
     Result.GetDimensions(width, height);
     float2 uv = id.xy/float2(width,height);
-    uv.x += _Time.x * TimeFactor + MyField;
-    uv.y += OffsetY;
-    uv %= 1;
-    float4 res = float4(uv.x,uv.y,0,1);
-    res.x += WorldScale.x;
+    // uv.x += _Time.x * TimeFactor + MyField;
+    // uv.y += OffsetY;
+    // uv %= 1;
+    float4 res = .7;// float4(uv.x,uv.y,0,1);
+    float2 world = (uv - .5) * WorldScale;  
 
     uint circleCount, _;
     Circles.GetDimensions(circleCount, _);
     for(int i = 0; i < circleCount; i++)
     {
         Circle circle = Circles[i];
-        res.z += 1 * circle.Radius / circleCount;
+        float2 cwp = circle.Position.xy;
+        float dist = length(cwp - world);
+        if(dist < circle.Radius)
+        {
+            res = 0;//
+        }
+        // res.z += 1 * circle.Radius / circleCount;
     }
-    Result[id.xy] = res;
+    float4 cur = Result[id.xy];
+    Result[id.xy] = lerp(cur, res, .1);;
 }
