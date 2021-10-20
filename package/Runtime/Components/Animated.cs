@@ -46,7 +46,7 @@ namespace Needle.Timeline
 			for (var index = 0; index < computeShaderFields.Count; index++)
 			{
 				var cs = computeShaderFields[index];
-				ComputeShaderInfo info;
+				ComputeShaderInfo? info;
 				var shader = cs.GetValue(this) as ComputeShader;
 				if (shader) shader.TryParse(out info);
 				else info = null;
@@ -109,7 +109,7 @@ namespace Needle.Timeline
 
 			if (didDispatchAny)
 			{
-				OnUpdated();
+				OnAfterEvaluation();
 			}
 		}
 
@@ -118,7 +118,7 @@ namespace Needle.Timeline
 			
 		}
 
-		protected virtual void OnUpdated()
+		protected virtual void OnAfterEvaluation()
 		{
 			
 		}

@@ -490,6 +490,42 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!84 &383510505
+RenderTexture:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  m_ImageContentsHash:
+    serializedVersion: 2
+    Hash: 00000000000000000000000000000000
+  m_ForcedFallbackFormat: 4
+  m_DownscaleFallback: 0
+  m_IsAlphaChannelOptional: 0
+  serializedVersion: 3
+  m_Width: 1024
+  m_Height: 1024
+  m_AntiAliasing: 1
+  m_MipCount: -1
+  m_DepthFormat: 0
+  m_ColorFormat: 8
+  m_MipMap: 0
+  m_GenerateMips: 1
+  m_SRGB: 0
+  m_UseDynamicScale: 0
+  m_BindMS: 0
+  m_EnableCompatibleFormat: 1
+  m_TextureSettings:
+    serializedVersion: 2
+    m_FilterMode: 1
+    m_Aniso: 1
+    m_MipBias: 0
+    m_WrapU: 1
+    m_WrapV: 1
+    m_WrapW: 1
+  m_Dimension: 2
+  m_VolumeDepth: 1
 --- !u!1 &1099171607
 GameObject:
   m_ObjectHideFlags: 0
@@ -562,42 +598,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!84 &1331067875
-RenderTexture:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: 
-  m_ImageContentsHash:
-    serializedVersion: 2
-    Hash: 00000000000000000000000000000000
-  m_ForcedFallbackFormat: 4
-  m_DownscaleFallback: 0
-  m_IsAlphaChannelOptional: 0
-  serializedVersion: 3
-  m_Width: 1024
-  m_Height: 1024
-  m_AntiAliasing: 1
-  m_MipCount: -1
-  m_DepthFormat: 0
-  m_ColorFormat: 8
-  m_MipMap: 0
-  m_GenerateMips: 1
-  m_SRGB: 0
-  m_UseDynamicScale: 0
-  m_BindMS: 0
-  m_EnableCompatibleFormat: 1
-  m_TextureSettings:
-    serializedVersion: 2
-    m_FilterMode: 1
-    m_Aniso: 1
-    m_MipBias: 0
-    m_WrapU: 1
-    m_WrapV: 1
-    m_WrapW: 1
-  m_Dimension: 2
-  m_VolumeDepth: 1
 --- !u!1 &1454001225
 GameObject:
   m_ObjectHideFlags: 0
@@ -811,131 +811,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Shader: {fileID: 7200000, guid: c0111fdf13ba422ea4a8b170242058a8, type: 3}
-  Result: {fileID: 1331067875}
+  Result: {fileID: 383510505}
+  WorldScale: {x: 10, y: 5}
   TimeFactor: 0
   OffsetY: 0
   XOffset: 0
   Output: {fileID: 1888973583}
-  lastShader: {fileID: 7200000, guid: c0111fdf13ba422ea4a8b170242058a8, type: 3}
-  info:
-    Path: Packages/com.needle.timeline-editor-extras/Runtime/Rendering/CircleColor/SimulateCircleColor.compute
-    Fields:
-    - FieldName: TimeFactor
-      TypeName: float
-      Stride: 4
-      GenericType:
-        Name: 
-        FileName: 
-        Fields: []
-      Kernels:
-      - Name: CSMain
-        Index: 0
-        Threads: {x: 8, y: 1, z: 1}
-      FilePath: Packages/com.needle.timeline-editor-extras/Runtime/Rendering/CircleColor/SimulateCircleColor.compute
-    - FieldName: OffsetY
-      TypeName: float
-      Stride: 4
-      GenericType:
-        Name: 
-        FileName: 
-        Fields: []
-      Kernels:
-      - Name: CSMain
-        Index: 0
-        Threads: {x: 8, y: 1, z: 1}
-      FilePath: Packages/com.needle.timeline-editor-extras/Runtime/Rendering/CircleColor/SimulateCircleColor.compute
-    - FieldName: MyField
-      TypeName: float
-      Stride: 4
-      GenericType:
-        Name: 
-        FileName: 
-        Fields: []
-      Kernels:
-      - Name: CSMain
-        Index: 0
-        Threads: {x: 8, y: 1, z: 1}
-      FilePath: Packages/com.needle.timeline-editor-extras/Runtime/Rendering/CircleColor/SimulateCircleColor.compute
-    - FieldName: _Time
-      TypeName: float4
-      Stride: 16
-      GenericType:
-        Name: 
-        FileName: 
-        Fields: []
-      Kernels: []
-      FilePath: Packages/com.needle.timeline-editor-extras/Runtime/Rendering/CircleColor/SimulateCircleColor.compute
-    - FieldName: Circles
-      TypeName: RWStructuredBuffer
-      Stride: 16
-      GenericType:
-        Name: Circle
-        FileName: Packages/com.needle.timeline-editor-extras/Runtime/Rendering/CircleColor/SimulateCircleColor.compute
-        Fields:
-        - FieldName: Position
-          TypeName: float3
-          Stride: 12
-          GenericType:
-            Name: 
-            FileName: 
-            Fields: []
-          Kernels: []
-          FilePath: Packages/com.needle.timeline-editor-extras/Runtime/Rendering/CircleColor/SimulateCircleColor.compute
-        - FieldName: Radius
-          TypeName: float
-          Stride: 4
-          GenericType:
-            Name: 
-            FileName: 
-            Fields: []
-          Kernels: []
-          FilePath: Packages/com.needle.timeline-editor-extras/Runtime/Rendering/CircleColor/SimulateCircleColor.compute
-      Kernels:
-      - Name: CSMain
-        Index: 0
-        Threads: {x: 8, y: 1, z: 1}
-      FilePath: Packages/com.needle.timeline-editor-extras/Runtime/Rendering/CircleColor/SimulateCircleColor.compute
-    - FieldName: Result
-      TypeName: RWTexture2D
-      Stride: 16
-      GenericType:
-        Name: 
-        FileName: 
-        Fields: []
-      Kernels:
-      - Name: CSMain
-        Index: 0
-        Threads: {x: 8, y: 1, z: 1}
-      FilePath: Packages/com.needle.timeline-editor-extras/Runtime/Rendering/CircleColor/SimulateCircleColor.compute
-    Structs:
-    - Name: Circle
-      FileName: Packages/com.needle.timeline-editor-extras/Runtime/Rendering/CircleColor/SimulateCircleColor.compute
-      Fields:
-      - FieldName: Position
-        TypeName: float3
-        Stride: 12
-        GenericType:
-          Name: 
-          FileName: 
-          Fields: []
-        Kernels: []
-        FilePath: Packages/com.needle.timeline-editor-extras/Runtime/Rendering/CircleColor/SimulateCircleColor.compute
-      - FieldName: Radius
-        TypeName: float
-        Stride: 4
-        GenericType:
-          Name: 
-          FileName: 
-          Fields: []
-        Kernels: []
-        FilePath: Packages/com.needle.timeline-editor-extras/Runtime/Rendering/CircleColor/SimulateCircleColor.compute
-    Shader: {fileID: 7200000, guid: c0111fdf13ba422ea4a8b170242058a8, type: 3}
-    Kernels:
-    - Name: CSMain
-      Index: 0
-      Threads: {x: 8, y: 1, z: 1}
-    Keywords: []
-    Includes: []
 --- !u!1 &1888973582
 GameObject:
   m_ObjectHideFlags: 0
@@ -1012,7 +893,7 @@ Transform:
   m_GameObject: {fileID: 1888973582}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 10, y: 5.684211, z: 0}
+  m_LocalScale: {x: 10, y: 5, z: 0}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 5

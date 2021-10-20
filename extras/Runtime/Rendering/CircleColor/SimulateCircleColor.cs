@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using log4net.Appender;
 using Needle.Timeline;
 using UnityEngine;
 
@@ -12,6 +13,8 @@ public class SimulateCircleColor : Animated, IOnionSkin
 
 	[TextureInfo(1024, 1024, TextureFormat = TextureFormat.RGBA32)]
 	public RenderTexture Result;
+
+	public Vector2 WorldScale;
 
 
 	public float TimeFactor = 1;
@@ -26,12 +29,17 @@ public class SimulateCircleColor : Animated, IOnionSkin
 
 	protected override IEnumerable<DispatchInfo> OnDispatch()
 	{
+		if (Output)
+		{
+			var lossyScale = Output.transform.lossyScale;
+			WorldScale = new Vector2(lossyScale.x, lossyScale.y);
+		}
 		yield return new DispatchInfo() { KernelIndex = 0, GroupsX = 1024, GroupsY = 1024 };
 	}
 	
-	protected override void OnUpdated()
+	protected override void OnAfterEvaluation()
 	{
-		base.OnUpdated();
+		base.OnAfterEvaluation();
 		block ??= new MaterialPropertyBlock();
 		block.SetTexture("_MainTex", Result);
 		Output.SetPropertyBlock(block);

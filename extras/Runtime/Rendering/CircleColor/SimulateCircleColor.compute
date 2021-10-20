@@ -9,6 +9,7 @@ struct Circle
 float TimeFactor;
 float OffsetY;
 float MyField;
+float2 WorldScale;
 
 float4 _Time;
 RWStructuredBuffer<Circle> Circles; 
@@ -24,6 +25,7 @@ void CSMain(uint3 id : SV_DispatchThreadID)
     uv.y += OffsetY;
     uv %= 1;
     float4 res = float4(uv.x,uv.y,0,1);
+    res.x += WorldScale.x;
 
     uint circleCount, _;
     Circles.GetDimensions(circleCount, _);
