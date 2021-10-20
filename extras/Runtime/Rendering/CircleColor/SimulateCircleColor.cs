@@ -4,7 +4,7 @@ using Needle.Timeline;
 using UnityEngine;
 
 [ExecuteInEditMode]
-public class SimulateCircleColor : Animated, IOnionSkin, IAnimatedEvents
+public class SimulateCircleColor : Animated, IOnionSkin
 {
 	public ComputeShader Shader;
 
@@ -23,6 +23,23 @@ public class SimulateCircleColor : Animated, IOnionSkin, IAnimatedEvents
 	[Header("Debug")] 
 	public Renderer Output;
 	
+
+	protected override IEnumerable<DispatchInfo> OnDispatch()
+	{
+		yield return new DispatchInfo() { KernelIndex = 0, GroupsX = 1024, GroupsY = 1024 };
+	}
+	
+	protected override void OnEndOfDispatch()
+	{
+		base.OnEndOfDispatch();
+		block ??= new MaterialPropertyBlock();
+		block.SetTexture("_MainTex", Result);
+		Output.SetPropertyBlock(block);
+	}
+
+	private MaterialPropertyBlock block;
+	
+	
 	
 	
 	private void OnDrawGizmos()
@@ -40,14 +57,4 @@ public class SimulateCircleColor : Animated, IOnionSkin, IAnimatedEvents
 			}
 		}
 	}
-
-	protected override void OnEndOfDispatch()
-	{
-		base.OnEndOfDispatch();
-		block ??= new MaterialPropertyBlock();
-		block.SetTexture("_MainTex", Result);
-		Output.SetPropertyBlock(block);
-	}
-
-	private MaterialPropertyBlock block;
 }
