@@ -74,10 +74,10 @@ namespace Needle.Timeline
 
 		public void OnEvaluated(FrameInfo frame)
 		{
-			OnUpdate();
+			OnInternalEvaluate();
 		}
 
-		private void OnUpdate()
+		private void OnInternalEvaluate()
 		{
 			if (!didSearchFields) InternalInit();
 
@@ -86,6 +86,7 @@ namespace Needle.Timeline
 			{
 				didDispatchAny = true;
 				DispatchNow(dispatch);
+				OnDispatched(dispatch);
 			}
 
 			if (!didDispatchAny)
@@ -108,11 +109,16 @@ namespace Needle.Timeline
 
 			if (didDispatchAny)
 			{
-				OnEndOfDispatch();
+				OnUpdated();
 			}
 		}
 
-		protected virtual void OnEndOfDispatch()
+		protected virtual void OnDispatched(DispatchInfo info)
+		{
+			
+		}
+
+		protected virtual void OnUpdated()
 		{
 			
 		}
@@ -134,6 +140,22 @@ namespace Needle.Timeline
 				this.SetTime(shader.Shader);
 				bindings.Clear();
 				shader.Bind(GetType(), bindings, resources);
+				
+
+				// if (AllowAutoThreadGroupSize() && info.GroupsX == null && info.GroupsY == null && info.GroupsZ == null)
+				// {
+				// 	foreach (var field in shader.Fields)
+				// 	{
+				// 		if (field.Kernels?.Any(x => x.Index == kernel.Index) ?? false)
+				// 		{
+				// 			if (typeof(Texture2D).IsAssignableFrom(field.FieldType))
+				// 			{
+				// 				
+				// 			}
+				// 		}
+				// 	}
+				// }
+				
 				shader.Dispatch(this, kernel.Index, bindings,
 					new Vector3Int(info.GroupsX.GetValueOrDefault(), info.GroupsY.GetValueOrDefault(), info.GroupsZ.GetValueOrDefault()));
 				return;
@@ -151,6 +173,8 @@ namespace Needle.Timeline
 
 			public bool IsValid => KernelIndex != null || KernelName != null;
 		}
+
+		// protected virtual bool AllowAutoThreadGroupSize() => true;
 
 		protected virtual IEnumerable<DispatchInfo> OnDispatch()
 		{

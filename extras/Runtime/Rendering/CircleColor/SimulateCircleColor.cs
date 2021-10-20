@@ -29,9 +29,9 @@ public class SimulateCircleColor : Animated, IOnionSkin
 		yield return new DispatchInfo() { KernelIndex = 0, GroupsX = 1024, GroupsY = 1024 };
 	}
 	
-	protected override void OnEndOfDispatch()
+	protected override void OnUpdated()
 	{
-		base.OnEndOfDispatch();
+		base.OnUpdated();
 		block ??= new MaterialPropertyBlock();
 		block.SetTexture("_MainTex", Result);
 		Output.SetPropertyBlock(block);
