@@ -277,7 +277,7 @@ namespace Needle.Timeline
 			return true;
 		}
 
-		private static readonly char[] allowedSurroundingVariableName = new[] { ' ', '+', '-', '*', '/', '=', '|', ';', '[' };
+		private static readonly char[] allowedSurroundingVariableName = new[] { ' ', '+', '-', '*', '/', '=', '|', ';', '[', '.' };
 		
 		// https://regex101.com/r/SBWf77/2
 		private static readonly Regex fieldRegex = new Regex("((?<field_type>.+?)(<(?<generic_type>.+?)>)?) (?<field_names>.+);",
