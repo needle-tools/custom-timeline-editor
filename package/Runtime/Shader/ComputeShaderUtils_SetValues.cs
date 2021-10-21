@@ -32,7 +32,7 @@ namespace Needle.Timeline
 
 		public void Bind(object instance)
 		{
-			this.Instance = instance;
+			Instance = instance;
 		}
 
 		public bool SetValue(int kernelIndex)
@@ -190,8 +190,16 @@ namespace Needle.Timeline
 			}
 		}
 
-		public static bool Bind(this ComputeShaderInfo shaderInfo, Type type, List<ComputeShaderBinding> bindings, IResourceProvider resources)
+		public static readonly (string fieldName, string typeName)[] BuiltinTypeNames = 
 		{
+			("_Time", nameof(Vector4))
+		};
+
+		public static bool Bind(this ComputeShaderInfo shaderInfo, Type type, List<ComputeShaderBinding> bindings, 
+			IResourceProvider resources)
+		{
+			if (bindings == null) throw new ArgumentNullException(nameof(bindings));
+			var success = true;
 			var fieldInType = type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static);
 			foreach (var shaderField in shaderInfo.Fields)
 			{
@@ -212,6 +220,7 @@ namespace Needle.Timeline
 						var attr = typeField.GetCustomAttribute<ComputeBufferInfo>();
 						if (attr == null)
 						{
+							success = false;
 							Debug.LogWarning($"Missing {nameof(ComputeBufferInfo)} attribute on {typeField.DeclaringType?.Name}.{typeField.Name}");
 							continue;
 						}
@@ -230,28 +239,27 @@ namespace Needle.Timeline
 
 						if (!handledStrideMismatch)
 						{
+							success = false;
 							Debug.LogError($"Found unknown stride mismatch: {typeField.Name} ({stride}) != {shaderField.FieldName} ({shaderField.Stride})");
 							continue;
 						}
 					}
+					
 					found = true;
-
-					// throw new NotImplementedException("TODO");
-
-					if (bindings != null)
-					{
-						var binding = new ComputeShaderBinding(typeField, shaderField, shaderInfo, resources);
-						bindings.Add(binding);
-					}
+					var binding = new ComputeShaderBinding(typeField, shaderField, shaderInfo, resources);
+					bindings.Add(binding);
 				}
 				if (!found)
 				{
-					if (shaderField.FieldName != "_Time" && shaderField.FieldType != typeof(Vector4))
+					if (!BuiltinTypeNames.Any(e => e.fieldName == shaderField.FieldName && e.typeName == shaderField.TypeName))
+					{
+						success = false;
 						Debug.LogWarning("Did not find " + shaderField);
+					}
 				}
 			}
 
-			return true;
+			return success;
 		}
 	}
 }

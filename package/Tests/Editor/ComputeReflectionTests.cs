@@ -14,6 +14,17 @@ namespace Needle.Timeline.Tests
 		// TODO: add tests with cginc
 		// TODO: add tests with multi_compile
 		
+		public class TypeWithMissingField{}
+		
+		[Test]
+		public static void Bind_FailIfShaderFieldIsMissing()
+		{
+			var shader = LoadShader("Simple");
+			shader.TryParse(out var shaderInfo);
+			Assert.NotNull(shaderInfo);
+			var success = shaderInfo.Bind(typeof(TypeWithMissingField), new List<ComputeShaderBinding>(), TestsResourceProvider);
+			Assert.AreEqual(false, success, "Expected binding to fail");
+		}
 
 		[Test]
 		public static void SimpleShader()
