@@ -232,6 +232,36 @@ namespace Needle.Timeline.Tests
 			Assert.AreEqual(43,val.GetValue(0));
 		}
 
+		private class TypeWithComputeBufferField
+		{
+			[ComputeBufferInfo(Size = 1, Stride = sizeof(float))]
+			public ComputeBuffer MyBuffer;
+		}
+		
+		[Test]
+		public static void Auto_Bind_ComputeBuffer_AndDispatch()
+		{
+			var shader = LoadShader("SetValues/Bind_ComputeBuffer");
+			shader.TryParse(out var shaderInfo);
+			Assert.NotNull(shaderInfo);
+
+			var source = new TypeWithComputeBufferField();
+			
+			var list = new List<ComputeShaderBinding>();
+			shaderInfo.Bind(typeof(TypeWithComputeBufferField), list, TestsResourceProvider);
+			Assert.AreEqual(1, list.Count, "Did not find field");
+
+			shaderInfo.Dispatch(source, 0, list);
+			Assert.NotNull(source.MyBuffer);
+			Assert.IsTrue(source.MyBuffer.IsValid(), "Buffer is not valid");
+			Assert.AreEqual(1, source.MyBuffer.count);
+			Assert.AreEqual(sizeof(float),source.MyBuffer.stride);
+
+			var res = new float[1];
+			source.MyBuffer.GetData(res);
+			Assert.AreEqual(111,res[0]);
+		}
+
 		private class MappingType
 		{
 			[ShaderField("MyBuffer")]

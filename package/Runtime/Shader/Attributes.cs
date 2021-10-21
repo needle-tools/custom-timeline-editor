@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
 
@@ -17,6 +19,29 @@ namespace Needle.Timeline
 		{
 			Width = width;
 			Height = height;
+		}
+	}
+
+
+	[AttributeUsage(AttributeTargets.Field)]
+	public abstract class BufferInfo : Attribute
+	{
+		public int Size;
+		public int Stride;
+	}
+
+	[AttributeUsage(AttributeTargets.Field)]
+	public class ComputeBufferInfo : BufferInfo
+	{
+		public ComputeBufferType Type;
+		public ComputeBufferMode Mode;
+
+		public ComputeBufferInfo(){}
+
+		public ComputeBufferInfo(int size, int stride)
+		{
+			this.Size = size;
+			this.Stride = stride;
 		}
 	}
 }

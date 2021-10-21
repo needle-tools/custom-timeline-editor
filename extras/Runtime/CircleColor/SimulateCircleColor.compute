@@ -10,7 +10,7 @@ float2 WorldScale;
 float4 _Time;
 RWStructuredBuffer<Circle> Circles; 
 RWTexture2D<float4> Result;
-
+RWStructuredBuffer<float> Append;
 
 struct ColorDot
 {

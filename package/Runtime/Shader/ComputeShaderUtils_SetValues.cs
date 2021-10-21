@@ -4,11 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Configuration;
 using System.Reflection;
-using System.Runtime.InteropServices;
-using Unity.Collections;
-using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
 
@@ -42,6 +38,20 @@ namespace Needle.Timeline
 		public bool SetValue(int kernelIndex)
 		{
 			var value = TypeField.GetValue(Instance);
+
+			if (typeof(ComputeBuffer).IsAssignableFrom(TypeField.FieldType))
+			{
+				var buffer = value as ComputeBuffer;
+				if (buffer == null || !buffer.IsValid())
+				{
+					var info = TypeField.GetCustomAttribute<ComputeBufferInfo>();
+					buffer = Resources.ComputeBufferProvider.GetBuffer(ShaderField.FieldName, info.Size, info.Stride, info.Type, info.Mode);
+					buffer.name = TypeField.Name;
+				}
+				ShaderInfo.Shader.SetBuffer(kernelIndex, ShaderField.FieldName, buffer);
+				TypeField.SetValue(Instance, buffer);
+				return true;
+			}
 
 			// TODO: handle when list is null
 			if (typeof(IList).IsAssignableFrom(TypeField.FieldType))
@@ -135,23 +145,6 @@ namespace Needle.Timeline
 			}
 			return null;
 		}
-
-		// internal void Assert()
-		// {
-		// 	var value = TypeField.GetValue(Instance);
-		// 	SetValue();
-		// 	ShaderInfo.Shader.Dispatch(0, 1, 1, 1);
-		// 	if (value is IList list)
-		// 	{
-		// 		var buffer = Resources.ComputeBufferProvider.GetBuffer(ShaderField.FieldName, list.Count, ShaderField.Stride, 
-		// 			ShaderField.RandomWrite.GetValueOrDefault() ? ComputeBufferType.Structured : ComputeBufferType.Default);
-		// 		var arr = Array.CreateInstance(list.GetType().GetGenericArguments().First(), list.Count);
-		// 		buffer.GetData(arr);
-		// 		Debug.Assert(arr.Length == list.Count);
-		// 		Debug.Assert(arr.GetValue(0) != null);
-		// 		Debug.Assert(Equals(arr.GetValue(0), list[0]));
-		// 	}
-		// }
 	}
 
 	public static partial class ComputeShaderUtils
@@ -213,7 +206,20 @@ namespace Needle.Timeline
 							continue;
 					}
 
-					var stride = typeField.FieldType.GetStride();
+					var stride = 0;
+					if (typeof(ComputeBuffer).IsAssignableFrom(typeField.FieldType))
+					{
+						var attr = typeField.GetCustomAttribute<ComputeBufferInfo>();
+						if (attr == null)
+						{
+							Debug.LogWarning($"Missing {nameof(ComputeBufferInfo)} attribute on {typeField.DeclaringType?.Name}.{typeField.Name}");
+							continue;
+						}
+						stride = attr.Stride;
+					}
+					else
+						stride = typeField.FieldType.GetStride();
+					
 					if (stride != shaderField.Stride)
 					{
 						var handledStrideMismatch = false;

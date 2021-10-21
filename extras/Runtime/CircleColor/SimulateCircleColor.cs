@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿#nullable enable
+
+using System;
+using System.Collections.Generic;
 using Needle.Timeline;
 using UnityEngine;
 
@@ -10,20 +13,22 @@ public class SimulateCircleColor : Animated, IOnionSkin
 	[Animate] public List<Circle> Circles;
 	[Animate, ShaderField("Dots")] public List<ColorDot> ColorDots;
 
+	[ComputeBufferInfo(1,sizeof(float), Mode = ComputeBufferMode.Circular)]
+	public ComputeBuffer Append;
+
 	[TextureInfo(1024, 1024, TextureFormat = TextureFormat.RGBA32)]
-	public RenderTexture Result;
+	public RenderTexture Result; 
 
 	public Vector2 WorldScale;
-	
-	[Header("Debug")] 
-	public Renderer Output;
+
+	[Header("Debug")] public Renderer Output;
 
 	public struct ColorDot : IOnionSkin, IToolEvents
 	{
 		public Vector3 Position;
-		public Color Color; 
-		public float Weight; 
-		
+		public Color Color;
+		public float Weight;
+
 		public void RenderOnionSkin(IOnionData data)
 		{
 			Gizmos.color = data.GetColor(Color);
@@ -42,7 +47,7 @@ public class SimulateCircleColor : Animated, IOnionSkin
 
 	public override void OnReset()
 	{
-		base.OnReset(); 
+		base.OnReset();
 		if (Result) Graphics.Blit(Texture2D.blackTexture, Result);
 	}
 
@@ -55,7 +60,7 @@ public class SimulateCircleColor : Animated, IOnionSkin
 		}
 		yield return new DispatchInfo() { KernelIndex = 0, GroupsX = 1024, GroupsY = 1024 };
 	}
-	
+
 	protected override void OnAfterEvaluation()
 	{
 		base.OnAfterEvaluation();
@@ -65,6 +70,7 @@ public class SimulateCircleColor : Animated, IOnionSkin
 	}
 
 	private MaterialPropertyBlock block;
+
 	private void OnDrawGizmos()
 	{
 		RenderOnionSkin(OnionData.Default);
