@@ -15,6 +15,7 @@ MonoBehaviour:
   messages: []
   files: []
   packages: []
+  warnings: []
   ids: []
   lines: []
   times: []
