@@ -21,6 +21,31 @@ struct ColorDot
 
 RWStructuredBuffer<ColorDot> Dots;
 
+const uint2 neighbors[] = {
+    uint2(-1,0),
+    uint2(1,0),
+    uint2(0,1),
+    uint2(0,-1),
+    uint2(-1,1),
+    uint2(1,1),
+    uint2(-1,1),
+    uint2(-1,-1)
+};
+void SampleNeighbors(uint2 pixel, out float4 col)
+{
+    col = 0;
+    for(int i = 0; i < 4; i++)
+    {
+        const uint2 neighborPixel = pixel + neighbors[i];
+        const float4 neighborColor = Result[neighborPixel*3];
+        // const float thres = 0.001;
+        // if(neighborColor.r > thres || neighborColor.g > thres || neighborColor.b > thres)
+        {
+            col += neighborColor;
+        }
+    }
+}
+
 [numthreads(8,1,1)]
 void CSMain(uint3 id : SV_DispatchThreadID)
 {
@@ -30,7 +55,8 @@ void CSMain(uint3 id : SV_DispatchThreadID)
     // uv.x += _Time.x * TimeFactor + MyField;
     // uv.y += OffsetY;
     // uv %= 1;
-    float4 res = 0;// float4(uv.x,uv.y,0,1);
+    float4 cur = Result[id.xy];
+    float4 res = cur;// float4(uv.x,uv.y,0,1);
     float2 world = (uv - .5) * WorldScale;  
 
     uint circleCount, _;
@@ -49,31 +75,43 @@ void CSMain(uint3 id : SV_DispatchThreadID)
         // res.z += 1 * circle.Radius / circleCount;
     }
 
-    float4 cur = Result[id.xy];
     if(inCircle)
     {
         uint dotsCount;
         Dots.GetDimensions(dotsCount, _);
+        ColorDot closest;
+        float closestDistance = 9999;
+        bool foundClosest = false;
         for(int i = 0; i < dotsCount; i++)
         {
             ColorDot dot = Dots[i];
-            float2 cwp = dot.Position.xy;
-            float dist = length(cwp - world);
-            if(dist < dot.Weight)
+            const float2 cwp = dot.Position.xy;
+            const float dist = length(cwp - world);
+            if(dist < closestDistance)
             {
-                float factor = dot.Weight / dotsCount;
-                if(dist > 1)
-                    factor /= dist;
-                res = lerp(res, dot.Color, factor);
+                foundClosest = true;
+                closestDistance = dist;
+                closest = dot;
             }
         }
+
+        if(foundClosest)
+        {
+            // float factor = dot.Weight / dotsCount;
+            // factor /= closestDistance;
+            res = (closest.Color * (closestDistance * closest.Weight));
+        }
     }
-    if(cur.r > 0.01 || cur.g > 0.01 || cur.b > 0.01)
+
+    const float thres = 0.0000001;
+    if(cur.r > thres || cur.g > thres || cur.b > thres)
     {
-        res = lerp(res,cur, _Time.w * 30); 
+        float4 col;
+        SampleNeighbors(id.xy, col);
+        res = lerp(res, saturate(col), _Time.w*.2); 
     }
     
     // float4 cur = Result[id.xy];
-    Result[id.xy] = lerp(cur, res, _Time.w * 5);
-    // Result[id.xy] = lerp(Result[id.xy], 0, _Time.w * 5);
+    Result[id.xy] = lerp(cur, res, _Time.w * 2);
+    Result[id.xy] = lerp(Result[id.xy], 0, _Time.w);
 }

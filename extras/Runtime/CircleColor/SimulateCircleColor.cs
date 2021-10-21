@@ -27,7 +27,7 @@ public class SimulateCircleColor : Animated, IOnionSkin
 		public void RenderOnionSkin(IOnionData data)
 		{
 			Gizmos.color = data.GetColor(Color);
-			Gizmos.DrawSphere(Position, Weight * .1f);
+			Gizmos.DrawWireSphere(Position, Weight * .1f);
 		}
 
 		public void OnToolEvent(ToolStage stage, IToolData? data)
@@ -43,7 +43,7 @@ public class SimulateCircleColor : Animated, IOnionSkin
 	public override void OnReset()
 	{
 		base.OnReset(); 
-		if (Result) Graphics.Blit(Texture2D.whiteTexture, Result);
+		if (Result) Graphics.Blit(Texture2D.blackTexture, Result);
 	}
 
 	protected override IEnumerable<DispatchInfo> OnDispatch()

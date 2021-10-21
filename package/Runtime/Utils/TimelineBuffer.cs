@@ -63,7 +63,7 @@ namespace Needle.Timeline
 			await Task.Delay(100);
 			if (id != bufferRequestId || timeChangedId != timeId) return;
 			var dir = TimelineEditor.inspectedDirector;
-			if (dir != null && dir.state != PlayState.Playing)
+			if (dir != null)// && dir.state != PlayState.Playing)
 			{
 				await Buffer(dir, seconds, fromTime);
 			}
