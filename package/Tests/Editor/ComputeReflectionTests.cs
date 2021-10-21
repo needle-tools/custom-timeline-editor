@@ -27,7 +27,7 @@ namespace Needle.Timeline.Tests
 		}
 
 		[Test]
-		public static void SimpleShader()
+		public static void FindOneKernelAndOneField()
 		{
 			var shader = LoadShader("ShaderWithOneField");
 			shader.TryParse(out var shaderInfo);
