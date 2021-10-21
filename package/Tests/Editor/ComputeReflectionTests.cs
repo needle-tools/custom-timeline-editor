@@ -19,7 +19,7 @@ namespace Needle.Timeline.Tests
 		[Test]
 		public static void Bind_FailIfShaderFieldIsMissing()
 		{
-			var shader = LoadShader("Simple");
+			var shader = LoadShader("ShaderWithOneField");
 			shader.TryParse(out var shaderInfo);
 			Assert.NotNull(shaderInfo);
 			var success = shaderInfo.Bind(typeof(TypeWithMissingField), new List<ComputeShaderBinding>(), TestsResourceProvider);
@@ -29,7 +29,7 @@ namespace Needle.Timeline.Tests
 		[Test]
 		public static void SimpleShader()
 		{
-			var shader = LoadShader("Simple");
+			var shader = LoadShader("ShaderWithOneField");
 			shader.TryParse(out var shaderInfo);
 
 			Debug.Log(shaderInfo);
