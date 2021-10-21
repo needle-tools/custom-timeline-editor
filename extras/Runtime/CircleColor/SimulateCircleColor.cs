@@ -13,8 +13,8 @@ public class SimulateCircleColor : Animated, IOnionSkin
 	[Animate] public List<Circle> Circles;
 	[Animate, ShaderField("Dots")] public List<ColorDot> ColorDots;
 
-	[ComputeBufferInfo(1,sizeof(float), Mode = ComputeBufferMode.Circular)]
-	public ComputeBuffer Append;
+	[ComputeBufferInfo(1,sizeof(float), Type = ComputeBufferType.Structured)]
+	public ComputeBuffer Append; 
 
 	[TextureInfo(1024, 1024, TextureFormat = TextureFormat.RGBA32)]
 	public RenderTexture Result; 
@@ -25,7 +25,7 @@ public class SimulateCircleColor : Animated, IOnionSkin
 
 	public struct ColorDot : IOnionSkin, IToolEvents
 	{
-		public Vector3 Position;
+		public Vector3 Position; 
 		public Color Color;
 		public float Weight;
 

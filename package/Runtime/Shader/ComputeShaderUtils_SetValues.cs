@@ -192,7 +192,7 @@ namespace Needle.Timeline
 
 		public static readonly (string fieldName, string typeName)[] BuiltinTypeNames = 
 		{
-			("_Time", nameof(Vector4))
+			("_Time", "float4")
 		};
 
 		public static bool Bind(this ComputeShaderInfo shaderInfo, Type type, List<ComputeShaderBinding> bindings, 
@@ -252,7 +252,7 @@ namespace Needle.Timeline
 				if (!found)
 				{
 					if (!BuiltinTypeNames.Any(e => e.fieldName == shaderField.FieldName && e.typeName == shaderField.TypeName))
-					{
+					{ 
 						success = false;
 						Debug.LogWarning("Did not find " + shaderField);
 					}
