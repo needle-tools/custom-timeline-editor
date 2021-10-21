@@ -8,7 +8,7 @@ public class SimulateCircleColor : Animated, IOnionSkin
 	public ComputeShader Shader;
 
 	[Animate] public List<Circle> Circles;
-	[Animate] public List<ColorDot> ColorDots;
+	[Animate, ShaderField("Dots")] public List<ColorDot> ColorDots;
 
 	[TextureInfo(1024, 1024, TextureFormat = TextureFormat.RGBA32)]
 	public RenderTexture Result;
@@ -22,7 +22,7 @@ public class SimulateCircleColor : Animated, IOnionSkin
 	{
 		public Vector3 Position;
 		public Color Color; 
-		public float Weight;
+		public float Weight; 
 		
 		public void RenderOnionSkin(IOnionData data)
 		{
@@ -38,6 +38,12 @@ public class SimulateCircleColor : Animated, IOnionSkin
 				Weight = 1f;
 			}
 		}
+	}
+
+	public override void OnReset()
+	{
+		base.OnReset(); 
+		if (Result) Graphics.Blit(Texture2D.whiteTexture, Result);
 	}
 
 	protected override IEnumerable<DispatchInfo> OnDispatch()

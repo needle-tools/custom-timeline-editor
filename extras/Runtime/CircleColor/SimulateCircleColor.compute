@@ -11,6 +11,16 @@ float4 _Time;
 RWStructuredBuffer<Circle> Circles; 
 RWTexture2D<float4> Result;
 
+
+struct ColorDot
+{
+    float3 Position;
+    float4 Color;
+    float Weight;
+};
+
+RWStructuredBuffer<ColorDot> Dots;
+
 [numthreads(8,1,1)]
 void CSMain(uint3 id : SV_DispatchThreadID)
 {
@@ -20,11 +30,12 @@ void CSMain(uint3 id : SV_DispatchThreadID)
     // uv.x += _Time.x * TimeFactor + MyField;
     // uv.y += OffsetY;
     // uv %= 1;
-    float4 res = .7;// float4(uv.x,uv.y,0,1);
+    float4 res = 0;// float4(uv.x,uv.y,0,1);
     float2 world = (uv - .5) * WorldScale;  
 
     uint circleCount, _;
     Circles.GetDimensions(circleCount, _);
+    bool inCircle = false;
     for(int i = 0; i < circleCount; i++)
     {
         Circle circle = Circles[i];
@@ -32,10 +43,37 @@ void CSMain(uint3 id : SV_DispatchThreadID)
         float dist = length(cwp - world);
         if(dist < circle.Radius)
         {
-            res = 0;//
+            inCircle = true;
+            // res = 1;
         }
         // res.z += 1 * circle.Radius / circleCount;
     }
+
     float4 cur = Result[id.xy];
-    Result[id.xy] = lerp(cur, res, .1);;
+    if(inCircle)
+    {
+        uint dotsCount;
+        Dots.GetDimensions(dotsCount, _);
+        for(int i = 0; i < dotsCount; i++)
+        {
+            ColorDot dot = Dots[i];
+            float2 cwp = dot.Position.xy;
+            float dist = length(cwp - world);
+            if(dist < dot.Weight)
+            {
+                float factor = dot.Weight / dotsCount;
+                if(dist > 1)
+                    factor /= dist;
+                res = lerp(res, dot.Color, factor);
+            }
+        }
+    }
+    if(cur.r > 0.01 || cur.g > 0.01 || cur.b > 0.01)
+    {
+        res = lerp(res,cur, _Time.w * 30); 
+    }
+    
+    // float4 cur = Result[id.xy];
+    Result[id.xy] = lerp(cur, res, _Time.w * 5);
+    // Result[id.xy] = lerp(Result[id.xy], 0, _Time.w * 5);
 }

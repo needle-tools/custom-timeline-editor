@@ -668,11 +668,17 @@ MonoBehaviour:
   MyInt: 0
   MyDouble: 0
   MyString: 
-  CustomType: []
+  CustomType:
+  - Pos: {x: 0.55843824, y: 0.16353683, z: 0}
+    Color: {r: 0.09366692, g: 0.3308126, b: 0.28101227, a: 1}
+    Size: 0.26868805
+  - Pos: {x: -0.24052374, y: 0.23523809, z: 0}
+    Color: {r: 0.44957432, g: 0.5450227, b: 0.2406896, a: 1}
+    Size: 0.08292916
   SomeType:
-    Pos: {x: 0, y: 0, z: 0}
-    Color: {r: 0, g: 0, b: 0, a: 0}
-    Size: 0
+    Pos: {x: -0.39824033, y: -0.12757358, z: 0}
+    Color: {r: 0.4788276, g: 0.29146355, b: 0.50490373, a: 1}
+    Size: 0.38046366
 --- !u!114 &1849834651
 MonoBehaviour:
   m_ObjectHideFlags: 0

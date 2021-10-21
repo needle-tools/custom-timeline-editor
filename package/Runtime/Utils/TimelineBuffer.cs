@@ -26,19 +26,21 @@ namespace Needle.Timeline
 			TimelineHooks.TimeChanged += OnTimeChanged;
 		}
 
-		private static int timeChangedCount;
+		private static int timeChangedId;
 		private static async void OnTimeChanged(PlayableDirector dir, double d)
 		{
 			if (isBuffering) return;
 			var evtTime = d;
 			var id = bufferRequestId;
-			await Task.Delay(50);
-			if (isBuffering || id != bufferRequestId) return;
+			var timeChangeId = ++timeChangedId;
+			await Task.Delay(20);
+			if (isBuffering || id != bufferRequestId || timeChangeId != timeChangedId) return;
+			Debug.Log("Time changed");
 			var diff = Mathf.Abs((float)(dir.time - evtTime));
-			if(diff > .05f)
+			if(diff > .001f)
 			{
 				if (dir.state == PlayState.Playing) return;
-				await RequestBufferCurrentInspectedTimeline(30);
+				await RequestBufferCurrentInspectedTimeline();
 			}
 		}
 
@@ -53,18 +55,22 @@ namespace Needle.Timeline
 
 
 		private static int bufferRequestId;
-		internal static async Task RequestBufferCurrentInspectedTimeline(float seconds = 10, double? fromTime = null)
+		internal static async Task RequestBufferCurrentInspectedTimeline(float? seconds = null, double? fromTime = null)
 		{
 			var id = ++bufferRequestId;
-			await Task.Delay(200);
-			if (id != bufferRequestId) return;
+			var timeId = timeChangedId;
+			Debug.Log("Request buffering");
+			await Task.Delay(100);
+			if (id != bufferRequestId || timeChangedId != timeId) return;
 			var dir = TimelineEditor.inspectedDirector;
 			if (dir != null && dir.state != PlayState.Playing)
+			{
 				await Buffer(dir, seconds, fromTime);
+			}
 		}
 
 		private static bool isBuffering = false;
-		private static Task Buffer(PlayableDirector dir, float seconds = 10, double? fromTime = null)
+		private static Task Buffer(PlayableDirector dir, float? seconds = null, double? fromTime = null)
 		{
 			if (!Enabled) return Task.CompletedTask;
 			if (isBuffering) return Task.CompletedTask;
@@ -79,8 +85,9 @@ namespace Needle.Timeline
 				}
 			}
 			var targetTime = fromTime ?? dir.time;
-			var startTime = targetTime - seconds;
-			var frames = Mathf.CeilToInt(seconds * 120f);
+			var sec = seconds ?? CustomTimelineSettings.Instance.DefaultBufferLenght;
+			var startTime = targetTime - sec;
+			var frames = Mathf.CeilToInt(sec * 120f);
 			IAnimatedExtensions.deltaTimeOverride =  1/120f;
 			var state = dir.state;
 			if (state != PlayState.Playing) dir.Play();
@@ -93,7 +100,7 @@ namespace Needle.Timeline
 				if (time < 0) continue;
 				if (i == frames) time = targetTime;
 				dir.time = time;
-				dir.Evaluate();
+				dir.Evaluate(); 
 				
 				if (sw.ElapsedMilliseconds > 1000)
 				{

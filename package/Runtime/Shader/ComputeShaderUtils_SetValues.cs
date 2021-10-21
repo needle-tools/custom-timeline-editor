@@ -32,7 +32,7 @@ namespace Needle.Timeline
 			Resources = resourceProvider;
 		}
 
-		private static FieldInfo? list_backingArray;
+		private FieldInfo? list_backingArray;
 
 		public void Bind(object instance)
 		{
@@ -122,7 +122,7 @@ namespace Needle.Timeline
 			return true;
 		}
 
-		public object GetValue()
+		public object? GetValue()
 		{
 			if (typeof(IList).IsAssignableFrom(TypeField.FieldType))
 			{

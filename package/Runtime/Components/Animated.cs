@@ -1,10 +1,8 @@
 ﻿#nullable enable
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using UnityEditor;
 using UnityEngine;
 
 namespace Needle.Timeline
@@ -34,7 +32,10 @@ namespace Needle.Timeline
 			if (!obj) return;
 			if (shaderInfos.Any(s => s != null && s.Shader == obj))
 			{
-				OnInternalEvaluate();
+#pragma warning disable CS4014
+				TimelineBuffer.RequestBufferCurrentInspectedTimeline();
+#pragma warning restore CS4014
+				// OnInternalEvaluate();
 			}
 		}
 
@@ -90,7 +91,7 @@ namespace Needle.Timeline
 		private readonly List<ComputeShaderBinding> bindings = new List<ComputeShaderBinding>();
 		private readonly IResourceProvider resources = ResourceProvider.CreateDefault();
 
-		public void OnReset()
+		public virtual void OnReset()
 		{
 		}
 

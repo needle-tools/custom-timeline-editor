@@ -26,6 +26,7 @@ namespace Needle.Timeline
 			if (tool == null || !tool.IsValid)
 			{
 				Debug.LogError("Tool is null or invalid, this is a bug - maybe try recompile a script if this was at startup");
+				CreateToolInstances();
 				return;
 			}
 			
