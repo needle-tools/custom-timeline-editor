@@ -1,5 +1,11 @@
 {
   "dependencies": {
+    "com.needle.console": {
+      "version": "file:../../../modules/needle-console/package",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {}
+    },
     "com.needle.custom-undo-integration": {
       "version": "file:../../../modules/Unity-Custom-Undo/package",
       "depth": 0,

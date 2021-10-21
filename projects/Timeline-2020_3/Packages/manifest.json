@@ -2,7 +2,7 @@
   "dependencies": {
     "com.needle.timeline-editor": "file:../../../package",
     "com.needle.timeline-editor-extras": "file:../../../extras",
-    "com.needle.custom-undo-integration" : "file:../../../modules/Unity-Custom-Undo/package",
+    "com.needle.custom-undo-integration": "file:../../../modules/Unity-Custom-Undo/package",
     "com.unity.burst": "1.6.0",
     "com.unity.collab-proxy": "1.9.0",
     "com.unity.collections": "1.0.0-pre.5",
@@ -43,9 +43,10 @@
     "com.unity.modules.video": "1.0.0",
     "com.unity.modules.vr": "1.0.0",
     "com.unity.modules.wind": "1.0.0",
-    "com.unity.modules.xr": "1.0.0"
+    "com.unity.modules.xr": "1.0.0",
+    "com.needle.console": "file:../../../modules/needle-console/package"
   },
-  "testables" : [
+  "testables": [
     "com.needle.timeline-editor"
   ]
 }

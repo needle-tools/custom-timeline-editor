@@ -4,3 +4,6 @@
 [submodule "modules/Unity-Custom-Undo"]
 	path = modules/Unity-Custom-Undo
 	url = https://github.com/needle-tools/Unity-Custom-Undo
+[submodule "modules/needle-console"]
+	path = modules/needle-console
+	url = https://github.com/needle-tools/needle-console
