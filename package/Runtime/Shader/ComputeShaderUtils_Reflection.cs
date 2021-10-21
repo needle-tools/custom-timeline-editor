@@ -116,6 +116,15 @@ namespace Needle.Timeline
 
 	public static partial class ComputeShaderUtils
 	{
+		// compile my compute shader doesnt exist for compute
+		// https://github.com/needle-tools/shader-variant-explorer/blob/0fa0515740768311bdec63d78e7676cbba186d0c/package/Editor/ShaderVariantExplorer.cs#L619
+		// public static void TestCompileAllPasses(this ComputeShader shader)
+		// {
+		// 	var message = ShaderUtil.GetComputeShaderMessages(shader);
+		// 	
+		// }
+		
+		
 		public static bool TryParse(this ComputeShader? shader, out ComputeShaderInfo? shaderInfo)
 		{
 			shaderInfo = null;
