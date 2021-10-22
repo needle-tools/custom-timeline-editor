@@ -5,6 +5,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using UnityEditor;
+using UnityEditor.Rendering;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
 
@@ -149,12 +151,17 @@ namespace Needle.Timeline
 
 	public static partial class ComputeShaderUtils
 	{
-		public static void Dispatch(this ComputeShaderInfo shaderInfo,
+		public static bool Dispatch(this ComputeShaderInfo shaderInfo,
 			object instance,
 			int kernelIndex,
 			List<ComputeShaderBinding> bindings,
 			Vector3Int? kernelGroupSize = null)
 		{
+			if (shaderInfo.HasError)
+			{
+				Debug.LogError(shaderInfo.Error);
+				return false;
+			}
 			foreach (var k in shaderInfo.Kernels)
 			{
 				if (k.Index == kernelIndex)
@@ -184,10 +191,13 @@ namespace Needle.Timeline
 								threads.z = Mathf.CeilToInt(gs.z / (float)threads.z);
 						}
 						// Debug.Log($"Dispatch {k.Name} with {threads} threads");
+
 						shaderInfo.Shader.Dispatch(k.Index, threads.x, threads.y, threads.z);
+						return true;
 					}
 				}
 			}
+			return false;
 		}
 
 		public static readonly (string fieldName, string typeName)[] BuiltinTypeNames = 

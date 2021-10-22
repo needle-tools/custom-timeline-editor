@@ -79,7 +79,7 @@ void CSMain(uint3 id : SV_DispatchThreadID)
     {
         uint dotsCount;
         Dots.GetDimensions(dotsCount, _);
-        ColorDot closest;
+        ColorDot closest = (ColorDot)0; 
         float closestDistance = 9999;
         bool foundClosest = false;
         for(int i = 0; i < dotsCount; i++)
@@ -97,9 +97,9 @@ void CSMain(uint3 id : SV_DispatchThreadID)
 
         if(foundClosest)
         {
-            // float factor = dot.Weight / dotsCount;
-            // factor /= closestDistance;
-            res = (closest.Color * (closestDistance * closest.Weight));
+            // float factor = closest.Weight / dotsCount;
+            // factor /= closestDistance; 
+            res = (closest.Color - (closestDistance * closest.Weight));
         }
     }
 
@@ -108,10 +108,10 @@ void CSMain(uint3 id : SV_DispatchThreadID)
     {
         float4 col;
         SampleNeighbors(id.xy, col);
-        res = lerp(res, saturate(col), _Time.w*.2); 
+        res = lerp(res, cur + saturate(col), _Time.w); 
     }
     
     // float4 cur = Result[id.xy];
-    Result[id.xy] = lerp(cur, res, _Time.w * 2);
-    Result[id.xy] = lerp(Result[id.xy], 0, _Time.w);
+    Result[id.xy] = lerp(cur, res, _Time.w * 22);
+    Result[id.xy] = lerp(Result[id.xy], 0, _Time.w*3);
 }

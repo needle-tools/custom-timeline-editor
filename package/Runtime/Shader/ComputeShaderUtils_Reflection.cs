@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using TreeEditor;
 using UnityEditor;
+using UnityEditor.Rendering;
 using UnityEngine;
 
 namespace Needle.Timeline
@@ -40,6 +41,50 @@ namespace Needle.Timeline
 		public override string ToString()
 		{
 			return "Kernels:\n" + string.Join("\n", Kernels.Select(s => s.ToString())) + "\n\n" + base.ToString();
+		}
+
+		private bool? hasError;
+		private string? errorMessage;
+
+		public string? Error
+		{
+			get
+			{
+				if (HasError && errorMessage != null) 
+					return errorMessage;
+				return null;
+			}
+		}
+		public bool HasError
+		{
+			get
+			{
+				if (hasError == null)
+				{
+					hasError = false;
+					if (!Shader)
+					{
+						errorMessage = "Shader is null or missing";
+						hasError = true;
+					}
+#if UNITY_EDITOR
+					else
+					{
+						errorMessage = "";
+						var messages = ShaderUtil.GetComputeShaderMessages(Shader);
+						foreach (var msg in messages)
+						{
+							if (msg.severity == ShaderCompilerMessageSeverity.Error)
+							{
+								hasError = true;
+								errorMessage += $"{Shader.name}: {msg.message}; {msg.line}; {msg.messageDetails}\n";
+							}
+						}
+					}
+#endif
+				}
+				return hasError.GetValueOrDefault();
+			}	
 		}
 	}
 
