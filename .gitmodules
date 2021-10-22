@@ -7,3 +7,6 @@
 [submodule "modules/needle-console"]
 	path = modules/needle-console
 	url = https://github.com/needle-tools/needle-console
+[submodule "modules/selective-profiling"]
+	path = modules/selective-profiling
+	url = https://github.com/needle-tools/selective-profiling
