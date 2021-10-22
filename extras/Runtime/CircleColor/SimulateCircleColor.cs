@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using Needle.Timeline;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 [ExecuteInEditMode]
 public class SimulateCircleColor : Animated, IOnionSkin
@@ -13,8 +14,16 @@ public class SimulateCircleColor : Animated, IOnionSkin
 	[Animate] public List<Circle> Circles;
 	[Animate, ShaderField("Dots")] public List<ColorDot> ColorDots;
 
-	[ComputeBufferInfo(1,sizeof(float), Type = ComputeBufferType.Structured)]
-	public ComputeBuffer Append; 
+	private const int entitiesCount = 20000;
+	
+	[Manual]
+	public ComputeBuffer? Entities; 
+
+	public struct Entity
+	{
+		public Vector3 Position;
+		public float Energy;
+	}
 
 	[TextureInfo(1024, 1024, TextureFormat = TextureFormat.RGBA32)]
 	public RenderTexture Result; 
@@ -40,7 +49,7 @@ public class SimulateCircleColor : Animated, IOnionSkin
 			if (stage == ToolStage.BasicValuesSet)
 			{
 				Color = Color.white;
-				Weight = 1f;
+				Weight = 1f; 
 			}
 		}
 	}
@@ -48,6 +57,8 @@ public class SimulateCircleColor : Animated, IOnionSkin
 	public override void OnReset()
 	{
 		base.OnReset();
+		Entities?.Dispose();
+		Entities = null;
 		if (Result) Graphics.Blit(Texture2D.blackTexture, Result);
 	}
 
@@ -56,9 +67,23 @@ public class SimulateCircleColor : Animated, IOnionSkin
 		if (Output)
 		{
 			var lossyScale = Output.transform.lossyScale;
-			WorldScale = new Vector2(lossyScale.x, lossyScale.y);
+			WorldScale = new Vector2(lossyScale.x, lossyScale.y); 
 		}
-		yield return new DispatchInfo() { KernelIndex = 0, GroupsX = 1024, GroupsY = 1024 };
+		if (Entities?.IsValid() == false || Entities?.count != entitiesCount)
+		{
+			Entities = Resources.ComputeBufferProvider.GetBuffer(nameof(Entities), entitiesCount, typeof(Entity).GetStride(), ComputeBufferType.Structured);
+			var entities = new Entity[entitiesCount];
+			for (var i = 0; i < Entities.count; i++)
+			{
+				entities[i] = new Entity()
+				{
+					Position = Random.insideUnitCircle*5
+				};
+			}
+			Entities.SetData(entities); 
+		}
+		yield return new DispatchInfo() { KernelIndex = 0, GroupsX = entitiesCount }; 
+		yield return new DispatchInfo() { KernelName = "CSRender", GroupsX = 1024, GroupsY = 1024 };
 	}
 
 	protected override void OnAfterEvaluation()

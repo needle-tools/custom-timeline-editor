@@ -7,6 +7,12 @@ using UnityEngine.Experimental.Rendering;
 namespace Needle.Timeline
 {
 	[AttributeUsage(AttributeTargets.Field)]
+	public class Manual : Attribute
+	{
+	}
+	
+
+	[AttributeUsage(AttributeTargets.Field)]
 	public class TextureInfo : Attribute
 	{
 		public readonly int Width;

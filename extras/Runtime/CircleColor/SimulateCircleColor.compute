@@ -1,4 +1,5 @@
-﻿#pragma kernel CSMain
+﻿#pragma kernel CSSimulate
+#pragma kernel CSRender
 
 struct Circle
 {
@@ -10,7 +11,15 @@ float2 WorldScale;
 float4 _Time;
 RWStructuredBuffer<Circle> Circles; 
 RWTexture2D<float4> Result;
-RWStructuredBuffer<float> Append;
+
+
+struct Entity
+{
+    float3 Position;
+    float Energy;
+};
+RWStructuredBuffer<Entity> Entities;
+
 
 struct ColorDot
 {
@@ -21,97 +30,62 @@ struct ColorDot
 
 RWStructuredBuffer<ColorDot> Dots;
 
-const uint2 neighbors[] = {
-    uint2(-1,0),
-    uint2(1,0),
-    uint2(0,1),
-    uint2(0,-1),
-    uint2(-1,1),
-    uint2(1,1),
-    uint2(-1,1),
-    uint2(-1,-1)
-};
-void SampleNeighbors(uint2 pixel, out float4 col)
+
+[numthreads(64,1,1)]
+void CSSimulate(uint3 id : SV_DispatchThreadID)
 {
-    col = 0;
-    for(int i = 0; i < 4; i++)
+    uint _;
+
+    uint entCount;
+    Entities.GetDimensions(entCount, _);
+    if(id.x > entCount) return;
+    
+    uint circlesCount;
+    Circles.GetDimensions(circlesCount, _);
+    
+    Entity entity = Entities[id.x];
+    bool inCircleRadius = false;
+    for(uint k = 0; k < circlesCount; k++)
     {
-        const uint2 neighborPixel = pixel + neighbors[i];
-        const float4 neighborColor = Result[neighborPixel*3];
-        // const float thres = 0.001;
-        // if(neighborColor.r > thres || neighborColor.g > thres || neighborColor.b > thres)
+        Circle circle = Circles[k];
+        if(length(entity.Position - circle.Position) < circle.Radius)
         {
-            col += neighborColor;
+            inCircleRadius = true;
+            entity.Energy += _Time.w;
+            entity.Position = lerp(entity.Position, circle.Position, _Time.w * .1);
         }
     }
+    if(!inCircleRadius)
+    {
+        entity.Energy -= _Time.w;
+    }
+    Entities[id.x] = entity;
 }
 
-[numthreads(8,1,1)]
-void CSMain(uint3 id : SV_DispatchThreadID)
+
+
+[numthreads(8,8,1)]
+void CSRender(uint3 id : SV_DispatchThreadID)
 {
+    uint _;
     uint width, height; 
     Result.GetDimensions(width, height);
     float2 uv = id.xy/float2(width,height);
-    // uv.x += _Time.x * TimeFactor + MyField;
-    // uv.y += OffsetY;
-    // uv %= 1;
     float4 cur = Result[id.xy];
-    float4 res = cur;// float4(uv.x,uv.y,0,1);
-    float2 world = (uv - .5) * WorldScale;  
+    float2 world = (uv - .5) * WorldScale;
 
-    uint circleCount, _;
-    Circles.GetDimensions(circleCount, _);
-    bool inCircle = false;
-    for(int i = 0; i < circleCount; i++)
-    {
-        Circle circle = Circles[i];
-        float2 cwp = circle.Position.xy;
-        float dist = length(cwp - world);
-        if(dist < circle.Radius)
-        {
-            inCircle = true;
-            // res = 1;
-        }
-        // res.z += 1 * circle.Radius / circleCount;
-    }
-
-    if(inCircle)
-    {
-        uint dotsCount;
-        Dots.GetDimensions(dotsCount, _);
-        ColorDot closest = (ColorDot)0; 
-        float closestDistance = 9999;
-        bool foundClosest = false;
-        for(int i = 0; i < dotsCount; i++)
-        {
-            ColorDot dot = Dots[i];
-            const float2 cwp = dot.Position.xy;
-            const float dist = length(cwp - world);
-            if(dist < closestDistance)
-            {
-                foundClosest = true;
-                closestDistance = dist;
-                closest = dot;
-            }
-        }
-
-        if(foundClosest)
-        {
-            // float factor = closest.Weight / dotsCount;
-            // factor /= closestDistance; 
-            res = (closest.Color - (closestDistance * closest.Weight));
-        }
-    }
-
-    const float thres = 0.0000001;
-    if(cur.r > thres || cur.g > thres || cur.b > thres)
-    {
-        float4 col;
-        SampleNeighbors(id.xy, col);
-        res = lerp(res, cur + saturate(col), _Time.w); 
-    }
+    cur = lerp(cur, 0, _Time.w);;
     
-    // float4 cur = Result[id.xy];
-    Result[id.xy] = lerp(cur, res, _Time.w * 22);
-    Result[id.xy] = lerp(Result[id.xy], 0, _Time.w*3);
+    uint entCount;
+    Entities.GetDimensions(entCount, _);
+    for(uint i = 0; i < entCount; i++)
+    {
+        Entity entity = Entities[i];
+        if(length(entity.Position.xy - world) < .01)
+        {
+            cur += 1 * _Time.w;// entity.Energy;
+        }
+    }
+
+    Result[id.xy] = cur;
 }

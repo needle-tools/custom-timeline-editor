@@ -60,7 +60,7 @@ namespace Needle.Timeline
 			get
 			{
 				if (hasError == null)
-				{
+				{ 
 					hasError = false;
 					if (!Shader)
 					{

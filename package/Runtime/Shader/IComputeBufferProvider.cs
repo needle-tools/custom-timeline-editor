@@ -91,7 +91,8 @@ namespace Needle.Timeline
 		{
 			if (cache.TryGetValue(id, out var buffer))
 			{
-				var expectedCount = MaxCount ? Mathf.Max(count, buffer.count) : count;
+				var bufferCount = buffer?.IsValid() ?? false ? buffer.count : -1; 
+				var expectedCount = MaxCount ? Mathf.Max(count, bufferCount) : count;
 				buffer = ComputeBufferUtils.SafeCreate(ref buffer, expectedCount, stride, type, mode);
 				cache[id] = buffer;
 			}

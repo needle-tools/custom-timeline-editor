@@ -32,6 +32,8 @@ namespace Needle.Timeline
 			if (!obj) return;
 			if (shaderInfos.Any(s => s != null && s.Shader == obj))
 			{
+				didSearchFields = false;
+				
 #pragma warning disable CS4014
 				TimelineBuffer.RequestBufferCurrentInspectedTimeline();
 #pragma warning restore CS4014
@@ -84,6 +86,8 @@ namespace Needle.Timeline
 				}
 			}
 		}
+
+		protected IResourceProvider Resources => resources;
 
 		private bool didSearchFields = false;
 		private readonly List<FieldInfo> computeShaderFields = new List<FieldInfo>();
