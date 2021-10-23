@@ -25,7 +25,7 @@ struct Entity
 {
     float3 Position;
     float2 StartPosition;
-    float Energy;
+    float2 Velocity;
 };
 RWStructuredBuffer<Entity> Entities;
 
@@ -61,14 +61,9 @@ void CSSimulate(uint3 id : SV_DispatchThreadID)
         {
             inCircleRadius = true;
             // entity.Energy -= _Time.w;
-            entity.Position = lerp(entity.Position, circle.Position, _Time.w * 1);
+            entity.Velocity += (circle.Position - entity.Position) * _Time.w * 2;
             break;
         }
-    }
-    // if(!inCircleRadius)
-    {
-        // entity.Energy += _Time.w;
-        entity.Position.xy = lerp(entity.Position.xy, entity.StartPosition, _Time.w *2);
     }
     
     uint directionsCount;
@@ -78,13 +73,16 @@ void CSSimulate(uint3 id : SV_DispatchThreadID)
         Direction dir = Directions[d];
         float3 vec = dir.End - dir.Start;
         float3 center = dir.Start + vec * .5;
-        if(length(center - entity.Position) < 1)
-        {
-            entity.Position += vec * _Time.w ;
-            break;
-        }
+        float dist = length(center - entity.Position);
+        entity.Velocity += vec.xy * 2 * _Time.w * saturate(1-dist);
     }
+
+    float dist = length(entity.Position - entity.StartPosition);
+    float2 homeVec = entity.StartPosition - entity.Position.xy;
+    entity.Velocity += homeVec * _Time.w*dist * 2;
     
+    entity.Position.xy += entity.Velocity * _Time.w;;
+    entity.Velocity *= 1 - _Time.w * 1.5;
     Entities[id.x] = entity;
 }
 
@@ -114,12 +112,12 @@ void CSDistanceField(uint3 id : SV_DispatchThreadID)
             closestDistance = dist;
         }
     }
-    float r = 1 - closestDistance;
+    float r = 1 - closestDistance * .3;
     r = saturate(r);
     r *= r;
 
 
-    DataTexture[pixel] = float4(r, 0, closestDistance,1);
+    DataTexture[pixel] = float4(r, length(closest.Velocity), closestDistance,1);
 }
 
 
@@ -161,18 +159,25 @@ void CSRenderData(uint3 id : SV_DispatchThreadID)
     float4 data = DataTextureBig[pixelData];
     float r = data.r;
     
-    if(r > .5)// data.b*8)
+    if(r > .1)// data.b*8)
     {
-        float f = sin(r*100) * .5 + .5;
-        r = f * f * f;
+        float f = sin(r*300) * .5 + .5;
+        r = f * f;;
         r = 1 - r;
     }
-    if(data.b < 0.1)
+    if(data.b < 0.9)
     {
        r *= sin(data.b*60) * .5 + .5;
     }
 
-    r *= 1-step(data.r, .55);
-    
-    Result[id.xy] = r;// * float4(1,1, data.b*10, 1);
+    // r *= 1-step(data.r, .55);
+    // r = 1-step(r, .5);
+    // r *= pow(data.r, 10);
+    // r *= 1;
+
+    float4 res = r;
+    // res.b *= data.b;
+    // res.rgb *= 1 - 0.8*data.g;//saturate(sin((.5+data.g)*3) * .5 + .5);
+    res.rgb *= lerp(float3(1,1,1), lerp(float3(0,0,1.5), float3(1,1,0), data.g*.9), data.g);
+    Result[id.xy] = res;
 }

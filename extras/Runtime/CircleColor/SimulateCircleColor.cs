@@ -11,6 +11,10 @@ public class SimulateCircleColor : Animated, IOnionSkin
 {
 	public ComputeShader Shader;
 
+	
+	// TODO: option to mute setting data (set null or just dont update anymore?)
+	// TODO: option to only show gizmos for selected clips?
+	
 	[Animate] public List<Circle> Circles;
 	[Animate, ShaderField("Dots")] public List<ColorDot> ColorDots; 
 	[Animate] public List<Direction> Directions;
@@ -24,13 +28,13 @@ public class SimulateCircleColor : Animated, IOnionSkin
 	{
 		public Vector3 Position;
 		public Vector2 StartPosition;
-		public float Energy;
+		public Vector2 Velocity; 
 	}
 	
-	[TextureInfo(128, 128, TextureFormat = TextureFormat.RGBA32)]
+	[TextureInfo(512, 512, TextureFormat = TextureFormat.RGBA32)]
 	public RenderTexture DataTexture; 
 	
-	[TextureInfo(1024, 1024, TextureFormat = TextureFormat.RGBA32)]
+	[TextureInfo(2048, 2048, TextureFormat = TextureFormat.RGBA32)]
 	public RenderTexture DataTextureBig; 
 
 	[TextureInfo(2048, 2048, TextureFormat = TextureFormat.RGBA32)]
