@@ -9,17 +9,20 @@ const uint2 neighbors[] = {
     uint2(-1,1),
     uint2(-1,-1)
 };
-void SampleNeighbors(uint2 pixel, out float4 col)
-{
-    col = 0;
-    for(int i = 0; i < 4; i++)
-    {
-        const uint2 neighborPixel = pixel + neighbors[i];
-        const float4 neighborColor = Result[neighborPixel*3];
-        // const float thres = 0.001;
-        // if(neighborColor.r > thres || neighborColor.g > thres || neighborColor.b > thres)
-        {
-            col += neighborColor;
-        }
-    }
-}
+// void FindBrightestNeighborRed(RWTexture2D<float4> tex, uint2 pixel, int maxDistance, out float brightness, out int neighborDist)
+// {
+//     brightness = 0;
+//     for(int k = 1; k <= maxDistance; k++)
+//     {
+//         for(int i = 0; i < 8; i++)
+//         {
+//             const uint2 neighborPixel = pixel + neighbors[i];
+//             const float4 neighborColor = tex[neighborPixel*distance];
+//             if(neighborColor.r > 0)
+//             {
+//             
+//                 return;
+//             }
+//         }
+//     }
+// }

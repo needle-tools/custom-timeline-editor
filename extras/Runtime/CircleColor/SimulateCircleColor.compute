@@ -1,5 +1,7 @@
 ﻿#pragma kernel CSSimulate
+#pragma kernel CSDistanceField
 #pragma kernel CSRenderEntities
+#pragma kernel CSRenderData
 
 struct Circle
 {
@@ -10,12 +12,19 @@ struct Circle
 float2 WorldScale;
 float4 _Time;
 RWStructuredBuffer<Circle> Circles; 
-RWTexture2D<float4> Result, DataTexture;
+RWTexture2D<float4> Result, DataTexture, DataTextureBig;
 
+struct Direction
+{
+    float3 Start;
+    float3 End;
+};
+RWStructuredBuffer<Direction> Directions; 
 
 struct Entity
 {
     float3 Position;
+    float2 StartPosition;
     float Energy;
 };
 RWStructuredBuffer<Entity> Entities;
@@ -51,65 +60,119 @@ void CSSimulate(uint3 id : SV_DispatchThreadID)
         if(length(entity.Position - circle.Position) < circle.Radius)
         {
             inCircleRadius = true;
-            entity.Energy += _Time.w;
-            entity.Position = lerp(entity.Position, circle.Position, _Time.w * .1);
+            // entity.Energy -= _Time.w;
+            entity.Position = lerp(entity.Position, circle.Position, _Time.w * 1);
+            break;
         }
     }
-    if(!inCircleRadius)
+    // if(!inCircleRadius)
     {
-        entity.Energy -= _Time.w;
+        // entity.Energy += _Time.w;
+        entity.Position.xy = lerp(entity.Position.xy, entity.StartPosition, _Time.w *2);
     }
+    
+    uint directionsCount;
+    Directions.GetDimensions(directionsCount, _);
+    for(uint d = 0; d < directionsCount; d++)
+    {
+        Direction dir = Directions[d];
+        float3 vec = dir.End - dir.Start;
+        float3 center = dir.Start + vec * .5;
+        if(length(center - entity.Position) < 1)
+        {
+            entity.Position += vec * _Time.w ;
+            break;
+        }
+    }
+    
     Entities[id.x] = entity;
 }
+
+[numthreads(32,32,1)]
+void CSDistanceField(uint3 id : SV_DispatchThreadID)
+{
+    uint _;
+    uint width, height; 
+    DataTexture.GetDimensions(width, height);
+    const uint2 pixel = id.xy;
+
+    float2 uv = id.xy/float2(width,height);
+    float2 world = (uv - .5) * WorldScale;
+    
+    uint entCount;
+    Entities.GetDimensions(entCount, _);
+    
+    float closestDistance = 9999;
+    Entity closest;
+    for(uint i = 0; i < entCount; i++)
+    {
+        Entity ent = Entities[i];
+        float dist = length(world - ent.Position.xy);
+        if(dist < closestDistance)
+        {
+            closest = ent;
+            closestDistance = dist;
+        }
+    }
+    float r = 1 - closestDistance;
+    r = saturate(r);
+    r *= r;
+
+
+    DataTexture[pixel] = float4(r, 0, closestDistance,1);
+}
+
 
 [numthreads(32,1,1)]
 void CSRenderEntities(uint3 id : SV_DispatchThreadID)
 {
-    uint _;    
-    uint entCount;
-    Entities.GetDimensions(entCount, _);
-    if(id.x > entCount) return;
-
-    Entity entity = Entities[id.x];
-    float2 uv = entity.Position.xy / WorldScale + .5;
-    if(uv.x < 0 || uv.y < 0) return;
+    // uint _;    
+    // uint entCount;
+    // Entities.GetDimensions(entCount, _);
+    // if(id.x > entCount) return;
+    //
+    // Entity entity = Entities[id.x];
+    // float2 uv = entity.Position.xy / WorldScale + .5;
+    // if(uv.x < 0 || uv.y < 0) return;
+    //
+    // uint width, height; 
+    // Result.GetDimensions(width, height);
+    // const uint2 pixel = uv * uint2(width, height);
+    // Result[pixel] = 1;
     
-    uint width, height; 
-    Result.GetDimensions(width, height);
-    const uint2 pixel = uv * uint2(width, height);
-    
-    Result[pixel] = 1;
-
-    
-    DataTexture.GetDimensions(width, height);
-    const uint2 pixel2 = uv * uint2(width, height);
-    float4 data = DataTexture[pixel2];
-    data.r += .5 * _Time.w;
-    DataTexture[pixel2] = data;
+    // DataTexture.GetDimensions(width, height);
+    // const uint2 pixel2 = uv * uint2(width, height);
+    // float4 data = DataTexture[pixel2];
+    // data.r += .5 * _Time.w;
+    // DataTexture[pixel2] = data;
 }
 
-// [numthreads(32,32,1)]
-// void CSRender(uint3 id : SV_DispatchThreadID)
-// {
-//     uint _;
-//     uint width, height; 
-//     Result.GetDimensions(width, height);
-//     float2 uv = id.xy/float2(width,height);
-//     float4 cur = Result[id.xy];
-//     float2 world = (uv - .5) * WorldScale;
-//
-//     cur = lerp(cur, 0, _Time.w);;
-//     
-//     uint entCount;
-//     Entities.GetDimensions(entCount, _);
-//     for(uint i = id.x; i < entCount; i++)
-//     {
-//         Entity entity = Entities[i];
-//         if(length(entity.Position.xy - world) < .01)
-//         {
-//             cur += 1 * _Time.w;// entity.Energy;
-//         }
-//     }
-//
-//     Result[id.xy] = cur;
-// }
+[numthreads(32,32,1)]
+void CSRenderData(uint3 id : SV_DispatchThreadID)
+{
+    uint _;
+    uint width, height; 
+    Result.GetDimensions(width, height);
+    float2 uv = id.xy/float2(width,height);
+    // float4 cur = Result[id.xy];
+    
+    DataTextureBig.GetDimensions(width, height);
+    uint2 pixelData = uv * uint2(width,height);
+    float4 data = DataTextureBig[pixelData];
+    float r = data.r;
+    
+    if(r > .5)// data.b*8)
+    {
+        float f = sin(r*100) * .5 + .5;
+        r = f * f * f;
+        r = 1 - r;
+    }
+    if(data.b < 0.1)
+    {
+       r *= sin(data.b*60) * .5 + .5;
+    }
+
+    r *= 1-step(data.r, .55);
+    
+    Result[id.xy] = r;// * float4(1,1, data.b*10, 1);
+}

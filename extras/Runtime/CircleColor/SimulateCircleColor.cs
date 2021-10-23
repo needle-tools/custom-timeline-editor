@@ -13,8 +13,9 @@ public class SimulateCircleColor : Animated, IOnionSkin
 
 	[Animate] public List<Circle> Circles;
 	[Animate, ShaderField("Dots")] public List<ColorDot> ColorDots; 
+	[Animate] public List<Direction> Directions;
 
-	private const int entitiesCount = 20000;  
+	public int EntitiesCount = 20000;  
 	
 	[Manual]
 	public ComputeBuffer? Entities; 
@@ -22,13 +23,17 @@ public class SimulateCircleColor : Animated, IOnionSkin
 	public struct Entity
 	{
 		public Vector3 Position;
+		public Vector2 StartPosition;
 		public float Energy;
 	}
 	
 	[TextureInfo(128, 128, TextureFormat = TextureFormat.RGBA32)]
 	public RenderTexture DataTexture; 
-
+	
 	[TextureInfo(1024, 1024, TextureFormat = TextureFormat.RGBA32)]
+	public RenderTexture DataTextureBig; 
+
+	[TextureInfo(2048, 2048, TextureFormat = TextureFormat.RGBA32)]
 	public RenderTexture Result; 
 
 	public Vector2 WorldScale;
@@ -45,7 +50,7 @@ public class SimulateCircleColor : Animated, IOnionSkin
 		{
 			Gizmos.color = data.GetColor(Color);
 			Gizmos.DrawWireSphere(Position, Weight * .1f);
-		}
+		} 
 
 		public void OnToolEvent(ToolStage stage, IToolData? data)
 		{
@@ -59,37 +64,45 @@ public class SimulateCircleColor : Animated, IOnionSkin
 
 	public override void OnReset()
 	{
-		base.OnReset();
+		base.OnReset(); 
 		Entities?.Dispose();
 		Entities = null;
 		if (Result) Graphics.Blit(Texture2D.blackTexture, Result);
 		if (DataTexture) Graphics.Blit(Texture2D.blackTexture, DataTexture);
 	}
 
-	protected override IEnumerable<DispatchInfo> OnDispatch()
+	protected override void OnBeforeDispatching()
 	{
 		if (Output) 
 		{
 			var lossyScale = Output.transform.lossyScale;
 			WorldScale = new Vector2(lossyScale.x, lossyScale.y); 
 		}
-		if (Entities?.IsValid() == false || Entities?.count != entitiesCount)
+		if (Entities?.IsValid() == false || Entities?.count != EntitiesCount)
 		{
-			Entities = Resources.ComputeBufferProvider.GetBuffer(nameof(Entities), entitiesCount, typeof(Entity).GetStride(), ComputeBufferType.Structured);
-			var entities = new Entity[entitiesCount];
-			for (var i = 0; i < Entities.count; i++)
+			Entities = Resources.ComputeBufferProvider.GetBuffer(nameof(Entities), EntitiesCount, typeof(Entity).GetStride(), ComputeBufferType.Structured);
+			var entities = new Entity[EntitiesCount];
+			for (var i = 0; i < EntitiesCount; i++)
 			{
-				entities[i] = new Entity()
+				var ent = new Entity()
 				{
-					Position = Random.insideUnitCircle*5
+					Position = Random.insideUnitCircle * WorldScale.x * .5f
 				};
+				ent.StartPosition = ent.Position;
+				entities[i] = ent;
 			}
-			Entities.SetData(entities); 
+			Entities.SetData(entities);  
 		}
-		yield return new DispatchInfo() { KernelIndex = 0, GroupsX = entitiesCount }; 
+	}
+
+	protected override IEnumerable<DispatchInfo> OnDispatch()
+	{
+		yield return new DispatchInfo { KernelIndex = 0, GroupsX = EntitiesCount }; 
 		if (Result) Graphics.Blit(Texture2D.blackTexture, Result);
-		// if (DataTexture) Graphics.Blit(Texture2D.blackTexture, DataTexture);
-		yield return new DispatchInfo() { KernelName = "CSRenderEntities", GroupsX = entitiesCount };
+		// yield return new DispatchInfo { KernelName = "CSRenderEntities", GroupsX = EntitiesCount };
+		yield return new DispatchInfo { KernelName = "CSDistanceField", GroupsX = DataTexture.width, GroupsY = DataTexture.height}; 
+		Graphics.Blit(DataTexture, DataTextureBig);
+		yield return new DispatchInfo { KernelName = "CSRenderData", GroupsX = Result.width, GroupsY = Result.height}; 
 	}
 
 	protected override void OnAfterEvaluation()
@@ -103,10 +116,10 @@ public class SimulateCircleColor : Animated, IOnionSkin
 			Output.SetPropertyBlock(outputBlock);
 		}
 
-		if (Data && DataTexture)
+		if (Data && DataTextureBig)
 		{
 			dataBlock ??= new MaterialPropertyBlock();
-			dataBlock.SetTexture("_MainTex", DataTexture);
+			dataBlock.SetTexture("_MainTex", DataTextureBig);
 			Data.SetPropertyBlock(dataBlock);
 		}
 	}
@@ -132,6 +145,14 @@ public class SimulateCircleColor : Animated, IOnionSkin
 		{
 			Gizmos.color = Color.Lerp(Color.gray, data.ColorOnion, data.WeightOnion);
 			foreach (var c in ColorDots)
+			{
+				c.RenderOnionSkin(data);
+			}
+		}
+		if (Directions != null)
+		{
+			Gizmos.color = Color.Lerp(Color.gray, data.ColorOnion, data.WeightOnion);
+			foreach (var c in Directions)
 			{
 				c.RenderOnionSkin(data);
 			}

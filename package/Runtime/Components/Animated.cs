@@ -115,9 +115,18 @@ namespace Needle.Timeline
 			using (evaluateMarker.Auto())
 			{
 				var didDispatchAny = false;
+
+				void BeforeDispatch()
+				{
+					if(!didDispatchAny)
+						OnBeforeDispatching();
+					didDispatchAny = true;
+				}
+				
+				
 				foreach (var dispatch in OnDispatch())
 				{
-					didDispatchAny = true;
+					BeforeDispatch();
 					DispatchNow(dispatch);
 					OnDispatched(dispatch);
 				}
@@ -133,7 +142,7 @@ namespace Needle.Timeline
 						shader.Bind(GetType(), bindings, resources);
 						foreach (var k in shader.Kernels)
 						{
-							didDispatchAny = true;
+							BeforeDispatch();
 							Debug.Log("Dispatch " + k.Name);
 							shader.Dispatch(this, k.Index, bindings);
 						}
@@ -145,6 +154,11 @@ namespace Needle.Timeline
 					OnAfterEvaluation();
 				}
 			}
+		}
+
+		protected virtual void OnBeforeDispatching()
+		{
+			
 		}
 
 		protected virtual void OnDispatched(DispatchInfo info)

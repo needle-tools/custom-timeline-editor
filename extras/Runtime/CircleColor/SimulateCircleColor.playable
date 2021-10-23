@@ -88,7 +88,7 @@ MonoBehaviour:
     m_Start: 0
     m_ClipIn: 0
     m_Asset: {fileID: -6989887361970057391}
-    m_Duration: 6.766666666666667
+    m_Duration: 12.883333333333333
     m_TimeScale: 1
     m_ParentTrack: {fileID: -2294418804253643794}
     m_EaseInDuration: 0
@@ -155,7 +155,7 @@ MonoBehaviour:
     m_DisplayName: SimulateCircleColor
   m_Markers:
     m_Objects: []
-  dirtyCount: 115904
+  dirtyCount: 117121
   clips:
   - id: eda0e4cb5140de24889234fc5613a0cb@-88420583372947174_AnimatedPoints_0
     clip: {fileID: 0}

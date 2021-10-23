@@ -46,10 +46,9 @@ namespace _Sample._Sample
 
 			if (Lines != null)
 			{
-				Gizmos.color = Color.Lerp(Color.gray, data.ColorOnion, data.WeightOnion);
 				foreach (var line in Lines)
 				{
-					line.DrawGizmos();
+					line.RenderOnionSkin(data);
 				}
 			}
 

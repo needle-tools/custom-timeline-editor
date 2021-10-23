@@ -5,7 +5,7 @@ using UnityEditor;
 using UnityEngine;
 
 
-public struct Direction : ICustomControls, IToolEvents
+public struct Direction : ICustomControls, IToolEvents, IOnionSkin
 {
 	public Vector3 Start;
 	public Vector3 End;
@@ -51,8 +51,9 @@ public struct Direction : ICustomControls, IToolEvents
 #endif
 	}
 
-	public void DrawGizmos()
+	public void RenderOnionSkin(IOnionData data)
 	{
+		Gizmos.color = Color.Lerp(Color.gray, data.ColorOnion, data.WeightOnion);
 		Gizmos.DrawLine(Start, End);
 		var dir = End - Start;
 		var ort = Vector3.Cross(dir * .1f, Vector3.forward);
