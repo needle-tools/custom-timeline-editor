@@ -8,6 +8,7 @@ using UnityEditor;
 using UnityEditor.Timeline;
 using UnityEngine;
 using UnityEngine.Timeline;
+using Task = System.Threading.Tasks.Task;
 
 namespace Needle.Timeline
 {
@@ -78,7 +79,12 @@ namespace Needle.Timeline
 								var style = recordButtonStyle;
 								if (rec.IsRecording)
 								{
-									TimelineEditor.GetWindow().Repaint();
+									async void RepaintDelayed()
+									{
+										await Task.Delay(200);
+										TimelineEditor.GetWindow().Repaint();
+									}
+									RepaintDelayed();
 									var remainder = Time.realtimeSinceStartup % 1;
 									if (remainder < 0.22f)
 										style = GUIStyle.none;
