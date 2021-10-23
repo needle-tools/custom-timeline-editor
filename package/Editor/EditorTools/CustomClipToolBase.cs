@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Profiling;
 using UnityEditor;
 using UnityEditor.EditorTools;
 using UnityEngine;
@@ -125,17 +126,24 @@ namespace Needle.Timeline
 
 		protected abstract bool OnSupports(Type type);
 
+		private ProfilerMarker toolInputMarker;
+
 		protected void OnInput(EditorWindow window)
 		{
-			_useEventDelayed = false;
-			OnHandleInput();
-			if (_useEventDelayed)
-				UseEvent();
+			using (toolInputMarker.Auto())
+			{
+				_useEventDelayed = false;
+				OnHandleInput();
+				if (_useEventDelayed)
+					UseEvent();
+			}
+			
 		}
 
 
 		protected virtual void OnAttach(VisualElement element)
 		{
+			toolInputMarker = new ProfilerMarker(this.GetType().Name + "." + nameof(OnInput));
 		}
 
 		protected virtual void OnDetach(VisualElement element)

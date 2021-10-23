@@ -3,6 +3,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Unity.Profiling;
 using UnityEngine;
 
 namespace Needle.Timeline
@@ -85,6 +86,8 @@ namespace Needle.Timeline
 					shaderInfos[index] = info;
 				}
 			}
+
+			evaluateMarker = new ProfilerMarker(GetType().Name + "." + nameof(OnInternalEvaluate));
 		}
 
 		protected IResourceProvider Resources => resources;
@@ -94,6 +97,7 @@ namespace Needle.Timeline
 		private readonly List<ComputeShaderInfo?> shaderInfos = new List<ComputeShaderInfo?>();
 		private readonly List<ComputeShaderBinding> bindings = new List<ComputeShaderBinding>();
 		private readonly IResourceProvider resources = ResourceProvider.CreateDefault();
+		private ProfilerMarker evaluateMarker;
 
 		public virtual void OnReset()
 		{
@@ -108,35 +112,38 @@ namespace Needle.Timeline
 		{
 			if (!didSearchFields) InternalInit();
 
-			var didDispatchAny = false;
-			foreach (var dispatch in OnDispatch())
+			using (evaluateMarker.Auto())
 			{
-				didDispatchAny = true;
-				DispatchNow(dispatch);
-				OnDispatched(dispatch);
-			}
-
-			if (!didDispatchAny)
-			{
-				for (var index = 0; index < shaderInfos.Count; index++)
+				var didDispatchAny = false;
+				foreach (var dispatch in OnDispatch())
 				{
-					var shader = shaderInfos[index];
-					if (shader == null) continue;
-					this.SetTime(shader.Shader);
-					bindings.Clear();
-					shader.Bind(GetType(), bindings, resources);
-					foreach (var k in shader.Kernels)
+					didDispatchAny = true;
+					DispatchNow(dispatch);
+					OnDispatched(dispatch);
+				}
+
+				if (!didDispatchAny)
+				{
+					for (var index = 0; index < shaderInfos.Count; index++)
 					{
-						didDispatchAny = true;
-						Debug.Log("Dispatch " + k.Name);
-						shader.Dispatch(this, k.Index, bindings);
+						var shader = shaderInfos[index];
+						if (shader == null) continue;
+						this.SetTime(shader.Shader);
+						bindings.Clear();
+						shader.Bind(GetType(), bindings, resources);
+						foreach (var k in shader.Kernels)
+						{
+							didDispatchAny = true;
+							Debug.Log("Dispatch " + k.Name);
+							shader.Dispatch(this, k.Index, bindings);
+						}
 					}
 				}
-			}
 
-			if (didDispatchAny)
-			{
-				OnAfterEvaluation();
+				if (didDispatchAny)
+				{
+					OnAfterEvaluation();
+				}
 			}
 		}
 
@@ -148,9 +155,10 @@ namespace Needle.Timeline
 		{
 		}
 
-		private void DispatchNow(DispatchInfo info)
+		private bool DispatchNow(DispatchInfo info)
 		{
-			if (!info.IsValid) return;
+			if (!info.IsValid) return false;
+			var foundKernel = false;
 			for (var index = 0; index < shaderInfos.Count; index++)
 			{
 				var shader = shaderInfos[index];
@@ -162,6 +170,7 @@ namespace Needle.Timeline
 					return x.Name == info.KernelName;
 				});
 				if (kernel == null) continue;
+				foundKernel = true;
 				this.SetTime(shader.Shader);
 				bindings.Clear();
 				shader.Bind(GetType(), bindings, resources);
@@ -183,8 +192,17 @@ namespace Needle.Timeline
 
 				shader.Dispatch(this, kernel.Index, bindings,
 					new Vector3Int(info.GroupsX.GetValueOrDefault(), info.GroupsY.GetValueOrDefault(), info.GroupsZ.GetValueOrDefault()));
-				return;
+				foundKernel = true;
+				break;
 			}
+			if (!foundKernel)
+			{
+				var msg = "Failed finding kernel ";
+				if (info.ShaderName != null) msg += info.ShaderName + " : ";
+				msg += info.KernelName ?? info.KernelIndex.ToString();
+				Debug.LogWarning(msg, this);
+			}
+			return foundKernel;
 		}
 
 		public struct DispatchInfo
