@@ -1,5 +1,5 @@
 ﻿#pragma kernel CSSimulate
-#pragma kernel CSRender
+#pragma kernel CSRenderEntities
 
 struct Circle
 {
@@ -10,7 +10,7 @@ struct Circle
 float2 WorldScale;
 float4 _Time;
 RWStructuredBuffer<Circle> Circles; 
-RWTexture2D<float4> Result;
+RWTexture2D<float4> Result, DataTexture;
 
 
 struct Entity
@@ -44,7 +44,7 @@ void CSSimulate(uint3 id : SV_DispatchThreadID)
     Circles.GetDimensions(circlesCount, _);
     
     Entity entity = Entities[id.x];
-    bool inCircleRadius = false;
+    bool inCircleRadius = false; 
     for(uint k = 0; k < circlesCount; k++)
     {
         Circle circle = Circles[k];
@@ -62,30 +62,48 @@ void CSSimulate(uint3 id : SV_DispatchThreadID)
     Entities[id.x] = entity;
 }
 
-
-
-[numthreads(8,8,1)]
-void CSRender(uint3 id : SV_DispatchThreadID)
+[numthreads(32,1,1)]
+void CSRenderEntities(uint3 id : SV_DispatchThreadID)
 {
     uint _;
-    uint width, height; 
-    Result.GetDimensions(width, height);
-    float2 uv = id.xy/float2(width,height);
-    float4 cur = Result[id.xy];
-    float2 world = (uv - .5) * WorldScale;
-
-    cur = lerp(cur, 0, _Time.w);;
-    
     uint entCount;
     Entities.GetDimensions(entCount, _);
-    for(uint i = 0; i < entCount; i++)
-    {
-        Entity entity = Entities[i];
-        if(length(entity.Position.xy - world) < .01)
-        {
-            cur += 1 * _Time.w;// entity.Energy;
-        }
-    }
+    if(id.x > entCount) return;
 
-    Result[id.xy] = cur;
+    Entity entity = Entities[id.x];
+    float2 uv = entity.Position.xy / WorldScale + .5;
+    if(uv.x < 0 || uv.y < 0) return;
+    
+    uint width, height; 
+    Result.GetDimensions(width, height);
+    const uint2 pixel = uv * uint2(width, height);
+    
+    Result[pixel] = 1;
+    DataTexture[pixel] = float4(1,0,0,0);
 }
+
+// [numthreads(32,32,1)]
+// void CSRender(uint3 id : SV_DispatchThreadID)
+// {
+//     uint _;
+//     uint width, height; 
+//     Result.GetDimensions(width, height);
+//     float2 uv = id.xy/float2(width,height);
+//     float4 cur = Result[id.xy];
+//     float2 world = (uv - .5) * WorldScale;
+//
+//     cur = lerp(cur, 0, _Time.w);;
+//     
+//     uint entCount;
+//     Entities.GetDimensions(entCount, _);
+//     for(uint i = id.x; i < entCount; i++)
+//     {
+//         Entity entity = Entities[i];
+//         if(length(entity.Position.xy - world) < .01)
+//         {
+//             cur += 1 * _Time.w;// entity.Energy;
+//         }
+//     }
+//
+//     Result[id.xy] = cur;
+// }

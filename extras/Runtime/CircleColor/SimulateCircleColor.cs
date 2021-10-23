@@ -12,9 +12,9 @@ public class SimulateCircleColor : Animated, IOnionSkin
 	public ComputeShader Shader;
 
 	[Animate] public List<Circle> Circles;
-	[Animate, ShaderField("Dots")] public List<ColorDot> ColorDots;
+	[Animate, ShaderField("Dots")] public List<ColorDot> ColorDots; 
 
-	private const int entitiesCount = 20000;
+	private const int entitiesCount = 20000;  
 	
 	[Manual]
 	public ComputeBuffer? Entities; 
@@ -24,13 +24,16 @@ public class SimulateCircleColor : Animated, IOnionSkin
 		public Vector3 Position;
 		public float Energy;
 	}
+	
+	[TextureInfo(1024, 1024, TextureFormat = TextureFormat.RGBA32)]
+	public RenderTexture DataTexture; 
 
 	[TextureInfo(1024, 1024, TextureFormat = TextureFormat.RGBA32)]
 	public RenderTexture Result; 
 
 	public Vector2 WorldScale;
 
-	[Header("Debug")] public Renderer Output;
+	[Header("Debug")] public Renderer Output, Data;
 
 	public struct ColorDot : IOnionSkin, IToolEvents
 	{
@@ -60,6 +63,7 @@ public class SimulateCircleColor : Animated, IOnionSkin
 		Entities?.Dispose();
 		Entities = null;
 		if (Result) Graphics.Blit(Texture2D.blackTexture, Result);
+		if (DataTexture) Graphics.Blit(Texture2D.blackTexture, DataTexture);
 	}
 
 	protected override IEnumerable<DispatchInfo> OnDispatch()
@@ -83,18 +87,29 @@ public class SimulateCircleColor : Animated, IOnionSkin
 			Entities.SetData(entities); 
 		}
 		yield return new DispatchInfo() { KernelIndex = 0, GroupsX = entitiesCount }; 
-		yield return new DispatchInfo() { KernelName = "CSRender", GroupsX = 1024, GroupsY = 1024 };
+		yield return new DispatchInfo() { KernelName = "CSRenderEntities", GroupsX = entitiesCount };
 	}
 
 	protected override void OnAfterEvaluation()
 	{
 		base.OnAfterEvaluation();
-		block ??= new MaterialPropertyBlock();
-		block.SetTexture("_MainTex", Result);
-		Output.SetPropertyBlock(block);
+
+		if (Output && Result)
+		{
+			outputBlock ??= new MaterialPropertyBlock();
+			outputBlock.SetTexture("_MainTex", Result);
+			Output.SetPropertyBlock(outputBlock);
+		}
+
+		if (Data && DataTexture)
+		{
+			dataBlock ??= new MaterialPropertyBlock();
+			dataBlock.SetTexture("_MainTex", DataTexture);
+			Data.SetPropertyBlock(dataBlock);
+		}
 	}
 
-	private MaterialPropertyBlock block;
+	private MaterialPropertyBlock? outputBlock, dataBlock;
 
 	private void OnDrawGizmos()
 	{
