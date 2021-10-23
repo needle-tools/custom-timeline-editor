@@ -13,12 +13,14 @@ namespace Needle.Timeline
 {
 	internal static class TimelineBuffer
 	{
+		public static bool DebugLog;
+
 		public static bool Enabled
 		{
 			get => CustomTimelineSettings.Instance.AllowBuffering;
 			set => CustomTimelineSettings.Instance.AllowBuffering = value;
 		}
-		
+
 		[InitializeOnLoadMethod]
 		private static void Init()
 		{
@@ -27,6 +29,7 @@ namespace Needle.Timeline
 		}
 
 		private static int timeChangedId;
+
 		private static async void OnTimeChanged(PlayableDirector dir, double d)
 		{
 			if (isBuffering) return;
@@ -35,9 +38,10 @@ namespace Needle.Timeline
 			var timeChangeId = ++timeChangedId;
 			await Task.Delay(20);
 			if (isBuffering || id != bufferRequestId || timeChangeId != timeChangedId) return;
-			Debug.Log("Time changed");
+			if (DebugLog)
+				Debug.Log("Time changed");
 			var diff = Mathf.Abs((float)(dir.time - evtTime));
-			if(diff > .001f)
+			if (diff > .001f)
 			{
 				if (dir.state == PlayState.Playing) return;
 				await RequestBufferCurrentInspectedTimeline();
@@ -55,28 +59,33 @@ namespace Needle.Timeline
 
 
 		private static int bufferRequestId;
+
 		internal static async Task RequestBufferCurrentInspectedTimeline(float? seconds = null, double? fromTime = null)
 		{
 			var id = ++bufferRequestId;
 			var timeId = timeChangedId;
-			Debug.Log("Request buffering");
+			if (DebugLog)
+				Debug.Log("Request buffering");
 			await Task.Delay(100);
 			if (id != bufferRequestId || timeChangedId != timeId) return;
 			var dir = TimelineEditor.inspectedDirector;
-			if (dir != null)// && dir.state != PlayState.Playing)
+			if (dir != null) // && dir.state != PlayState.Playing)
 			{
 				await Buffer(dir, seconds, fromTime);
 			}
 		}
 
 		private static bool isBuffering = false;
+
 		private static Task Buffer(PlayableDirector dir, float? seconds = null, double? fromTime = null)
 		{
 			if (!Enabled) return Task.CompletedTask;
 			if (isBuffering) return Task.CompletedTask;
 			isBuffering = true;
-			Debug.Log("BUFFER");
 			
+			if (DebugLog)
+				Debug.Log("BUFFER");
+
 			foreach (var clip in ClipInfoViewModel.Instances)
 			{
 				if (clip.Script is IAnimatedEvents evt)
@@ -88,7 +97,7 @@ namespace Needle.Timeline
 			var sec = seconds ?? CustomTimelineSettings.Instance.DefaultBufferLenght;
 			var startTime = targetTime - sec;
 			var frames = Mathf.CeilToInt(sec * 120f);
-			IAnimatedExtensions.deltaTimeOverride =  1/120f;
+			IAnimatedExtensions.deltaTimeOverride = 1 / 120f;
 			var state = dir.state;
 			if (state != PlayState.Playing) dir.Play();
 			var sw = new Stopwatch();
@@ -100,8 +109,8 @@ namespace Needle.Timeline
 				if (time < 0) continue;
 				if (i == frames) time = targetTime;
 				dir.time = time;
-				dir.Evaluate(); 
-				
+				dir.Evaluate();
+
 				if (sw.ElapsedMilliseconds > 1000)
 				{
 					abortBuffer = true;
@@ -110,7 +119,7 @@ namespace Needle.Timeline
 				}
 			}
 			dir.time = targetTime;
-			if(!abortBuffer)
+			if (!abortBuffer)
 				dir.Evaluate();
 			IAnimatedExtensions.deltaTimeOverride = null;
 

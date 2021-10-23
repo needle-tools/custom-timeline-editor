@@ -70,9 +70,9 @@ namespace Needle.Timeline
 				ComputeShaderInfo? info;
 				var shader = cs.GetValue(this) as ComputeShader;
 
-
 				if (shader)
 				{
+					shader.StartWatching(() => didSearchFields = false);
 					shader.TryParse(out info);
 				}
 				else info = null;

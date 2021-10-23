@@ -65,7 +65,7 @@ void CSSimulate(uint3 id : SV_DispatchThreadID)
 [numthreads(32,1,1)]
 void CSRenderEntities(uint3 id : SV_DispatchThreadID)
 {
-    uint _;
+    uint _;    
     uint entCount;
     Entities.GetDimensions(entCount, _);
     if(id.x > entCount) return;
@@ -79,7 +79,13 @@ void CSRenderEntities(uint3 id : SV_DispatchThreadID)
     const uint2 pixel = uv * uint2(width, height);
     
     Result[pixel] = 1;
-    DataTexture[pixel] = float4(1,0,0,0);
+
+    
+    DataTexture.GetDimensions(width, height);
+    const uint2 pixel2 = uv * uint2(width, height);
+    float4 data = DataTexture[pixel2];
+    data.r += .5 * _Time.w;
+    DataTexture[pixel2] = data;
 }
 
 // [numthreads(32,32,1)]

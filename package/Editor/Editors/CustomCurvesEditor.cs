@@ -81,12 +81,12 @@ namespace Needle.Timeline
 								{
 									async void RepaintDelayed()
 									{
-										await Task.Delay(200);
+										await Task.Delay(300);
 										TimelineEditor.GetWindow().Repaint();
 									}
 									RepaintDelayed();
 									var remainder = Time.realtimeSinceStartup % 1;
-									if (remainder < 0.22f)
+									if (remainder > 0.78f)
 										style = GUIStyle.none;
 								}
 								var recButtonWidth = new Rect(r);

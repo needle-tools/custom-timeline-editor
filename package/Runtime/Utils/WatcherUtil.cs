@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
@@ -8,23 +9,24 @@ namespace Needle.Timeline
 {
 	internal static class UpdateWatcherUtil
 	{
-		internal static void Register(Object obj)
+		internal static void Register(Object obj, Action callback)
 		{
 			var id = GetId(obj);
 			if (id == null) return;
-			if (watchList.Contains(id)) return;
+			var entry = (id, callback);
+			if (watchList.Contains(entry)) return;
 			Debug.Log("Start watching " + obj, obj);
-			watchList.Add(id);
+			watchList.Add(entry);
 		}
 
-		internal static void Unregister(Object obj)
+		internal static void Unregister(Object obj, Action callback)
 		{
 			var id = GetId(obj);
 			if (id == null) return;
-			watchList.Remove(id);
+			watchList.Remove((id, callback));
 		}
 
-		private static readonly List<string> watchList = new List<string>();
+		private static readonly List<(string id, Action callback)> watchList = new List<(string id, Action callback)>();
 
 		private static string GetId(Object obj)
 		{
@@ -47,13 +49,19 @@ namespace Needle.Timeline
 				foreach (var ch in changedAssets)
 				{
 					var path = AssetDatabase.AssetPathToGUID(ch);
-					if (watchList.Contains(path))
+					foreach (var e in watchList)
 					{
-						Debug.Log("CHANGED: " +ch);
+						if (e.id == path)
+						{
+							Debug.Log("CHANGED: " + ch);
+							if(e.callback != null) e.callback.Invoke();
+							else if (TimelineBuffer.Enabled)
+							{
 #pragma warning disable CS4014
-						if(TimelineBuffer.Enabled)
-							TimelineBuffer.RequestBufferCurrentInspectedTimeline(30);
+								TimelineBuffer.RequestBufferCurrentInspectedTimeline();
 #pragma warning restore CS4014
+							}
+						}
 					}
 
 					if (ch.EndsWith(".compute"))

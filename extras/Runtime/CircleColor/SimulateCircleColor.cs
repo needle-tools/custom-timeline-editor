@@ -25,7 +25,7 @@ public class SimulateCircleColor : Animated, IOnionSkin
 		public float Energy;
 	}
 	
-	[TextureInfo(1024, 1024, TextureFormat = TextureFormat.RGBA32)]
+	[TextureInfo(128, 128, TextureFormat = TextureFormat.RGBA32)]
 	public RenderTexture DataTexture; 
 
 	[TextureInfo(1024, 1024, TextureFormat = TextureFormat.RGBA32)]
@@ -68,7 +68,7 @@ public class SimulateCircleColor : Animated, IOnionSkin
 
 	protected override IEnumerable<DispatchInfo> OnDispatch()
 	{
-		if (Output)
+		if (Output) 
 		{
 			var lossyScale = Output.transform.lossyScale;
 			WorldScale = new Vector2(lossyScale.x, lossyScale.y); 
@@ -87,6 +87,8 @@ public class SimulateCircleColor : Animated, IOnionSkin
 			Entities.SetData(entities); 
 		}
 		yield return new DispatchInfo() { KernelIndex = 0, GroupsX = entitiesCount }; 
+		if (Result) Graphics.Blit(Texture2D.blackTexture, Result);
+		// if (DataTexture) Graphics.Blit(Texture2D.blackTexture, DataTexture);
 		yield return new DispatchInfo() { KernelName = "CSRenderEntities", GroupsX = entitiesCount };
 	}
 

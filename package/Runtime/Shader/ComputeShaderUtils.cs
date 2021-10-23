@@ -15,16 +15,16 @@ namespace Needle.Timeline
 				ComputeShaderChanged?.Invoke(shader);
 		}
 		
-		public static void StartWatching(this ComputeShader shader)
+		public static void StartWatching(this ComputeShader shader, Action callback = null)
 		{
 			if (!shader) return;
-			UpdateWatcherUtil.Register(shader);
+			UpdateWatcherUtil.Register(shader, callback);
 		}
 
-		public static void StopWatching(this ComputeShader shader)
+		public static void StopWatching(this ComputeShader shader, Action callback = null)
 		{
 			if (!shader) return;
-			UpdateWatcherUtil.Unregister(shader);
+			UpdateWatcherUtil.Unregister(shader, callback);
 		}
 		
 		public static void SetTexture(this ComputeShader shader, string kernel, string name, Texture texture)
