@@ -1,18 +1,31 @@
 ﻿
-void DrawLine(float2 start, float2 end, uint width, uint height, RWTexture2D<float4> tex)
+
+
+void DrawLine(RWTexture2D<float4> tex, uint2 texSize, float2 start, float2 end, float4 color)
 {
-    const uint steps = sqrt(width * height) * length(start.xy - end.xy);
+    const uint steps = sqrt(texSize.x*texSize.y) * length(start.xy - end.xy);
     for (uint i = 0; i <= steps; i++)
     {
         float2 pos = lerp(start.xy, end.xy, i / (float)steps);
-        const int2 pixel = (pos.xy + .5) * uint2(width, height);
-        tex[pixel] = float4(1, 0, 0, 1);
+        const int2 pixel = (pos.xy + .5) * texSize;
+        tex[pixel] = color;
     }
 }
 
-void DrawCircle(RWTexture2D<float4> tex, int2 pt)
+void DrawCircle(RWTexture2D<float4> tex, uint2 texSize, float2 center, float radius, float4 color)
 {
-    
+    float sq = radius * radius;
+    const int2 pt = (center.xy + .5) * texSize;
+    for (int x = pt.x - radius; x < pt.x + radius; x++)
+    {
+        for (int y = pt.y - radius; y < pt.y + radius; y++)
+        {
+            if ((pt.x - x) * (pt.x - x) + (pt.y - y) * (pt.y - y) < sq)
+            {
+                tex[uint2(x, y)] = color;
+            }
+        }
+    }
 }
 
 

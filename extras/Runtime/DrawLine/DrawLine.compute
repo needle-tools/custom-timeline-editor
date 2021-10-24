@@ -1,5 +1,4 @@
 ﻿#pragma kernel CSMain
-#pragma kernel CSBlend
 #include "../DrawUtils.cginc"
 
 float4 _Time;
@@ -21,15 +20,24 @@ void CSMain(uint3 id : SV_DispatchThreadID)
 {
     uint width, height;
     Output.GetDimensions(width, height);
-    DrawLine(Start.xy, End.xy, width, height, Output);
+    const uint2 texSize = uint2(width, height);
+
 
     for (uint i = 0; i < DirectionsCount; i++)
     {
         Direction dir = Directions[i];
-        DrawLine(dir.Start.xy, dir.End.xy, width, height, Output);
+        DrawLine(Output, texSize, dir.Start.xy, dir.End.xy, float4(0,1, length(dir.End-dir.Start), .05));
     }
+    
+    DrawCircle(Output, texSize, Start.xy, 10, float4(1,0,0,1)); 
+    DrawCircle(Output, texSize, End.xy, 5, float4(1,0,0,1)); 
+    DrawLine(Output, texSize, Start.xy, End.xy, float4(1,0,0,1));
+ 
 }
 
+
+
+#pragma kernel CSBlend
 [numthreads(32, 32,1)]
 void CSBlend(uint3 id : SV_DispatchThreadID)
 {
