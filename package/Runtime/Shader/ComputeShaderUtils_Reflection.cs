@@ -197,6 +197,7 @@ namespace Needle.Timeline
 			var currentStructInfo = default(ComputeShaderStructInfo);
 			var inKernelFunction = false;
 			var currentKernelMethod = default(ComputeShaderKernelInfo);
+			var commentBlockLevel = 0;
 			Vector3Int? lastKernelThreadsAttributeFound = null;
 			foreach (var _line in txt)
 			{
@@ -240,6 +241,16 @@ namespace Needle.Timeline
 				{
 					blockLevel += 1;
 				}
+				else if (line.StartsWith("/*"))
+				{
+					commentBlockLevel += 1;
+				}
+				else if (line.EndsWith("*/"))
+				{
+					commentBlockLevel -= 1;
+				}
+
+				if (commentBlockLevel > 0) continue;
 
 				if (line.StartsWith("struct"))
 				{
@@ -298,6 +309,7 @@ namespace Needle.Timeline
 					{
 						var fieldGroup = fieldMatch.Groups;
 						var type = fieldGroup["field_type"].Value;
+						if (type.StartsWith("//")) continue;
 						var generics = fieldGroup["generic_type"].Value;
 						var names = fieldMatch.Groups["field_names"].Value;
 						foreach (var _name in names.Split(','))

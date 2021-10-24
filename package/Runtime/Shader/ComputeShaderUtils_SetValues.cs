@@ -96,7 +96,7 @@ namespace Needle.Timeline
 					    ))
 					{
 						success = false;
-						Debug.LogWarning("Did not find " + shaderField);
+						Debug.LogWarning(type + " has no matching field for shader field: " + shaderField);
 					}
 				}
 			}

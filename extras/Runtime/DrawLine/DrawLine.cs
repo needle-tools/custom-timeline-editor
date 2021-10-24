@@ -1,15 +1,18 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Needle.Timeline;
 using UnityEngine;
 
 public class DrawLine : Animated
 {
 	public ComputeShader Shader;
+	[Animate]
+	public List<Direction> Directions;
 	public Transform Start;
 	public Transform End;
 	[TextureInfo(256,256)]
-	public RenderTexture Output;
-	public Renderer Rend;
+	public RenderTexture Output; 
+	public Renderer Rend;  
 
 
 	protected override void OnBeforeDispatching()
@@ -25,7 +28,13 @@ public class DrawLine : Animated
 
 	protected override void OnAfterEvaluation()
 	{
-		base.OnAfterEvaluation();
+		base.OnAfterEvaluation(); 
 		Rend.SetTexture(Output);
+	}
+
+	private void OnDrawGizmos()
+	{
+		if(Directions == null) return;
+		foreach(var dir in Directions) dir.RenderOnionSkin(OnionData.Default);
 	}
 }

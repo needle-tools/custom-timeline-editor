@@ -68,6 +68,7 @@ namespace Needle.Timeline
 						buffer.SetData(backingArray, 0, 0, list.Count);
 					}
 					ShaderInfo.Shader.SetBuffer(kernelIndex, ShaderField.FieldName, buffer);
+					ShaderInfo.Shader.SetInt(ShaderField.FieldName + "Count", list.Count);
 					return true;
 				}
 			}

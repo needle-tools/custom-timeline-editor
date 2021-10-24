@@ -27,6 +27,17 @@ namespace Needle.Timeline.Tests
 		}
 
 		[Test]
+		public static void IgnoreCommentedFields()
+		{
+			var shader = LoadShader("SkipComments");
+			shader.TryParse(out var shaderInfo);
+			Debug.Log(shaderInfo);
+			Assert.NotNull(shaderInfo);
+			shaderInfo.AssertDefaults();
+			Assert.AreEqual(0, shaderInfo.Fields.Count);
+		}
+
+		[Test]
 		public static void FindOneKernelAndOneField()
 		{
 			var shader = LoadShader("ShaderWithOneField");
