@@ -39,7 +39,7 @@ public class DrawLine : Animated
 	protected override IEnumerable<DispatchInfo> OnDispatch()
 	{
 		// yield return new DispatchInfo { KernelIndex = 1, GroupsX = 32, GroupsY = 32};
-		// yield return new DispatchInfo { KernelIndex = 1, GroupsX = Directions?.Count };
+		yield return new DispatchInfo { KernelIndex = 1, GroupsX = Directions?.Count };
 
 		if (Points == null || Points.Count <= 0 || Points.Count != Points_Count)
 		{
