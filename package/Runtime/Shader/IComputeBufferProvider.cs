@@ -14,7 +14,7 @@ namespace Needle.Timeline
 	public interface IRenderTextureProvider : IDisposable
 	{
 		RenderTexture GetTexture(string id, int width, int height, int depth, 
-			GraphicsFormat? graphicsFormat = null, bool? randomWrite = null);
+			GraphicsFormat? graphicsFormat = null, bool? randomWrite = null, Action<RenderTexture> beforeCreate = null);
 	}
 
 	public interface IResourceProvider : IDisposable
@@ -65,7 +65,7 @@ namespace Needle.Timeline
 			cache.Clear(); 
 		}
 
-		public RenderTexture GetTexture(string id, int width, int height, int depth, GraphicsFormat? graphicsFormat = null, bool? randomWrite = null)
+		public RenderTexture GetTexture(string id, int width, int height, int depth, GraphicsFormat? graphicsFormat = null, bool? randomWrite = null, Action<RenderTexture> beforeCreate = null)
 		{
 			if (graphicsFormat == null || graphicsFormat == GraphicsFormat.None)
 			{
@@ -73,12 +73,12 @@ namespace Needle.Timeline
 			}
 			if(cache.TryGetValue(id, out var rt))
 			{
-				rt = rt.SafeCreate(ref rt, width, height, depth, (GraphicsFormat)graphicsFormat, randomWrite ?? false);
+				rt = rt.SafeCreate(ref rt, width, height, depth, (GraphicsFormat)graphicsFormat, randomWrite ?? false, beforeCreate);
 				cache[id] = rt;
 			}
 			else
 			{
-				rt = ComputeBufferUtils.SafeCreate(null, ref rt, width, height, depth, (GraphicsFormat)graphicsFormat, randomWrite ?? false);
+				rt = ComputeBufferUtils.SafeCreate(null, ref rt, width, height, depth, (GraphicsFormat)graphicsFormat, randomWrite ?? false, beforeCreate);
 				cache.Add(id, rt);
 			}
 			return rt;

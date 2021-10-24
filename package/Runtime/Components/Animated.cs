@@ -153,7 +153,7 @@ namespace Needle.Timeline
 							if (info == null) continue;
 							if (info.Width > 0 && info.Height > 0)
 							{
-								kernelSize = new Vector3Int(info.Width, info.Height, info.Depth??1);
+								kernelSize = new Vector3Int(info.Width, info.Height, info.Depth);
 								break;
 							}
 						}

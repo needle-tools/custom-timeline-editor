@@ -24,7 +24,8 @@ namespace Needle.Timeline
 		public readonly int Height;
 		public GraphicsFormat GraphicsFormat;
 		public TextureFormat TextureFormat;
-		public int? Depth;
+		public int Depth = 0;
+		public FilterMode FilterMode = FilterMode.Bilinear;
 
 		public TextureInfo(int width, int height)
 		{

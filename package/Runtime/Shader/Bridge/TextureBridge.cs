@@ -3,20 +3,25 @@ using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
+using Object = UnityEngine.Object;
 
 namespace Needle.Timeline
 {
 	[ShaderBridge(typeof(Texture))]
 	public class TextureBridge : IShaderBridge
 	{
+		private TextureInfo info;
+		
 		public bool SetValue(IBindingContext context)
 		{
 			var field = context.Field;
 			var shaderField = context.ShaderField;
-			var info = field.GetCustomAttribute<TextureInfo>();
+			
+			info ??= field.GetCustomAttribute<TextureInfo>();
 			var value = field.GetValue(context.Instance);
-
-			if (value == null)
+			var tex = value as Texture;
+			var renderTex = value as RenderTexture;
+			if (value == null || !(Object)value || renderTex && (renderTex.width != info.Width || renderTex.height != info.Height))
 			{
 				GraphicsFormat? graphicsFormat = info.GraphicsFormat;
 				if ((int)graphicsFormat == 0)
@@ -46,12 +51,15 @@ namespace Needle.Timeline
 				}
 
 				var rt = context.Resources.RenderTextureProvider.GetTexture(field.Name, info.Width, info.Height,
-					info.Depth.GetValueOrDefault(), graphicsFormat, shaderField.RandomWrite);
-				value = rt;
-				field.SetValue(context.Instance, value);
+					info.Depth, graphicsFormat, shaderField.RandomWrite, rt =>
+					{
+						rt.filterMode = info.FilterMode;
+					});
+				value = tex = rt; 
+				field.SetValue(context.Instance, tex);
 			}
 
-			if (value is Texture tex)
+			if (tex)
 			{
 				context.ShaderInfo.Shader.SetTexture(context.KernelIndex, shaderField.FieldName, tex);
 				return true;

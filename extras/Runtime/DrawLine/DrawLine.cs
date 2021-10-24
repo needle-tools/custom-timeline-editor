@@ -9,15 +9,19 @@ public class DrawLine : Animated
 	[Animate] public List<Direction> Directions;
 	public Transform Start;
 	public Transform End;
-	[TextureInfo(256,256)]
+	[TextureInfo(128,128, FilterMode = FilterMode.Point)]
 	public RenderTexture Output; 
-	public Renderer Rend;  
+	public Renderer Rend;
 
+	protected override void OnBeforeDispatching()
+	{
+		Graphics.Blit(Texture2D.blackTexture, Output);
+	}
 
 	protected override IEnumerable<DispatchInfo> OnDispatch()
 	{
+		// yield return new DispatchInfo { KernelIndex = 1, GroupsX = 32, GroupsY = 32};
 		yield return new DispatchInfo { KernelIndex = 0, GroupsX = 1 };
-		yield return new DispatchInfo { KernelIndex = 1, GroupsX = 256, GroupsY = 256};
 	}
 
 	protected override void OnAfterEvaluation()

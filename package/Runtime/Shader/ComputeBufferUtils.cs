@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
 
@@ -28,13 +29,15 @@ namespace Needle.Timeline
 	
 	public static class ComputeBufferUtils
 	{
-		public static RenderTexture SafeCreate(this RenderTexture _, ref RenderTexture tex, int width, int height, int depth, GraphicsFormat format, bool randomWriteEnabled = false)
+		public static RenderTexture SafeCreate(this RenderTexture _, ref RenderTexture tex, int width, int height, int depth, 
+			GraphicsFormat format, bool randomWriteEnabled = false, Action<RenderTexture> beforeCreate = null)
 		{
 			if (!tex || tex.width != width || tex.height != height || tex.depth != depth || tex.graphicsFormat != format || tex.enableRandomWrite != randomWriteEnabled)
 			{
 				if(tex && tex.IsCreated()) tex.Release();
 				tex = new RenderTexture(width, height, depth, format);
 				tex.enableRandomWrite = randomWriteEnabled;
+				beforeCreate?.Invoke(tex);
 				tex.Create();
 				Debug.Log("Create RT");
 			}
