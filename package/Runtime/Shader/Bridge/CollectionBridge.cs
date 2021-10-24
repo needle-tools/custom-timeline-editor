@@ -25,7 +25,7 @@ namespace Needle.Timeline
 			{
 				throw new NotImplementedException("Field is null but the shader requires this to be set: " + shaderField);
 			}
-			else 
+			else  
 			{
 				var buffer = resources.ComputeBufferProvider.GetBuffer(shaderField.FieldName, list.Count, shaderField.Stride,
 					shaderField.RandomWrite.GetValueOrDefault() ? ComputeBufferType.Structured : ComputeBufferType.Default);
@@ -33,6 +33,7 @@ namespace Needle.Timeline
 				else
 				{
 					// TODO: find better way of setting content to buffer
+					// TODO: this works only for value types, and e.g. a list of transforms would fail
 					list_backingArray ??= list.GetType().GetField("_items", BindingFlags.Instance | BindingFlags.NonPublic);
 					var backingArray = list_backingArray.GetValue(list) as Array;
 					buffer.SetData(backingArray, 0, 0, list.Count);
