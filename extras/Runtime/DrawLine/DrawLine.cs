@@ -14,15 +14,10 @@ public class DrawLine : Animated
 	public Renderer Rend;  
 
 
-	protected override void OnBeforeDispatching()
-	{
-		base.OnBeforeDispatching(); 
-		Graphics.Blit(Texture2D.blackTexture, Output);
-	}
-
 	protected override IEnumerable<DispatchInfo> OnDispatch()
 	{
 		yield return new DispatchInfo { KernelIndex = 0, GroupsX = 1 };
+		yield return new DispatchInfo { KernelIndex = 1, GroupsX = 256, GroupsY = 256};
 	}
 
 	protected override void OnAfterEvaluation()

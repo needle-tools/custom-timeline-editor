@@ -14,6 +14,18 @@ namespace Needle.Timeline.Tests
 		// TODO: add tests with cginc
 		// TODO: add tests with multi_compile
 		
+		[Test]
+		public static void FindKernels()
+		{
+			var shader = LoadShader("FindKernels");
+			shader.TryParse(out var shaderInfo);
+			Assert.NotNull(shaderInfo);
+			Assert.AreEqual(2, shaderInfo.Kernels.Count);
+			Assert.AreEqual(new Vector3Int(1,1,1), shaderInfo.Kernels[0].Threads);
+			Assert.AreEqual(new Vector3Int(1,1,1), shaderInfo.Kernels[1].Threads);
+		}
+		
+		
 		public class TypeWithMissingField{}
 		
 		[Test]

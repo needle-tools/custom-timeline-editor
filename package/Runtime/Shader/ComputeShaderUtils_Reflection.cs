@@ -357,7 +357,7 @@ namespace Needle.Timeline
 			RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.IgnoreCase);
 
 		private static readonly Regex kernelRegex = new Regex("#pragma kernel (?<kernel_name>.+)", RegexOptions.Compiled);
-		private static readonly Regex kernelThreadsRegex = new Regex(@"\[numthreads\((\d+),(\d+),(\d+)\)\]", RegexOptions.Compiled);
+		private static readonly Regex kernelThreadsRegex = new Regex(@"\[numthreads\(\s?(\d+)\s?,\s?(\d+)\s?,\s?(\d+)\s?\)\]", RegexOptions.Compiled);
 
 		private static void SetType(this ComputeShaderFieldInfo field, string typeName)
 		{

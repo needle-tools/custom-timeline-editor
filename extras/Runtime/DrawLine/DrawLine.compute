@@ -1,5 +1,7 @@
 ﻿#pragma kernel CSMain
+#pragma kernel CSBlend
 
+float4 _Time;
 
 float3 Start, End;
 RWTexture2D<float4> Output;
@@ -8,38 +10,41 @@ struct Direction
 {
     float3 Start, End;
 };
+
 StructuredBuffer<Direction> Directions;
 uint DirectionsCount;
 
 void DrawLine(float2 start, float2 end, uint width, uint height)
 {
-    const uint steps = sqrt(width*height) * length(start.xy - end.xy);
-    for(uint i = 0; i <= steps; i++)
+    const uint steps = sqrt(width * height) * length(start.xy - end.xy);
+    for (uint i = 0; i <= steps; i++)
     {
-        float2 pos = lerp(start.xy, end.xy, i/(float)steps);
+        float2 pos = lerp(start.xy, end.xy, i / (float)steps);
         const int2 pixel = (pos.xy + .5) * uint2(width, height);
-        Output[pixel] = 1;
+        Output[pixel] = float4(1, 0, 0, 1);
     }
 }
 
-
 [numthreads(1,1,1)]
-void CSMain(uint3 id : SV_DispatchThreadID) 
+void CSMain(uint3 id : SV_DispatchThreadID)
 {
-    uint width, height; 
+    uint width, height;
     Output.GetDimensions(width, height);
     DrawLine(Start.xy, End.xy, width, height);
-    
-    for(uint i = 0; i < DirectionsCount; i++)
+
+    for (uint i = 0; i < DirectionsCount; i++)
     {
         Direction dir = Directions[i];
         DrawLine(dir.Start.xy, dir.End.xy, width, height);
     }
 }
 
+[numthreads(32, 32,1)]
+void CSBlend(uint3 id : SV_DispatchThreadID)
+{
+    Output[id.xy] = lerp(Output[id.xy], 0, _Time.w*3);
+}
 
-
- 
 
 // float GetDist(float ax, float ay, float bx, float by, float x, float y)
 // {
