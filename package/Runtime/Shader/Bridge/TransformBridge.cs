@@ -2,6 +2,7 @@
 
 namespace Needle.Timeline
 {
+	[ShaderBridge(typeof(Transform))]
 	public class TransformBridge : IShaderBridge
 	{
 		public bool SetValue(IBindingContext context)

@@ -6,6 +6,7 @@ using UnityEngine.Experimental.Rendering;
 
 namespace Needle.Timeline
 {
+	[ShaderBridge(typeof(Texture))]
 	public class TextureBridge : IShaderBridge
 	{
 		public bool SetValue(IBindingContext context)

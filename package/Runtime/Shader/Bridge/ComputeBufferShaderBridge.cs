@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace Needle.Timeline
 {
+	[ShaderBridge(typeof(ComputeBuffer))]
 	public class ComputeBufferBridge : IShaderBridge
 	{
 		public bool SetValue(IBindingContext context)

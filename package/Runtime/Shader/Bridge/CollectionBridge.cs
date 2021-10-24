@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 
 namespace Needle.Timeline
 {
+	[ShaderBridge(typeof(IList))]
 	public class CollectionBridge : IShaderBridge
 	{
 		private FieldInfo list_backingArray;
@@ -21,8 +23,9 @@ namespace Needle.Timeline
 			var list = value as IList;
 			if (list == null)
 			{
+				throw new NotImplementedException("Field is null but the shader requires this to be set: " + shaderField);
 			}
-			else
+			else 
 			{
 				var buffer = resources.ComputeBufferProvider.GetBuffer(shaderField.FieldName, list.Count, shaderField.Stride,
 					shaderField.RandomWrite.GetValueOrDefault() ? ComputeBufferType.Structured : ComputeBufferType.Default);

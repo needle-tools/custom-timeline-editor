@@ -134,7 +134,7 @@ namespace Needle.Timeline
 		{
 			var res = "Name=" + FieldName + ", Type=" + FieldType?.FullName + ", Stride=" + Stride + "bytes";
 			if (RandomWrite != null) res += ", RandomWrite=" + RandomWrite;
-			if (GenericType != null) res += ", GenericType=" + GenericType;
+			if (GenericType != null) res += ", GenericType=" + GenericType?.Name;
 			if (GenericTypeName != null) res += ", GenericTypeName=" + GenericTypeName;
 			if(Kernels != null) res += ", Used in Kernels: " + string.Join(", ", Kernels.Select(k => k.Name));
 			return res;

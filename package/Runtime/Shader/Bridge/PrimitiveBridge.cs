@@ -3,28 +3,25 @@ using UnityEngine;
 
 namespace Needle.Timeline
 {
+	[ShaderBridge(
+		typeof(float),
+		typeof(Vector2),
+		typeof(Vector3),
+		typeof(Vector4),
+		typeof(int),
+		typeof(uint),
+		typeof(Vector2Int),
+		typeof(Vector3Int),
+		typeof(Vector3Int),
+		typeof(Matrix4x4))]
 	public struct PrimitiveBridge : IShaderBridge
 	{
-		public static readonly Type[] Types = new Type[]
-		{
-			typeof(float),
-			typeof(Vector2),
-			typeof(Vector3),
-			typeof(Vector4),
-			typeof(int),
-			typeof(uint),
-			typeof(Vector2Int),
-			typeof(Vector3Int),
-			typeof(Vector3Int),
-			typeof(Matrix4x4)
-		};
-		
 		public bool SetValue(IBindingContext context)
 		{
 			var value = context.Field.GetValue(context.Instance);
 			var shaderInfo = context.ShaderInfo;
 			var shaderField = context.ShaderField;
-			
+
 			switch (value)
 			{
 				case float val:
@@ -57,7 +54,7 @@ namespace Needle.Timeline
 				default:
 					return false;
 			}
-			
+
 			return true;
 		}
 	}

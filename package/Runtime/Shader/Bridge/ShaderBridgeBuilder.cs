@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
@@ -9,23 +11,38 @@ namespace Needle.Timeline
 {
 	public static class ShaderBridgeBuilder
 	{
+		private class ImplementationInfo
+		{
+			public readonly Type Type;
+			public readonly ShaderBridgeAttribute? Attribute;
+
+			public ImplementationInfo(Type type, ShaderBridgeAttribute? attribute)
+			{
+				Type = type;
+				Attribute = attribute;
+			}
+
+			public bool Supports(Type type) => Attribute?.Supports(type) ?? false;
+		}
+		
+		private static List<ImplementationInfo>? shaderBridgeTypes;
+		
 		public static IShaderBridge? BuildMapping(FieldInfo field)
 		{
-			if (typeof(ComputeBuffer).IsAssignableFrom(field.FieldType))
-				return new ComputeBufferBridge();
+			if (shaderBridgeTypes == null)
+			{
+				shaderBridgeTypes = new List<ImplementationInfo>();
+				var types = RuntimeTypeCache.TypesDerivingFrom<IShaderBridge>();
+				foreach (var type in types)
+				{
+					var att = type.GetCustomAttribute<ShaderBridgeAttribute>();
+					shaderBridgeTypes.Add(new ImplementationInfo(type, att));
+				}
+			}
 
-			if (typeof(IList).IsAssignableFrom(field.FieldType))
-				return new CollectionBridge();
-
-			if (typeof(Transform).IsAssignableFrom(field.FieldType))
-				return new TransformBridge();
-
-			if (typeof(Texture).IsAssignableFrom(field.FieldType))
-				return new TextureBridge();
-
-			if (PrimitiveBridge.Types.Any(t => t.IsAssignableFrom(field.FieldType)))
-				return new PrimitiveBridge();
-			
+			var match = shaderBridgeTypes.FirstOrDefault(e => e.Supports(field.FieldType));
+			if (match != null)
+				return Activator.CreateInstance(match.Type) as IShaderBridge;
 			return null;
 		}
 	}
