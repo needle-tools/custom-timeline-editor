@@ -9,7 +9,7 @@ public class DrawLine : Animated
 	[Animate] public List<Direction> Directions; 
 	public Transform Start;
 	public Transform End;
-	[TextureInfo(128,128, FilterMode = FilterMode.Point)]
+	[TextureInfo(256,256, FilterMode = FilterMode.Point)]
 	public RenderTexture Output; 
 	public Renderer Rend;
 
