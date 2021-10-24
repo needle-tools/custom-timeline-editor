@@ -1,4 +1,6 @@
 ﻿#pragma kernel CSMain
+#pragma kernel CSDirections
+#pragma kernel CSPoints
 #include "../DrawUtils.cginc"
 
 float4 _Time;
@@ -14,6 +16,13 @@ struct Direction
 StructuredBuffer<Direction> Directions;
 uint DirectionsCount;
 
+struct Point
+{
+    float2 Pos;
+}; 
+
+RWStructuredBuffer<Point> Points;
+uint PointsCount;
 
 [numthreads(1,1,1)]
 void CSMain(uint3 id : SV_DispatchThreadID)
@@ -21,23 +30,53 @@ void CSMain(uint3 id : SV_DispatchThreadID)
     uint width, height;
     Output.GetDimensions(width, height);
     const uint2 texSize = uint2(width, height);
-
-
-    for (uint i = 0; i < DirectionsCount; i++)
-    {
-        Direction dir = Directions[i];
-        float4 col = float4(0,1, length(dir.End-dir.Start), .05);
-        DrawLine(Output, texSize, dir.Start.xy, dir.End.xy, col);
-        DrawCircle(Output, texSize, dir.Start.xy, 5, col); 
-        DrawCircle(Output, texSize, dir.End.xy, 5, col); 
-    }
-    
     DrawCircle(Output, texSize, Start.xy, 10, float4(1,0,0,1)); 
     DrawCircle(Output, texSize, End.xy, 5, float4(1,0,0,1)); 
     DrawLine(Output, texSize, Start.xy, End.xy, float4(1,0,0,1));
  
 }
 
+[numthreads(32,1,1)]
+void CSPoints(uint3 id : SV_DispatchThreadID)
+{
+    if(id.x >= PointsCount) return;
+    uint width, height;
+    Output.GetDimensions(width, height);
+    const uint2 texSize = uint2(width, height);
+    Point pt = Points[id.x];
+    float4 col = float4(0, 0, 1, .05);
+    DrawCircle(Output, texSize, pt.Pos, 5, col);
+
+    for(uint i = 0; i < PointsCount; i++)
+    {
+        if(i == id.x) continue;
+        Point other = Points[i];
+        float2 dir = other.Pos - pt.Pos;
+        float dist = length(dir);
+        if(dist < 3)
+        {
+            // DrawLine(Output, texSize, pt.Pos, other.Pos, float4(0,0,1,0));
+            pt.Pos = pt.Pos + normalize(dir) * .1;
+        }
+    }
+    Points[id.x] = pt;
+}
+
+
+[numthreads(32,1,1)]
+void CSDirections(uint3 id : SV_DispatchThreadID)
+{
+    if(id.x >= DirectionsCount) return;
+    uint width, height;
+    Output.GetDimensions(width, height);
+    const uint2 texSize = uint2(width, height);
+    Direction dir = Directions[id.x];
+    float4 col = float4(0,1, length(dir.End-dir.Start), .05);
+    DrawLine(Output, texSize, dir.Start.xy, dir.End.xy, col);
+    DrawCircle(Output, texSize, dir.Start.xy, 5, col); 
+    DrawCircle(Output, texSize, dir.End.xy, 5, col); 
+ 
+}
 
 
 #pragma kernel CSBlend

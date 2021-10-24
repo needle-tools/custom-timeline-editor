@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Needle.Timeline;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class DrawLine : Animated
 { 
@@ -13,6 +13,19 @@ public class DrawLine : Animated
 	public RenderTexture Output; 
 	public Renderer Rend;
 
+	// TODO: how can we specify WHEN a field should be set, for example: i only want to initialize points and then mark dirty or something to notify that the buffer should be reset
+	private List<Point> Points;
+	public struct Point 
+	{
+		public Vector2 Pos;
+	}
+
+	public override void OnReset()
+	{
+		base.OnReset();
+		Points?.Clear();
+	}
+
 	protected override void OnBeforeDispatching()
 	{
 		Graphics.Blit(Texture2D.blackTexture, Output);
@@ -21,6 +34,20 @@ public class DrawLine : Animated
 	protected override IEnumerable<DispatchInfo> OnDispatch()
 	{
 		// yield return new DispatchInfo { KernelIndex = 1, GroupsX = 32, GroupsY = 32};
+		// yield return new DispatchInfo { KernelIndex = 1, GroupsX = Directions?.Count };
+
+		if (Points == null || Points.Count <= 0)
+		{
+			Points ??= new List<Point>();
+			for (var i = 0; i < 12; i++)
+			{
+				Points.Add(new Point(){Pos = Random.insideUnitCircle*.3f});
+			}
+		}
+		
+		yield return new DispatchInfo { KernelIndex = 2, GroupsX = Points?.Count }; 
+		
+		
 		yield return new DispatchInfo { KernelIndex = 0, GroupsX = 1 };
 	}
 
