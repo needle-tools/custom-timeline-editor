@@ -348,7 +348,7 @@ namespace Needle.Timeline.Tests
 			var list = new List<ComputeShaderBinding>();
 			shaderInfo.Bind(typeof(MappingType), list, TestsResourceProvider);
 			Assert.AreEqual(1, list.Count);
-			Assert.IsTrue(list[0].TypeField.Name == nameof(MappingType.MyList));
+			Assert.IsTrue(list[0].Field.Name == nameof(MappingType.MyList));
 			Assert.IsTrue(list[0].ShaderField.FieldName == "MyBuffer");
 		}
 

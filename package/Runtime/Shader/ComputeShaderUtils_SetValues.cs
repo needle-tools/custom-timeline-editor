@@ -35,8 +35,7 @@ namespace Needle.Timeline
 						{
 							if (b.ShaderField.Kernels?.Any(x => x.Name == k.Name) ?? false)
 							{
-								b.Bind(instance);
-								if (!b.SetValue(kernelIndex))
+								if (!b.SetValue(instance, kernelIndex))
 								{
 									Debug.LogWarning("Failed setting " + b.ShaderField.TypeName + " " + b.ShaderField.FieldName);
 								}
@@ -176,7 +175,8 @@ namespace Needle.Timeline
 				}
 			}
 
-			binding = new ComputeShaderBinding(typeField, shaderField, shaderInfo, resources);
+			var b = ShaderBridgeBuilder.BuildMapping(typeField);
+			binding = new ComputeShaderBinding(b, typeField, shaderField, shaderInfo, resources);
 			return true;
 		}
 	}

@@ -148,8 +148,8 @@ namespace Needle.Timeline
 						Vector3Int? kernelSize = null;
 						foreach (var field in bindings)
 						{
-							if (!typeof(Texture).IsAssignableFrom(field.TypeField.FieldType)) continue;
-							var info = field.TypeField.GetCustomAttribute<TextureInfo>();
+							if (!typeof(Texture).IsAssignableFrom(field.Field.FieldType)) continue;
+							var info = field.Field.GetCustomAttribute<TextureInfo>();
 							if (info == null) continue;
 							if (info.Width > 0 && info.Height > 0)
 							{

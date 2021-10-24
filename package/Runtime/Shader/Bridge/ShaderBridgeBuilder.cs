@@ -1,0 +1,34 @@
+﻿using System.Collections;
+using System.Linq;
+using System.Reflection;
+using Needle.Timeline.Shader;
+using Needle.Timeline.Shader.Bridge;
+using UnityEngine;
+
+#nullable enable
+
+namespace Needle.Timeline
+{
+	public static class ShaderBridgeBuilder
+	{
+		public static IShaderBridge? BuildMapping(FieldInfo field)
+		{
+			if (typeof(ComputeBuffer).IsAssignableFrom(field.FieldType))
+				return new ComputeBufferShaderBridge();
+
+			if (typeof(IList).IsAssignableFrom(field.FieldType))
+				return new CollectionBridge();
+
+			if (typeof(Transform).IsAssignableFrom(field.FieldType))
+				return new TransformBridge();
+
+			if (typeof(Texture).IsAssignableFrom(field.FieldType))
+				return new TextureBridge();
+
+			if (PrimitiveBridge.Types.Any(t => t.IsAssignableFrom(field.FieldType)))
+				return new PrimitiveBridge();
+			
+			return null;
+		}
+	}
+}
