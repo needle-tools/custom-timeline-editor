@@ -12,9 +12,15 @@ namespace Needle.Timeline
 	}
 
 	[AttributeUsage(AttributeTargets.Field)]
+	public class Once : Attribute
+	{
+		
+	}
+
+	[AttributeUsage(AttributeTargets.Field)]
 	public class TransformInfo : Attribute
 	{
-		// TODO: implement
+		// TODO: implement, should provide info of what we want of position, rotation, scale
 	}
 
 	[AttributeUsage(AttributeTargets.Field)]

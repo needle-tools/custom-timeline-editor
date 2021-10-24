@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Needle.Timeline;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -14,21 +15,25 @@ public class DrawLine : Animated
 	public Renderer Rend;
 
 	// TODO: how can we specify WHEN a field should be set, for example: i only want to initialize points and then mark dirty or something to notify that the buffer should be reset
+	[Once]
 	private List<Point> Points;
 	public struct Point 
 	{
 		public Vector2 Pos;
 	}
 
+	public int Points_Count = 100;
+	public float PointSpacing = .2f;
+
 	public override void OnReset()
 	{
 		base.OnReset();
-		Points?.Clear();
+		Points?.Clear(); 
 	}
 
 	protected override void OnBeforeDispatching()
 	{
-		Graphics.Blit(Texture2D.blackTexture, Output);
+		Graphics.Blit(Texture2D.blackTexture, Output); 
 	}
 
 	protected override IEnumerable<DispatchInfo> OnDispatch()
@@ -36,13 +41,15 @@ public class DrawLine : Animated
 		// yield return new DispatchInfo { KernelIndex = 1, GroupsX = 32, GroupsY = 32};
 		// yield return new DispatchInfo { KernelIndex = 1, GroupsX = Directions?.Count };
 
-		if (Points == null || Points.Count <= 0)
+		if (Points == null || Points.Count <= 0 || Points.Count != Points_Count)
 		{
 			Points ??= new List<Point>();
-			for (var i = 0; i < 12; i++)
+			Points.Clear();
+			for (var i = 0; i < Points_Count; i++)
 			{
-				Points.Add(new Point(){Pos = Random.insideUnitCircle*.3f});
+				Points.Add(new Point(){Pos = Random.insideUnitCircle*.05f});
 			}
+			Debug.Log("Points: " + Points.Count());
 		}
 		
 		yield return new DispatchInfo { KernelIndex = 2, GroupsX = Points?.Count }; 

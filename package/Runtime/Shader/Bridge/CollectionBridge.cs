@@ -11,10 +11,21 @@ namespace Needle.Timeline
 	{
 		private FieldInfo list_backingArray;
 
+		private bool? hasOnceAttribute = null;
+		private bool didSet = false;
+
 		public bool SetValue(IBindingContext context)
 		{
-			var instance = context.Instance;
+			if (didSet) return true;
+
 			var field = context.Field;
+			if (hasOnceAttribute == null)
+			{
+				hasOnceAttribute = field.GetCustomAttribute<Once>() != null;
+				if (hasOnceAttribute.Value) didSet = true;
+			}
+			
+			var instance = context.Instance;
 			var shaderField = context.ShaderField;
 			var resources = context.Resources;
 			var shaderInfo = context.ShaderInfo;

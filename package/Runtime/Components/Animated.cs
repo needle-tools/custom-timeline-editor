@@ -11,10 +11,10 @@ namespace Needle.Timeline
 	[ExecuteInEditMode]
 	public abstract class Animated : MonoBehaviour, IAnimated, IAnimatedEvents
 	{
-		private void OnValidate()
-		{
-			InternalInit();
-		}
+		// private void OnValidate()
+		// {
+		// 	InternalInit();
+		// }
 
 		private void OnEnable()
 		{
