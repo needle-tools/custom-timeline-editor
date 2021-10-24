@@ -6,8 +6,7 @@ using UnityEngine;
 public class DrawLine : Animated
 {
 	public ComputeShader Shader;
-	[Animate]
-	public List<Direction> Directions;
+	[Animate] public List<Direction> Directions;
 	public Transform Start;
 	public Transform End;
 	[TextureInfo(256,256)]

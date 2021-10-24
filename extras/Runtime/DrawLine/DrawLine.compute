@@ -26,14 +26,14 @@ void DrawLine(float2 start, float2 end, uint width, uint height)
 [numthreads(1,1,1)]
 void CSMain(uint3 id : SV_DispatchThreadID) 
 {
-    uint width, height;
+    uint width, height; 
     Output.GetDimensions(width, height);
     DrawLine(Start.xy, End.xy, width, height);
     
     for(uint i = 0; i < DirectionsCount; i++)
     {
         Direction dir = Directions[i];
-        DrawLine(dir.Start, dir.End, width, height);
+        DrawLine(dir.Start.xy, dir.End.xy, width, height);
     }
 }
 
