@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace Needle.Timeline.Shader.Bridge
+namespace Needle.Timeline
 {
 	public struct PrimitiveBridge : IShaderBridge
 	{

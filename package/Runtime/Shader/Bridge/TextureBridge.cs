@@ -4,7 +4,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
 
-namespace Needle.Timeline.Shader.Bridge
+namespace Needle.Timeline
 {
 	public class TextureBridge : IShaderBridge
 	{

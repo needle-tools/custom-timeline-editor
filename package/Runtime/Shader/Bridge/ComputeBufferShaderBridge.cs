@@ -1,9 +1,9 @@
 ﻿using System.Reflection;
 using UnityEngine;
 
-namespace Needle.Timeline.Shader
+namespace Needle.Timeline
 {
-	public class ComputeBufferShaderBridge : IShaderBridge
+	public class ComputeBufferBridge : IShaderBridge
 	{
 		public bool SetValue(IBindingContext context)
 		{

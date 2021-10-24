@@ -1,5 +1,4 @@
-﻿using Needle.Timeline.Shader;
-
+﻿
 namespace Needle.Timeline
 {
 	public interface IShaderBridge

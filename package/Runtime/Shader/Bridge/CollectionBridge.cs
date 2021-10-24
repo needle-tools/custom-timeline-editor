@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Reflection;
-using Needle.Timeline.Shader;
 using UnityEngine;
 
 namespace Needle.Timeline
