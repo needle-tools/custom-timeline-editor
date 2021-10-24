@@ -72,6 +72,27 @@ namespace Needle.Timeline
 				}
 			}
 
+			if (typeof(Transform).IsAssignableFrom(TypeField.FieldType))
+			{
+				if (value == null)
+					return false;
+				var t = (Transform)value;
+				var name = ShaderField.FieldName;
+				switch (ShaderField.TypeName)
+				{
+					case "float3":
+					case "float4":
+						// Debug.Log("Set " + t.position);
+						ShaderInfo.Shader.SetVector(name, t.position);
+						return true;
+					case "float4x4":
+						ShaderInfo.Shader.SetMatrix(name, t.localToWorldMatrix);
+						return true;
+					default:
+						return false;
+				}
+			}
+
 			if (typeof(Texture).IsAssignableFrom(TypeField.FieldType))
 			{
 				var info = TypeField.GetCustomAttribute<TextureInfo>();
@@ -80,8 +101,32 @@ namespace Needle.Timeline
 					// if (value == null)
 					{
 						GraphicsFormat? graphicsFormat = info.GraphicsFormat;
-						if ((int)graphicsFormat == 0 && (int)info.TextureFormat != 0)
-							graphicsFormat = GraphicsFormatUtility.GetGraphicsFormat(info.TextureFormat, false);
+						if ((int)graphicsFormat == 0 )
+						{
+							if((int)info.TextureFormat != 0)
+								graphicsFormat = GraphicsFormatUtility.GetGraphicsFormat(info.TextureFormat, false);
+							else
+							{
+								if (ShaderField.GenericTypeName == null) 
+									throw new Exception("Failed finding generic type: " + ShaderField.FieldName);
+								switch (ShaderField.GenericTypeName)
+								{
+									case "float":
+										graphicsFormat = GraphicsFormat.R16_SFloat;
+										break;
+									case "float2":
+										graphicsFormat = GraphicsFormat.R16G16_SFloat;
+										break;
+									case "float3":
+										graphicsFormat = GraphicsFormat.R16G16B16_SFloat;
+										break;
+									case "float4":
+										graphicsFormat = GraphicsFormat.R16G16B16A16_SFloat;
+										break;
+								}
+							}
+						}
+						
 						var rt = Resources.RenderTextureProvider.GetTexture(TypeField.Name, info.Width, info.Height,
 							info.Depth.GetValueOrDefault(), graphicsFormat, ShaderField.RandomWrite);
 						value = rt;

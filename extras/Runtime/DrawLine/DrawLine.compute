@@ -1,0 +1,32 @@
+﻿#pragma kernel CSMain
+
+
+float3 Start, End;
+RWTexture2D<float4> Output;
+
+[numthreads(1,1,1)]
+void CSMain(uint3 id : SV_DispatchThreadID)
+{
+    uint width, height;
+    Output.GetDimensions(width, height);
+    uint steps = sqrt(width*height) * length(Start.xy - End.xy);
+    for(uint i = 0; i <= steps; i++)
+    {
+        float2 pos = lerp(Start.xy, End.xy, i/(float)steps);
+        int2 pixel = (pos.xy + .5) * uint2(width, height);
+        Output[pixel] = 1;
+    }
+}
+
+
+float GetDist(float ax, float ay, float bx, float by, float x, float y)
+{
+    if ((ax - bx) * (x - bx) + (ay - by) * (y - by) <= 0)
+        return sqrt((x - bx) * (x - bx) + (y - by) * (y - by));
+
+    if ((bx - ax) * (x - ax) + (by - ay) * (y - ay) <= 0)
+        return sqrt((x - ax) * (x - ax) + (y - ay) * (y - ay));
+
+    return abs((by - ay) * x - (bx - ax) * y + bx * ay - by * ax) /
+        sqrt((ay - by) * (ay - by) + (ax - bx) * (ax - bx));
+}

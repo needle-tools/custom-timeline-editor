@@ -59,10 +59,12 @@ namespace Needle.Timeline
 						computeShaderFields.Add(field);
 					}
 				}
-				Debug.Log("Found " + computeShaderFields.Count + " compute shader fields");
+				if (computeShaderFields.Count <= 0)
+					Debug.LogWarning("No ComputeShader field found.", this);
+				else
+					Debug.Log("Found " + computeShaderFields.Count + " ComputeShader fields", this);
 			}
 
-			var changed = true;
 			bindings.Clear();
 			for (var index = 0; index < computeShaderFields.Count; index++)
 			{
@@ -77,6 +79,7 @@ namespace Needle.Timeline
 				}
 				else info = null;
 
+				info?.Bind(GetType(), bindings, resources);
 				if (index >= shaderInfos.Count)
 				{
 					shaderInfos.Add(info);
@@ -133,18 +136,33 @@ namespace Needle.Timeline
 
 				if (!didDispatchAny)
 				{
+					// dispatch default
 					for (var index = 0; index < shaderInfos.Count; index++)
 					{
 						var shader = shaderInfos[index];
 						if (shader == null) continue;
 						this.SetTime(shader.Shader);
-						bindings.Clear();
-						shader.Bind(GetType(), bindings, resources);
+						// bindings.Clear();
+						// shader.Bind(GetType(), bindings, resources);
+
+						Vector3Int? kernelSize = null;
+						foreach (var field in bindings)
+						{
+							if (!typeof(Texture).IsAssignableFrom(field.TypeField.FieldType)) continue;
+							var info = field.TypeField.GetCustomAttribute<TextureInfo>();
+							if (info == null) continue;
+							if (info.Width > 0 && info.Height > 0)
+							{
+								kernelSize = new Vector3Int(info.Width, info.Height, info.Depth??1);
+								break;
+							}
+						}
+						
 						foreach (var k in shader.Kernels)
 						{
 							BeforeDispatch();
 							Debug.Log("Dispatch " + k.Name);
-							shader.Dispatch(this, k.Index, bindings);
+							shader.Dispatch(this, k.Index, bindings, kernelSize);
 						}
 					}
 				}
@@ -155,7 +173,7 @@ namespace Needle.Timeline
 				}
 			}
 		}
-
+		
 		protected virtual void OnBeforeDispatching()
 		{
 			
@@ -186,8 +204,8 @@ namespace Needle.Timeline
 				if (kernel == null) continue;
 				foundKernel = true;
 				this.SetTime(shader.Shader);
-				bindings.Clear();
-				shader.Bind(GetType(), bindings, resources);
+				// bindings.Clear();
+				// shader.Bind(GetType(), bindings, resources);
 
 
 				// if (AllowAutoThreadGroupSize() && info.GroupsX == null && info.GroupsY == null && info.GroupsZ == null)

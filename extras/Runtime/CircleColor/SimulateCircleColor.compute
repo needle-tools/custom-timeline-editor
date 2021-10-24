@@ -178,6 +178,6 @@ void CSRenderData(uint3 id : SV_DispatchThreadID)
     float4 res = r;
     // res.b *= data.b;
     // res.rgb *= 1 - 0.8*data.g;//saturate(sin((.5+data.g)*3) * .5 + .5);
-    res.rgb *= lerp(float3(1,1,1), lerp(float3(0,0,1.5), float3(1,1,0), data.g*.9), data.g);
+    res.rgb *= lerp(float3(1,1,1), lerp(float3(0,0,1.5), float3(1,1,1), data.g), data.g);
     Result[id.xy] = res;
 }

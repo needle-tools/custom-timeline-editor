@@ -43,7 +43,7 @@ namespace Needle.Timeline
 							}
 						}
 						var threads = k.Threads;
-						if (kernelGroupSize != null)
+						if (kernelGroupSize != null) 
 						{
 							var gs = kernelGroupSize.Value;
 							if (gs.x > 0)
@@ -63,12 +63,14 @@ namespace Needle.Timeline
 			return false;
 		}
 
-		public static readonly (string fieldName, string typeName)[] BuiltinTypeNames = 
+		public static readonly (string fieldName, string typeName)[] BuiltinTypeNames =
 		{
 			("_Time", "float4")
 		};
 
-		public static bool Bind(this ComputeShaderInfo shaderInfo, Type type, List<ComputeShaderBinding> bindings, 
+		public static bool Bind(this ComputeShaderInfo shaderInfo,
+			Type type,
+			List<ComputeShaderBinding> bindings,
 			IResourceProvider resources)
 		{
 			if (bindings == null) throw new ArgumentNullException(nameof(bindings));
@@ -80,62 +82,19 @@ namespace Needle.Timeline
 				foreach (var typeField in fieldInType)
 				{
 					if (found) break;
-					if (typeField.Name != shaderField.FieldName)
+					if (TryBind(shaderField, typeField, shaderInfo, resources, out var binding))
 					{
-						var mapping = typeField.GetCustomAttribute<ShaderField>();
-						if (mapping == null || mapping.Name == null || mapping.Name != shaderField.FieldName)
-							continue;
+						bindings.Add(binding);
+						found = true;
 					}
-
-					var manual = typeField.GetCustomAttribute<Manual>();
-					if (manual != null && typeField.FieldType == shaderField.FieldType)
-					{
-						// nothing to be done here, we expect the user to set this field before setting it to the shader
-					}
-					else
-					{
-						var stride = 0;
-						if (typeof(ComputeBuffer).IsAssignableFrom(typeField.FieldType))
-						{
-							var attr = typeField.GetCustomAttribute<ComputeBufferInfo>();
-							if (attr == null)
-							{
-								success = false;
-								Debug.LogWarning($"Missing {nameof(ComputeBufferInfo)} attribute on {typeField.DeclaringType?.Name}.{typeField.Name}");
-								continue;
-							}
-							stride = attr.Stride;
-						}
-						else
-							stride = typeField.FieldType.GetStride();
-					
-						if (stride != shaderField.Stride)
-						{
-							var handledStrideMismatch = false;
-							if (typeof(Texture).IsAssignableFrom(typeField.FieldType))
-							{
-								handledStrideMismatch = true;
-							}
-
-							if (!handledStrideMismatch)
-							{
-								success = false;
-								Debug.LogError($"Found unknown stride mismatch: {typeField.Name} ({stride}) != {shaderField.FieldName} ({shaderField.Stride})");
-								continue;
-							}
-						}
-					}
-					
-					found = true;
-					var binding = new ComputeShaderBinding(typeField, shaderField, shaderInfo, resources);
-					bindings.Add(binding);
+					else success = false;
 				}
 				if (!found)
 				{
-					if (!BuiltinTypeNames.Any(e => 
+					if (!BuiltinTypeNames.Any(e =>
 						    e.fieldName == shaderField.FieldName && e.typeName == shaderField.TypeName
-						    ))
-					{ 
+					    ))
+					{
 						success = false;
 						Debug.LogWarning("Did not find " + shaderField);
 					}
@@ -143,6 +102,82 @@ namespace Needle.Timeline
 			}
 
 			return success;
+		}
+
+		private static bool TryBind(ComputeShaderFieldInfo shaderField, FieldInfo typeField, ComputeShaderInfo shaderInfo, IResourceProvider resources, out ComputeShaderBinding binding)
+		{
+			binding = null!;
+			
+			if (typeField.Name != shaderField.FieldName)
+			{
+				var mapping = typeField.GetCustomAttribute<ShaderField>();
+				if (mapping == null || mapping.Name == null || mapping.Name != shaderField.FieldName)
+					return false;
+			}
+
+			var manual = typeField.GetCustomAttribute<Manual>();
+			if (manual != null && typeField.FieldType == shaderField.FieldType)
+			{
+				// nothing to be done here, we expect the user to set this field before setting it to the shader
+			}
+			else
+			{
+				var stride = 0;
+				if (typeof(ComputeBuffer).IsAssignableFrom(typeField.FieldType))
+				{
+					var attr = typeField.GetCustomAttribute<ComputeBufferInfo>();
+					if (attr == null)
+					{
+						Debug.LogWarning($"Missing {nameof(ComputeBufferInfo)} attribute on {typeField.DeclaringType?.Name}.{typeField.Name}");
+						return false;
+					}
+					stride = attr.Stride;
+				}
+				else if (typeof(Texture).IsAssignableFrom(typeField.FieldType))
+				{
+					var info = typeField.GetCustomAttribute<TextureInfo>();
+					if (info == null)
+					{
+						Debug.LogWarning($"Missing {nameof(TextureInfo)} attribute on {typeField.DeclaringType?.Name}.{typeField.Name}");
+						return false;
+					}
+				}
+				else if (typeof(Transform).IsAssignableFrom(typeField.FieldType))
+				{
+					// if user tries to bind a transform to a shaderfield allow it for certain types
+					switch (shaderField.TypeName)
+					{
+						case "float3":
+						case "float4":
+						case "float4x4":
+							stride = shaderField.Stride;
+							break;
+					}
+				}
+				else
+				{
+					stride = typeField.FieldType.GetStride();
+				}
+
+				if (stride != shaderField.Stride)
+				{
+					var handledStrideMismatch = false;
+					if (typeof(Texture).IsAssignableFrom(typeField.FieldType))
+					{
+						handledStrideMismatch = true;
+					}
+
+					if (!handledStrideMismatch)
+					{
+						Debug.LogError(
+							$"Found unknown stride mismatch: Field.{typeField.Name} ({stride}) != Shader.{shaderField.FieldName} ({shaderField.Stride})");
+						return false;
+					}
+				}
+			}
+
+			binding = new ComputeShaderBinding(typeField, shaderField, shaderInfo, resources);
+			return true;
 		}
 	}
 }

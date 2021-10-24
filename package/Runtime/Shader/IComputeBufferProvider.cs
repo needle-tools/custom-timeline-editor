@@ -67,14 +67,18 @@ namespace Needle.Timeline
 
 		public RenderTexture GetTexture(string id, int width, int height, int depth, GraphicsFormat? graphicsFormat = null, bool? randomWrite = null)
 		{
+			if (graphicsFormat == null || graphicsFormat == GraphicsFormat.None)
+			{
+				graphicsFormat  = GraphicsFormat.R8G8B8A8_SRGB;
+			}
 			if(cache.TryGetValue(id, out var rt))
 			{
-				rt = rt.SafeCreate(ref rt, width, height, depth, graphicsFormat ?? GraphicsFormat.None, randomWrite ?? false);
+				rt = rt.SafeCreate(ref rt, width, height, depth, (GraphicsFormat)graphicsFormat, randomWrite ?? false);
 				cache[id] = rt;
 			}
 			else
 			{
-				rt = ComputeBufferUtils.SafeCreate(null, ref rt, width, height, depth, graphicsFormat ?? GraphicsFormat.None, randomWrite ?? false);
+				rt = ComputeBufferUtils.SafeCreate(null, ref rt, width, height, depth, (GraphicsFormat)graphicsFormat, randomWrite ?? false);
 				cache.Add(id, rt);
 			}
 			return rt;

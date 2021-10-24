@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using TreeEditor;
 using UnityEditor;
 using UnityEditor.Rendering;
 using UnityEngine;
@@ -21,8 +20,13 @@ namespace Needle.Timeline
 
 		public override string ToString()
 		{
-			return Path + "\n\nStructs:\n" + string.Join("\n", Structs.Select(s => s.ToString())) + "\n\nFields:\n" +
-			       string.Join("\n", Fields.Select(f => f.ToString()));
+			var res = Path;
+			if (Structs.Count > 0)
+				res += "\n\nStructs:\n" + string.Join("\n", Structs.Select(s => s.ToString()));
+			if (Fields.Count > 0)
+				res += "\n\nFields:\n" +
+				       string.Join("\n", Fields.Select(f => f.ToString()));
+			return res;
 		}
 	}
 
@@ -119,6 +123,7 @@ namespace Needle.Timeline
 		/// If the type is a known struct
 		/// </summary>
 		public ComputeShaderStructInfo? GenericType;
+		public string? GenericTypeName;
 		
 		// TODO: currently we only check in kernel methods if the field is used
 		public List<ComputeShaderKernelInfo>? Kernels;
@@ -130,6 +135,7 @@ namespace Needle.Timeline
 			var res = "Name=" + FieldName + ", Type=" + FieldType?.FullName + ", Stride=" + Stride + "bytes";
 			if (RandomWrite != null) res += ", RandomWrite=" + RandomWrite;
 			if (GenericType != null) res += ", GenericType=" + GenericType;
+			if (GenericTypeName != null) res += ", GenericTypeName=" + GenericTypeName;
 			if(Kernels != null) res += ", Used in Kernels: " + string.Join(", ", Kernels.Select(k => k.Name));
 			return res;
 		}
@@ -302,6 +308,7 @@ namespace Needle.Timeline
 							field.FilePath = shaderPath;
 							field.SetType(type);
 							field.Stride = TryGetStride(field.TypeName) ?? TryGetStride(generics) ?? TryFindStrideFromDeclaredStruct() ?? -1;
+							field.GenericTypeName = generics;
 
 							int? TryFindStrideFromDeclaredStruct()
 							{
@@ -331,7 +338,7 @@ namespace Needle.Timeline
 			return true;
 		}
 
-		private static readonly char[] allowedSurroundingVariableName = new[] { ' ', '+', '-', '*', '/', '=', '|', ';', '[', '.' };
+		private static readonly char[] allowedSurroundingVariableName = new[] { ' ', '+', '-', '*', '/', '=', '|', ';', '[', '.', '(', ')' };
 		
 		// https://regex101.com/r/SBWf77/2
 		private static readonly Regex fieldRegex = new Regex("((?<field_type>.+?)(<(?<generic_type>.+?)>)?) (?<field_names>.+);",

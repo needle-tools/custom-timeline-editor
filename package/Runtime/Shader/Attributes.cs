@@ -10,7 +10,12 @@ namespace Needle.Timeline
 	public class Manual : Attribute
 	{
 	}
-	
+
+	[AttributeUsage(AttributeTargets.Field)]
+	public class TransformInfo : Attribute
+	{
+		// TODO: implement
+	}
 
 	[AttributeUsage(AttributeTargets.Field)]
 	public class TextureInfo : Attribute

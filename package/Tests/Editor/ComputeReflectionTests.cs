@@ -145,6 +145,9 @@ namespace Needle.Timeline.Tests
 			Assert.AreEqual(typeof(Texture2D), shaderInfo.Fields[0].FieldType);
 			Assert.AreEqual(typeof(Texture2D), shaderInfo.Fields[1].FieldType);
 			Assert.AreEqual(typeof(Texture2D), shaderInfo.Fields[2].FieldType);
+			Assert.AreEqual("float", shaderInfo.Fields[0].GenericTypeName);
+			Assert.AreEqual("float2", shaderInfo.Fields[1].GenericTypeName);
+			Assert.AreEqual("float4", shaderInfo.Fields[2].GenericTypeName);
 			
 			Assert.AreEqual(false, shaderInfo.Fields[0].RandomWrite);
 			Assert.AreEqual(true, shaderInfo.Fields[2].RandomWrite);
@@ -177,6 +180,8 @@ namespace Needle.Timeline.Tests
 
 		private static IResourceProvider TestsResourceProvider => new ResourceProvider(new DefaultComputeBufferProvider(), new DefaultRenderTextureProvider());
 		
+		
+		
 		private class TypeWithSomeFields
 		{
 			int myInt;
@@ -187,21 +192,52 @@ namespace Needle.Timeline.Tests
 			Vector3 myVector3;
 			Vector4 myVector4;
 			Matrix4x4 myMatrix;
+			Vector2 start;
 		}
 		
 		[Test]
-		public static void Auto_Bind_TypeWithSomeFields()
+		public static void Bind_BasicTypes()
 		{
-			var shader = LoadShader("SetValues/SomeFields");
+			var shader = LoadShader("BindBasicValues");
 			shader.TryParse(out var shaderInfo);
 			Assert.NotNull(shaderInfo);
-			Assert.AreEqual(8, shaderInfo.Fields.Count, "Did not find all fields in shader");
+			Assert.AreEqual(9, shaderInfo.Fields.Count, "Did not find all fields in shader");
+
+			foreach (var f in shaderInfo.Fields)
+			{
+				Assert.NotNull(f.Kernels, "Didnt find kernel usage for " + f.FieldName);
+			}
 			
 			var list = new List<ComputeShaderBinding>();
 			shaderInfo.Bind(typeof(TypeWithSomeFields), list, TestsResourceProvider);
-			Assert.AreEqual(8, list.Count, "Failed binding all fields to shader fields");
+			Assert.AreEqual(9, list.Count, "Failed binding all fields to shader fields");
 
 			shaderInfo.Dispatch(new TypeWithSomeFields(), 0, list);
+		}
+		
+
+		private class Bind_TransformType
+		{
+			public Transform Point3;
+			public Transform Point4;
+			public Transform Matrix;
+		}
+
+		[Test]
+		public static void Bind_Transform()
+		{
+			var shader = LoadShader("TransformToValues");
+			shader.TryParse(out var shaderInfo);
+			Debug.Log(shaderInfo);
+			Assert.NotNull(shaderInfo);
+			
+			var list = new List<ComputeShaderBinding>();
+			shaderInfo.Bind(typeof(Bind_TransformType), list, TestsResourceProvider);
+			
+			Assert.AreEqual(3, list.Count);
+			Assert.AreEqual("float3", list[0].ShaderField.TypeName);
+			Assert.AreEqual("float4", list[1].ShaderField.TypeName);
+			Assert.AreEqual("float4x4", list[2].ShaderField.TypeName);
 		}
 
 		private class BufferWithFloatType
@@ -211,7 +247,7 @@ namespace Needle.Timeline.Tests
 		}
 		
 		[Test]
-		public static void Auto_Bind_FloatBuffer()
+		public static void Bind_FloatBuffer()
 		{
 			var shader = LoadShader("SetValues/BufferWithFloat");
 			shader.TryParse(out var shaderInfo);
@@ -224,7 +260,7 @@ namespace Needle.Timeline.Tests
 		}
 		
 		[Test]
-		public static void Auto_Bind_FloatBuffer_AndDispatch()
+		public static void Bind_FloatBuffer_AndDispatch()
 		{
 			var shader = LoadShader("SetValues/BufferWithFloat");
 			shader.TryParse(out var shaderInfo);
@@ -250,7 +286,7 @@ namespace Needle.Timeline.Tests
 		}
 		
 		[Test]
-		public static void Auto_Bind_ComputeBuffer_AndDispatch()
+		public static void Bind_ComputeBuffer_AndDispatch()
 		{
 			var shader = LoadShader("SetValues/Bind_ComputeBuffer");
 			shader.TryParse(out var shaderInfo);

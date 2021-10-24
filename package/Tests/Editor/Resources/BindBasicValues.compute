@@ -9,6 +9,8 @@ float3 myVector3;
 float4 myVector4;
 float4x4 myMatrix;
 
+float2 start;
+
 [numthreads(8,1,1)]
 void CSMain(uint3 id : SV_DispatchThreadID)
 {
@@ -20,4 +22,8 @@ void CSMain(uint3 id : SV_DispatchThreadID)
     myVector3 = 0;
     myVector4 = 0;
     myMatrix = 0;
+
+
+    // surrounded by ()
+    uint2 sf = (start.xy);
 }
