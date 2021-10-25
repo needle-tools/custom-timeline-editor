@@ -154,7 +154,18 @@ namespace Needle.Timeline
 							break;
 					}
 				}
-				else
+				else if (typeof(IList<Transform>).IsAssignableFrom(typeField.FieldType))
+				{
+					switch (shaderField.GenericTypeName) 
+					{
+						case "float3":
+						case "float4":
+						case "float4x4":
+							stride = shaderField.Stride;
+							break;
+					}
+				}
+				else 
 				{
 					stride = typeField.FieldType.GetStride();
 				}

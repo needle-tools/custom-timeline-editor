@@ -14,7 +14,9 @@ public class DrawLine : Animated
 	public RenderTexture Output; 
 	public Renderer Rend;
 
-	// TODO: how can we specify WHEN a field should be set, for example: i only want to initialize points and then mark dirty or something to notify that the buffer should be reset
+	public List<Transform> TransformList = new List<Transform>();
+	public Transform[] TransformArray;
+
 	private List<Point> Points;
 	public struct Point 
 	{

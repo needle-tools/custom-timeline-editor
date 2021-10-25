@@ -29,7 +29,7 @@ namespace Needle.Timeline
 		}
 
 		private static int InternalGetStride(this Type type, int level)
-		{
+		{ 
 			var existing = lookup.FirstOrDefault(l => l.type == type);
 			if (existing.stride.HasValue) return existing.stride.Value;
 			if (level > 1)
@@ -38,14 +38,26 @@ namespace Needle.Timeline
 				throw new Exception("Level exceeded: " + level);
 			}
 			var sum = 0;
-			if (typeof(IList).IsAssignableFrom(type) && type.IsGenericType)
-			{ 
-				var gt = type.GetGenericArguments().FirstOrDefault();
-				if (gt == null) throw new Exception("Failed getting generic");
-				if (gt.IsPrimitive)
-					sum += GetSize(gt, level);
-				else 
-					sum += InternalGetStride(gt, level);
+			if (typeof(IList).IsAssignableFrom(type))
+			{
+				if (type.IsGenericType)
+				{
+					var gt = type.GetGenericArguments().FirstOrDefault();
+					if (gt == null) throw new Exception("Failed getting generic");
+					if (gt.IsPrimitive)
+						sum += GetSize(gt, level);
+					else 
+						sum += InternalGetStride(gt, level);
+				}
+				else
+				{ 
+					var content = type.GetElementType();
+					if (content == null) throw new Exception("Unknown content: " + type);
+					if (content.IsPrimitive)
+						sum += GetSize(content, level);
+					else
+						sum += InternalGetStride(content, level);
+				}
 			}
 			if (sum == 0)
 			{

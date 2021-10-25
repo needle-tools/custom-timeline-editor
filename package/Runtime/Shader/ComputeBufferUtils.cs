@@ -22,20 +22,27 @@ namespace Needle.Timeline
 				buffer = ComputeBufferUtils.SafeCreate(ref buffer, size ?? data.Count, stride);
 				_buffers.Add(id, buffer);
 			}
-			
-			buffer.SetData(data); 
+
+			buffer.SetData(data);
 			return buffer;
 		}
 	}
-	
+
 	public static class ComputeBufferUtils
 	{
-		public static RenderTexture SafeCreate(this RenderTexture _, ref RenderTexture tex, int width, int height, int depth, 
-			GraphicsFormat format, bool randomWriteEnabled = false, Action<RenderTexture> beforeCreate = null)
+		public static RenderTexture SafeCreate(this RenderTexture _,
+			ref RenderTexture tex,
+			int width,
+			int height,
+			int depth,
+			GraphicsFormat format,
+			bool randomWriteEnabled = false,
+			Action<RenderTexture> beforeCreate = null)
 		{
-			if (!tex || tex.width != width || tex.height != height || tex.depth != depth || tex.graphicsFormat != format || tex.enableRandomWrite != randomWriteEnabled)
+			if (!tex || tex.width != width || tex.height != height || tex.depth != depth || tex.graphicsFormat != format ||
+			    tex.enableRandomWrite != randomWriteEnabled)
 			{
-				if(tex && tex.IsCreated()) tex.Release();
+				if (tex && tex.IsCreated()) tex.Release();
 				tex = new RenderTexture(width, height, depth, format);
 				tex.hideFlags = HideFlags.DontSaveInEditor;
 				tex.enableRandomWrite = randomWriteEnabled;
@@ -46,14 +53,14 @@ namespace Needle.Timeline
 			else if (tex && !tex.IsCreated()) tex.Create();
 			return tex;
 		}
-		
+
 		public static RenderTexture SafeCreate(this RenderTexture _, ref RenderTexture tex, IRenderTextureDescription desc)
 		{
 			if (!tex || !desc.Equals(tex))
 			{
-				if(tex && tex.IsCreated()) tex.Release();
+				if (tex && tex.IsCreated()) tex.Release();
 				tex = new RenderTexture(desc.Width, desc.Height, desc.Depth, desc.Format);
-				tex.hideFlags = HideFlags.DontSaveInEditor;
+				tex.hideFlags = desc.HideFlags;
 				tex.enableRandomWrite = desc.RandomAccess;
 				tex.Create();
 				Debug.Log("Create RT");
@@ -77,11 +84,11 @@ namespace Needle.Timeline
 				buffer.name = desc.Name;
 				Debug.Log("Create ComputeBuffer, size=" + desc.Size + ", stride=" + desc.Stride);
 			}
-			if(desc.CounterValue != null)
+			if (desc.CounterValue != null)
 				buffer.SetCounterValue(desc.CounterValue.Value);
 			return buffer;
 		}
-		
+
 		// https://forum.unity.com/threads/graphicsbuffer-mesh-vertices-and-compute-shaders.777548/#post-6989081
 		// https://github.com/cecarlsen/HowToDrawATriangle
 		public static GraphicsBuffer SafeCreate(ref GraphicsBuffer buffer, GraphicsBuffer.Target target, int size, int stride)

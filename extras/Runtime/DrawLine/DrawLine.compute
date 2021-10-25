@@ -25,6 +25,12 @@ RWStructuredBuffer<Point> Points;
 uint PointsCount;
 float PointSpacing;
 
+StructuredBuffer<float3> TransformArray;
+int TransformArrayCount;
+
+StructuredBuffer<float3> TransformList;
+int TransformListCount;
+
 [numthreads(1,1,1)]
 void CSMain(uint3 id : SV_DispatchThreadID)
 {
@@ -32,8 +38,21 @@ void CSMain(uint3 id : SV_DispatchThreadID)
     Output.GetDimensions(width, height);
     const uint2 texSize = uint2(width, height);
     DrawCircle(Output, texSize, Start.xy, 10, float4(1, 0, 0, 1));
-    DrawCircle(Output, texSize, End.xy, 5, float4(1, 0, 0, 1));
+    DrawCircle(Output, texSize, End.xy, 7, float4(1, 0, 0, 1));
     DrawLine(Output, texSize, Start.xy, End.xy, float4(1, 0, 0, 1));
+
+
+    for (int i = 0; i < TransformArrayCount; i++)
+    {
+        float3 pos = TransformArray[i];
+        DrawCircle(Output, texSize, pos.xy, 5, float4(1, 1, 0, 1));
+    }
+    
+    for (int i = 0; i < TransformListCount; i++)
+    {
+        float3 pos = TransformList[i];
+        DrawCircle(Output, texSize, pos.xy, 5, float4(1, 0, 1, 1));
+    }
 }
 
 [numthreads(32,1,1)]
@@ -57,28 +76,28 @@ void CSPoints(uint3 id : SV_DispatchThreadID)
         Point other = Points[i];
         float2 dir = other.Pos - pt.Pos;
         float dist = length(dir);
-        
+
         if (closestDistance < PointSpacing)
             closeCount += 1;
-        if(dist < closestDistance)
+        if (dist < closestDistance)
         {
             closestDistance = dist;
             closest = other;
-            closestDir  = dir;
+            closestDir = dir;
         }
         // else if(dist > PointSpacing*4 && ((i+id.x)%5 == 0))
         // {
         //     // pt.Pos += dir * _Time.w;
         // }
     }
-        
-        
+
+
     if (closestDistance < PointSpacing)
     {
         pt.Pos -= closestDir / (closestDistance * 50) * _Time.w * (closeCount * PointSpacing);
     }
-    pt.Pos -= pt.Pos * _Time.w / max(PointSpacing*10,.1);
-    
+    pt.Pos -= pt.Pos * _Time.w / max(PointSpacing * 10, .1);
+
     DrawCircle(Output, texSize, pt.Pos, 2, col);
     Points[id.x] = pt;
 }

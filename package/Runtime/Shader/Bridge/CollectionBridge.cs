@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Needle.Timeline.ResourceProviders;
+using NUnit.Framework;
 using UnityEngine;
 
 namespace Needle.Timeline
@@ -10,10 +13,15 @@ namespace Needle.Timeline
 	public class CollectionBridge : IShaderBridge
 	{
 		private FieldInfo list_backingArray;
+		private Array own_backingArrayArray;
 
 		private bool didSearchOnceAttribute = false;
 		private bool hasOnceAttribute;
 		private bool didSet = false;
+
+		private bool didCheckType;
+		private bool typeIsBlittable;
+		private Type contentType;
 
 		public bool SetValue(IBindingContext context)
 		{
@@ -32,7 +40,7 @@ namespace Needle.Timeline
 				return true;
 			}
 			didSet = true;
-			
+
 			var shaderField = context.ShaderField;
 			var resources = context.Resources;
 			var shaderInfo = context.ShaderInfo;
@@ -41,35 +49,103 @@ namespace Needle.Timeline
 			desc.Stride = shaderField.Stride;
 			desc.Type = shaderField.RandomWrite.GetValueOrDefault() ? ComputeBufferType.Structured : ComputeBufferType.Default;
 
-			if (value == null)
+			var list = value as IList;
+			ComputeBuffer buffer;
+			if (list == null || list.Count <= 0)
 			{
 				desc.Size = 1;
-				var buffer = resources.ComputeBufferProvider.GetBuffer(shaderField.FieldName, desc);
+				buffer = resources.ComputeBufferProvider.GetBuffer(shaderField.FieldName, desc);
 				shaderInfo.Shader.SetBuffer(context.KernelIndex, shaderField.FieldName, buffer);
 				shaderInfo.Shader.SetInt(shaderField.FieldName + "Count", 0);
 				return true;
 			}
-			
-			if(value is IList list)
+
+			desc.Size = list.Count;
+			buffer = resources.ComputeBufferProvider.GetBuffer(shaderField.FieldName, desc);
+			if (list is Array arr)
 			{
-				// TODO: how can we specify WHEN a field should be set, for example: i only want to initialize a list with values and then mark dirty or something to notify that the buffer should be updated
-				desc.Size = list.Count;
-				var buffer = resources.ComputeBufferProvider.GetBuffer(shaderField.FieldName, desc);
-				if (list is Array arr) buffer.SetData(arr);
+				if (!didCheckType)
+				{
+					didCheckType = true;
+					contentType = arr.GetType().GetElementType();
+					if (contentType == null) throw new Exception("Unknown content type: " + arr);
+					if (contentType.IsValueType)
+						typeIsBlittable = true;
+				}
+
+				if (typeIsBlittable)
+					buffer.SetData(arr);
 				else
 				{
-					// TODO: find better way of setting content to buffer
-					// TODO: this works only for value types, and e.g. a list of transforms would fail
-					list_backingArray ??= list.GetType().GetField("_items", BindingFlags.Instance | BindingFlags.NonPublic);
-					var backingArray = list_backingArray.GetValue(list) as Array;
-					if(list.Count > 0)
-						buffer.SetData(backingArray, 0, 0, list.Count);
+					UpdateOwnBackingArray(field, shaderField, arr, contentType);
+					buffer.SetData(own_backingArrayArray, 0, 0, arr.Length);
 				}
-				shaderInfo.Shader.SetBuffer(context.KernelIndex, shaderField.FieldName, buffer);
-				shaderInfo.Shader.SetInt(shaderField.FieldName + "Count", list.Count);
-				return true;
 			}
-			return false;
+			else
+			{
+				if (!didCheckType)
+				{
+					didCheckType = true;
+					var type = list.GetType();
+					if (type.IsGenericType)
+					{
+						contentType = type.GetGenericArguments().First();
+					}
+					else throw new Exception("Unknown content type: " + list);
+					if (contentType == null) throw new Exception("Unknown content type: " + list);
+					if (contentType.IsValueType)
+						typeIsBlittable = true;
+				}
+				
+				// TODO: find better way of setting content to buffer
+				// TODO: this works only for value types, and e.g. a list of transforms would fail
+				list_backingArray ??= list.GetType().GetField("_items", BindingFlags.Instance | BindingFlags.NonPublic);
+				var backingArray = list_backingArray.GetValue(list) as Array;
+				
+				if(typeIsBlittable)
+					buffer.SetData(backingArray, 0, 0, list.Count);
+				else 
+				{
+					UpdateOwnBackingArray(field, shaderField, backingArray, contentType);
+					buffer.SetData(own_backingArrayArray, 0, 0, backingArray?.Length??0);
+				}
+			}
+			shaderInfo.Shader.SetBuffer(context.KernelIndex, shaderField.FieldName, buffer);
+			shaderInfo.Shader.SetInt(shaderField.FieldName + "Count", list.Count);
+			return true;
+		}
+
+		private void UpdateOwnBackingArray(FieldInfo fi, ComputeShaderFieldInfo field, IList list, Type contentType)
+		{
+			if (typeof(Transform).IsAssignableFrom(contentType))
+			{
+				switch (field.GenericTypeName)
+				{
+					case "float3":
+						InternalUpdate<Transform, Vector3>(e => e.position);
+						break;
+					case "float4":
+						InternalUpdate<Transform, Vector4>(e => e.position);
+						break;
+					case "float4x4":
+						InternalUpdate<Transform, Matrix4x4>(e => e.localToWorldMatrix);
+						break;
+				}
+			}
+			void InternalUpdate<T, TEntryType>(Func<T, TEntryType> getValue)
+			{
+				if (own_backingArrayArray == null || own_backingArrayArray.Length <= list.Count)
+				{
+					own_backingArrayArray =  new TEntryType[list.Count * 2];
+				}
+				var arr = own_backingArrayArray as TEntryType[];
+				for (var index = 0; index < list.Count; index++)
+				{
+					var entry = list[index];
+					arr[index] = getValue((T)entry);
+				}
+			}
+
 		}
 	}
 }
