@@ -10,7 +10,7 @@ using UnityEngine;
 namespace Needle.Timeline
 {
 	[ExecuteInEditMode]
-	public abstract class Animated : MonoBehaviour, IAnimated, IAnimatedEvents, IHasBindingState
+	public abstract class Animated : MonoBehaviour, IAnimated, IAnimatedEvents, IFieldsWithDirtyState
 	{
 		// private void OnValidate()
 		// {
@@ -106,7 +106,7 @@ namespace Needle.Timeline
 		private readonly Dictionary<string, bool> dirtyDict = new Dictionary<string, bool>();
 		private readonly List<string> didSetDirtyList = new List<string>();
 
-		bool IHasBindingState.IsDirty(string fieldName)
+		bool IFieldsWithDirtyState.IsDirty(string fieldName)
 		{
 			if (!dirtyDict.TryGetValue(fieldName, out var dirty)) return true;
 			return dirty;

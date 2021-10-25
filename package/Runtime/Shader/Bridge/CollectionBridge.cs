@@ -27,7 +27,7 @@ namespace Needle.Timeline
 			}
 
 			var instance = context.Instance;
-			if (didSet && instance is IHasBindingState state && !state.IsDirty(field.Name))
+			if (didSet && instance is IFieldsWithDirtyState state && !state.IsDirty(field.Name))
 			{
 				return true;
 			}

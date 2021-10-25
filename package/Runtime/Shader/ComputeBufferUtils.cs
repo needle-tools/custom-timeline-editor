@@ -46,6 +46,21 @@ namespace Needle.Timeline
 			else if (tex && !tex.IsCreated()) tex.Create();
 			return tex;
 		}
+		
+		public static RenderTexture SafeCreate(this RenderTexture _, ref RenderTexture tex, IRenderTextureDescription desc)
+		{
+			if (!tex || !desc.Equals(tex))
+			{
+				if(tex && tex.IsCreated()) tex.Release();
+				tex = new RenderTexture(desc.Width, desc.Height, desc.Depth, desc.Format);
+				tex.hideFlags = HideFlags.DontSaveInEditor;
+				tex.enableRandomWrite = desc.RandomAccess;
+				tex.Create();
+				Debug.Log("Create RT");
+			}
+			else if (tex && !tex.IsCreated()) tex.Create();
+			return tex;
+		}
 
 		public static ComputeBuffer SafeCreate(ref ComputeBuffer buffer, int size, int stride, ComputeBufferType? type = null, ComputeBufferMode? mode = null)
 		{

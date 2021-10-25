@@ -20,7 +20,7 @@ namespace Needle.Timeline
 			if (buffer == null || !buffer.IsValid())
 			{
 				var info = field.GetCustomAttribute<ComputeBufferInfo>();
-				var desc = shaderField.GetDescription();
+				var desc = shaderField.GetComputeBufferDescription();
 				desc.Type = info.Type;
 				desc.Mode = info.Mode;
 				

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using Needle.Timeline.ResourceProviders;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
@@ -51,13 +52,12 @@ namespace Needle.Timeline
 					}
 				}
 
-				var rt = context.Resources.RenderTextureProvider.GetTexture(field.Name, info.Width, info.Height,
-					info.Depth, graphicsFormat, shaderField.RandomWrite, rt =>
-					{
-						rt.filterMode = info.FilterMode;
-					});
+				var desc = info.ToRenderTextureDescription();
+				desc.Name = field.Name;
+				desc.RandomAccess = shaderField.RandomWrite.GetValueOrDefault();
+				var rt = context.Resources.RenderTextureProvider.GetTexture(field.Name, desc);
 				value = tex = rt; 
-				field.SetValue(context.Instance, tex);
+				field.SetValue(context.Instance, value);
 			}
 
 			if (tex)

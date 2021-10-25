@@ -4,7 +4,7 @@ namespace Needle.Timeline.ResourceProviders
 {
 	public interface IUnityObjectDescription
 	{
-		string Name { get; }
-		HideFlags HideFlags { get; }
+		string Name { get; set; }
+		HideFlags HideFlags { get; set; }
 	}
 }

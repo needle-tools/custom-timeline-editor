@@ -13,12 +13,6 @@ namespace Needle.Timeline
 		ComputeShaderFieldInfo ShaderField { get; }
 	}
 
-	public interface IHasBindingState
-	{
-		bool IsDirty(string fieldName);
-		void SetDirty(string fieldName, bool dirty = true);
-	}
-	
 	public struct BindingContext : IBindingContext
 	{
 		public BindingContext(object instance, int kernelIndex, IResourceProvider resources, 

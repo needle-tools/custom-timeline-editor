@@ -1,6 +1,7 @@
 ﻿#nullable enable
 
 using System;
+using Needle.Timeline.ResourceProviders;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
 
@@ -11,6 +12,9 @@ namespace Needle.Timeline
 	{
 	}
 
+	/// <summary>
+	/// Use to set a field only ONCE to a shader. If you need dynamic control implement IFieldsWithDirtyState and set fields dirty individually
+	/// </summary>
 	[AttributeUsage(AttributeTargets.Field)]
 	public class Once : Attribute
 	{
@@ -37,6 +41,19 @@ namespace Needle.Timeline
 		{
 			Width = width;
 			Height = height;
+		}
+
+		public RenderTextureDescription ToRenderTextureDescription()
+		{
+			var desc = new RenderTextureDescription
+			{
+				Width = Width,
+				Height = Height,
+				Depth = Depth,
+				GraphicsFormat = GraphicsFormat,
+				FilterMode = FilterMode
+			};
+			return desc;
 		}
 	}
 
