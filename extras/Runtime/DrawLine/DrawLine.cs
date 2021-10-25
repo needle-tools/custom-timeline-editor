@@ -42,6 +42,8 @@ public class DrawLine : Animated
 	{
 		if (transform.childCount != TransformArray?.Length)
 		{
+			// TODO: use PlayerLoopHelper to create transform changed watcher that resets changed bool at very end of every frame
+			
 			TransformArray = new Transform[transform.childCount];
 			for(var i = 0; i < transform.childCount; i++)
 			{
