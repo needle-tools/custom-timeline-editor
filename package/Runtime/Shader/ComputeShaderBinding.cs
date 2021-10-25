@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Linq;
 using System.Reflection;
+using Needle.Timeline.ResourceProviders;
 using UnityEngine;
 
 namespace Needle.Timeline
@@ -38,8 +39,11 @@ namespace Needle.Timeline
 			if (typeof(IList).IsAssignableFrom(Field.FieldType))
 			{
 				var list = Field.GetValue(Instance) as IList;
-				var buffer = Resources.ComputeBufferProvider.GetBuffer(ShaderField.FieldName, list!.Count, ShaderField.Stride,
-					ShaderField.RandomWrite.GetValueOrDefault() ? ComputeBufferType.Structured : ComputeBufferType.Default);
+				var desc = ComputeBufferDescription.Default(list!.Count, ShaderField.Stride);
+				if (ShaderField.RandomWrite.GetValueOrDefault())
+					desc.Type = ComputeBufferType.Structured;
+				else desc.Type = ComputeBufferType.Constant;
+				var buffer = Resources.ComputeBufferProvider.GetBuffer(ShaderField.FieldName, desc);
 				var arr = Array.CreateInstance(list.GetType().GetGenericArguments().First(), list.Count);
 				buffer.GetData(arr, 0, 0, list.Count);
 				return arr;

@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using Needle.Timeline;
+using Needle.Timeline.ResourceProviders;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -84,7 +85,8 @@ public class SimulateCircleColor : Animated, IOnionSkin
 		}
 		if (Entities?.IsValid() == false || Entities?.count != EntitiesCount)
 		{
-			Entities = Resources.ComputeBufferProvider.GetBuffer(nameof(Entities), EntitiesCount, typeof(Entity).GetStride(), ComputeBufferType.Structured);
+			var desc = new ComputeBufferDescription() { Size = EntitiesCount, Stride = typeof(Entity).GetStride() };
+			Entities = Resources.ComputeBufferProvider.GetBuffer(nameof(Entities), desc);
 			var entities = new Entity[EntitiesCount];
 			for (var i = 0; i < EntitiesCount; i++)
 			{

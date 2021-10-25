@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using Needle.Timeline.ResourceProviders;
 using UnityEngine;
 
 namespace Needle.Timeline
@@ -19,7 +20,12 @@ namespace Needle.Timeline
 			if (buffer == null || !buffer.IsValid())
 			{
 				var info = field.GetCustomAttribute<ComputeBufferInfo>();
-				buffer = resources.ComputeBufferProvider.GetBuffer(shaderField.FieldName, info.Size, info.Stride, info.Type, info.Mode);
+				var desc = ComputeBufferDescription.Default(info.Size, info.Stride);
+				desc.Type = info.Type;
+				desc.Mode = info.Mode;
+				desc.Type = shaderField.RandomWrite.GetValueOrDefault() ? ComputeBufferType.Structured : ComputeBufferType.Default;
+				
+				buffer = resources.ComputeBufferProvider.GetBuffer(shaderField.FieldName, desc);
 				buffer.name = field.Name;
 				field.SetValue(instance, buffer);
 			}

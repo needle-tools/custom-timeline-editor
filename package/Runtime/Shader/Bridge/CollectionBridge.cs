@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Reflection;
+using Needle.Timeline.ResourceProviders;
 using UnityEngine;
 
 namespace Needle.Timeline
@@ -35,14 +36,15 @@ namespace Needle.Timeline
 			var shaderField = context.ShaderField;
 			var resources = context.Resources;
 			var shaderInfo = context.ShaderInfo;
-			var value = field.GetValue(instance); 
+			var value = field.GetValue(instance);
+			var desc = new ComputeBufferDescription();
+			desc.Stride = shaderField.Stride;
+			desc.Type = shaderField.RandomWrite.GetValueOrDefault() ? ComputeBufferType.Structured : ComputeBufferType.Default;
 
 			if (value == null)
 			{
-				var buffer = resources.ComputeBufferProvider.GetBuffer(
-					shaderField.FieldName, 1, shaderField.Stride,
-					shaderField.RandomWrite.GetValueOrDefault() ? ComputeBufferType.Structured : ComputeBufferType.Default
-					);
+				desc.Size = 1;
+				var buffer = resources.ComputeBufferProvider.GetBuffer(shaderField.FieldName, desc);
 				shaderInfo.Shader.SetBuffer(context.KernelIndex, shaderField.FieldName, buffer);
 				shaderInfo.Shader.SetInt(shaderField.FieldName + "Count", 0);
 				return true;
@@ -51,8 +53,8 @@ namespace Needle.Timeline
 			if(value is IList list)
 			{
 				// TODO: how can we specify WHEN a field should be set, for example: i only want to initialize a list with values and then mark dirty or something to notify that the buffer should be updated
-				var buffer = resources.ComputeBufferProvider.GetBuffer(shaderField.FieldName, list.Count, shaderField.Stride,
-					shaderField.RandomWrite.GetValueOrDefault() ? ComputeBufferType.Structured : ComputeBufferType.Default);
+				desc.Size = list.Count;
+				var buffer = resources.ComputeBufferProvider.GetBuffer(shaderField.FieldName, desc);
 				if (list is Array arr) buffer.SetData(arr);
 				else
 				{

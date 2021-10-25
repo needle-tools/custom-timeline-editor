@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Needle.Timeline.ResourceProviders;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
 
@@ -48,12 +49,21 @@ namespace Needle.Timeline
 
 		public static ComputeBuffer SafeCreate(ref ComputeBuffer buffer, int size, int stride, ComputeBufferType? type = null, ComputeBufferMode? mode = null)
 		{
-			if (buffer == null || !buffer.IsValid() || buffer.count != size || buffer.stride != stride)
+			return SafeCreate(ref buffer,
+				new ComputeBufferDescription() { Size = size, Stride = stride, Type = type.GetValueOrDefault(), Mode = mode.GetValueOrDefault() });
+		}
+
+		public static ComputeBuffer SafeCreate(ref ComputeBuffer buffer, IComputeBufferDescription desc)
+		{
+			if (buffer == null || !buffer.IsValid() || buffer.count != desc.Size || buffer.stride != desc.Stride)
 			{
 				buffer.SafeDispose();
-				buffer = new ComputeBuffer(size, stride, type ?? ComputeBufferType.Default, mode ?? ComputeBufferMode.Immutable);
-				Debug.Log("Create ComputeBuffer, size=" + size + ", stride=" + stride);
+				buffer = new ComputeBuffer(desc.Size, desc.Stride, desc.Type, desc.Mode);
+				buffer.name = desc.Name;
+				Debug.Log("Create ComputeBuffer, size=" + desc.Size + ", stride=" + desc.Stride);
 			}
+			if(desc.CounterValue != null)
+				buffer.SetCounterValue(desc.CounterValue.Value);
 			return buffer;
 		}
 		

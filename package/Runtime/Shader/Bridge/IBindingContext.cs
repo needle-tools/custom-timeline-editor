@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using Needle.Timeline.ResourceProviders;
 
 namespace Needle.Timeline
 {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Needle.Timeline.ResourceProviders;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
