@@ -26,7 +26,7 @@ namespace Needle.Timeline
 	[AttributeUsage(AttributeTargets.Field)]
 	public class TransformInfo : Attribute
 	{
-		// TODO: implement, should provide info of what we want of position, rotation, scale
+		// TODO: would be nice to be able to set position+scale in one structure
 
 		public enum DataType
 		{
@@ -43,11 +43,11 @@ namespace Needle.Timeline
 			LocalMatrix = 11
 		}
 
-		public DataType Data;
+		public DataType Type;
 
 		public Vector4 GetVector4(Transform t)
 		{
-			switch (Data)
+			switch (Type)
 			{
 				default:
 				case DataType.Position:
@@ -74,7 +74,7 @@ namespace Needle.Timeline
 
 		public Matrix4x4 GetMatrix(Transform t)
 		{
-			switch (Data)
+			switch (Type)
 			{
 				default:
 				case DataType.WorldMatrix:
@@ -86,15 +86,15 @@ namespace Needle.Timeline
 
 		public void SetDefault(string shaderType)
 		{
-			if (Data != DataType.Undefined) return;
+			if (Type != DataType.Undefined) return;
 			switch (shaderType)
 			{
 				case "float3":
 				case "float4":
-					Data = DataType.Position;
+					Type = DataType.Position;
 					break;
 				case "float4x4":
-					Data = DataType.WorldMatrix;
+					Type = DataType.WorldMatrix;
 					break;
 			}
 		}

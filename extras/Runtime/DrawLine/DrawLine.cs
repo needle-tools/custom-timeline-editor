@@ -16,7 +16,6 @@ public class DrawLine : Animated
 
 	[TransformInfo]
 	public List<Transform> TransformList = new List<Transform>();
-	[TransformInfo(Data = TransformInfo.DataType.Rotation)]
 	public Transform[] TransformArray;
 
 	private List<Point> Points;
@@ -41,6 +40,15 @@ public class DrawLine : Animated
 
 	protected override IEnumerable<DispatchInfo> OnDispatch()
 	{
+		if (transform.childCount != TransformArray?.Length)
+		{
+			TransformArray = new Transform[transform.childCount];
+			for(var i = 0; i < transform.childCount; i++)
+			{
+				TransformArray[i] = transform.GetChild(i);
+			}
+		}
+		
 		// yield return new DispatchInfo { KernelIndex = 1, GroupsX = 32, GroupsY = 32};
 		yield return new DispatchInfo { KernelIndex = 1, GroupsX = Directions?.Count };
 
