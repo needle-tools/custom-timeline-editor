@@ -14,7 +14,9 @@ public class DrawLine : Animated
 	public RenderTexture Output; 
 	public Renderer Rend;
 
+	[TransformInfo]
 	public List<Transform> TransformList = new List<Transform>();
+	[TransformInfo(Data = TransformInfo.DataType.Rotation)]
 	public Transform[] TransformArray;
 
 	private List<Point> Points;

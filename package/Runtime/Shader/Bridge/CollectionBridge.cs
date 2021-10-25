@@ -96,18 +96,18 @@ namespace Needle.Timeline
 					if (contentType.IsValueType)
 						typeIsBlittable = true;
 				}
-				
+
 				// TODO: find better way of setting content to buffer
 				// TODO: this works only for value types, and e.g. a list of transforms would fail
 				list_backingArray ??= list.GetType().GetField("_items", BindingFlags.Instance | BindingFlags.NonPublic);
 				var backingArray = list_backingArray.GetValue(list) as Array;
-				
-				if(typeIsBlittable)
+
+				if (typeIsBlittable)
 					buffer.SetData(backingArray, 0, 0, list.Count);
-				else 
+				else
 				{
 					UpdateOwnBackingArray(field, shaderField, backingArray, contentType);
-					buffer.SetData(own_backingArrayArray, 0, 0, backingArray?.Length??0);
+					buffer.SetData(own_backingArrayArray, 0, 0, backingArray?.Length ?? 0);
 				}
 			}
 			shaderInfo.Shader.SetBuffer(context.KernelIndex, shaderField.FieldName, buffer);
@@ -115,28 +115,48 @@ namespace Needle.Timeline
 			return true;
 		}
 
+
+		private bool triedGettingTransformInfo;
+		private TransformInfo transformInfo;
+
 		private void UpdateOwnBackingArray(FieldInfo fi, ComputeShaderFieldInfo field, IList list, Type contentType)
 		{
 			if (typeof(Transform).IsAssignableFrom(contentType))
 			{
+				if (!triedGettingTransformInfo)
+				{
+					triedGettingTransformInfo = true;
+					transformInfo = fi.GetCustomAttribute<TransformInfo>();
+				}
+
 				switch (field.GenericTypeName)
 				{
 					case "float3":
-						InternalUpdate<Transform, Vector3>(e => e.position);
+						if (transformInfo != null)
+							InternalUpdate<Transform, Vector3>(e => transformInfo.GetVector4(e));
+						else
+							InternalUpdate<Transform, Vector3>(e => e.position);
 						break;
 					case "float4":
-						InternalUpdate<Transform, Vector4>(e => e.position);
+						if (transformInfo != null)
+							InternalUpdate<Transform, Vector4>(e => transformInfo.GetVector4(e));
+						else
+							InternalUpdate<Transform, Vector4>(e => e.position);
 						break;
 					case "float4x4":
-						InternalUpdate<Transform, Matrix4x4>(e => e.localToWorldMatrix);
+						if (transformInfo != null)
+							InternalUpdate<Transform, Matrix4x4>(e => transformInfo.GetMatrix(e));
+						else
+							InternalUpdate<Transform, Matrix4x4>(e => e.localToWorldMatrix);
 						break;
 				}
 			}
+
 			void InternalUpdate<T, TEntryType>(Func<T, TEntryType> getValue)
 			{
 				if (own_backingArrayArray == null || own_backingArrayArray.Length <= list.Count)
 				{
-					own_backingArrayArray =  new TEntryType[list.Count * 2];
+					own_backingArrayArray = new TEntryType[list.Count * 2];
 				}
 				var arr = own_backingArrayArray as TEntryType[];
 				for (var index = 0; index < list.Count; index++)
@@ -145,7 +165,6 @@ namespace Needle.Timeline
 					arr[index] = getValue((T)entry);
 				}
 			}
-
 		}
 	}
 }

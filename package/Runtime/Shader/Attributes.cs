@@ -1,6 +1,8 @@
 ﻿#nullable enable
 
 using System;
+using System.CodeDom;
+using System.Threading;
 using Needle.Timeline.ResourceProviders;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
@@ -25,6 +27,77 @@ namespace Needle.Timeline
 	public class TransformInfo : Attribute
 	{
 		// TODO: implement, should provide info of what we want of position, rotation, scale
+
+		public enum DataType
+		{
+			Undefined = 0,
+			Position = 1,
+			Rotation = 2,
+			Scale = 3,
+			LocalPosition = 4,
+			LocalRotation = 5,
+			LocalScale = 6,
+			RotationQuaternion = 7,
+			LocalRotationQuaternion = 8,
+			WorldMatrix = 10,
+			LocalMatrix = 11
+		}
+
+		public DataType Data;
+
+		public Vector4 GetVector4(Transform t)
+		{
+			switch (Data)
+			{
+				default:
+				case DataType.Position:
+					var pos = t.position;
+					return new Vector4(pos.x, pos.y, pos.z, 1);
+				case DataType.Rotation:
+					return t.rotation.eulerAngles;
+				case DataType.Scale:
+					return t.lossyScale;
+				case DataType.LocalPosition:
+					return t.localPosition;
+				case DataType.LocalRotation:
+					return t.localRotation.eulerAngles;
+				case DataType.LocalScale:
+					return t.localScale;
+				case DataType.RotationQuaternion:
+					var rot = t.rotation;
+					return new Vector4(rot.x, rot.y, rot.z, rot.w);
+				case DataType.LocalRotationQuaternion:
+					var localRot = t.localRotation;
+					return new Vector4(localRot.x, localRot.y, localRot.z, localRot.w);
+			}
+		}
+
+		public Matrix4x4 GetMatrix(Transform t)
+		{
+			switch (Data)
+			{
+				default:
+				case DataType.WorldMatrix:
+					return t.localToWorldMatrix;
+				case DataType.LocalMatrix:
+					return t.worldToLocalMatrix;
+			}
+		}
+
+		public void SetDefault(string shaderType)
+		{
+			if (Data != DataType.Undefined) return;
+			switch (shaderType)
+			{
+				case "float3":
+				case "float4":
+					Data = DataType.Position;
+					break;
+				case "float4x4":
+					Data = DataType.WorldMatrix;
+					break;
+			}
+		}
 	}
 
 	[AttributeUsage(AttributeTargets.Field)]
