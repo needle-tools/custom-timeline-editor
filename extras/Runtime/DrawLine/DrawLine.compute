@@ -66,10 +66,10 @@ void CSPoints(uint3 id : SV_DispatchThreadID)
     float4 col = float4(0, 0, 1, .05);
 
 
-    Point closest;
     float closestDistance = 9999;
     float2 closestDir;
     uint closeCount;
+    float pushFactor = 1;
     for (uint i = 0; i < PointsCount; i++)
     {
         if (i == id.x) continue;
@@ -82,19 +82,30 @@ void CSPoints(uint3 id : SV_DispatchThreadID)
         if (dist < closestDistance)
         {
             closestDistance = dist;
-            closest = other;
             closestDir = dir;
         }
-        // else if(dist > PointSpacing*4 && ((i+id.x)%5 == 0))
-        // {
-        //     // pt.Pos += dir * _Time.w;
-        // }
+    }
+    
+    for (int i = 0; i < TransformArrayCount; i++)
+    {
+        float3 pos = TransformArray[i];
+        float2 dir = pos - pt.Pos;
+        float dist = length(dir);
+
+        if (closestDistance < PointSpacing)
+            closeCount += 1;
+        if (dist*.3 < closestDistance)
+        {
+            closestDistance = dist;
+            closestDir = dir;
+            pushFactor = 3;
+        }
     }
 
 
     if (closestDistance < PointSpacing)
     {
-        pt.Pos -= closestDir / (closestDistance * 50) * _Time.w * (closeCount * PointSpacing);
+        pt.Pos -= closestDir / (closestDistance * 50) * _Time.w * (closeCount * PointSpacing) * pushFactor;
     }
     pt.Pos -= pt.Pos * _Time.w / max(PointSpacing * 10, .1);
 
