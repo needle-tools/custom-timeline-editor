@@ -8,6 +8,7 @@ namespace Needle.Timeline
 	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
 	public class ShaderBridgeAttribute : Attribute
 	{
+		public int Priority;
 		public readonly Type? SupportedType;
 		public readonly Type[]? SupportedTypes;
 

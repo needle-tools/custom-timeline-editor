@@ -38,6 +38,7 @@ namespace Needle.Timeline
 					var att = type.GetCustomAttribute<ShaderBridgeAttribute>();
 					shaderBridgeTypes.Add(new ImplementationInfo(type, att));
 				}
+				shaderBridgeTypes.Sort((x,y) =>  (y.Attribute?.Priority??0)-(x.Attribute?.Priority??0));
 			}
 
 			var match = shaderBridgeTypes.FirstOrDefault(e => e.Supports(field.FieldType));

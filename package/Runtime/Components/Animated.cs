@@ -105,7 +105,7 @@ namespace Needle.Timeline
 		private readonly Dictionary<string, bool> dirtyDict = new Dictionary<string, bool>();
 		private readonly List<string> didSetDirtyList = new List<string>();
 
-		public bool IsDirty(string fieldName)
+		bool IHasBindingState.IsDirty(string fieldName)
 		{
 			if (!dirtyDict.TryGetValue(fieldName, out var dirty)) return true;
 			return dirty;
