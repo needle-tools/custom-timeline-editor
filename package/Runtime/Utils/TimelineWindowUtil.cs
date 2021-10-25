@@ -17,6 +17,7 @@ namespace Needle.Timeline
 		{
 			// we need to cache the time because timeline window does not set it to the playable director before focus
 			TimelineHooks.TimeChanged += OnTimeChanged;
+			TimelineHooks.StateChanged += OnStateChanged;
 
 			// TimelineEditor.GetInspectedTimeFromMasterTime(RefreshReason.SceneNeedsUpdate);
 			// IsInit?.Invoke(); 
@@ -44,12 +45,18 @@ namespace Needle.Timeline
 						}
 						dir.Evaluate();
 						IsInit?.Invoke();
+						if(IsPlaying) dir.Play();
 					}
 				}
 				// else await Task.Delay(500);
 			}
 
 			EditorApplication.update += OnEditorUpdate;
+		}
+
+		private static void OnStateChanged(PlayableDirector arg1, PlayState arg2)
+		{
+			IsPlaying = arg1.state == PlayState.Playing;
 		}
 
 		private static void OnEditorUpdate()
@@ -71,6 +78,12 @@ namespace Needle.Timeline
 		private static float GetTime()
 		{
 			return SessionState.GetFloat("Timeline_Time", -1);
+		}
+
+		private static bool IsPlaying
+		{
+			get => SessionState.GetBool("Timeline_Playing", false);
+			set => SessionState.SetBool("Timeline_Playing", value);
 		}
 
 		private static bool _isInit;

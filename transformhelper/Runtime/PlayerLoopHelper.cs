@@ -33,14 +33,16 @@ namespace Needle.TransformExtensions
 			return AddUpdateCallback(type, callback, playerLoopEvent.ToString(), index);
 		}
 
+		private static PlayerLoopSystem? _defaultPlayerLoopSystem;
+
 		public static bool AddUpdateCallback(Type type, PlayerLoopSystem.UpdateFunction callback, string stage, int index = int.MaxValue)
 		{
-			var playerLoop = PlayerLoop.GetCurrentPlayerLoop();
-
-			var added = false;
-			for (var i = playerLoop.subSystemList.Length - 1; i >= 0; i--)
+			_defaultPlayerLoopSystem ??= PlayerLoop.GetDefaultPlayerLoop();
+			if (_defaultPlayerLoopSystem == null) return false;
+			var added = false;  
+			for (var i = _defaultPlayerLoopSystem.Value.subSystemList.Length - 1; i >= 0; i--)
 			{
-				var update = playerLoop.subSystemList[i];
+				var update = _defaultPlayerLoopSystem.Value.subSystemList[i];
 				if (update.type.Name != stage) continue;
 
 				var list = new List<PlayerLoopSystem>(update.subSystemList);
@@ -53,7 +55,7 @@ namespace Needle.TransformExtensions
 				else if (index < list.Count) list.Insert(index, system);
 				else list.Add(system);
 				update.subSystemList = list.ToArray();
-				playerLoop.subSystemList[i] = update;
+				_defaultPlayerLoopSystem.Value.subSystemList[i] = update;
 				added = true;
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
 				if (DebugLogs)
@@ -67,7 +69,7 @@ namespace Needle.TransformExtensions
 				Debug.LogError("Failed finding update stage " + stage + " to add callback for " + type + ", " + callback);
 			}
 
-			PlayerLoop.SetPlayerLoop(playerLoop);
+			PlayerLoop.SetPlayerLoop(_defaultPlayerLoopSystem.Value);
 			return added;
 		}
 
