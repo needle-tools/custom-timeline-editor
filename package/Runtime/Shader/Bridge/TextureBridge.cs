@@ -21,7 +21,8 @@ namespace Needle.Timeline
 			var value = field.GetValue(context.Instance);
 			var tex = value as Texture;
 			var renderTex = value as RenderTexture;
-			if (value == null || !(Object)value || renderTex && (renderTex.width != info.Width || renderTex.height != info.Height))
+			if (value == null || !(Object)value || 
+			    renderTex && (renderTex.width != info.Width || renderTex.height != info.Height || renderTex.enableRandomWrite != shaderField.RandomWrite))
 			{
 				GraphicsFormat? graphicsFormat = info.GraphicsFormat;
 				if ((int)graphicsFormat == 0)
