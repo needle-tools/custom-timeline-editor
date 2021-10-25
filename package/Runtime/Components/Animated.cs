@@ -3,6 +3,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using Needle.Timeline.ResourceProviders;
 using Unity.Profiling;
 using UnityEngine;
@@ -124,6 +125,16 @@ namespace Needle.Timeline
 
 		public void OnEvaluated(FrameInfo frame)
 		{
+			OnInternalEvaluate();
+		}
+
+		private bool requestedEvaluation;
+		protected async void OnRequestEvaluation()
+		{
+			if (requestedEvaluation) return;
+			requestedEvaluation = true;
+			await Task.Delay(1);
+			requestedEvaluation = false;
 			OnInternalEvaluate();
 		}
 

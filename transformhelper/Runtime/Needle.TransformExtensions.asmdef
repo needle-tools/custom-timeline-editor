@@ -1,5 +1,6 @@
 {
-    "name": "com.needle.better-transform-changed",
+    "name": "com.needle.transform-extensions",
+    "rootNamespace": "Needle.TransformExtensions",
     "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],

@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Needle.Timeline;
+using Needle.TransformExtensions;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -27,6 +29,12 @@ public class DrawLine : Animated
 	public int Points_Count = 100;
 	public float PointSpacing = .2f;
 
+	private void OnValidate()
+	{
+		foreach(var t in TransformArray)
+			t.OnHasChanged(OnRequestEvaluation);
+	}
+
 	public override void OnReset()
 	{
 		base.OnReset();
@@ -47,7 +55,9 @@ public class DrawLine : Animated
 			TransformArray = new Transform[transform.childCount];
 			for(var i = 0; i < transform.childCount; i++)
 			{
-				TransformArray[i] = transform.GetChild(i);
+				var t = transform.GetChild(i);
+				TransformArray[i] = t;
+				t.OnHasChanged(OnRequestEvaluation);
 			}
 		}
 		

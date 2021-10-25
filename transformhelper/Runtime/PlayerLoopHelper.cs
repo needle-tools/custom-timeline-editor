@@ -4,32 +4,33 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.LowLevel;
 
-namespace Needle.BetterTransformChanged
+namespace Needle.TransformExtensions
 {
+	public enum PlayerLoopEvent
+	{
+		TimeUpdate,
+		Initialization,
+		EarlyUpdate,
+		FixedUpdate,
+		PreUpdate,
+		Update,
+		PreLateUpdate,
+		PostLateUpdate,
+	}
+	
 	public static class PlayerLoopHelper
 	{
 		public static bool DebugLogs = false;
 
-		public enum Stages
-		{
-			TimeUpdate,
-			Initialization,
-			EarlyUpdate,
-			FixedUpdate,
-			PreUpdate,
-			Update,
-			PreLateUpdate,
-			PostLateUpdate,
-		}
 		
-		public static bool AddUpdateCallback(object obj, PlayerLoopSystem.UpdateFunction callback, Stages stage, int index = int.MaxValue)
+		public static bool AddUpdateCallback(object obj, PlayerLoopSystem.UpdateFunction callback, PlayerLoopEvent playerLoopEvent, int index = int.MaxValue)
 		{
-			return AddUpdateCallback(obj.GetType(), callback, stage.ToString(), index);
+			return AddUpdateCallback(obj.GetType(), callback, playerLoopEvent.ToString(), index);
 		}
 
-		public static bool AddUpdateCallback(Type type, PlayerLoopSystem.UpdateFunction callback, Stages stage, int index = int.MaxValue)
+		public static bool AddUpdateCallback(Type type, PlayerLoopSystem.UpdateFunction callback, PlayerLoopEvent playerLoopEvent, int index = int.MaxValue)
 		{
-			return AddUpdateCallback(type, callback, stage.ToString(), index);
+			return AddUpdateCallback(type, callback, playerLoopEvent.ToString(), index);
 		}
 
 		public static bool AddUpdateCallback(Type type, PlayerLoopSystem.UpdateFunction callback, string stage, int index = int.MaxValue)
