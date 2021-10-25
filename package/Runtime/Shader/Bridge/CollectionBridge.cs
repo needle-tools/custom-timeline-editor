@@ -60,7 +60,8 @@ namespace Needle.Timeline
 					// TODO: this works only for value types, and e.g. a list of transforms would fail
 					list_backingArray ??= list.GetType().GetField("_items", BindingFlags.Instance | BindingFlags.NonPublic);
 					var backingArray = list_backingArray.GetValue(list) as Array;
-					buffer.SetData(backingArray, 0, 0, Mathf.Max(1, list.Count));
+					if(list.Count > 0)
+						buffer.SetData(backingArray, 0, 0, list.Count);
 				}
 				shaderInfo.Shader.SetBuffer(context.KernelIndex, shaderField.FieldName, buffer);
 				shaderInfo.Shader.SetInt(shaderField.FieldName + "Count", list.Count);

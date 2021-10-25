@@ -20,7 +20,7 @@ public struct Direction : ICustomControls, IToolEvents, IOnionSkin
 		if (stage == ToolStage.BasicValuesSet)
 		{
 			// Debug.Log(data.DeltaWorld.GetValueOrDefault());
-			End = Start + data.DeltaWorld.GetValueOrDefault().normalized;
+			End = Start + Vector3.ClampMagnitude(data.DeltaWorld.GetValueOrDefault()*5,1);
 		}
 		else if (stage == ToolStage.InputUpdated)
 		{
