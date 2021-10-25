@@ -5,6 +5,37 @@ using UnityEngine.Experimental.Rendering;
 
 namespace Needle.Timeline
 {
+	// TODO: remove before create callback and replace with descriptor parameter
+	
+	public interface IUnityObjectDescription
+	{
+		string Name { get; }
+		HideFlags HideFlags { get; }
+	}
+
+	public interface IComputeBufferDescription : IUnityObjectDescription
+	{
+		int Size { get; }
+		int Stride { get; }
+		ComputeBufferType Type { get; }
+		ComputeBufferMode Mode { get; }
+	}
+
+	public interface ITextureDescription : IUnityObjectDescription
+	{
+		int Width { get; }
+		int Height { get; }
+		TextureFormat Format { get; }
+		FilterMode FilterMode { get; }
+		bool MipChain { get; }
+		int MipCount { get; }
+	}
+	
+	public interface IRenderTextureDescription : ITextureDescription
+	{
+		public bool RandomWrite { get; }
+	}
+	
 	public interface IComputeBufferProvider : IDisposable
 	{
 		ComputeBuffer GetBuffer(string id, int count, int stride, ComputeBufferType? type = null, ComputeBufferMode? mode = null);

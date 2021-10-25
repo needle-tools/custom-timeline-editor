@@ -36,6 +36,7 @@ namespace Needle.Timeline
 			{
 				if(tex && tex.IsCreated()) tex.Release();
 				tex = new RenderTexture(width, height, depth, format);
+				tex.hideFlags = HideFlags.DontSaveInEditor;
 				tex.enableRandomWrite = randomWriteEnabled;
 				beforeCreate?.Invoke(tex);
 				tex.Create();
