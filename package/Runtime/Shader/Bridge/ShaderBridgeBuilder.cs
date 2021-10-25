@@ -32,7 +32,7 @@ namespace Needle.Timeline
 			if (shaderBridgeTypes == null)
 			{
 				shaderBridgeTypes = new List<ImplementationInfo>();
-				var types = RuntimeTypeCache.TypesDerivingFrom<IShaderBridge>();
+				var types = RuntimeTypeCache.GetTypesDerivingFrom<IShaderBridge>();
 				foreach (var type in types)
 				{
 					var att = type.GetCustomAttribute<ShaderBridgeAttribute>();

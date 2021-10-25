@@ -28,7 +28,7 @@ namespace Needle.Timeline
 			}
 		}
 
-		public static IEnumerable<Type> TypesDerivingFrom<T>()
+		public static IEnumerable<Type> GetTypesDerivingFrom<T>()
 		{
 			foreach (var t in Types)
 			{

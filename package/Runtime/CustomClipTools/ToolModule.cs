@@ -102,7 +102,7 @@ namespace Needle.Timeline
 				if (!modulesInit)
 				{
 					modulesInit = true;
-					foreach (var mod in RuntimeTypeCache.TypesDerivingFrom<ToolModule>())
+					foreach (var mod in RuntimeTypeCache.GetTypesDerivingFrom<ToolModule>())
 					{
 						if (mod.IsAbstract || mod.IsInterface) continue;
 						if (Activator.CreateInstance(mod) is ToolModule moduleInstance)
