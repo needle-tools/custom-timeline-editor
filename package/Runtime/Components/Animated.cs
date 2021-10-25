@@ -9,7 +9,7 @@ using UnityEngine;
 namespace Needle.Timeline
 {
 	[ExecuteInEditMode]
-	public abstract class Animated : MonoBehaviour, IAnimated, IAnimatedEvents
+	public abstract class Animated : MonoBehaviour, IAnimated, IAnimatedEvents, IHasBindingState
 	{
 		// private void OnValidate()
 		// {
@@ -102,6 +102,21 @@ namespace Needle.Timeline
 		private readonly IResourceProvider resources = ResourceProvider.CreateDefault();
 		private ProfilerMarker evaluateMarker;
 
+		private readonly Dictionary<string, bool> dirtyDict = new Dictionary<string, bool>();
+		private readonly List<string> didSetDirtyList = new List<string>();
+
+		public bool IsDirty(string fieldName)
+		{
+			if (!dirtyDict.TryGetValue(fieldName, out var dirty)) return true;
+			return dirty;
+		}
+
+		public void SetDirty(string fieldName, bool dirty = true)
+		{
+			if (dirty) didSetDirtyList.Add(fieldName);
+			dirtyDict[fieldName] = dirty;
+		}
+
 		public virtual void OnReset()
 		{
 		}
@@ -172,6 +187,7 @@ namespace Needle.Timeline
 					OnAfterEvaluation();
 				}
 			}
+			
 		}
 		
 		protected virtual void OnBeforeDispatching()
@@ -185,6 +201,10 @@ namespace Needle.Timeline
 
 		protected virtual void OnAfterEvaluation()
 		{
+			if (didSetDirtyList.Count <= 0) return;
+			foreach (var key in didSetDirtyList)
+				dirtyDict[key] = false;
+			didSetDirtyList.Clear();
 		}
 
 		private bool DispatchNow(DispatchInfo info)

@@ -158,7 +158,7 @@ MonoBehaviour:
   End: {fileID: 618394110}
   Output: {fileID: 0}
   Rend: {fileID: 561184114}
-  Points_Count: 100
+  Points_Count: 430
   PointSpacing: 0.1
 --- !u!320 &130069901
 PlayableDirector:

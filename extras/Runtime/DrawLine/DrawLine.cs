@@ -15,7 +15,6 @@ public class DrawLine : Animated
 	public Renderer Rend;
 
 	// TODO: how can we specify WHEN a field should be set, for example: i only want to initialize points and then mark dirty or something to notify that the buffer should be reset
-	[Once]
 	private List<Point> Points;
 	public struct Point 
 	{
@@ -50,6 +49,7 @@ public class DrawLine : Animated
 				Points.Add(new Point(){Pos = Random.insideUnitCircle*.05f});
 			}
 			Debug.Log("Points: " + Points.Count());
+			SetDirty(nameof(Points));
 		}
 		
 		yield return new DispatchInfo { KernelIndex = 2, GroupsX = Points?.Count }; 
