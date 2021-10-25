@@ -20,10 +20,9 @@ namespace Needle.Timeline
 			if (buffer == null || !buffer.IsValid())
 			{
 				var info = field.GetCustomAttribute<ComputeBufferInfo>();
-				var desc = ComputeBufferDescription.Default(info.Size, info.Stride);
+				var desc = shaderField.GetDescription();
 				desc.Type = info.Type;
 				desc.Mode = info.Mode;
-				desc.Type = shaderField.RandomWrite.GetValueOrDefault() ? ComputeBufferType.Structured : ComputeBufferType.Default;
 				
 				buffer = resources.ComputeBufferProvider.GetBuffer(shaderField.FieldName, desc);
 				buffer.name = field.Name;
