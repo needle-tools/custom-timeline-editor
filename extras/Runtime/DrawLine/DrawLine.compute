@@ -33,27 +33,39 @@ int TransformArrayCount;
 StructuredBuffer<float3> TransformList;
 int TransformListCount;
 
+StructuredBuffer<Point> AnimatedPoints;
+int AnimatedPointsCount;
+
 [numthreads(1,1,1)]
 void CSMain(uint3 id : SV_DispatchThreadID)
 {
     uint width, height;
     Output.GetDimensions(width, height);
     const uint2 texSize = uint2(width, height);
-    DrawCircle(Output, texSize, Start.xy, 10, float4(1, 0, 0, 1));
-    DrawCircle(Output, texSize, End.xy, 7, float4(1, 0, 0, 1));
-    DrawLine(Output, texSize, Start.xy, End.xy, float4(1, 0, 0, 1));
+    // DrawCircle(Output, texSize, Start.xy, 10, float4(1, 0, 0, 1));
+    // DrawCircle(Output, texSize, End.xy, 7, float4(1, 0, 0, 1));
+    // DrawLine(Output, texSize, Start.xy, End.xy, float4(1, 0, 0, 1));
 
 
-    for (int i = 0; i < TransformArrayCount; i++)
+    // for (int i = 0; i < TransformArrayCount; i++)
+    // {
+    //     float3 pos = TransformArray[i];
+    //     DrawCircle(Output, texSize, pos.xy, 5, float4(1, 1, 0, 1));
+    // }
+    //
+    // for (int i = 0; i < TransformListCount; i++)
+    // {
+    //     float3 pos = TransformList[i];
+    //     DrawCircle(Output, texSize, pos.xy, 5, float4(1, 0, 1, 1));
+    // }
+
+    float b = 1;
+    float2 lastPoint = AnimatedPoints[0].Pos;
+    for(int i =1; i< AnimatedPointsCount; i++)
     {
-        float3 pos = TransformArray[i];
-        DrawCircle(Output, texSize, pos.xy, 5, float4(1, 1, 0, 1));
-    }
-    
-    for (int i = 0; i < TransformListCount; i++)
-    {
-        float3 pos = TransformList[i];
-        DrawCircle(Output, texSize, pos.xy, 5, float4(1, 0, 1, 1));
+        DrawLine(Output, texSize, AnimatedPoints[i].Pos, lastPoint, 1);
+        DrawCircle(Output, texSize, AnimatedPoints[i].Pos.xy, 2, float4(b, b, b, 1));
+        lastPoint = AnimatedPoints[i].Pos;
     }
 }
 
@@ -103,6 +115,22 @@ void CSPoints(uint3 id : SV_DispatchThreadID)
             pushFactor = 3;
         }
     }
+    
+    for (int i = 0; i < AnimatedPointsCount; i++)
+    {
+        float2 pos = AnimatedPoints[i].Pos;
+        float2 dir = pos - pt.Pos;
+        float dist = length(dir);
+
+        if (closestDistance < PointSpacing)
+            closeCount += 1;
+        if (dist*.3 < closestDistance)
+        {
+            closestDistance = dist;
+            closestDir = dir;
+            pushFactor = 3;
+        }
+    }
 
 
     if (closestDistance < PointSpacing)
@@ -135,5 +163,5 @@ void CSDirections(uint3 id : SV_DispatchThreadID)
 [numthreads(32, 32,1)]
 void CSBlend(uint3 id : SV_DispatchThreadID)
 {
-    Output[id.xy] = lerp(Output[id.xy], 0, _Time.w *1);
+    Output[id.xy] = lerp(Output[id.xy], 0, _Time.w*5);
 }

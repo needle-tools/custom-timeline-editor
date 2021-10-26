@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using NUnit.Framework.Internal.Filters;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -184,11 +185,12 @@ namespace Needle.Timeline
 		public bool OnSurface = false;
 
 		private readonly List<CallbackHandler> _created = new List<CallbackHandler>();
-		
+
+		private readonly Type[] _supportedTypes = { typeof(Vector2), typeof(Vector3) };
 
 		public override bool CanModify(Type type)
 		{
-			return typeof(Vector3).IsAssignableFrom(type);
+			return _supportedTypes.Any(t => t.IsAssignableFrom(type));
 		}
 
 		protected void EnsureKeyframe(ref ToolData toolData)
@@ -274,21 +276,30 @@ namespace Needle.Timeline
 				
 				var contentType = closestKeyframe.TryRetrieveKeyframeContentType();
 
-				if (closestKeyframe.value is ICollection<Vector3> list)
+				if (closestKeyframe.value is ICollection<Vector3> list3)
 				{
-					list.Add(pos);
+					list3.Add(pos);
 					closestKeyframe.RaiseValueChangedEvent();
 					return true;
 				}
 				
-				if (closestKeyframe.value is IList col && contentType != typeof(Vector3) && contentType != null)
+				if (closestKeyframe.value is ICollection<Vector2> list2)
+				{
+					list2.Add(pos);
+					closestKeyframe.RaiseValueChangedEvent();
+					return true;
+				}
+
+				var type = _supportedTypes.FirstOrDefault(t => t.IsAssignableFrom(contentType));
+				if (closestKeyframe.value is IList col && contentType != type && contentType != null)
 				{
 					var instance = contentType.TryCreateInstance();
 					if (instance != null)
 					{
 						if(instance is IToolEvents i) i.OnToolEvent(ToolStage.InstanceCreated, input);
-						var posField = instance.GetType().EnumerateFields().FirstOrDefault(f => f.FieldType == typeof(Vector3));
-						posField!.SetValue(instance, pos);
+						var posField = instance.GetType().EnumerateFields().FirstOrDefault(f =>
+							_supportedTypes.Any(e => e.IsAssignableFrom(f.FieldType)));// f.FieldType == type);
+						posField!.SetValue(instance, pos.Cast(posField.FieldType));
 						if (instance is IToolEvents init) init.OnToolEvent(ToolStage.BasicValuesSet, input);
 						col.Add(instance);
 						closestKeyframe.RaiseValueChangedEvent();

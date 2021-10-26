@@ -28,6 +28,9 @@ public class DrawLine : Animated
 		public Vector2 Pos;
 	}
 
+	[Animate(AllowInterpolation = false)]
+	public List<Point> AnimatedPoints; 
+
 	public int Points_Count = 100;
 	public float PointSpacing = .2f;
 
@@ -75,7 +78,7 @@ public class DrawLine : Animated
 			{
 				Points.Add(new Point(){Pos = Random.insideUnitCircle*.05f});
 			}
-			Debug.Log("Points: " + Points.Count());
+			// Debug.Log("Points: " + Points.Count());
 			SetDirty(nameof(Points));
 		}
 		if (PointSpacing < .00001f)
