@@ -45,7 +45,8 @@
     "com.unity.modules.wind": "1.0.0",
     "com.unity.modules.xr": "1.0.0",
     "com.needle.console": "file:../../../modules/needle-console/package",
-    "com.needle.transform-extensions": "file:../../../transformhelper"
+    "com.needle.transform-extensions": "file:../../../transformhelper",
+    "com.needle.inspector": "file:C:/git/timeline-editor/modules/inspector/package"
   },
   "testables": [
     "com.needle.timeline-editor"

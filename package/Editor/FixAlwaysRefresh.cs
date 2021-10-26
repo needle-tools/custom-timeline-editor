@@ -11,11 +11,11 @@ namespace Needle.Timeline
 	{
 		static FixAlwaysRefresh()
 		{
-			// var go = new GameObject();
-			// go.SetActive(false);
-			// go.name = nameof(FixAlwaysRefresh);
-			// // go.hideFlags = HideFlags.HideInHierarchy | HideFlags.HideInInspector | HideFlags.DontSaveInEditor;
-			// go.AddComponent(typeof(ParticleSystem));
+			var go = new GameObject();
+			go.SetActive(false);
+			go.name = nameof(FixAlwaysRefresh);
+			go.hideFlags = HideFlags.HideInHierarchy | HideFlags.HideInInspector | HideFlags.DontSaveInEditor;
+			go.AddComponent(typeof(ParticleSystem));
 			// EditorApplication.update += () =>
 			// {
 			// 	Debug.Log("Update");

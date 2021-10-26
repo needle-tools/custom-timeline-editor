@@ -82,7 +82,9 @@ namespace Needle.Timeline
 									async void RepaintDelayed()
 									{
 										await Task.Delay(300);
-										TimelineEditor.GetWindow().Repaint();
+										var window = TimelineEditor.GetWindow();
+										if(window)
+											window.Repaint();
 									}
 									RepaintDelayed();
 									var remainder = Time.realtimeSinceStartup % 1;

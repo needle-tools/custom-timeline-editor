@@ -12,6 +12,12 @@
       "source": "local",
       "dependencies": {}
     },
+    "com.needle.inspector": {
+      "version": "file:C:/git/timeline-editor/modules/inspector/package",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {}
+    },
     "com.needle.timeline-editor": {
       "version": "file:../../../package",
       "depth": 0,
