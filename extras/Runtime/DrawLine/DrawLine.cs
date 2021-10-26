@@ -78,10 +78,10 @@ public class DrawLine : Animated
 			Debug.Log("Points: " + Points.Count());
 			SetDirty(nameof(Points));
 		}
-		if (PointSpacing < .001f)
+		if (PointSpacing < .00001f)
 		{
+			Points_Count = (int)Random.Range(10, 200);
 			Color = Random.ColorHSV(0,1,.3f,1,.5f,1);
-			Debug.Log(Color);
 		}
 		yield return new DispatchInfo { KernelIndex = 2, GroupsX = Points?.Count }; 
 		

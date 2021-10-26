@@ -84,18 +84,21 @@ namespace Needle.Timeline
 				}
 
 
-				var graph = playable.GetGraph();
 				var vm = behaviour.viewModels[viewModelIndex];
-				if (graph.GetResolver() is PlayableDirector dir)
+				if (vm.IsValid)
 				{
-					TimelineHooks.CheckStateChanged(dir);
+					var graph = playable.GetGraph();
+					if (graph.GetResolver() is PlayableDirector dir)
+					{
+						TimelineHooks.CheckStateChanged(dir);
 
-					frameInfo.Time = (float)dir.time;
-					vm.OnProcessedFrame(frameInfo);
-				}
-				else
-				{
-					vm.OnProcessedFrame(frameInfo);
+						frameInfo.Time = (float)dir.time;
+						vm.OnProcessedFrame(frameInfo);
+					}
+					else
+					{
+						vm.OnProcessedFrame(frameInfo);
+					}
 				}
 			}
 		}
