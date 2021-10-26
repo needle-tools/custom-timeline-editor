@@ -8,6 +8,7 @@ namespace Needle.Timeline
 		typeof(Vector2),
 		typeof(Vector3),
 		typeof(Vector4),
+		typeof(Color),
 		typeof(int),
 		typeof(uint),
 		typeof(Vector2Int),
@@ -34,6 +35,9 @@ namespace Needle.Timeline
 					shaderInfo.Shader.SetVector(shaderField.FieldName, val);
 					break;
 				case Vector4 val:
+					shaderInfo.Shader.SetVector(shaderField.FieldName, val);
+					break;
+				case Color val:
 					shaderInfo.Shader.SetVector(shaderField.FieldName, val);
 					break;
 				case int val:

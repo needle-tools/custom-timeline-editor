@@ -16,6 +16,8 @@ public class DrawLine : Animated
 	public RenderTexture Output; 
 	public Renderer Rend;
 
+	private Color Color;
+
 	[TransformInfo]
 	public List<Transform> TransformList = new List<Transform>();
 	public Transform[] TransformArray;
@@ -35,6 +37,7 @@ public class DrawLine : Animated
 			t.OnHasChanged(OnRequestEvaluation);
 	}
 
+	[ContextMenu("Reset now")]
 	public override void OnReset()
 	{
 		base.OnReset();
@@ -43,7 +46,7 @@ public class DrawLine : Animated
 
 	protected override void OnBeforeDispatching()
 	{
-		Graphics.Blit(Texture2D.blackTexture, Output); 
+		// Graphics.Blit(Texture2D.blackTexture, Output); 
 	}
 
 	protected override IEnumerable<DispatchInfo> OnDispatch()
@@ -68,18 +71,23 @@ public class DrawLine : Animated
 		{
 			Points ??= new List<Point>();
 			Points.Clear();
-			for (var i = 0; i < Points_Count; i++)
+			for (var i = 0; i < Points_Count; i++) 
 			{
 				Points.Add(new Point(){Pos = Random.insideUnitCircle*.05f});
 			}
 			Debug.Log("Points: " + Points.Count());
 			SetDirty(nameof(Points));
 		}
-		
+		if (PointSpacing < .001f)
+		{
+			Color = Random.ColorHSV(0,1,.3f,1,.5f,1);
+			Debug.Log(Color);
+		}
 		yield return new DispatchInfo { KernelIndex = 2, GroupsX = Points?.Count }; 
 		
 		
 		yield return new DispatchInfo { KernelIndex = 0, GroupsX = 1 };
+		yield return new DispatchInfo { KernelName = "CSBlend" };
 	}
 
 	protected override void OnAfterEvaluation()

@@ -8,6 +8,8 @@ float4 _Time;
 float3 Start, End;
 RWTexture2D<float4> Output;
 
+float4 Color;
+
 struct Direction
 {
     float3 Start, End;
@@ -63,7 +65,7 @@ void CSPoints(uint3 id : SV_DispatchThreadID)
     Output.GetDimensions(width, height);
     const uint2 texSize = uint2(width, height);
     Point pt = Points[id.x];
-    float4 col = float4(0, 0, 1, .05);
+    float4 col = Color;// + float4(0, 0, 1, .05);
 
 
     float closestDistance = 9999;
@@ -94,7 +96,7 @@ void CSPoints(uint3 id : SV_DispatchThreadID)
 
         if (closestDistance < PointSpacing)
             closeCount += 1;
-        if (dist*.3 < closestDistance)
+        if (dist*.5 < closestDistance)
         {
             closestDistance = dist;
             closestDir = dir;
@@ -133,5 +135,5 @@ void CSDirections(uint3 id : SV_DispatchThreadID)
 [numthreads(32, 32,1)]
 void CSBlend(uint3 id : SV_DispatchThreadID)
 {
-    Output[id.xy] = lerp(Output[id.xy], 0, 1);
+    Output[id.xy] = lerp(Output[id.xy], 0, _Time.w *1);
 }
