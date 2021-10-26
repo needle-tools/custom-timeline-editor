@@ -10,3 +10,6 @@
 [submodule "modules/selective-profiling"]
 	path = modules/selective-profiling
 	url = https://github.com/needle-tools/selective-profiling
+[submodule "modules/inspector"]
+	path = modules/inspector
+	url = https://github.com/needle-tools/inspector
