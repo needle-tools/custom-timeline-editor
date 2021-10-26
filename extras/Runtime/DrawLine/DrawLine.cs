@@ -28,7 +28,7 @@ public class DrawLine : Animated
 		public Vector2 Pos;
 	}
 
-	[Animate(AllowInterpolation = false)]
+	[Animate(AllowInterpolation = true)]
 	public List<Point> AnimatedPoints; 
 
 	public int Points_Count = 100;
@@ -68,7 +68,7 @@ public class DrawLine : Animated
 		}
 		
 		// yield return new DispatchInfo { KernelIndex = 1, GroupsX = 32, GroupsY = 32};
-		yield return new DispatchInfo { KernelIndex = 1, GroupsX = Directions?.Count };
+		// yield return new DispatchInfo { KernelIndex = 1, GroupsX = Directions?.Count };
 
 		if (Points == null || Points.Count <= 0 || Points.Count != Points_Count)
 		{
@@ -83,13 +83,14 @@ public class DrawLine : Animated
 		}
 		if (PointSpacing < .00001f)
 		{
-			Points_Count = (int)Random.Range(10, 200);
-			Color = Random.ColorHSV(0,1,.3f,1,.5f,1);
+			Points_Count = (int)Random.Range(10, 300);
 		}
-		yield return new DispatchInfo { KernelIndex = 2, GroupsX = Points?.Count }; 
+		if(Time.frameCount % 90 == 0)
+			Color = Random.ColorHSV(0,1,.3f,1,.5f,1);
 		
 		
 		yield return new DispatchInfo { KernelIndex = 0, GroupsX = 1 };
+		yield return new DispatchInfo { KernelIndex = 2, GroupsX = Points?.Count }; 
 		yield return new DispatchInfo { KernelName = "CSBlend" };
 	}
 

@@ -59,11 +59,11 @@ void CSMain(uint3 id : SV_DispatchThreadID)
     //     DrawCircle(Output, texSize, pos.xy, 5, float4(1, 0, 1, 1));
     // }
 
-    float b = 1;
+    float b = 0;
     float2 lastPoint = AnimatedPoints[0].Pos;
     for(int i =1; i< AnimatedPointsCount; i++)
     {
-        DrawLine(Output, texSize, AnimatedPoints[i].Pos, lastPoint, 1);
+        DrawLine(Output, texSize, AnimatedPoints[i].Pos, lastPoint, 0);
         DrawCircle(Output, texSize, AnimatedPoints[i].Pos.xy, 2, float4(b, b, b, 1));
         lastPoint = AnimatedPoints[i].Pos;
     }
@@ -139,7 +139,7 @@ void CSPoints(uint3 id : SV_DispatchThreadID)
     }
     pt.Pos -= pt.Pos * _Time.w / max(PointSpacing * 10, .1);
 
-    DrawCircle(Output, texSize, pt.Pos, 2, col);
+    DrawCircle(Output, texSize, pt.Pos, closestDistance*10, col);
     Points[id.x] = pt;
 }
 
@@ -163,5 +163,5 @@ void CSDirections(uint3 id : SV_DispatchThreadID)
 [numthreads(32, 32,1)]
 void CSBlend(uint3 id : SV_DispatchThreadID)
 {
-    Output[id.xy] = lerp(Output[id.xy], 0, _Time.w*5);
+    Output[id.xy] = lerp(Output[id.xy], 0, _Time.w*1.3);
 }
