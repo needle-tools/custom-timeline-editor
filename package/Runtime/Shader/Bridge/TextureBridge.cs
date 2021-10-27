@@ -55,6 +55,7 @@ namespace Needle.Timeline
 				var desc = info.ToRenderTextureDescription();
 				desc.Name = field.Name;
 				desc.RandomAccess = shaderField.RandomWrite.GetValueOrDefault();
+				desc.GraphicsFormat = graphicsFormat;
 				var rt = context.Resources.RenderTextureProvider.GetTexture(field.Name, desc);
 				value = tex = rt; 
 				field.SetValue(context.Instance, value);

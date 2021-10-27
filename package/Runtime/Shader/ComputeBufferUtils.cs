@@ -59,7 +59,10 @@ namespace Needle.Timeline
 			if (!tex || !desc.Equals(tex))
 			{
 				if (tex && tex.IsCreated()) tex.Release();
-				tex = new RenderTexture(desc.Width, desc.Height, desc.Depth, desc.Format);
+				if(desc.GraphicsFormat != null)
+					tex = new RenderTexture(desc.Width, desc.Height, desc.Depth, desc.GraphicsFormat.Value);
+				else
+					tex = new RenderTexture(desc.Width, desc.Height, desc.Depth, desc.Format);
 				tex.hideFlags = desc.HideFlags;
 				tex.enableRandomWrite = desc.RandomAccess;
 				tex.Create();

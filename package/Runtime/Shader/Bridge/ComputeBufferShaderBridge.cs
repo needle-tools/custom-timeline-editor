@@ -21,6 +21,7 @@ namespace Needle.Timeline
 			{
 				var info = field.GetCustomAttribute<ComputeBufferInfo>();
 				var desc = shaderField.GetComputeBufferDescription();
+				desc.Size = info.Size;
 				desc.Type = info.Type;
 				desc.Mode = info.Mode;
 				
