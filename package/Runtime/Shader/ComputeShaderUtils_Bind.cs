@@ -5,8 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Needle.Timeline.ResourceProviders;
-using UnityEditor;
-using UnityEditor.Rendering;
 using UnityEngine;
 
 // ReSharper disable ReplaceWithSingleAssignment.False
@@ -91,9 +89,7 @@ namespace Needle.Timeline
 				}
 				if (!found)
 				{
-					if (!BuiltinTypeNames.Any(e =>
-						    e.fieldName == shaderField.FieldName && e.typeName == shaderField.TypeName
-					    ))
+					if (!IsSetImplicitly(shaderInfo, shaderField))
 					{
 						success = false;
 						Debug.LogWarning(type + " has no matching field for shader field: " + shaderField);
@@ -102,6 +98,23 @@ namespace Needle.Timeline
 			}
 
 			return success;
+		}
+
+		private static bool IsSetImplicitly(ComputeShaderInfo info, ComputeShaderFieldInfo field)
+		{
+			if (BuiltinTypeNames.Any(e => e.fieldName == field.FieldName && e.typeName == field.TypeName))
+				return true; 
+			var isMaybeImplicitCount = field.FieldName.EndsWith("Count");
+			foreach(var other in info.Fields)
+			{
+				if (other == field) continue;
+				if (isMaybeImplicitCount && field.FieldName.StartsWith(other.FieldName))
+				{
+					if (other.FieldType == typeof(ComputeBuffer))
+						return true; 
+				} 
+			}
+			return false;
 		}
 
 		private static bool TryBind(ComputeShaderFieldInfo shaderField, FieldInfo typeField, ComputeShaderInfo shaderInfo, IResourceProvider resources, out ComputeShaderBinding binding)
