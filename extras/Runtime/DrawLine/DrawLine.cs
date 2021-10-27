@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Needle.Timeline;
+using Needle.Timeline.ResourceProviders;
 using Needle.TransformExtensions;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -12,11 +13,13 @@ public class DrawLine : Animated
 	[Animate] public List<Direction> Directions; 
 	public Transform Start;
 	public Transform End;
-	[TextureInfo(256,256, FilterMode = FilterMode.Point)]
+	[TextureInfo]//(256, 256, FilterMode = FilterMode.Point)]
 	public RenderTexture Output; 
 	public Renderer Rend;
 
-	private Color Color;
+	public Vector2Int OutputSize = new Vector2Int(512, 512);
+	
+	private Color Color; 
 
 	[TransformInfo]
 	public List<Transform> TransformList = new List<Transform>();
@@ -54,6 +57,9 @@ public class DrawLine : Animated
 
 	protected override IEnumerable<DispatchInfo> OnDispatch()
 	{
+		Output.SafeCreate(ref Output,
+			new RenderTextureDescription() { Width = OutputSize.x, Height = OutputSize.y, FilterMode = FilterMode.Point, RandomAccess = true });
+		
 		if (transform.childCount != TransformArray?.Length)
 		{
 			// TODO: use PlayerLoopHelper to create transform changed watcher that resets changed bool at very end of every frame

@@ -187,10 +187,10 @@ MonoBehaviour:
   Shader: {fileID: 7200000, guid: 133e57dcfd494000a9fa4b1c9bd0aa8d, type: 3}
   Start: {fileID: 818813558}
   End: {fileID: 618394110}
-  Output: {fileID: 1832802187}
+  Output: {fileID: 1808690879}
   Rend: {fileID: 561184114}
-  TransformList:
-  - {fileID: 1155455662}
+  OutputSize: {x: 256, y: 256}
+  TransformList: []
   TransformArray:
   - {fileID: 209479200}
   - {fileID: 2010539531}
@@ -201,8 +201,8 @@ MonoBehaviour:
   - {fileID: 930103085}
   - {fileID: 84204543}
   - {fileID: 772524362}
-  Points_Count: 112
-  PointSpacing: 0.07115616
+  Points_Count: 43
+  PointSpacing: 0.40636835
 --- !u!320 &130069901
 PlayableDirector:
   m_ObjectHideFlags: 0
@@ -5567,7 +5567,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!84 &1832802187
+--- !u!84 &1808690879
 RenderTexture:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -5595,7 +5595,7 @@ RenderTexture:
   m_EnableCompatibleFormat: 1
   m_TextureSettings:
     serializedVersion: 2
-    m_FilterMode: 1
+    m_FilterMode: 0
     m_Aniso: 1
     m_MipBias: 0
     m_WrapU: 1

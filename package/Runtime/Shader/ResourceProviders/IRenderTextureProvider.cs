@@ -14,6 +14,7 @@ namespace Needle.Timeline.ResourceProviders
 		bool UseMipMap { get; set; }
 		int MipCount { get; set; }
 		GraphicsFormat? GraphicsFormat { get; set; }
+		bool Validate();
 	}
 
 	public interface IRenderTextureDescription : ITextureDescription, IEquatable<RenderTexture>
@@ -22,7 +23,7 @@ namespace Needle.Timeline.ResourceProviders
 		int Depth { get; set; }
 		new RenderTextureFormat Format { get; set; }
 	}
-
+	
 	public struct RenderTextureDescription : IRenderTextureDescription
 	{
 		private TextureFormat format;
@@ -40,9 +41,16 @@ namespace Needle.Timeline.ResourceProviders
 		public bool UseMipMap { get; set; }
 		public int MipCount { get; set; }
 		public GraphicsFormat? GraphicsFormat { get; set; }
+
 		public bool RandomAccess { get; set; }
 		public int Depth { get; set; }
 		public RenderTextureFormat Format { get; set; }
+		
+		public bool Validate()
+		{
+			// TODO: implement
+			return Width > 0 && Height > 0;
+		}
 
 		public bool Equals(RenderTexture other)
 		{
