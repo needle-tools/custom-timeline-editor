@@ -63,6 +63,7 @@ namespace Needle.Timeline
 					tex = new RenderTexture(desc.Width, desc.Height, desc.Depth, desc.GraphicsFormat.Value);
 				else
 					tex = new RenderTexture(desc.Width, desc.Height, desc.Depth, desc.Format);
+				tex.filterMode = desc.FilterMode;
 				tex.hideFlags = desc.HideFlags;
 				tex.enableRandomWrite = desc.RandomAccess;
 				tex.Create();

@@ -37,7 +37,7 @@ namespace Needle.Timeline.Tests.Bind_ComputeShaderTests
 		private class TestBindTexture2D
 		{
 			[TextureInfo(1024, 1024, TextureFormat = TextureFormat.RFloat)]
-			public RenderTexture MyTexture;
+			public RenderTexture MyTexture; 
 		}
 		
 		[Test]
@@ -45,7 +45,7 @@ namespace Needle.Timeline.Tests.Bind_ComputeShaderTests
 		{
 			var shader = LoadShader("SetValues/Bind_Texture2D");
 			shader.TryParse(out var shaderInfo);
-			Assert.NotNull(shaderInfo);
+			Assert.NotNull(shaderInfo); 
 			
 			var list = new List<ComputeShaderBinding>();
 			shaderInfo.Bind(typeof(TestBindTexture2D), list, TestsResourceProvider);

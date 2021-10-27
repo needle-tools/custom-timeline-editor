@@ -47,7 +47,13 @@ namespace Needle.Timeline.ResourceProviders
 		public bool Equals(RenderTexture other)
 		{
 			if (!other) return false;
-			return Name == other.name && HideFlags == other.hideFlags && Width == other.width && Height == other.height && Format == other.format && FilterMode == other.filterMode && UseMipMap == other.useMipMap && MipCount == other.mipmapCount && GraphicsFormat == other.graphicsFormat && RandomAccess == other.enableRandomWrite && Depth == other.depth;
+			return Width == other.width && 
+			       Height == other.height && 
+			       FilterMode == other.filterMode && 
+			       UseMipMap == other.useMipMap && 
+			       (GraphicsFormat == other.graphicsFormat || Format == other.format) && 
+			       RandomAccess == other.enableRandomWrite && 
+			       Depth == other.depth;
 		}
 	}
 

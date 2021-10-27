@@ -152,7 +152,6 @@ namespace Needle.Timeline
 					if (info == null)
 					{
 						Debug.LogWarning($"Missing {nameof(TextureInfo)} attribute on {typeField.DeclaringType?.Name}.{typeField.Name}");
-						return false;
 					}
 				}
 				else if (typeof(Transform).IsAssignableFrom(typeField.FieldType))

@@ -110,6 +110,10 @@ namespace Needle.Timeline
 		public int Depth = 0;
 		public FilterMode FilterMode = FilterMode.Bilinear;
 
+		public bool HasValidSize => Width > 0 && Height > 0;
+		
+		public TextureInfo(){}
+
 		public TextureInfo(int width, int height)
 		{
 			Width = width;
