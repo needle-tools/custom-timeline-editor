@@ -34,7 +34,7 @@
       "dependencies": {}
     },
     "com.needle.transform-extensions": {
-      "version": "file:../../../transformhelper",
+      "version": "file:../../../modules/transform-changed-helper/package",
       "depth": 0,
       "source": "local",
       "dependencies": {}

@@ -13,3 +13,6 @@
 [submodule "modules/inspector"]
 	path = modules/inspector
 	url = https://github.com/needle-tools/inspector
+[submodule "modules/transform-changed-helper"]
+	path = modules/transform-changed-helper
+	url = https://github.com/needle-tools/transform-changed-helper
