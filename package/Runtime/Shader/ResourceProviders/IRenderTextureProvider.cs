@@ -9,7 +9,7 @@ namespace Needle.Timeline.ResourceProviders
 	{
 		int Width { get; set; }
 		int Height { get; set; }
-		TextureFormat Format { get; set; }
+		TextureFormat? Format { get; set; }
 		FilterMode FilterMode { get; set; }
 		bool UseMipMap { get; set; }
 		int MipCount { get; set; }
@@ -21,22 +21,18 @@ namespace Needle.Timeline.ResourceProviders
 	{
 		bool RandomAccess { get; set; }
 		int Depth { get; set; }
-		new RenderTextureFormat Format { get; set; }
+		new RenderTextureFormat? Format { get; set; }
 	}
 	
 	public struct RenderTextureDescription : IRenderTextureDescription
 	{
-		private TextureFormat format;
-		
+		private RenderTextureFormat? format;
 		public string Name { get; set; }
 		public HideFlags HideFlags { get; set; }
 		public int Width { get; set; }
 		public int Height { get; set; }
-		TextureFormat ITextureDescription.Format
-		{
-			get => format;
-			set => format = value;
-		}
+		TextureFormat? ITextureDescription.Format { get; set; }
+
 		public FilterMode FilterMode { get; set; }
 		public bool UseMipMap { get; set; }
 		public int MipCount { get; set; }
@@ -44,8 +40,13 @@ namespace Needle.Timeline.ResourceProviders
 
 		public bool RandomAccess { get; set; }
 		public int Depth { get; set; }
-		public RenderTextureFormat Format { get; set; }
-		
+
+		public RenderTextureFormat? Format
+		{
+			get => format ?? RenderTextureFormat.Default;
+			set => format = value;
+		}
+
 		public bool Validate()
 		{
 			// TODO: implement
@@ -55,18 +56,31 @@ namespace Needle.Timeline.ResourceProviders
 		public bool Equals(RenderTexture other)
 		{
 			if (!other) return false;
-			return Width == other.width && 
+			var res = Width == other.width && 
 			       Height == other.height && 
 			       FilterMode == other.filterMode && 
 			       UseMipMap == other.useMipMap && 
-			       (GraphicsFormat == other.graphicsFormat || Format == other.format) && 
 			       RandomAccess == other.enableRandomWrite && 
 			       Depth == other.depth;
+			if (!res) return false;
+			
+			if (Format != null)
+			{
+				if (Format == RenderTextureFormat.Default)
+				{
+					res = other.graphicsFormat == GraphicsFormatUtility.GetGraphicsFormat(Format.Value, RenderTextureReadWrite.Default);
+				}
+				else res = other.format == Format.Value;
+			}
+			if (!res) return false;
+			
+			return true;
 		}
 	}
 
 	public interface IRenderTextureProvider : IDisposable
 	{
+		void ClearCaches();
 		RenderTexture GetTexture(string id, IRenderTextureDescription desc);
 	}
 
@@ -83,12 +97,17 @@ namespace Needle.Timeline.ResourceProviders
 			cache.Clear();
 		}
 
+		public void ClearCaches()
+		{
+			cache.Clear();
+		}
+
 		public RenderTexture GetTexture(string id, IRenderTextureDescription desc)
 		{
-			if (desc.GraphicsFormat == null || desc.GraphicsFormat == GraphicsFormat.None)
-			{
-				desc.GraphicsFormat = GraphicsFormat.R8G8B8A8_SRGB;
-			}
+			// if (desc.GraphicsFormat == null || desc.GraphicsFormat == GraphicsFormat.None)
+			// {
+			// 	desc.GraphicsFormat = GraphicsFormat.R8G8B8A8_SRGB;
+			// }
 			if (cache.TryGetValue(id, out var rt))
 			{
 				rt = rt.SafeCreate(ref rt, desc);

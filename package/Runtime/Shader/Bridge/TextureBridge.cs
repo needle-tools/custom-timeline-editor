@@ -13,6 +13,22 @@ namespace Needle.Timeline
 	{
 		private TextureInfo info;
 
+		private static GraphicsFormat GetFormat(string typeName)
+		{
+			switch (typeName)
+			{
+				case "float":
+					return GraphicsFormat.R16_SFloat;
+				case "float2":
+					return GraphicsFormat.R16G16_SFloat;
+				case "float3":
+					return GraphicsFormat.R16G16B16_SFloat;
+				case "float4":
+					return GraphicsFormat.R16G16B16A16_SFloat;
+			}
+			return GraphicsFormat.None;
+		}
+
 		public bool SetValue(IBindingContext context)
 		{
 			var field = context.Field;
@@ -41,21 +57,7 @@ namespace Needle.Timeline
 						{
 							if (shaderField.GenericTypeName == null)
 								throw new Exception("Failed finding generic type: " + shaderField.FieldName);
-							switch (shaderField.GenericTypeName)
-							{
-								case "float":
-									graphicsFormat = GraphicsFormat.R16_SFloat;
-									break;
-								case "float2":
-									graphicsFormat = GraphicsFormat.R16G16_SFloat;
-									break;
-								case "float3":
-									graphicsFormat = GraphicsFormat.R16G16B16_SFloat;
-									break;
-								case "float4":
-									graphicsFormat = GraphicsFormat.R16G16B16A16_SFloat;
-									break;
-							}
+							graphicsFormat = GetFormat(shaderField.GenericTypeName);
 						}
 					}
 

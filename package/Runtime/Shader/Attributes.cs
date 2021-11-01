@@ -130,6 +130,12 @@ namespace Needle.Timeline
 				GraphicsFormat = GraphicsFormat,
 				FilterMode = FilterMode
 			};
+			
+			if ((int)TextureFormat != 0 && GraphicsFormat == GraphicsFormat.None)
+			{
+				desc.GraphicsFormat = GraphicsFormatUtility.GetGraphicsFormat(TextureFormat, false);
+			}
+			
 			return desc;
 		}
 	}

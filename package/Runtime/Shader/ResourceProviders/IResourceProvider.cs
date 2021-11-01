@@ -4,6 +4,7 @@ namespace Needle.Timeline.ResourceProviders
 {
 	public interface IResourceProvider : IDisposable
 	{
+		void ClearCaches();
 		IComputeBufferProvider ComputeBufferProvider { get; }
 		IRenderTextureProvider RenderTextureProvider { get; }
 	}
@@ -19,6 +20,12 @@ namespace Needle.Timeline.ResourceProviders
 		{
 			ComputeBufferProvider = computeBufferProvider;
 			RenderTextureProvider = renderTextureProvider;
+		}
+
+		public void ClearCaches()
+		{
+			RenderTextureProvider.ClearCaches();
+			ComputeBufferProvider.ClearCaches();
 		}
 
 		public IComputeBufferProvider ComputeBufferProvider { get; }

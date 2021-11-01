@@ -10,6 +10,7 @@ namespace Needle.Timeline.ResourceProviders
 	
 	public interface IComputeBufferProvider : IDisposable
 	{
+		void ClearCaches();
 		ComputeBuffer GetBuffer(string id, IComputeBufferDescription desc);
 		void DisposeBuffer(string id);
 	}
@@ -18,6 +19,11 @@ namespace Needle.Timeline.ResourceProviders
 	{
 		private readonly Dictionary<string, ComputeBuffer> cache = new Dictionary<string, ComputeBuffer>();
 		public bool MaxCount = true;
+
+		public void ClearCaches()
+		{
+			cache.Clear();
+		}
 
 		public ComputeBuffer GetBuffer(string id, IComputeBufferDescription desc)
 		{
