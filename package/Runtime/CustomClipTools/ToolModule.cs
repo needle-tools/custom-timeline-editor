@@ -180,14 +180,6 @@ namespace Needle.Timeline
 
 	public abstract class BasicProducerModule : ToolModule
 	{
-		[Range(0,1)]
-		public float Probability = 1;
-		public float Radius = 1;
-		public int Max = 1000;
-		[Range(0,1)]
-		public float Offset = 1;
-		public bool OnSurface = false;
-
 		private void EnsureKeyframe(ref ToolData toolData)
 		{
 			toolData.Keyframe ??= toolData.Clip.GetClosest(toolData.Time);
@@ -204,6 +196,8 @@ namespace Needle.Timeline
 
 		private bool didBegin = false;
 		private readonly List<CallbackHandler> _created = new List<CallbackHandler>();
+		private uint producedCount;
+		
 		public override bool OnModify(InputData input, ref ToolData toolData)
 		{
 			switch (input.Stage)
@@ -212,6 +206,7 @@ namespace Needle.Timeline
 					if (didBegin) return false;
 					didBegin = true;
 					_created.Clear();
+					producedCount = 0;
 					break;
 				case InputEventStage.Update:
 					foreach (var ad in _created)
@@ -235,16 +230,15 @@ namespace Needle.Timeline
 						});
 					}
 					_created.Clear();
+					producedCount = 0;
 					return true;
 				}
 			}
-			if (Max > 0 && _created.Count >= Max) return true;
 			
 			// if (toolData.Clip.SupportedTypes.Contains(typeof(List<Vector3>)) == false) return false;
 
 			if (toolData.Value != null) return false;
 			if (input.WorldPosition == null) return false;
-			if (Random.value > Probability) return false;
 
 			EnsureKeyframe(ref toolData);
 			var closestKeyframe = toolData.Keyframe; 
@@ -255,47 +249,59 @@ namespace Needle.Timeline
 			
 			if (closestKeyframe != null)
 			{
-
 				var contentType = closestKeyframe.TryRetrieveKeyframeContentType();
-				
-				
 				if (closestKeyframe.value is IList list && contentType != null)
 				{
-					foreach (var res in ProduceValues(input))
+					var didRun = false;
+					var supportedContentType = SupportedTypes.FirstOrDefault(s => contentType.IsAssignableFrom(s));
+					var context = new ProduceContext(producedCount);
+					foreach (var res in ProduceValues(input, context))
 					{
 						if (!res.Success) continue;
 						var value = res.Value;
-						var instance = contentType.TryCreateInstance();
-						if (instance != null)
+						object instance;
+						if (supportedContentType != null)
 						{
-							// the content type is a field inside a type
-							if(instance is IToolEvents i) i.OnToolEvent(ToolStage.InstanceCreated, input);
-						
-							var exactMatch = SupportedTypes.FirstOrDefault(s => contentType.IsAssignableFrom(s));
-							if (exactMatch != null)
-							{
-								// the content type is assignable from our produced type
-							}
-							else
-							{
-								var matchingField = instance.GetType().EnumerateFields().FirstOrDefault(f =>
-									SupportedTypes.Any(e => e.IsAssignableFrom(f.FieldType)));
-								if (matchingField == null)
-								{
-									Debug.Log("Failed producing matching type or field not found... this is most likely a bug");
-									return false;
-								}
-								matchingField.SetValue(instance, value.Cast(matchingField.FieldType));
-							}
-							if (instance is IToolEvents init) init.OnToolEvent(ToolStage.BasicValuesSet, input);
-							list.Add(instance);
-							closestKeyframe.RaiseValueChangedEvent();
-							if (instance is IToolEvents) 
-								_created.Add(new CallbackHandler(instance, list, list.Count-1));
-						
+							instance = value;
 						}
+						else
+						{
+							instance = contentType.TryCreateInstance() ?? throw new Exception("Failed creating instance of " + contentType + ", Module: " + this);
+						}
+						didRun = true;
+						
+						// the content type is a field inside a type
+						if(instance is IToolEvents i) i.OnToolEvent(ToolStage.InstanceCreated, input);
+
+						if (supportedContentType == null)
+						{
+							var matchingField = instance.GetType().EnumerateFields().FirstOrDefault(f =>
+								SupportedTypes.Any(e => e.IsAssignableFrom(f.FieldType)));
+							if (matchingField == null)
+							{
+								Debug.Log("Failed producing matching type or field not found... this is most likely a bug");
+								return false;
+							}
+							matchingField.SetValue(instance, value.Cast(matchingField.FieldType));
+						}
+						if (instance is IToolEvents init) init.OnToolEvent(ToolStage.BasicValuesSet, input);
+						list.Add(instance);
+						++producedCount;
+						if (instance is IToolEvents) 
+							_created.Add(new CallbackHandler(instance, list, list.Count-1));
 					}
-					return true;
+
+					if (supportedContentType != null)
+					{
+						
+					}
+					
+					
+					if (didRun)
+					{
+						closestKeyframe.RaiseValueChangedEvent();
+					}
+					return didRun;
 				}
 			}
 
@@ -308,16 +314,46 @@ namespace Needle.Timeline
 		}
 		
 		protected abstract IEnumerable<Type> SupportedTypes { get; }
-		protected abstract IEnumerable<ValueResult> ProduceValues(InputData input);
-		
+
+		protected virtual IEnumerable<ProducedValue> ProduceValues(InputData input, ProduceContext context)
+		{
+			yield break;
+		}
+
+		protected virtual bool ModifyValue(InputData input, ModifyContext context, ref object value)
+		{
+			return false;
+		}
 	}
 
-	public readonly struct ValueResult
+	public readonly struct ModifyContext
+	{
+		public readonly IValueProvider? ViewValue;
+		public readonly string? Name;
+
+		public ModifyContext(string? name = null, IValueProvider? viewValue = null)
+		{
+			ViewValue = viewValue;
+			Name = name;
+		}
+	}
+
+	public readonly struct ProduceContext
+	{
+		public readonly uint Count;
+
+		public ProduceContext(uint count)
+		{
+			Count = count;
+		}
+	}
+
+	public readonly struct ProducedValue
 	{
 		public readonly object Value;
 		public readonly bool Success;
 
-		public ValueResult(object value, bool success)
+		public ProducedValue(object value, bool success)
 		{
 			Value = value;
 			Success = success;
@@ -326,10 +362,20 @@ namespace Needle.Timeline
 
 	public class SprayProducer : BasicProducerModule
 	{
+		[Range(0,1)]
+		public float Probability = 1;
+		public float Radius = 1;
+		public int Max = 1000;
+		[Range(0,1)]
+		public float Offset = 1;
+		public bool OnSurface = false;
+		
 		protected override IEnumerable<Type> SupportedTypes { get; } = new[]{ typeof(Vector3), typeof(Vector2) };
 		
-		protected override IEnumerable<ValueResult> ProduceValues(InputData input)
+		protected override IEnumerable<ProducedValue> ProduceValues(InputData input, ProduceContext context)
 		{
+			if (context.Count >= Max) yield break;
+			
 			var offset = Random.insideUnitSphere * Radius;
 			var pos = input.WorldPosition.Value + offset;
 
@@ -339,16 +385,17 @@ namespace Needle.Timeline
 					pos = hit.point;
 				else
 				{
-					yield return new ValueResult(pos, true);
+					yield return new ProducedValue(pos, true);
 				}
 			}
 			pos += Offset * input.WorldNormal.GetValueOrDefault() * Radius;
 				
 			if (input.IsIn2DMode) pos.z = 0;
-			yield return new ValueResult(pos, true);
+			yield return new ProducedValue(pos, true);
 		}
 	}
 
+	[Obsolete]
 	public class SprayModule : ToolModule
 	{
 		[UnityEngine.Range(0,1)]
