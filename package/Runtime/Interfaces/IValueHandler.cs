@@ -2,7 +2,7 @@
 {
 	public interface IValueHandler
 	{
-		void SetValue(object value);
+		void SetValue(object str);
 		object GetValue();
 	}
 	

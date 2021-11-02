@@ -12,7 +12,7 @@ namespace Needle.Timeline
 	public abstract class CustomClipToolBase : EditorTool, ICustomClipTool
 	{
 		private new readonly List<ToolTarget> targets = new List<ToolTarget>();
-		protected IReadOnlyList<ToolTarget> Targets => targets;
+		public IReadOnlyList<ToolTarget> Targets => targets;
 
 		#region ICustomClipTool
 		void ICustomClipTool.AddTarget(ClipInfoViewModel vm, ICustomClip clip)

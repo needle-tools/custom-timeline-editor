@@ -19,7 +19,7 @@ namespace Needle.Timeline
 			return point;
 		}
 
-		private static Vector2 GetMousePoint()
+		public static Vector2 GetMousePoint()
 		{
 #if UNITY_EDITOR
 			var mp = Application.isPlaying ? (Vector2)Input.mousePosition : Event.current.mousePosition;
@@ -82,6 +82,21 @@ namespace Needle.Timeline
 				var plane = new Plane(back_abs > 0 ? Vector3.forward : Vector3.back, Vector3.zero);
 				return plane;
 			}
+		}
+
+		public static Vector3 GetPointOnCameraPlane(Camera cam, Vector3 cameraPivot, out float distance)
+		{
+			var mp = GetMousePoint();
+			var ray = cam.ScreenPointToRay(mp);
+			var plane = new Plane(-cam.transform.forward, cameraPivot);
+			if (plane.Raycast(ray, out var center))
+			{
+				distance = center;
+				return ray.origin + ray.direction * center;
+			}
+
+			distance = 0;
+			return Vector3.zero;
 		}
 	}
 }

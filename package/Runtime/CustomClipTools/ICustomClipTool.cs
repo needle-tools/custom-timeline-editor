@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -16,5 +17,7 @@ namespace Needle.Timeline
 		internal bool IsValid { get; }
 
 		bool Supports(Type type);
+		
+		IReadOnlyList<ToolTarget> Targets { get; }
 	}
 }

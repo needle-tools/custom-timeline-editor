@@ -45,6 +45,9 @@ namespace Needle.Timeline
 	{
 		public bool EventUsed { get; protected set; }
 
+		internal readonly List<IValueHandler> dynamicFields = new List<IValueHandler>();
+		// internal readonly IDictionary<FieldInfo, object> _dynamicFields = new Dictionary<FieldInfo, object>();
+
 		public abstract bool CanModify(Type type);
 
 		public virtual bool WantsInput(InputData input)
@@ -313,6 +316,24 @@ namespace Needle.Timeline
 			return false;
 		}
 	}
+	
+	public class IntModule : ToolModule
+	{
+		public override bool CanModify(Type type)
+		{
+			return typeof(int).IsAssignableFrom(type) || typeof(Enum).IsAssignableFrom(type);
+		}
+
+		public override bool OnModify(InputData input, ref ToolData toolData)
+		{
+			foreach (var e in dynamicFields)
+			{
+				Debug.Log("PAINT WITH " + e.GetValue());
+			}
+			return base.OnModify(input, ref toolData);
+		}
+	}
+	
 
 	public class DragVector3 : ToolModule
 	{

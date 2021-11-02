@@ -40,7 +40,7 @@ namespace Needle.Timeline
 
 		private static readonly List<IToolModule> buffer = new List<IToolModule>();
 		private VisualElement modulesContainer;
-		private List<ModuleView> modulesUI = new List<ModuleView>();
+		private readonly List<ModuleView> modulesUI = new List<ModuleView>();
 
 
 		protected override void OnAddedTarget(ToolTarget _)
@@ -60,7 +60,7 @@ namespace Needle.Timeline
 			foreach (var t in Targets)
 			{
 				foreach (var type in t.Clip.SupportedTypes)
-				{
+				{ 
 					ToolModule.GetModulesSupportingType(type, buffer);
 					BuildModuleToolsUI();
 
@@ -78,6 +78,11 @@ namespace Needle.Timeline
 					BuildModuleToolsUI();
 				}
 			}
+
+			foreach (var view in modulesUI)
+			{
+				view.OnTargetsChanged();
+			}
 		}
 
 		private void BuildModuleToolsUI()
@@ -94,7 +99,7 @@ namespace Needle.Timeline
 				var container = new VisualElement();
 				modulesContainer.Add(container);
 
-				entry = new ModuleView(modulesContainer, (ToolModule)module);
+				entry = new ModuleView(modulesContainer, (ToolModule)module, this);
 				modulesUI.Add(entry);
 
 				Button button = null;
@@ -154,7 +159,7 @@ namespace Needle.Timeline
 				{
 					if (!mod.IsActive) continue;
 					
-					var module = mod.Module;
+					var module = mod.Module; 
 					
 					if (!mod.Module.WantsInput(input)) continue;
 

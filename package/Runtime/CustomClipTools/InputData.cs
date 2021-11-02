@@ -68,8 +68,18 @@ namespace Needle.Timeline
 			{
 				DeltaWorld = null;
 				LastWorldPosition = WorldPosition;
-				WorldPosition = PlaneUtils.GetPointInWorld(Camera.current, out var normal);
-				WorldNormal = normal;
+				var sceneView = SceneView.lastActiveSceneView;
+				var cur = Camera.current;
+				if (sceneView.camera == cur)
+				{
+					WorldNormal = -cur.transform.forward;
+					WorldPosition = PlaneUtils.GetPointOnCameraPlane(cur, sceneView.pivot, out _);
+				}
+				else
+				{
+					WorldPosition = PlaneUtils.GetPointInWorld(cur, out var normal);
+					WorldNormal = normal;
+				}
 				// Debug.DrawLine(WorldPosition.Value, WorldPosition.Value + WorldNormal.Value, Color.white, 1);
 				LastScreenPosition = ScreenPosition;
 				var sp = evt.GetCurrentMousePositionBottomTop();
