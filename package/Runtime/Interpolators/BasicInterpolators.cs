@@ -76,6 +76,7 @@ namespace Needle.Timeline
 	{
 		private readonly Type[] types = new[]
 		{
+			typeof(Enum),
 			typeof(int),
 			typeof(uint),
 			typeof(float),
@@ -85,18 +86,21 @@ namespace Needle.Timeline
 		public object Instance { get; set; }
 
 		public bool CanInterpolate(Type type)
-		{
-			return types.Contains(type);
+		{ 
+			return types.Any(t => t.IsAssignableFrom(type));
 		}
 
 		public object Interpolate(object v0, object v1, float t)
-		{
+		{ 
 			switch (v0, v1)
 			{
 				case (float f0, float f1): return Mathf.Lerp(f0, f1, t);
 				case (double f0, double f1): return Lerp(f0, f1, t);
 				case (int f0, int f1): return Mathf.Lerp(f0, f1, t);
 				case (uint f0, uint f1): return Mathf.Lerp(f0, f1, t);
+				case (Enum e0, Enum e1):
+					if (t > .5f) return e1;
+					return e0;
 			}
 			return v0;
 		}

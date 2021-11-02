@@ -15,12 +15,12 @@ namespace Needle.Timeline
 			var fields = type.GetFields(flags);
 			ri = new ReflectiveInterpolatable();
 			for (var index = 0; index < fields.Length; index++)
-			{
+			{ 
 				var field = fields[index];
 				if (!InterpolatorBuilder.TryFindInterpolatable(field.FieldType, out var interpolatable, false))
 				{
 					continue;
-				}
+				} 
 				ri.data.Add(new MemberInterpolationData(field, field.FieldType, interpolatable));
 			}
 			var success = ri.data.Count > 0;
@@ -33,8 +33,12 @@ namespace Needle.Timeline
 		
 		private const BindingFlags flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
 		private readonly List<MemberInterpolationData> data = new List<MemberInterpolationData>();
-		 
-		
+
+
+		public bool CanInterpolate(Type type)
+		{
+			return true;
+		}
 
 		public void Interpolate(ref object instance, object obj0, object obj1, float t)
 		{
@@ -58,6 +62,11 @@ namespace Needle.Timeline
 				this.member = member;
 				this.interpolatable = interpolatable;
 				_valueInstance = Activator.CreateInstance(valueType);
+			}
+
+			public bool CanInterpolate(Type type)
+			{
+				return true;
 			}
 
 			public void Interpolate(ref object instance, object obj0, object obj1, float t)

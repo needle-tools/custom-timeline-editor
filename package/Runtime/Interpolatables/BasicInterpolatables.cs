@@ -1,14 +1,26 @@
-﻿using UnityEngine;
+﻿using System;
+using System.CodeDom;
+using UnityEngine;
 // ReSharper disable UnusedType.Global
 
 namespace Needle.Timeline
 {
+	
 	[Priority(-1000)]
 	public class FallbackInterpolatable : IInterpolatable<object>
 	{
 		public void Interpolate(ref object instance, object t0, object t1, float t)
 		{
 			instance = t < 1 ? t0 : t1;
+		}
+	}
+	
+	[Interpolatable(typeof(Enum))]
+	public class EnumInterpolatable : Interpolatable<Enum>, IInterpolatable
+	{
+		public override void Interpolate(ref Enum instance, Enum t0, Enum t1, float t)
+		{
+			instance = t > .5f ? t1 : t0;
 		}
 	}
 	

@@ -2,6 +2,16 @@
 
 namespace Needle.Timeline
 {
+	public class InterpolatableAttribute : Attribute
+	{
+		public readonly Type[] SupportedTypes;
+
+		public InterpolatableAttribute(params Type[] supportedTypes)
+		{
+			SupportedTypes = supportedTypes;
+		}
+	}
+	
 	public interface IInterpolatable
 	{
 		void Interpolate(ref object instance, object obj0, object obj1, float t);
@@ -24,7 +34,7 @@ namespace Needle.Timeline
 
 	public abstract class Interpolatable<T> : IInterpolatable<T>
 	{
-		public bool CanInterpolate(Type type)
+		public virtual bool CanInterpolate(Type type)
 		{
 			return typeof(T).IsAssignableFrom(type);
 		}

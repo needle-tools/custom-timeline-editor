@@ -18,7 +18,7 @@ namespace Needle.Timeline
 			foreach (var t in TypeCache.GetTypesDerivedFrom(genericType).OrderByDescending(Ordering))
 			{
 				if (t.IsAbstract || t.IsInterface) continue;
-				if (t.GetCustomAttribute<NoAutoSelect>() != null) continue;
+				if (t.GetCustomAttribute<NoAutoSelect>() != null) continue;  
 				try
 				{
 					interpolatable = Activator.CreateInstance(t) as IInterpolatable;
@@ -29,6 +29,26 @@ namespace Needle.Timeline
 					Debug.LogException(e);
 				}
 			}
+
+
+			foreach (var t in TypeCache.GetTypesDerivedFrom(typeof(IInterpolatable)).OrderByDescending(Ordering))
+			{ 
+				var sup = t.GetCustomAttribute<InterpolatableAttribute>();
+				if (sup == null) continue;
+				if (sup.SupportedTypes.Any(x => x.IsAssignableFrom(type)))
+				{
+					try
+					{
+						interpolatable = Activator.CreateInstance(t) as IInterpolatable;
+						if (interpolatable != null) return true;
+					}
+					catch (Exception e)
+					{
+						Debug.LogException(e);
+					}
+				}
+			}
+			
 
 			// otherwise fallback to reflective interpolator if possible
 			if (allowReflective && ReflectiveInterpolatable.TryCreate(type, out var ri))
