@@ -12,5 +12,5 @@ riderModule.iml
 **/projects/**/.idea
 projects/**/Assets/Samples/Timeline
 projects/**/Assets/TextMesh Pro
-projects/Timeline-2020_3/Timeline/Clips
+projects/*/Timeline/Clips
 projects/**/UserSettings
