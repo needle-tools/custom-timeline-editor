@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 namespace Needle.Timeline
@@ -19,6 +20,17 @@ namespace Needle.Timeline
             }
 
             public Vector3 Position;
+        }
+
+        private void OnDrawGizmos()
+        {
+            if (MyTypeList != null)
+            {
+                foreach (var t in MyTypeList)
+                {
+                    Handles.Label(t.Position, t.Options.ToString());
+                }
+            }
         }
     }
 }

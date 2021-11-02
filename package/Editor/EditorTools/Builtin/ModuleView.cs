@@ -163,7 +163,7 @@ namespace Needle.Timeline
 					{
 						if (typeof(Enum).IsAssignableFrom(field.FieldType))
 						{
-							var binding = new EnumBinding(field.FieldType);
+							var binding = new ValueHandler();
 							var choices = new List<string>();
 							var enumOptions = Enum.GetNames(field.FieldType);
 							for (var i = 0; i < enumOptions.Length; i++)
@@ -175,7 +175,8 @@ namespace Needle.Timeline
 
 							el.RegisterValueChangedCallback(evt =>
 							{
-								binding.SetValue(evt.newValue);
+								var val = (Enum)Enum.Parse(field.FieldType, evt.newValue);
+								binding.SetValue(val);
 							});
 							binding.SetValue(el.value);
 							
@@ -187,16 +188,13 @@ namespace Needle.Timeline
 
 		}
 
-		private class EnumBinding : IValueHandler
+		private class ValueHandler : IValueHandler
 		{
-			private readonly Type enumType;
 			private object value;
 
-			public EnumBinding(Type enumType) => this.enumType = enumType;
-
-			public void SetValue(object str)
+			public void SetValue(object newValue)
 			{
-				value = Enum.Parse(enumType, (string)str);
+				this.value = newValue;
 			}
 
 			public object GetValue()

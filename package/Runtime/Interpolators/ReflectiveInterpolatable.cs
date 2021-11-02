@@ -16,15 +16,19 @@ namespace Needle.Timeline
 			ri = new ReflectiveInterpolatable();
 			for (var index = 0; index < fields.Length; index++)
 			{
-				var field = type.GetFields(flags)[index];
+				var field = fields[index];
 				if (!InterpolatorBuilder.TryFindInterpolatable(field.FieldType, out var interpolatable, false))
 				{
-					Debug.LogWarning("No interpolatable found for " + field.FieldType);
-					return false;
+					continue;
 				}
 				ri.data.Add(new MemberInterpolationData(field, field.FieldType, interpolatable));
 			}
-			return ri.data.Count > 0;
+			var success = ri.data.Count > 0;
+			if (!success)
+			{
+				Debug.LogWarning("No interpolatable field found in " + type);
+			}
+			return success;
 		}
 		
 		private const BindingFlags flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;

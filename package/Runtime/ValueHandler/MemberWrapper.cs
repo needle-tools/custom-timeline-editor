@@ -19,7 +19,7 @@ namespace Needle.Timeline
 			this.setSafe = true;
 		}
 
-		public void SetValue(object str)
+		public void SetValue(object newValue)
 		{
 			var target = getTarget();
 			// Debug.Log("Set " + member.Name + " on " + target?.GetType());
@@ -29,16 +29,16 @@ namespace Needle.Timeline
 				return;
 			}
 
-			if (str?.GetType() != targetType)
+			if (newValue?.GetType() != targetType)
 			{
-				str = Convert.ChangeType(str, targetType);
+				newValue = Convert.ChangeType(newValue, targetType);
 			}
 
 			if (setSafe)
 			{
 				try
 				{
-					Set(target, str);
+					Set(target, newValue);
 				}
 				catch (Exception e)
 				{
@@ -48,7 +48,7 @@ namespace Needle.Timeline
 			}
 			else
 			{
-				Set(target, str);
+				Set(target, newValue);
 			}
 		}
 

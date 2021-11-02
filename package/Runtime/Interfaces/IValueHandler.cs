@@ -1,9 +1,13 @@
 ﻿namespace Needle.Timeline
 {
-	public interface IValueHandler
+	public interface IValueProvider
 	{
-		void SetValue(object str);
 		object GetValue();
+	}
+	
+	public interface IValueHandler : IValueProvider
+	{
+		void SetValue(object newValue);
 	}
 	
 	public interface IInstanceValueHandler : IValueHandler

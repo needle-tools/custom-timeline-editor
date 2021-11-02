@@ -319,6 +319,8 @@ namespace Needle.Timeline
 	
 	public class IntModule : ToolModule
 	{
+		public float Radius = 1;
+		
 		public override bool CanModify(Type type)
 		{
 			return typeof(int).IsAssignableFrom(type) || typeof(Enum).IsAssignableFrom(type);
@@ -328,7 +330,13 @@ namespace Needle.Timeline
 		{
 			foreach (var e in dynamicFields)
 			{
-				Debug.Log("PAINT WITH " + e.GetValue());
+				var dist = Vector3.Distance(input.WorldPosition.GetValueOrDefault(), (Vector3)toolData.Position.GetValueOrDefault());
+				if (dist < Radius)
+				{
+					// Debug.Log("PAINT WITH " + e.GetValue() + " on " + toolData.ValueType);
+					toolData.Value = e.GetValue();
+					return true;
+				}
 			}
 			return base.OnModify(input, ref toolData);
 		}
