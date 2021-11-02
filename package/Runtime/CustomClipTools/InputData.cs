@@ -12,7 +12,7 @@ namespace Needle.Timeline
 		public Vector3? WorldNormal;
 		public Vector3? LastWorldPosition;
 		public Vector3? StartWorldPosition { get; private set; }
-
+		
 		private Vector3? deltaWorld;
 
 		public Vector3? DeltaWorld
@@ -38,6 +38,9 @@ namespace Needle.Timeline
 		public Vector2 ScreenDelta => ScreenPosition - LastScreenPosition;
 		public InputEventStage Stage;
 
+		private KeyCode? keyPressed;
+		public bool HasKeyPressed(KeyCode key) => keyPressed == key;
+
 		internal void Update()
 		{
 			var evt = Event.current;
@@ -50,6 +53,16 @@ namespace Needle.Timeline
 			
 			switch (evt.type)
 			{
+				
+				case EventType.KeyDown:
+					if(evt.keyCode != KeyCode.None)
+						keyPressed = evt.keyCode;
+					Debug.Log("KEY PRESSED: "+  keyPressed);
+					break;
+				case EventType.KeyUp:
+					keyPressed = null;
+					break;
+				
 				case EventType.MouseDown:
 					Stage = InputEventStage.Begin;
 					break;
