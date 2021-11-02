@@ -3,6 +3,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework.Internal.Filters;
@@ -174,6 +175,177 @@ namespace Needle.Timeline
 			if (!(obj is T t)) return;
 			t = mod(t);
 			col[index] = t;
+		}
+	}
+
+	public abstract class BasicProducerModule : ToolModule
+	{
+		[Range(0,1)]
+		public float Probability = 1;
+		public float Radius = 1;
+		public int Max = 1000;
+		[Range(0,1)]
+		public float Offset = 1;
+		public bool OnSurface = false;
+
+		private void EnsureKeyframe(ref ToolData toolData)
+		{
+			toolData.Keyframe ??= toolData.Clip.GetClosest(toolData.Time);
+			if (toolData.Keyframe == null || Mathf.Abs(toolData.Keyframe.time - toolData.Time) > Mathf.Epsilon)
+			{
+				var clipType = toolData.Clip.SupportedTypes.FirstOrDefault();
+				if (clipType == null) throw new Exception("Expecting at least one clip type");
+				toolData.Keyframe = toolData.Clip.AddKeyframe(toolData.Time, Activator.CreateInstance(clipType));
+				if (toolData.Keyframe != null)
+					toolData.Keyframe.time = toolData.Time;
+			}
+		}
+
+
+		private bool didBegin = false;
+		private readonly List<CallbackHandler> _created = new List<CallbackHandler>();
+		public override bool OnModify(InputData input, ref ToolData toolData)
+		{
+			switch (input.Stage)
+			{
+				case InputEventStage.Begin:
+					if (didBegin) return false;
+					didBegin = true;
+					_created.Clear();
+					break;
+				case InputEventStage.Update:
+					foreach (var ad in _created)
+					{
+						ad.Modify<IToolEvents>(i =>
+						{
+							i.OnToolEvent(ToolStage.InputUpdated, input);
+							return i;
+						});
+					}
+					break;
+				case InputEventStage.End:
+				{
+					didBegin = false;
+					foreach (var ad in _created)
+					{
+						ad.Modify<IToolEvents>(i =>
+						{
+							i.OnToolEvent(ToolStage.InputEnded, input);
+							return i;
+						});
+					}
+					_created.Clear();
+					return true;
+				}
+			}
+			if (Max > 0 && _created.Count >= Max) return true;
+			
+			// if (toolData.Clip.SupportedTypes.Contains(typeof(List<Vector3>)) == false) return false;
+
+			if (toolData.Value != null) return false;
+			if (input.WorldPosition == null) return false;
+			if (Random.value > Probability) return false;
+
+			EnsureKeyframe(ref toolData);
+			var closestKeyframe = toolData.Keyframe; 
+			
+			// IDEA: could created objects have creation-properties that could/should be exposed in ui?
+			// or is that something that should be handled in creation callbacks and not be exposed?
+			// would be cool if types could react differently to input (e.g. create arrows with velocity or fixed length)
+			
+			if (closestKeyframe != null)
+			{
+
+				var contentType = closestKeyframe.TryRetrieveKeyframeContentType();
+				
+				
+				if (closestKeyframe.value is IList list && contentType != null)
+				{
+					foreach (var res in ProduceValues(input))
+					{
+						if (!res.Success) continue;
+						var value = res.Value;
+						var instance = contentType.TryCreateInstance();
+						if (instance != null)
+						{
+							// the content type is a field inside a type
+							if(instance is IToolEvents i) i.OnToolEvent(ToolStage.InstanceCreated, input);
+						
+							var exactMatch = SupportedTypes.FirstOrDefault(s => contentType.IsAssignableFrom(s));
+							if (exactMatch != null)
+							{
+								// the content type is assignable from our produced type
+							}
+							else
+							{
+								var matchingField = instance.GetType().EnumerateFields().FirstOrDefault(f =>
+									SupportedTypes.Any(e => e.IsAssignableFrom(f.FieldType)));
+								if (matchingField == null)
+								{
+									Debug.Log("Failed producing matching type or field not found... this is most likely a bug");
+									return false;
+								}
+								matchingField.SetValue(instance, value.Cast(matchingField.FieldType));
+							}
+							if (instance is IToolEvents init) init.OnToolEvent(ToolStage.BasicValuesSet, input);
+							list.Add(instance);
+							closestKeyframe.RaiseValueChangedEvent();
+							if (instance is IToolEvents) 
+								_created.Add(new CallbackHandler(instance, list, list.Count-1));
+						
+						}
+					}
+					return true;
+				}
+			}
+
+			return false;
+		}
+		
+		public override bool CanModify(Type type)
+		{
+			return SupportedTypes.Any(t => t.IsAssignableFrom(type));
+		}
+		
+		protected abstract IEnumerable<Type> SupportedTypes { get; }
+		protected abstract IEnumerable<ValueResult> ProduceValues(InputData input);
+		
+	}
+
+	public readonly struct ValueResult
+	{
+		public readonly object Value;
+		public readonly bool Success;
+
+		public ValueResult(object value, bool success)
+		{
+			Value = value;
+			Success = success;
+		}
+	}
+
+	public class SprayProducer : BasicProducerModule
+	{
+		protected override IEnumerable<Type> SupportedTypes { get; } = new[]{ typeof(Vector3), typeof(Vector2) };
+		
+		protected override IEnumerable<ValueResult> ProduceValues(InputData input)
+		{
+			var offset = Random.insideUnitSphere * Radius;
+			var pos = input.WorldPosition.Value + offset;
+
+			if (OnSurface && input.WorldNormal != null)
+			{
+				if (Physics.SphereCast(pos, Radius * .5f, -input.WorldNormal.Value, out var hit, Radius * 2f))
+					pos = hit.point;
+				else
+				{
+					yield return new ValueResult(pos, true);
+				}
+			}
+			pos += Offset * input.WorldNormal.GetValueOrDefault() * Radius;
+				
+			if (input.IsIn2DMode) pos.z = 0;
+			yield return new ValueResult(pos, true);
 		}
 	}
 
