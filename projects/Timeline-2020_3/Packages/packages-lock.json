@@ -28,7 +28,7 @@
       }
     },
     "com.needle.timeline-editor-extras": {
-      "version": "file:../../../extras",
+      "version": "file:../../../modules/custom-timeline-playground/extras",
       "depth": 0,
       "source": "local",
       "dependencies": {}

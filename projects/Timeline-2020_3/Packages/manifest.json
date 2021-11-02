@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "com.needle.timeline-editor": "file:../../../package",
-    "com.needle.timeline-editor-extras": "file:../../../extras",
+    "com.needle.timeline-editor-extras": "file:../../../modules/custom-timeline-playground/extras",
     "com.needle.custom-undo-integration": "file:../../../modules/Unity-Custom-Undo/package",
     "com.unity.burst": "1.6.0",
     "com.unity.collab-proxy": "1.9.0",
