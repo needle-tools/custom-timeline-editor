@@ -335,7 +335,7 @@ namespace Needle.Timeline
 
 		private bool OnProduceValues(InputData input, Type? supportedContentType, Type contentType, IList list)
 		{
-			var context = new ProduceContext(producedCount);
+			var context = new ProduceContext(producedCount, null);
 			var didProduceValue = false;
 			foreach (var res in ProduceValues(input, context))
 			{
@@ -408,10 +408,12 @@ namespace Needle.Timeline
 	public readonly struct ProduceContext
 	{
 		public readonly uint Count;
+		public readonly uint? MaxExpected;
 
-		public ProduceContext(uint count)
+		public ProduceContext(uint count, uint? maxExpected)
 		{
 			Count = count;
+			this.MaxExpected = maxExpected;
 		}
 	}
 
