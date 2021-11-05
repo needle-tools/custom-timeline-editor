@@ -72,7 +72,7 @@ namespace Needle.Timeline
 
 		protected override IEnumerable<Type> SupportedTypes { get; } = new[] { typeof(Vector3), typeof(Vector2) };
 
-		protected override ToolInputResult OnModifyValue(InputData input, ModifyContext context, ref object value)
+		protected override ToolInputResult OnModifyValue(InputData input, ref ModifyContext context, ref object value)
 		{
 			if (input.WorldPosition == null) return ToolInputResult.Failed;
 			var vec = (Vector3)value.Cast(typeof(Vector3));
@@ -125,7 +125,7 @@ namespace Needle.Timeline
 			return current == EventModifiers.None;
 		}
 
-		protected override ToolInputResult OnModifyValue(InputData input, ModifyContext context, ref object value)
+		protected override ToolInputResult OnModifyValue(InputData input, ref ModifyContext context, ref object value)
 		{
 			if (value is Color col)
 			{
@@ -160,8 +160,16 @@ namespace Needle.Timeline
 	{
 		public ModifierModule() => AllowBinding = true; 
 		
+		[Range(.1f, 3)]
 		public float Radius = 1;
-		public float Weight { get; set; }
+		[Range(0,1)]
+		public float Weight = 1;
+		
+		float IWeighted.Weight
+		{
+			get => Weight;
+			set => Weight = value;
+		}
 
 		// public override bool CanModify(Type type) => true;
 
@@ -169,14 +177,14 @@ namespace Needle.Timeline
 		protected override IEnumerable<Type> SupportedTypes { get; } = 
 			new[] { typeof(Enum), typeof(Vector3), typeof(float), typeof(double), typeof(Color), typeof(int) };
 
-		protected override ToolInputResult OnModifyValue(InputData input, ModifyContext context, ref object value)
+		protected override ToolInputResult OnModifyValue(InputData input, ref ModifyContext context, ref object value)
 		{
 			var pos = ToolHelpers.TryGetPosition(context.Object, value);
 			if (pos == null) return ToolInputResult.Failed;
 			var screenDistance = input.GetRadiusDistanceScreenSpace(Radius, pos.Value);
 			if (screenDistance == null || screenDistance > 1) return ToolInputResult.Failed;
 			var weight = 1 - Mathf.Clamp01(screenDistance.Value);
-			context.Weight = weight;
+			context.Weight = weight * Weight;
 			return ToolInputResult.Success;
 		}
 

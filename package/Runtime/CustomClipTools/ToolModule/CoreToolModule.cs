@@ -300,7 +300,7 @@ namespace Needle.Timeline
 					{
 						var value = list[index];
 						var context = new ModifyContext(value);
-						var res = OnModifyValue(input, context, ref value);
+						var res = OnModifyValue(input, ref context, ref value);
 						if (res == ToolInputResult.AbortFurtherProcessing)
 							break;
 						if (res != ToolInputResult.Success) continue;
@@ -338,7 +338,7 @@ namespace Needle.Timeline
 						var entry = list[index];
 						var context = new ModifyContext(entry);
 						var value = matchingField.GetValue(entry);
-						var res = OnModifyValue(input, context, ref value);
+						var res = OnModifyValue(input, ref context, ref value);
 						if (res == ToolInputResult.AbortFurtherProcessing)
 							break;
 						if (res != ToolInputResult.Success) continue;
@@ -353,7 +353,7 @@ namespace Needle.Timeline
 			return didRun;
 		}
 
-		protected virtual ToolInputResult OnModifyValue(InputData input, ModifyContext context, ref object value)
+		protected virtual ToolInputResult OnModifyValue(InputData input, ref ModifyContext context, ref object value)
 		{
 			return ToolInputResult.Failed;
 		}

@@ -22,6 +22,7 @@ namespace Needle.Timeline
 		{
 			if (!AllowBinding) return false;
 			if (weight <= 0) return false;
+			Debug.Log(weight);
 			var appliedAny = false;
 			var bindings = ((IBindsFields)this).Bindings;
 			foreach (var field in bindings)
@@ -29,6 +30,15 @@ namespace Needle.Timeline
 				if (!field.Enabled) continue;
 				appliedAny = true;
 				var ui = field.View.GetValue();
+
+				if (ui != null)
+				{
+					if (InterpolatorBuilder.TryFindInterpolatable(ui.GetType(), out var i, true))
+					{
+						i.Interpolate(ref ui, field.GetValue(obj), ui, weight);
+					}
+				}
+				
 				field.SetValue(obj, ui);
 			}
 			return appliedAny;
