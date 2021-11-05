@@ -11,7 +11,7 @@ namespace Needle.Timeline
 {
 	public static class ClipAndKeyframeExtensions
 	{
-		public static ICustomKeyframe? AddKeyframe(this ICustomClip clip, float time, object? value = null)
+		public static ICustomKeyframe? AddKeyframeWithUndo(this ICustomClip clip, float time, object? value = null)
 		{
 			if (clip.GetType().IsGenericType)
 			{

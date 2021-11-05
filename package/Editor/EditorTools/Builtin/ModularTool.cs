@@ -19,10 +19,10 @@ namespace Needle.Timeline
 
 		protected override bool OnSupports(Type type)
 		{
-			if (ToolModule.Modules.Any(m => m.CanModify(type))) return true;
+			if (ToolModuleRegistry.Modules.Any(m => m.CanModify(type))) return true;
 			foreach (var field in type.EnumerateFields())
 			{
-				if (ToolModule.Modules.Any(m => m.CanModify(field.FieldType)))
+				if (ToolModuleRegistry.Modules.Any(m => m.CanModify(field.FieldType)))
 				{
 					return true;
 				}
@@ -61,20 +61,20 @@ namespace Needle.Timeline
 			{
 				foreach (var type in t.Clip.SupportedTypes)
 				{ 
-					ToolModule.GetModulesSupportingType(type, buffer);
+					ToolModuleRegistry.GetModulesSupportingType(type, buffer);
 					BuildModuleToolsUI();
 
 					if (typeof(ICollection).IsAssignableFrom(type) && type.IsGenericType)
 					{
 						var contentType = type.GetGenericArguments().First();
-						ToolModule.GetModulesSupportingType(contentType, buffer);
+						ToolModuleRegistry.GetModulesSupportingType(contentType, buffer);
 						BuildModuleToolsUI();
 					}
 				}
 
 				foreach (var field in t.Clip.EnumerateFields())
 				{
-					ToolModule.GetModulesSupportingType(field.FieldType, buffer);
+					ToolModuleRegistry.GetModulesSupportingType(field.FieldType, buffer);
 					BuildModuleToolsUI();
 				}
 			}
@@ -120,9 +120,7 @@ namespace Needle.Timeline
 		}
 
 		private readonly InputData input = new InputData();
-		private readonly List<(IReadClipTime time, IClipKeyframePair val)> visibleKeyframes = new List<(IReadClipTime time, IClipKeyframePair val)>();
-		
-		
+
 		[DrawGizmo(GizmoType.NonSelected | GizmoType.Selected)]
 		private static void DrawGizmos(PlayableDirector component, GizmoType gizmoType)
 		{
@@ -148,9 +146,6 @@ namespace Needle.Timeline
 
 		protected override void OnHandleInput()
 		{
-			if (Event.current.type == EventType.MouseDown)
-				Debug.Log("Mouse down");
-
 			input.Update();
 
 			if (modulesUI.Any(m => m.IsActive))
@@ -158,29 +153,17 @@ namespace Needle.Timeline
 				foreach (var mod in modulesUI)
 				{
 					if (!mod.IsActive) continue;
-					
-					var module = mod.Module; 
-					
+					var module = mod.Module;
 					if (!mod.Module.WantsInput(input)) continue;
 
 					foreach (var tar in Targets)
 					{
-						visibleKeyframes.Clear();
-
 						if (tar.IsNull()) continue;
 						if (tar.Clip is IRecordable rec)
 						{
 							if (!rec.IsRecording) continue;
 						}
-
-						var time = (float)tar.ViewModel.clipTime;
-						var closest = tar.Clip.GetClosest(time);
-						if (closest != null)
-							visibleKeyframes.Add((tar.ViewModel, new ClipKeyframePair(tar.Clip, closest)));
-
-						// TODO: currently it is possible that modules receive events multiple times
-
-						var didModify = false;
+						
 						if (!tar.Clip.SupportedTypes.Any(module.CanModify))
 						{
 							var data = new ToolData()
@@ -188,126 +171,14 @@ namespace Needle.Timeline
 								Clip = tar.Clip,
 								Time = tar.TimeF
 							};
-							// Debug.Log("Modify: " + module + ": " + tar.Clip);
-							if (module.OnModify(input, ref data))
-							{
-								// didModify = true;
-								UseEventDelayed();
-							}
-
-							// if (tar.Clip.GetType().IsGenericType)
-							// {
-							// 	var clipType = tar.Clip.GetType().GetGenericArguments().FirstOrDefault();
-							// 	var keyframeType = typeof(CustomKeyframe<>).MakeGenericType(clipType);
-							// 	var kf = Activator.CreateInstance(keyframeType) as ICustomKeyframe;
-							// 	kf!.time = tar.TimeF;
-							// 	CustomUndo.Register(new CreateKeyframe(kf, tar.Clip));
-							// }
+							module.OnModify(input, ref data);
+							UseEventDelayed();
 						}
-
-						// if (false && !didModify && visibleKeyframes.Count > 0)
-						// {
-						// 	foreach (var (read, pair) in visibleKeyframes)
-						// 	{
-						// 		var kf = pair?.Keyframe;
-						// 		if (kf == null) continue;
-						//
-						// 		if (mod.IsActive && mod.Module.WantsInput(input))
-						// 		{
-						// 			var value = kf.value;
-						// 			var contentType = kf.TryRetrieveKeyframeContentType();
-						// 			if (contentType == null)
-						// 			{
-						// 				continue;
-						// 			}
-						//
-						// 			List<FieldInfo> targetFields = null;
-						// 			if (!module.CanModify(contentType))
-						// 			{
-						// 				foreach (var field in contentType.EnumerateFields())
-						// 				{
-						// 					if (module.CanModify(field.FieldType))
-						// 					{
-						// 						targetFields ??= new List<FieldInfo>();
-						// 						targetFields.Add(field);
-						// 					}
-						// 				}
-						// 			}
-						//
-						// 			if (value is IList list)
-						// 			{
-						// 				var changed = false;
-						// 				for (var index = list.Count - 1; index >= 0; index--)
-						// 				{
-						// 					var listEntry = list[index];
-						// 					if (targetFields != null)
-						// 					{
-						// 						foreach (var field in targetFields)
-						// 						{
-						// 							if (module.CanModify(field.FieldType))
-						// 							{
-						// 								var fieldValue = field.GetValue(listEntry);
-						// 								var data = new ToolData()
-						// 								{
-						// 									Clip = pair.Clip,
-						// 									Keyframe = pair.Keyframe,
-						// 									Value = fieldValue,
-						// 									Time = tar.TimeF,
-						// 									Owner = listEntry,
-						// 								};
-						// 								if (module.OnModify(input, ref data))
-						// 								{
-						// 									field.SetValue(listEntry, data.Value);
-						// 									changed = true;
-						// 									UseEventDelayed();
-						// 									break;
-						// 								}
-						// 							}
-						// 						}
-						// 					}
-						// 					else
-						// 					{
-						// 						if (module.CanModify(contentType))
-						// 						{
-						// 							var data = new ToolData()
-						// 							{
-						// 								Clip = pair.Clip,
-						// 								Keyframe = pair.Keyframe,
-						// 								Value = listEntry,
-						// 								Time = tar.TimeF,
-						// 								Owner = pair.Keyframe,
-						// 							};
-						// 							if (module.OnModify(input, ref data))
-						// 							{
-						// 								listEntry = data.Value;
-						// 								changed = true;
-						// 								UseEventDelayed();
-						// 							}
-						// 						}
-						// 					}
-						// 					list[index] = listEntry;
-						// 				}
-						// 				if (changed)
-						// 				{
-						// 					kf.value = value;
-						// 					kf.RaiseValueChangedEvent();
-						// 				}
-						// 			}
-						// 		}
-						// 	}
-						// }
 					}
 				}
-				// Debug.Log("KF=" + visibleKeyframes.Count);
-				// Debug.Log("Modules=" + modulesUI.Count);
-				// UseEvent();
+				
 			}
-			// var pos = PlaneUtils.GetPointOnPlane(Camera.current, out _, out _, out _);
-			// // Handles.color = erase ? Color.red : Color.white;
-			// Handles.DrawWireDisc(pos, Vector3.up, radius);
-			// Handles.DrawWireDisc(pos, Vector3.forward, radius);
-			// Handles.DrawWireDisc(pos, Vector3.right, radius);
-
+			
 			switch (Event.current.type)
 			{
 				case EventType.KeyDown:
@@ -316,99 +187,9 @@ namespace Needle.Timeline
 						case KeyCode.Escape:
 							this.Deselect();
 							break;
-						case KeyCode.W:
-							// erase = false;
-							// UseEvent();
-							break;
-						case KeyCode.E:
-							// erase = true;
-							// UseEvent();
-							break;
 					}
 					break;
 			}
-
-
-			switch (Event.current.type, Event.current.modifiers, Event.current.button)
-			{
-				case (EventType.ScrollWheel, EventModifiers.Alt, _):
-					radius += Event.current.delta.y * -.01f;
-					radius = Mathf.Clamp(radius, .001f, 20f);
-					UseEvent();
-					break;
-
-				case (EventType.MouseDown, EventModifiers.None, 0):
-					foreach (var active in Targets)
-					{
-						// var active = Targets.LastOrDefault();
-						// foreach (var active in Targets)
-						// if (!active.ViewModel.currentlyInClipTime) continue;
-						if (!active.IsNull())
-						{
-							var time = (float)active.ViewModel.clipTime;
-							var closest = active.Clip.GetClosest(time);
-							if (closest != null && Mathf.Abs(time - closest.time) < .1f)
-							{
-								keyframe = closest;
-							}
-							if (closest == null || Mathf.Abs(time - closest.time) > .1f)
-							{
-								// if (active.Clip.GetType().IsGenericType)
-								// {
-								// 	var clipType = active.Clip.GetType().GetGenericArguments().FirstOrDefault();
-								// 	var keyframeType = typeof(CustomKeyframe<>).MakeGenericType(clipType);
-								// 	keyframe = Activator.CreateInstance(keyframeType) as ICustomKeyframe;
-								// 	keyframe!.time = time;
-								// 	CustomUndo.Register(new CreateKeyframe(keyframe, active.Clip));
-								// }
-							}
-						}
-					}
-					UseEvent();
-					break;
-
-				// case (EventType.MouseDrag, EventModifiers.None, 0):
-				// 	if (keyframe != null)
-				// 	{
-				// 		// keyframe.value.Add(GetPoint(pos));
-				// 		keyframe.RaiseValueChangedEvent();
-				// 	}
-				// 	UseEvent();
-				// 	break;
-			}
-		}
-
-		private void ForEachModule(Action<ToolTarget, ToolModule> callback)
-		{
-			foreach (var t in Targets)
-			{
-				foreach (var mod in ToolModule.Modules)
-				{
-					callback(t, mod);
-				}
-			}
-		}
-
-		private bool RemoveInRange(Vector3 pos, IList<Vector3> points)
-		{
-			var cnt = points.Count;
-			for (var index = 0; index < points.Count; index++)
-			{
-				var pt = points[index];
-				if (Vector3.Distance(pt, pos) <= radius)
-				{
-					points.RemoveAt(index);
-				}
-			}
-			return cnt > points.Count;
-		}
-
-		private Vector3 GetPoint(Vector3 pos)
-		{
-			var pt = Random.insideUnitSphere * radius + pos;
-			if (IsIn2DMode)
-				pt.z = 0;
-			return pt;
 		}
 	}
 }
