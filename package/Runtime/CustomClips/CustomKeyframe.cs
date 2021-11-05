@@ -33,6 +33,12 @@ namespace Needle.Timeline
 			}
 		}
 
+		object IValueOwner.value
+		{
+			get => value;
+			set => this.value = (T)value;
+		}
+
 		object? IReadonlyCustomKeyframe.value => value;
 
 		public float time

@@ -205,100 +205,97 @@ namespace Needle.Timeline
 							// }
 						}
 
-						if (!didModify && visibleKeyframes.Count > 0)
-						{
-							foreach (var (read, pair) in visibleKeyframes)
-							{
-								var kf = pair?.Keyframe;
-								if (kf == null) continue;
-
-								if (mod.IsActive && mod.Module.WantsInput(input))
-								{
-									var value = kf.value;
-									var contentType = kf.TryRetrieveKeyframeContentType();
-									if (contentType == null)
-									{
-										continue;
-									}
-
-									List<FieldInfo> targetFields = null;
-									if (!module.CanModify(contentType))
-									{
-										foreach (var field in contentType.EnumerateFields())
-										{
-											if (module.CanModify(field.FieldType))
-											{
-												targetFields ??= new List<FieldInfo>();
-												targetFields.Add(field);
-											}
-										}
-									}
-
-									if (value is IList list)
-									{
-										var changed = false;
-										for (var index = list.Count - 1; index >= 0; index--)
-										{
-											var listEntry = list[index];
-											if (targetFields != null)
-											{
-												foreach (var field in targetFields)
-												{
-													if (module.CanModify(field.FieldType))
-													{
-														var fieldValue = field.GetValue(listEntry);
-														var data = new ToolData()
-														{
-															Clip = pair.Clip,
-															Keyframe = pair.Keyframe,
-															Value = fieldValue,
-															Index = index,
-															ValueType = contentType,
-															Time = tar.TimeF,
-															ValueOwner = listEntry,
-														};
-														if (module.OnModify(input, ref data))
-														{
-															field.SetValue(listEntry, data.Value);
-															changed = true;
-															UseEventDelayed();
-															break;
-														}
-													}
-												}
-											}
-											else
-											{
-												if (module.CanModify(contentType))
-												{
-													var data = new ToolData()
-													{
-														Clip = pair.Clip,
-														Keyframe = pair.Keyframe,
-														Value = listEntry,
-														ValueType = contentType,
-														Time = tar.TimeF,
-														ValueOwner = pair.Keyframe,
-													};
-													if (module.OnModify(input, ref data))
-													{
-														listEntry = data.Value;
-														changed = true;
-														UseEventDelayed();
-													}
-												}
-											}
-											list[index] = listEntry;
-										}
-										if (changed)
-										{
-											kf.value = value;
-											kf.RaiseValueChangedEvent();
-										}
-									}
-								}
-							}
-						}
+						// if (false && !didModify && visibleKeyframes.Count > 0)
+						// {
+						// 	foreach (var (read, pair) in visibleKeyframes)
+						// 	{
+						// 		var kf = pair?.Keyframe;
+						// 		if (kf == null) continue;
+						//
+						// 		if (mod.IsActive && mod.Module.WantsInput(input))
+						// 		{
+						// 			var value = kf.value;
+						// 			var contentType = kf.TryRetrieveKeyframeContentType();
+						// 			if (contentType == null)
+						// 			{
+						// 				continue;
+						// 			}
+						//
+						// 			List<FieldInfo> targetFields = null;
+						// 			if (!module.CanModify(contentType))
+						// 			{
+						// 				foreach (var field in contentType.EnumerateFields())
+						// 				{
+						// 					if (module.CanModify(field.FieldType))
+						// 					{
+						// 						targetFields ??= new List<FieldInfo>();
+						// 						targetFields.Add(field);
+						// 					}
+						// 				}
+						// 			}
+						//
+						// 			if (value is IList list)
+						// 			{
+						// 				var changed = false;
+						// 				for (var index = list.Count - 1; index >= 0; index--)
+						// 				{
+						// 					var listEntry = list[index];
+						// 					if (targetFields != null)
+						// 					{
+						// 						foreach (var field in targetFields)
+						// 						{
+						// 							if (module.CanModify(field.FieldType))
+						// 							{
+						// 								var fieldValue = field.GetValue(listEntry);
+						// 								var data = new ToolData()
+						// 								{
+						// 									Clip = pair.Clip,
+						// 									Keyframe = pair.Keyframe,
+						// 									Value = fieldValue,
+						// 									Time = tar.TimeF,
+						// 									Owner = listEntry,
+						// 								};
+						// 								if (module.OnModify(input, ref data))
+						// 								{
+						// 									field.SetValue(listEntry, data.Value);
+						// 									changed = true;
+						// 									UseEventDelayed();
+						// 									break;
+						// 								}
+						// 							}
+						// 						}
+						// 					}
+						// 					else
+						// 					{
+						// 						if (module.CanModify(contentType))
+						// 						{
+						// 							var data = new ToolData()
+						// 							{
+						// 								Clip = pair.Clip,
+						// 								Keyframe = pair.Keyframe,
+						// 								Value = listEntry,
+						// 								Time = tar.TimeF,
+						// 								Owner = pair.Keyframe,
+						// 							};
+						// 							if (module.OnModify(input, ref data))
+						// 							{
+						// 								listEntry = data.Value;
+						// 								changed = true;
+						// 								UseEventDelayed();
+						// 							}
+						// 						}
+						// 					}
+						// 					list[index] = listEntry;
+						// 				}
+						// 				if (changed)
+						// 				{
+						// 					kf.value = value;
+						// 					kf.RaiseValueChangedEvent();
+						// 				}
+						// 			}
+						// 		}
+						// 	}
+						// }
 					}
 				}
 				// Debug.Log("KF=" + visibleKeyframes.Count);
