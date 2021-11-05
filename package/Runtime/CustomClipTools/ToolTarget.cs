@@ -1,4 +1,6 @@
-﻿namespace Needle.Timeline
+﻿using System.Collections.Generic;
+
+namespace Needle.Timeline
 {
 	public readonly struct ToolTarget
 	{

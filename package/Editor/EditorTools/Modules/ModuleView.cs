@@ -57,15 +57,17 @@ namespace Needle.Timeline
 		private void OnBuildUI()
 		{
 			options.Clear();
-			
+
+			options.Add(new Button(OnBuildUI) { text = "DEBUG REBUILD UI" });
+
 			foreach (var field in Module.GetType().EnumerateFields())
-			{ 
+			{
 				if (!field.IsPublic)
 				{
 					if (field.GetCustomAttribute<Expose>() == null)
 						continue;
 				}
-				
+
 				var range = field.GetCustomAttribute<RangeAttribute>();
 				VisualElement element = null;
 				const float labelMinWidth = 40;
@@ -117,6 +119,7 @@ namespace Needle.Timeline
 						menu.ShowAsContext();
 					}
 				});
+
 				void CreateSlider<T>(BaseSlider<T> slider) where T : IComparable<T>
 				{
 					slider.Q<Label>().style.minWidth = labelMinWidth;
@@ -133,10 +136,7 @@ namespace Needle.Timeline
 				{
 					el.Q<Label>().style.minWidth = labelMinWidth;
 					el.value = (T)Convert.ChangeType(field.GetValue(Module), typeof(T));
-					el.RegisterValueChangedCallback(cb =>
-					{
-						field.SetValue(Module, Convert.ChangeType(cb.newValue, field.FieldType));
-					});
+					el.RegisterValueChangedCallback(cb => { field.SetValue(Module, Convert.ChangeType(cb.newValue, field.FieldType)); });
 					element = el;
 					options.Add(el);
 				}
@@ -145,65 +145,27 @@ namespace Needle.Timeline
 				{
 					el.Q<Label>().style.minWidth = labelMinWidth;
 					el.value = (bool)field.GetValue(Module);
-					el.RegisterValueChangedCallback(cb =>
-					{
-						field.SetValue(Module, cb.newValue);
-					});
+					el.RegisterValueChangedCallback(cb => { field.SetValue(Module, cb.newValue); });
 					element = el;
 					options.Add(el);
 				}
 			}
-			
-			Module.dynamicFields.Clear();
-			foreach (var t in tool.Targets)
-			{
-				foreach (var field in t.Clip.EnumerateFields())
-				{
-					if (Module.CanModify(field.FieldType))
-					{
-						if (typeof(Enum).IsAssignableFrom(field.FieldType))
-						{
-							var binding = new ValueHandler();
-							var choices = new List<string>();
-							var enumOptions = Enum.GetNames(field.FieldType);
-							for (var i = 0; i < enumOptions.Length; i++)
-							{
-								choices.Add(enumOptions[i]);
-							}
-							var el = new PopupField<string>(choices, 0);
-							options.Add(el);
 
-							el.RegisterValueChangedCallback(evt =>
-							{
-								var val = (Enum)Enum.Parse(field.FieldType, evt.newValue);
-								binding.SetValue(val);
-							});
-							binding.SetValue(el.value);
-							
-							Module.dynamicFields.Add(binding);
+			// TODO: stop recreating bindings every time and start reusing them
+			if (Module.AllowBinding && Module is IBindsFields bindable)
+			{
+				bindable.Bindings.Clear();
+				foreach (var t in tool.Targets)
+				{
+					foreach (var field in t.Clip.EnumerateFields())
+					{
+						if (BindingFactory.TryProduceBinding(this, field, t, bindable, out var handler))
+						{
+							options.Add(handler.VisualElement);
 						}
 					}
 				}
 			}
-
-		}
-
-		private class ValueHandler : IValueHandler, IEnabled
-		{
-			public bool Enabled { get; set; }
-			
-			private object value;
-
-			public void SetValue(object newValue)
-			{
-				this.value = newValue;
-			}
-
-			public object GetValue()
-			{
-				return value;
-			}
-
 		}
 	}
 }

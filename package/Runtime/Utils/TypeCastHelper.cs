@@ -31,11 +31,11 @@ namespace Needle.Timeline
 			lock (castCache)
 			{
 				var key = new Tuple<Type, Type>(from, to);
-				Func<object, object> cast_delegate;
-				if (castCache.TryGetValue(key, out cast_delegate)) return cast_delegate;
-				cast_delegate = MakeCastDelegate(@from, to);
-				castCache.Add(key, cast_delegate);
-				return cast_delegate;
+				if (castCache.TryGetValue(key, out var del)) 
+					return del;
+				del = MakeCastDelegate(@from, to);
+				castCache.Add(key, del);
+				return del;
 			}
 		}
 	}

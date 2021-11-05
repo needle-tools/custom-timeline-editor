@@ -57,7 +57,7 @@ namespace Needle.Timeline
 				case EventType.KeyDown:
 					if(evt.keyCode != KeyCode.None)
 						keyPressed = evt.keyCode;
-					Debug.Log("KEY PRESSED: "+  keyPressed);
+					// Debug.Log("KEY PRESSED: "+  keyPressed);
 					break;
 				case EventType.KeyUp:
 					keyPressed = null;

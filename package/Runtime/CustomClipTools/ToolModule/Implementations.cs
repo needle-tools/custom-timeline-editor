@@ -1,6 +1,7 @@
 ﻿#nullable enable
 using System;
 using System.Collections.Generic;
+using NUnit.Framework.Constraints;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Random = UnityEngine.Random;
@@ -9,6 +10,8 @@ namespace Needle.Timeline
 {
 	public class SprayProducer : CoreToolModule
 	{
+		public SprayProducer() => AllowBinding = true; 
+		
 		public float Radius = 1;
 		public int Max = 1000;
 		[Range(0, 1)] public float Offset = 1;
@@ -153,24 +156,28 @@ namespace Needle.Timeline
 		}
 	}
 
-	public class IntModule : CoreToolModule
+	public class ModifierModule : CoreToolModule
 	{
-		public float Radius = 1;
+		public ModifierModule() => AllowBinding = true; 
 		
+		public float Radius = 1;
+
+		// public override bool CanModify(Type type) => true;
+
 		protected override IEnumerable<Type> SupportedTypes { get; } = new[] { typeof(Enum) };
 
 		protected override ToolInputResult OnModifyValue(InputData input, ModifyContext context, ref object value)
 		{
-			foreach (var e in dynamicFields)
-			{
-				var pos = ToolHelpers.TryGetPosition(context.Object, value);
-				if (pos == null) continue;
-				var dist = Vector3.Distance(input.WorldPosition.GetValueOrDefault(), (Vector3)pos.Cast(typeof(Vector3)));
-				if (!(dist < Radius)) return ToolInputResult.Failed;
-				value = e.GetValue();
-				return ToolInputResult.Success;
-			}
-			return ToolInputResult.Failed;
+			var pos = ToolHelpers.TryGetPosition(context.Object, value);
+			if (pos == null) return ToolInputResult.Failed;
+			// var wp = (Vector3)pos.Cast(typeof(Vector3));
+			// var sp = input.ToScreenPoint(wp);
+			// var dist = Vector2.Distance(input.ScreenPosition, sp) / 100;
+			var dist = Vector3.Distance(pos.Value, input.WorldPosition.Value);
+			if (dist > Radius) return ToolInputResult.Failed;
+			var weight = 1 - (dist / Radius);
+			context.Weight = weight;
+			return ToolInputResult.Success;
 		}
 	}
 

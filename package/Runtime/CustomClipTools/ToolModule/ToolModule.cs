@@ -7,12 +7,32 @@ using UnityEngine.UIElements;
 
 namespace Needle.Timeline
 {
-	public abstract class ToolModule : IToolModule
+	public interface IBindsFields
 	{
-		public bool EventUsed { get; protected set; }
-
-		internal readonly List<IValueHandler> dynamicFields = new List<IValueHandler>();
-		// internal readonly IDictionary<FieldInfo, object> _dynamicFields = new Dictionary<FieldInfo, object>();
+		bool AllowBinding { get; }
+		internal List<IViewFieldBinding> Bindings { get; }
+	}
+	
+	public abstract class ToolModule : IToolModule, IBindsFields
+	{
+		public bool AllowBinding { get; protected set; } = false;
+		List<IViewFieldBinding> IBindsFields.Bindings { get; } = new List<IViewFieldBinding>();
+		
+		protected virtual bool ApplyBoundValues(object obj, float weight)
+		{
+			if (!AllowBinding) return false;
+			if (weight <= 0) return false;
+			var appliedAny = false;
+			var bindings = ((IBindsFields)this).Bindings;
+			foreach (var field in bindings)
+			{
+				if (!field.Enabled) continue;
+				appliedAny = true;
+				var ui = field.View.GetValue();
+				field.SetValue(obj, ui);
+			}
+			return appliedAny;
+		}
 
 		public abstract bool CanModify(Type type);
 		
@@ -46,7 +66,7 @@ namespace Needle.Timeline
 		protected virtual float GetRadius()
 		{
 			if (radiusField != null) return (float)radiusField.GetValue(this);
-			if (didSearchRadius) return .1f;
+			if (didSearchRadius) return .1f; 
 			didSearchRadius = true;
 			foreach (var field in GetType().GetRuntimeFields())
 			{

@@ -245,6 +245,9 @@ namespace Needle.Timeline
 				{
 					instance = type.TryCreateInstance() ?? throw new Exception("Failed creating instance of " + toolContext.ContentType + ", Module: " + this);
 				}
+				
+				
+				ApplyBoundValues(instance, res.Weight);
 
 				// the content type is a field inside a type
 				if (instance is IToolEvents i) i.OnToolEvent(ToolStage.InstanceCreated, input);
@@ -339,6 +342,8 @@ namespace Needle.Timeline
 							break;
 						if (res != ToolInputResult.Success) continue;
 						matchingField.SetValue(entry, value.Cast(matchingField.FieldType));
+
+						ApplyBoundValues(entry, context.Weight);
 						list[index] = entry;
 						didRun = true;
 					}
@@ -376,13 +381,15 @@ namespace Needle.Timeline
 		}
 	}
 
-	public readonly struct ModifyContext
+	public struct ModifyContext
 	{
 		public readonly object Object;
+		public float Weight;
 
 		public ModifyContext(object target)
 		{
 			Object = target;
+			Weight = 1;
 		}
 	}
 
@@ -402,11 +409,13 @@ namespace Needle.Timeline
 	{
 		public readonly object Value;
 		public readonly bool Success;
+		public readonly float Weight;
 
-		public ProducedValue(object value, bool success)
+		public ProducedValue(object value, bool success, float weight = 1)
 		{
 			Value = value;
 			Success = success;
+			Weight = weight;
 		}
 	}
 

@@ -14,4 +14,11 @@
 	{
 		object Instance { get; set; }
 	}
+
+	public interface IViewFieldBinding : IEnabled
+	{
+		IValueHandler View { get; }
+		object GetValue(object instance);
+		void SetValue(object instance, object value);
+	}
 }
