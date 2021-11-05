@@ -188,8 +188,10 @@ namespace Needle.Timeline
 
 		}
 
-		private class ValueHandler : IValueHandler
+		private class ValueHandler : IValueHandler, IEnabled
 		{
+			public bool Enabled { get; set; }
+			
 			private object value;
 
 			public void SetValue(object newValue)
@@ -201,6 +203,7 @@ namespace Needle.Timeline
 			{
 				return value;
 			}
+
 		}
 	}
 }

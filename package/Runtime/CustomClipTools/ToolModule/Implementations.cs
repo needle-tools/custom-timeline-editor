@@ -42,6 +42,7 @@ namespace Needle.Timeline
 		{
 			if (input.HasKeyPressed(KeyCode.M)) yield break;
 			if (context.Count >= Max) yield break;
+			if (input.WorldPosition == null) yield break;
 
 			var offset = Random.insideUnitSphere * Radius;
 			var pos = input.WorldPosition.Value + offset;
@@ -70,6 +71,7 @@ namespace Needle.Timeline
 
 		protected override ToolInputResult OnModifyValue(InputData input, ModifyContext context, ref object value)
 		{
+			if (input.WorldPosition == null) return ToolInputResult.Failed;
 			var vec = (Vector3)value.Cast(typeof(Vector3));
 			if (Vector3.Distance(vec, input.WorldPosition.Value) < Radius)
 			{
