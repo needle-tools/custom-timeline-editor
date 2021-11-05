@@ -9,7 +9,6 @@ namespace Needle.Timeline
 {
 	public class SprayProducer : CoreToolModule
 	{
-		[Range(0, 1)] public float Probability = 1;
 		public float Radius = 1;
 		public int Max = 1000;
 		[Range(0, 1)] public float Offset = 1;
@@ -21,7 +20,12 @@ namespace Needle.Timeline
 		protected override IEnumerable<ICustomKeyframe?> GetKeyframes(ToolData toolData)
 		{
 			foreach (var kf in base.GetKeyframes(toolData))
-				yield return kf;
+			{
+				if (IsCloseKeyframe(toolData, kf))
+					yield return kf;
+				else 
+					yield return CreateAndAddNewKeyframe(toolData);
+			}
 
 			if (AllKeyframes)
 			{
@@ -64,16 +68,16 @@ namespace Needle.Timeline
 
 		protected override IEnumerable<Type> SupportedTypes { get; } = new[] { typeof(Vector3), typeof(Vector2) };
 
-		protected override bool OnModifyValue(InputData input, ModifyContext context, ref object value)
+		protected override ToolInputResult OnModifyValue(InputData input, ModifyContext context, ref object value)
 		{
 			var vec = (Vector3)value.Cast(typeof(Vector3));
 			if (Vector3.Distance(vec, input.WorldPosition.Value) < Radius)
 			{
 				vec += input.DeltaWorld.Value;
 				value = vec;
-				return true;
+				return ToolInputResult.Success;
 			}
-			return true;
+			return ToolInputResult.Failed;
 		}
 	}
 
@@ -81,124 +85,30 @@ namespace Needle.Timeline
 	{
 		public float Radius = 1;
 
-		protected override IEnumerable<ICustomKeyframe?> GetKeyframes(ToolData toolData)
-		{
-			yield return toolData.Clip.GetClosest(toolData.Time);
-		}
-
 		protected override IEnumerable<Type> SupportedTypes { get; } = new[] { typeof(Vector3), typeof(Vector2) };
 
-		protected override bool OnDeleteValue(InputData input, ref DeleteContext context)
+		protected override ToolInputResult OnDeleteValue(InputData input, ref DeleteContext context)
 		{
-			if (input.WorldPosition == null) return false;
+			if (input.WorldPosition == null) return ToolInputResult.Failed;
 			var vec = (Vector3)context.Value.Cast(typeof(Vector3));
-			if (Vector3.Distance(vec, input.WorldPosition.Value) < Radius)
+			var sp = input.ToScreenPoint(vec);
+			
+			if (Vector2.Distance(sp, input.ScreenPosition) < Radius * 100)
 			{
 				context.Deleted = true;
+				return ToolInputResult.Success;
 			}
-			return true;
+			return ToolInputResult.Failed;
 		}
 	}
-
-	public class IntModule : ToolModule
+	
+	public class PaintColor : CoreToolModule
 	{
+		[Range(.1f, 10)]
 		public float Radius = 1;
+		[Range(0.01f, 3)] public float Falloff = 1;
 
-		public override bool CanModify(Type type)
-		{
-			return typeof(int).IsAssignableFrom(type) || typeof(Enum).IsAssignableFrom(type);
-		}
-
-		public override bool OnModify(InputData input, ref ToolData toolData)
-		{
-			foreach (var e in dynamicFields)
-			{
-				var dist = Vector3.Distance(input.WorldPosition.GetValueOrDefault(), (Vector3)toolData.Position.GetValueOrDefault());
-				if (dist < Radius)
-				{
-					// Debug.Log("PAINT WITH " + e.GetValue() + " on " + toolData.ValueType);
-					toolData.Value = e.GetValue();
-					return true;
-				}
-			}
-			return base.OnModify(input, ref toolData);
-		}
-	}
-
-
-	public class FloatScaleDrag : ToolModule
-	{
-		public float Radius = 1;
-
-		public override bool CanModify(Type type)
-		{
-			return typeof(float).IsAssignableFrom(type);
-		}
-
-		public override bool OnModify(InputData input, ref ToolData toolData)
-		{
-			if (toolData.Value is float vec)
-			{
-				if (toolData.Position != null)
-				{
-					var dist = Vector2.Distance(input.StartScreenPosition, input.ToScreenPoint(toolData.Position.Value));
-					var strength = Mathf.Clamp01(Radius * 100 - dist);
-					if (strength <= 0) return false;
-					var delta = input.ScreenDelta.y * 0.01f;
-					var target = vec + delta;
-					toolData.Value = target;
-					return true;
-				}
-				else
-				{
-					var delta = -input.ScreenDelta.y * 0.01f;
-					var target = vec + delta;
-					toolData.Value = target;
-					return Mathf.Abs(delta) > .0001f;
-				}
-			}
-			return false;
-		}
-	}
-
-
-	public class SetFloatValue : ToolModule
-	{
-		public float Value = .1f;
-
-		public override bool CanModify(Type type)
-		{
-			return typeof(float).IsAssignableFrom(type);
-		}
-
-		public override bool OnModify(InputData input, ref ToolData toolData)
-		{
-			if (toolData.Value is float)
-			{
-				if (toolData.Position != null && input.WorldPosition != null)
-				{
-					var dist = Vector3.Distance(input.WorldPosition.Value, toolData.Position.Value);
-					var strength = Mathf.Clamp01(1 - dist);
-					if (strength <= 0) return false;
-					toolData.Value = Value;
-					return true;
-				}
-				toolData.Value = Value;
-				return true;
-			}
-			return false;
-		}
-	}
-
-	public class DragColor : ToolModule
-	{
-		public float Radius = 1;
-		[UnityEngine.Range(0.01f, 3)] public float Falloff = 1;
-
-		public override bool CanModify(Type type)
-		{
-			return typeof(Color).IsAssignableFrom(type);
-		}
+		protected override IEnumerable<Type> SupportedTypes { get; } = new[] { typeof(Color) };
 
 		protected override bool AllowedButton(MouseButton button)
 		{
@@ -210,17 +120,19 @@ namespace Needle.Timeline
 			return current == EventModifiers.None;
 		}
 
-		public override bool OnModify(InputData input, ref ToolData toolData)
+		protected override ToolInputResult OnModifyValue(InputData input, ModifyContext context, ref object value)
 		{
-			if (toolData.Value is Color col)
+			if (value is Color col)
 			{
 				float strength = 1;
-				if (toolData.Position != null && input.StartWorldPosition != null)
-				{
-					var dist = Vector3.Distance(input.StartWorldPosition.Value, toolData.Position.Value);
-					strength = Mathf.Clamp01(((Radius - dist) / Radius) / Falloff);
-					if (strength <= 0.001f) return false;
-				}
+				var pos = ToolHelpers.TryGetPosition(context.Object, value);
+				if (pos == null) return ToolInputResult.Failed;
+				
+				var sp = input.ToScreenPoint(pos.Value);
+
+				var dist = Vector2.Distance(input.StartScreenPosition, sp) / 100;
+				strength = Mathf.Clamp01(((Radius - dist) / Radius) / Falloff);
+				if (strength <= 0.001f) return ToolInputResult.Failed;
 
 				// TODO: we need to have access to other fields of custom types, e.g. here we want the position to get the distance
 
@@ -233,10 +145,100 @@ namespace Needle.Timeline
 				else
 					v += input.ScreenDelta.y * .01f;
 				col = Color.HSVToRGB(h, s, v);
-				toolData.Value = Color.Lerp((Color)toolData.Value, col, strength);
-				return true;
+				value = Color.Lerp((Color)value, col, strength);
 			}
-			return false;
+			return ToolInputResult.Success;
 		}
 	}
+
+	public class IntModule : CoreToolModule
+	{
+		public float Radius = 1;
+		
+		protected override IEnumerable<Type> SupportedTypes { get; } = new[] { typeof(Enum) };
+
+		protected override ToolInputResult OnModifyValue(InputData input, ModifyContext context, ref object value)
+		{
+			foreach (var e in dynamicFields)
+			{
+				var pos = ToolHelpers.TryGetPosition(context.Object, value);
+				if (pos == null) continue;
+				var dist = Vector3.Distance(input.WorldPosition.GetValueOrDefault(), (Vector3)pos.Cast(typeof(Vector3)));
+				if (!(dist < Radius)) return ToolInputResult.Failed;
+				value = e.GetValue();
+				return ToolInputResult.Success;
+			}
+			return ToolInputResult.Failed;
+		}
+	}
+
+
+	// public class FloatScaleDrag : ToolModule
+	// {
+	// 	public float Radius = 1;
+	//
+	// 	public override bool CanModify(Type type)
+	// 	{
+	// 		return typeof(float).IsAssignableFrom(type);
+	// 	}
+	//
+	// 	public override bool OnModify(InputData input, ref ToolData toolData)
+	// 	{
+	// 		if (toolData.Value is float vec)
+	// 		{
+	// 			if (toolData.Position != null)
+	// 			{
+	// 				var dist = Vector2.Distance(input.StartScreenPosition, input.ToScreenPoint(toolData.Position.Value));
+	// 				var strength = Mathf.Clamp01(Radius * 100 - dist);
+	// 				if (strength <= 0) return false;
+	// 				var delta = input.ScreenDelta.y * 0.01f;
+	// 				var target = vec + delta;
+	// 				toolData.Value = target;
+	// 				return true;
+	// 			}
+	// 			else
+	// 			{
+	// 				var delta = -input.ScreenDelta.y * 0.01f;
+	// 				var target = vec + delta;
+	// 				toolData.Value = target;
+	// 				return Mathf.Abs(delta) > .0001f;
+	// 			}
+	// 		}
+	// 		return false;
+	// 	}
+	// }
+
+
+	// public class SetFloatValue : ToolModule
+	// {
+	// 	public float Value = .1f;
+	//
+	// 	public override bool CanModify(Type type)
+	// 	{
+	// 		return typeof(float).IsAssignableFrom(type);
+	// 	}
+	//
+	// 	public override bool OnModify(InputData input, ref ToolData toolData)
+	// 	{
+	// 		if (toolData.Value is float)
+	// 		{
+	// 			if (toolData.Position != null && input.WorldPosition != null)
+	// 			{
+	// 				var dist = Vector3.Distance(input.WorldPosition.Value, toolData.Position.Value);
+	// 				var strength = Mathf.Clamp01(1 - dist);
+	// 				if (strength <= 0) return false;
+	// 				toolData.Value = Value;
+	// 				return true;
+	// 			}
+	// 			toolData.Value = Value;
+	// 			return true;
+	// 		}
+
+	// 		return false;
+
+	// 	}
+	// }
+	
+	
+	
 }

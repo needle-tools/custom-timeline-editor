@@ -6,13 +6,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
-using UnityEngine.UIElements;
-using Random = UnityEngine.Random;
 
 // ReSharper disable ReplaceWithSingleAssignment.False
 
 namespace Needle.Timeline
 {
+	public enum ToolInputResult
+	{
+		Success = 0,
+		Failed = 1,
+		AbortFurtherProcessing = 2,
+	}
+	
 	public interface IToolInputEntryCallback
 	{
 		void NotifyInputEvent(ToolStage stage, InputData data);
@@ -57,7 +62,6 @@ namespace Needle.Timeline
 
 		public override bool OnModify(InputData input, ref ToolData toolData)
 		{
-			Debug.Log(_didBegin + ", " + input.Stage);
 			switch (input.Stage)
 			{
 				case InputEventStage.Begin:
@@ -125,7 +129,7 @@ namespace Needle.Timeline
 						didRun = true;
 
 					// modify values
-					if (ModifyValues(input, context))
+					if (ModifyValues(input, toolData, context))
 						didRun = true;
 
 					if (EraseValues(input, context))
@@ -151,10 +155,6 @@ namespace Needle.Timeline
 		protected virtual IEnumerable<ICustomKeyframe?> GetKeyframes(ToolData toolData)
 		{
 			var keyframe = toolData.Clip.GetClosest(toolData.Time);
-			if (!IsCloseKeyframe(toolData, keyframe))
-			{
-				yield return CreateAndAddNewKeyframe(toolData);
-			}
 			yield return keyframe;
 		}
 
@@ -195,8 +195,9 @@ namespace Needle.Timeline
 						context = new DeleteContext(value, index); 
 					}
 					else context = new DeleteContext(e, index);
-					if (!OnDeleteValue(input, ref context)) 
-						break;
+					var res = OnDeleteValue(input, ref context);
+					if (res == ToolInputResult.AbortFurtherProcessing) return didRun;
+					if (res != ToolInputResult.Success) continue;
 					if (context.Deleted) 
 					{
 						didRun = true;
@@ -207,8 +208,9 @@ namespace Needle.Timeline
 			else if (toolContext.Value != null)
 			{
 				var context = new DeleteContext(toolContext.Keyframe.value);
-				if (!OnDeleteValue(input, ref context)) return false;
-				if (context.Deleted)
+				var res = OnDeleteValue(input, ref context);
+				if (res == ToolInputResult.AbortFurtherProcessing) return didRun;
+				if (res == ToolInputResult.Success && context.Deleted)
 				{
 					didRun = true;
 					toolContext.Keyframe.value = null;
@@ -218,9 +220,9 @@ namespace Needle.Timeline
 			return didRun;
 		}
 
-		protected virtual bool OnDeleteValue(InputData input, ref DeleteContext context)
+		protected virtual ToolInputResult OnDeleteValue(InputData input, ref DeleteContext context)
 		{
-			return false;
+			return ToolInputResult.Failed;
 		}
 
 		private bool ProduceValues(InputData input, ToolContext toolContext)
@@ -282,21 +284,23 @@ namespace Needle.Timeline
 			yield break;
 		}
 
-		private bool ModifyValues(InputData input, ToolContext toolContext)
+		private bool ModifyValues(InputData input, ToolData data, ToolContext toolContext)
 		{
 			var didRun = false;
 			if (toolContext.SupportedType != null)
 			{
 				var list = toolContext.List;
 				if (toolContext.List?.Count <= 0) return false;
-				var context = new ModifyContext(null, null);
 				if (list != null)
 				{
 					for (var index = 0; index < list.Count; index++)
 					{
 						var value = list[index];
-						if (!OnModifyValue(input, context, ref value))
+						var context = new ModifyContext(value);
+						var res = OnModifyValue(input, context, ref value);
+						if (res == ToolInputResult.AbortFurtherProcessing)
 							break;
+						if (res != ToolInputResult.Success) continue;
 						list[index] = value;
 						didRun = true;
 					}
@@ -325,13 +329,15 @@ namespace Needle.Timeline
 						Debug.Log("Failed producing matching type or field not found... this is most likely a bug");
 						return false;
 					}
-					var context = new ModifyContext(null, null);
 					for (var index = 0; index < list.Count; index++)
 					{
 						var entry = list[index];
+						var context = new ModifyContext(entry);
 						var value = matchingField.GetValue(entry);
-						if (!OnModifyValue(input, context, ref value))
+						var res = OnModifyValue(input, context, ref value);
+						if (res == ToolInputResult.AbortFurtherProcessing)
 							break;
+						if (res != ToolInputResult.Success) continue;
 						matchingField.SetValue(entry, value.Cast(matchingField.FieldType));
 						list[index] = entry;
 						didRun = true;
@@ -341,9 +347,9 @@ namespace Needle.Timeline
 			return didRun;
 		}
 
-		protected virtual bool OnModifyValue(InputData input, ModifyContext context, ref object value)
+		protected virtual ToolInputResult OnModifyValue(InputData input, ModifyContext context, ref object value)
 		{
-			return false;
+			return ToolInputResult.Failed;
 		}
 	}
 
@@ -372,13 +378,11 @@ namespace Needle.Timeline
 
 	public readonly struct ModifyContext
 	{
-		public readonly IValueProvider? ViewValue;
-		public readonly string? Name;
+		public readonly object Object;
 
-		public ModifyContext(string? name = null, IValueProvider? viewValue = null)
+		public ModifyContext(object target)
 		{
-			ViewValue = viewValue;
-			Name = name;
+			Object = target;
 		}
 	}
 
