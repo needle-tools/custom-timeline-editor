@@ -120,7 +120,7 @@ namespace Needle.Timeline
 						Value = keyframe.value,
 					};
 					var supportedType = SupportedTypes.FirstOrDefault(s => contentType.IsAssignableFrom(s));
-					context.SupportedType = supportedType;
+					context.MatchingType = supportedType;
 					context.ContentType = contentType;
 
 					var didRun = false;
@@ -182,7 +182,7 @@ namespace Needle.Timeline
 					var e = toolContext.List[index];
 					if (e == null) continue;
 					DeleteContext context;
-					if (toolContext.SupportedType == null)
+					if (toolContext.MatchingType == null)
 					{
 						if (field == null && triedFindingField) break;
 						field ??= TryGetMatchingField(e);
@@ -237,7 +237,7 @@ namespace Needle.Timeline
 				if (!res.Success) continue;
 				var value = res.Value;
 				object instance;
-				if (toolContext.SupportedType != null)
+				if (toolContext.MatchingType != null)
 				{
 					instance = value;
 				}
@@ -252,7 +252,7 @@ namespace Needle.Timeline
 				// the content type is a field inside a type
 				if (instance is IToolEvents i) i.OnToolEvent(ToolStage.InstanceCreated, input);
 
-				if (toolContext.SupportedType == null)
+				if (toolContext.MatchingType == null)
 				{
 					var matchingField = TryGetMatchingField(instance);
 					if (matchingField == null)
@@ -290,7 +290,7 @@ namespace Needle.Timeline
 		private bool ModifyValues(InputData input, ToolData data, ToolContext toolContext)
 		{
 			var didRun = false;
-			if (toolContext.SupportedType != null)
+			if (toolContext.MatchingType != null)
 			{
 				var list = toolContext.List;
 				if (toolContext.List?.Count <= 0) return false;
@@ -304,6 +304,7 @@ namespace Needle.Timeline
 						if (res == ToolInputResult.AbortFurtherProcessing)
 							break;
 						if (res != ToolInputResult.Success) continue;
+						ApplyBoundValues(value, context.Weight);
 						list[index] = value;
 						didRun = true;
 					}
@@ -364,7 +365,7 @@ namespace Needle.Timeline
 		public object? Value;
 		public IList? List => Value as IList;
 		public Type? ContentType;
-		public Type? SupportedType;
+		public Type? MatchingType;
 	}
 
 	public struct DeleteContext

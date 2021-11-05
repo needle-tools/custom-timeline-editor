@@ -156,29 +156,30 @@ namespace Needle.Timeline
 		}
 	}
 
-	public class ModifierModule : CoreToolModule
+	public class ModifierModule : CoreToolModule, IWeighted
 	{
 		public ModifierModule() => AllowBinding = true; 
 		
 		public float Radius = 1;
+		public float Weight { get; set; }
 
 		// public override bool CanModify(Type type) => true;
 
-		protected override IEnumerable<Type> SupportedTypes { get; } = new[] { typeof(Enum) };
+		// TODO: how can we make sure we know what to return here
+		protected override IEnumerable<Type> SupportedTypes { get; } = 
+			new[] { typeof(Enum), typeof(Vector3), typeof(float), typeof(double), typeof(Color), typeof(int) };
 
 		protected override ToolInputResult OnModifyValue(InputData input, ModifyContext context, ref object value)
 		{
 			var pos = ToolHelpers.TryGetPosition(context.Object, value);
 			if (pos == null) return ToolInputResult.Failed;
-			// var wp = (Vector3)pos.Cast(typeof(Vector3));
-			// var sp = input.ToScreenPoint(wp);
-			// var dist = Vector2.Distance(input.ScreenPosition, sp) / 100;
-			var dist = Vector3.Distance(pos.Value, input.WorldPosition.Value);
-			if (dist > Radius) return ToolInputResult.Failed;
-			var weight = 1 - (dist / Radius);
+			var screenDistance = input.GetRadiusDistanceScreenSpace(Radius, pos.Value);
+			if (screenDistance == null || screenDistance > 1) return ToolInputResult.Failed;
+			var weight = 1 - Mathf.Clamp01(screenDistance.Value);
 			context.Weight = weight;
 			return ToolInputResult.Success;
 		}
+
 	}
 
 

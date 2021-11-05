@@ -30,6 +30,17 @@ namespace Needle.Timeline
 		{
 			return Camera.current.WorldToScreenPoint(worldPoint);
 		}
+		
+		public float ToScreenRadius(Vector3 worldPoint, Vector2 screenPoint, float radius)
+		{
+			var cam = Camera.current;
+			var t = cam.transform;
+			var offset = t.right * radius;
+			var wp2 = worldPoint + offset;
+			var pt1 = screenPoint;
+			var pt2 = ToScreenPoint(wp2);
+			return Mathf.Abs(pt1.x - pt2.x);
+		}
 
 		public Vector2 ScreenPosition { get; private set; }
 		public Vector2 LastScreenPosition;

@@ -62,6 +62,13 @@ namespace Needle.Timeline
 				binding.View.SetValue(view.value);
 				binding.VisualElement = view;
 			}
+			if (typeof(float).IsAssignableFrom(field.FieldType))
+			{
+				var view = new FloatField(field.Name);
+				view.RegisterValueChangedCallback(evt => { binding.View.SetValue(evt.newValue); });
+				binding.View.SetValue(view.value);
+				binding.VisualElement = view;
+			}
 			else if (typeof(Color).IsAssignableFrom(field.FieldType))
 			{
 				var view = new ColorField(field.Name);
