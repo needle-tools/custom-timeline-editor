@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEditor;
@@ -15,6 +16,8 @@ namespace Needle.Timeline
 	
 	public abstract class ToolModule : IToolModule, IBindsFields
 	{
+		private static readonly Dictionary<Type, IInterpolatable?> interpolateCache = new Dictionary<Type, IInterpolatable?>();
+
 		public bool AllowBinding { get; protected set; } = false;
 		List<IViewFieldBinding> IBindsFields.Bindings { get; } = new List<IViewFieldBinding>();
 		
@@ -29,17 +32,25 @@ namespace Needle.Timeline
 			{
 				if (!field.Enabled) continue;
 				appliedAny = true;
-				var ui = field.View.GetValue();
+				var viewValue = field.View.GetValue();
 
-				if (ui != null)
+				if (viewValue != null)
 				{
-					if (InterpolatorBuilder.TryFindInterpolatable(ui.GetType(), out var i, true))
-					{
-						i.Interpolate(ref ui, field.GetValue(obj), ui, weight);
+					var type = viewValue.GetType();
+					if (interpolateCache.TryGetValue(type, out var interpolatable))
+					{	
 					}
+					else
+					{
+						if (InterpolatorBuilder.TryFindInterpolatable(type, out interpolatable, true))
+							interpolateCache.Add(type, interpolatable);
+						else interpolateCache.Add(type, null);
+					}
+					if(interpolatable != null)
+						interpolatable.Interpolate(ref viewValue, field.GetValue(obj), viewValue, weight);
 				}
 				
-				field.SetValue(obj, ui);
+				field.SetValue(obj, viewValue);
 			}
 			return appliedAny;
 		}
