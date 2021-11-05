@@ -557,16 +557,6 @@ namespace Needle.Timeline
 
 		protected override IEnumerable<Type> SupportedTypes { get; } = new[] { typeof(Vector3), typeof(Vector2) };
 
-		protected override bool OnDeleteValue(InputData input, ref DeleteContext context)
-		{
-			var vec = (Vector3)context.Value.Cast(typeof(Vector3));
-			if (Vector3.Distance(vec, input.WorldPosition.Value) < Radius)
-			{
-				context.Deleted = true;
-			}
-			return true;
-		}
-
 		protected override bool OnModifyValue(InputData input, ModifyContext context, ref object value)
 		{
 			var vec = (Vector3)value.Cast(typeof(Vector3));
@@ -575,6 +565,23 @@ namespace Needle.Timeline
 				vec += input.DeltaWorld.Value;
 				value = vec;
 				return true;
+			}
+			return true;
+		}
+	}
+
+	public class Eraser : BasicProducerModule
+	{
+		public float Radius = 1;
+
+		protected override IEnumerable<Type> SupportedTypes { get; } = new[] { typeof(Vector3), typeof(Vector2) };
+
+		protected override bool OnDeleteValue(InputData input, ref DeleteContext context)
+		{
+			var vec = (Vector3)context.Value.Cast(typeof(Vector3));
+			if (Vector3.Distance(vec, input.WorldPosition.Value) < Radius)
+			{
+				context.Deleted = true;
 			}
 			return true;
 		}
