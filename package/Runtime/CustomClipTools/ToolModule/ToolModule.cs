@@ -16,6 +16,9 @@ namespace Needle.Timeline
 	
 	public abstract class ToolModule : IToolModule, IBindsFields
 	{
+		/// <summary>
+		/// the cache of interpolators, may also contain null entries if no interpolator for a type was found
+		/// </summary>
 		private static readonly Dictionary<Type, IInterpolatable?> interpolateCache = new Dictionary<Type, IInterpolatable?>();
 
 		public bool AllowBinding { get; protected set; } = false;
@@ -25,7 +28,7 @@ namespace Needle.Timeline
 		{
 			if (!AllowBinding) return false;
 			if (weight <= 0) return false;
-			Debug.Log(weight);
+			// Debug.Log(weight);
 			var appliedAny = false;
 			var bindings = ((IBindsFields)this).Bindings;
 			foreach (var field in bindings)
@@ -39,6 +42,7 @@ namespace Needle.Timeline
 					var type = viewValue.GetType();
 					if (interpolateCache.TryGetValue(type, out var interpolatable))
 					{	
+						// using cached interpolator if exists
 					}
 					else
 					{
