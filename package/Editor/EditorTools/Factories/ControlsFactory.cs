@@ -40,8 +40,9 @@ namespace Needle.Timeline
 				if (name != null)
 					name.text = labelText;
 
+				// try move the label out of the created control label and replace our uxml label with it
+				// we do this so we get the drag functionality for free (if an element has any)
 				var label = control.Q<Label>(null, "unity-label");
-
 				if (label != null)
 				{
 					// label.RegisterCallback(new EventCallback<MouseManipulator>(e =>{}));
