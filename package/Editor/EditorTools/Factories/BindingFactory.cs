@@ -12,18 +12,18 @@ namespace Needle.Timeline
 {
 	internal static class BindingFactory
 	{
-		public static bool TryProduceBinding(ModuleView view, FieldInfo field, ToolTarget target, IBindsFields bindable, out BindingHandler res)
+		public static bool TryProduceBinding(ModuleView view, FieldInfo field, ToolTarget target, IBindsFields bindable, out ViewFieldBindingController res)
 		{
 			if (field.IsStatic)
 			{
 				res = null;
 				return false;
 			}
-			var binding = new BindingHandler(view, target.Clip as IRecordable, field, new ViewValue());
+			var binding = new ViewFieldBindingController(view, target.Clip as IRecordable, field, new ViewValueProxy());
 			res = binding; 
 			CreateFieldView(field, binding);
 			
-			if (binding.VisualElement == null)
+			if (binding.ViewElement == null)
 			{
 				Debug.LogWarning("Did not find handler for " + field.FieldType);
 				return false;
@@ -34,9 +34,8 @@ namespace Needle.Timeline
 			return true;
 		}
 
-		private static void CreateFieldView(FieldInfo field, BindingHandler binding)
+		private static void CreateFieldView(FieldInfo field, IViewFieldBinding binding)
 		{
-			
 			if (typeof(Enum).IsAssignableFrom(field.FieldType))
 			{
 				var choices = new List<string>();
@@ -49,44 +48,44 @@ namespace Needle.Timeline
 				view.RegisterValueChangedCallback(evt =>
 				{
 					var val = (Enum)Enum.Parse(field.FieldType, evt.newValue);
-					binding.View.SetValue(val);
+					binding.ViewValue.SetValue(val);
 				});
 				var val = (Enum)Enum.Parse(field.FieldType, view.value);
-				binding.View.SetValue(val);
-				binding.VisualElement = view;
+				binding.ViewValue.SetValue(val);
+				binding.ViewElement = view;
 			}
 			if (typeof(Vector3).IsAssignableFrom(field.FieldType))
 			{
 				var view = new Vector3Field(field.Name);
-				view.RegisterValueChangedCallback(evt => { binding.View.SetValue(evt.newValue); });
-				binding.View.SetValue(view.value);
-				binding.VisualElement = view;
+				view.RegisterValueChangedCallback(evt => { binding.ViewValue.SetValue(evt.newValue); });
+				binding.ViewValue.SetValue(view.value);
+				binding.ViewElement = view;
 			}
 			if (typeof(float).IsAssignableFrom(field.FieldType))
 			{
 				var view = new FloatField(field.Name);
-				view.RegisterValueChangedCallback(evt => { binding.View.SetValue(evt.newValue); });
-				binding.View.SetValue(view.value);
-				binding.VisualElement = view;
+				view.RegisterValueChangedCallback(evt => { binding.ViewValue.SetValue(evt.newValue); });
+				binding.ViewValue.SetValue(view.value);
+				binding.ViewElement = view;
 			}
 			else if (typeof(Color).IsAssignableFrom(field.FieldType))
 			{
 				var view = new ColorField(field.Name);
 				view.value = Color.white;
-				view.RegisterValueChangedCallback(evt => { binding.View.SetValue(evt.newValue); });
-				binding.View.SetValue(view.value);
-				binding.VisualElement = view;
+				view.RegisterValueChangedCallback(evt => { binding.ViewValue.SetValue(evt.newValue); });
+				binding.ViewValue.SetValue(view.value);
+				binding.ViewElement = view;
 			}
 
-			if (binding.VisualElement != null)
+			if (binding.ViewElement != null)
 			{
-				var controls = binding.VisualElement;
+				var controls = binding.ViewElement;
 				var layout = new VisualElement();
 				layout.style.flexDirection = FlexDirection.Row;
 				var toggle = new Toggle();
 				layout.Add(toggle);
-				layout.Add(binding.VisualElement);
-				binding.VisualElement = layout;
+				layout.Add(binding.ViewElement);
+				binding.ViewElement = layout;
 				toggle.RegisterValueChangedCallback(evt => binding.Enabled = evt.newValue);
 				binding.EnabledChanged += () =>
 				{
@@ -95,7 +94,7 @@ namespace Needle.Timeline
 				};
 				controls.SetEnabled(binding.Enabled);
 			}
-		}
+		} 
 
 		// private static Action BindDynamicValueChangedEvent()
 		// {

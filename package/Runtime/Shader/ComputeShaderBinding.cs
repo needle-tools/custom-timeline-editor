@@ -24,7 +24,7 @@ namespace Needle.Timeline
 			Field = typeField;
 			ShaderField = shaderField;
 			ShaderInfo = shaderInfo;
-			Resources = resourceProvider;
+			Resources = resourceProvider; 
 		}
 
 		public bool SetValue(object instance, int kernelIndex)

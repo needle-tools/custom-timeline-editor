@@ -161,7 +161,7 @@ namespace Needle.Timeline
 					{
 						if (BindingFactory.TryProduceBinding(this, field, t, bindable, out var handler))
 						{
-							options.Add(handler.VisualElement);
+							options.Add(handler.ViewElement);
 						}
 					}
 				}

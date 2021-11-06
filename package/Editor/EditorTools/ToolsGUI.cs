@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -32,6 +33,8 @@ namespace Needle.Timeline
 		private static VisualElement _root, _availableTools, _toolsSettings;
 		private static bool _recreateUI = true;
 		private static readonly Dictionary<ICustomClipTool, VisualElement> _tools = new Dictionary<ICustomClipTool, VisualElement>();
+		
+		internal static VisualElement ToolsRoot => _root;
 
 		private static void OnSceneGUI(SceneView obj)
 		{
@@ -42,9 +45,9 @@ namespace Needle.Timeline
 				_scenes.Add(obj);
 				obj.rootVisualElement.style.flexDirection = FlexDirection.ColumnReverse;
 				obj.rootVisualElement.Add(_root);
-				obj.rootVisualElement.Add(_toolsSettings);
 			}
 		}
+
 
 		private static void OnCreateContainerIfNecessary()
 		{
@@ -85,6 +88,7 @@ namespace Needle.Timeline
 				_toolsSettings.style.marginLeft = 5;
 				_toolsSettings.style.marginBottom = 5;
 				_toolsSettings.style.alignSelf = Align.FlexStart;
+				_root.Add(_toolsSettings);
 			}
 
 			if (_recreateUI)

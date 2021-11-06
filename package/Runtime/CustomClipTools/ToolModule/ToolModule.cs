@@ -32,7 +32,7 @@ namespace Needle.Timeline
 			{
 				if (!field.Enabled) continue;
 				appliedAny = true;
-				var viewValue = field.View.GetValue();
+				var viewValue = field.ViewValue.GetValue();
 
 				if (viewValue != null)
 				{

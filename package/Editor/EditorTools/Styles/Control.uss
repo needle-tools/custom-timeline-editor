@@ -1,0 +1,27 @@
+﻿* {
+    --border-width: 0px;
+}
+
+.control-container {
+    flex-direction: row;
+    width: 100%;
+    align-items: center;
+    align-content: center;
+    align-self: stretch;
+
+    border-width: var(--border-width);
+    border-color: gray;
+}
+
+.control-container > Label {
+    /*color: red;*/
+}
+
+.control-container > .control {
+    
+    width: 100%;
+    flex-direction: row-reverse;
+
+    border-width: var(--border-width);
+    border-color: green;
+}

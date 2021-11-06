@@ -1,0 +1,7 @@
+﻿<UXML xmlns="UnityEngine.UIElements">
+    <VisualElement class="control-container">
+        <Toggle class="enabled" />
+        <Label class="name" text="name" />
+        <VisualElement class="control"/>
+    </VisualElement>
+</UXML>

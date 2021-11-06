@@ -1,4 +1,6 @@
-﻿namespace Needle.Timeline
+﻿using UnityEngine.UIElements;
+
+namespace Needle.Timeline
 {
 	public interface IValueProvider
 	{
@@ -17,7 +19,8 @@
 
 	public interface IViewFieldBinding : IEnabled
 	{
-		IValueHandler View { get; }
+		IValueHandler ViewValue { get; }
+		VisualElement ViewElement { get; set; }
 		object GetValue(object instance);
 		void SetValue(object instance, object value);
 	}
