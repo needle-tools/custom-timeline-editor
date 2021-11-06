@@ -2,7 +2,7 @@
 
 namespace Needle.Timeline
 {
-	public readonly struct ToolTarget
+	public class ToolTarget
 	{
 		public readonly ClipInfoViewModel ViewModel;
 		public readonly ICustomClip Clip;

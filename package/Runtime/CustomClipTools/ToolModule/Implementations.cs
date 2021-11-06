@@ -76,7 +76,9 @@ namespace Needle.Timeline
 		{
 			if (input.WorldPosition == null) return ToolInputResult.Failed;
 			var vec = (Vector3)value.Cast(typeof(Vector3));
-			if (Vector3.Distance(vec, input.WorldPosition.Value) < Radius)
+
+			var dist = input.GetRadiusDistanceScreenSpace(Radius, vec);
+			if (dist < 1)
 			{
 				vec += input.DeltaWorld.Value;
 				value = vec;
@@ -96,9 +98,8 @@ namespace Needle.Timeline
 		{
 			if (input.WorldPosition == null) return ToolInputResult.Failed;
 			var vec = (Vector3)context.Value.Cast(typeof(Vector3));
-			var sp = input.ToScreenPoint(vec);
-			
-			if (Vector2.Distance(sp, input.ScreenPosition) < Radius * 100)
+			var dist = input.GetRadiusDistanceScreenSpace(Radius, vec);
+			if (dist <= 1)
 			{
 				context.Deleted = true;
 				return ToolInputResult.Success;

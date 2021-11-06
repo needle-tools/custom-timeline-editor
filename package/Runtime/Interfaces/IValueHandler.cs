@@ -1,4 +1,5 @@
-﻿using UnityEngine.UIElements;
+﻿using System;
+using UnityEngine.UIElements;
 
 namespace Needle.Timeline
 {
@@ -23,5 +24,8 @@ namespace Needle.Timeline
 		VisualElement ViewElement { get; set; }
 		object GetValue(object instance);
 		void SetValue(object instance, object value);
+		Type ValueType { get; }
+		string Name { get; }
+		T GetCustomAttribute<T>() where T : Attribute;
 	}
 }

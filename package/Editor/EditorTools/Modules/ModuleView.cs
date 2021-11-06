@@ -14,14 +14,15 @@ namespace Needle.Timeline
 	{
 		public ToolModule Module;
 		private readonly ICustomClipTool tool;
-		public VisualElement Container;
 		public TextElement Label;
 
 		private bool active;
 		public bool IsActive => active;
 
 		private bool initOptions;
-		private VisualElement options;
+		private readonly VisualElement options;
+		private readonly VisualElement bindingsContainer;
+		private readonly List<IViewFieldBinding> bindings = new List<IViewFieldBinding>();
 
 		public void SetActive(bool state)
 		{
@@ -34,13 +35,12 @@ namespace Needle.Timeline
 
 		public ModuleView(VisualElement container, ToolModule module, ICustomClipTool tool)
 		{
-			Container = container;
 			this.Module = module;
 			this.tool = tool;
 
 			options = new VisualElement();
-			// options.style.fle
-			Container.Add(options);
+			container.Add(options);
+			bindingsContainer = new VisualElement();
 			OnBuildUI();
 		}
 
@@ -57,7 +57,6 @@ namespace Needle.Timeline
 		private void OnBuildUI()
 		{
 			options.Clear();
-
 			options.Add(new Button(OnBuildUI) { text = "DEBUG REBUILD UI" });
 
 			foreach (var field in Module.GetType().EnumerateFields())
@@ -151,6 +150,9 @@ namespace Needle.Timeline
 				}
 			}
 
+			options.Add(bindingsContainer);
+			bindingsContainer.Clear();
+			
 			// TODO: stop recreating bindings every time and start reusing them
 			if (Module.AllowBinding && Module is IBindsFields bindable)
 			{
@@ -161,7 +163,7 @@ namespace Needle.Timeline
 					{
 						if (BindingFactory.TryProduceBinding(this, field, t, bindable, out var handler))
 						{
-							options.Add(handler.ViewElement);
+							bindingsContainer.Add(handler.ViewElement);
 						}
 					}
 				}

@@ -11,17 +11,54 @@
 
     border-width: var(--border-width);
     border-color: gray;
+
+    /*padding-bottom: 1px;*/
+    /*padding-top:1px;*/
+    
+    /*border-color: rgba(0,0,0,0);*/
+    /*border-bottom-color: rgba(.5,.5,.5, .2);*/
+    /*border-width: 1px;*/
+}
+
+
+.control-container > Toggle {
+    padding-left: 2px;
+    padding-top: 1.5px;
 }
 
 .control-container > Label {
     /*color: red;*/
+    padding-left: 5px;
+    padding-right:10px;
+    
+    min-width: 25%; 
+    /*width: auto;*/
+    width: 25%;
+    overflow: hidden;
+    
+    flex-basis: auto; 
+    align-items: auto;
 }
 
-.control-container > .control {
+.control-container .control {
     
     width: 100%;
-    flex-direction: row-reverse;
+    /*flex-direction: row-reverse;*/
+    align-self: center;
+    flex-direction: row;
+    align-items: stretch;
+    padding-right: 5px;
 
     border-width: var(--border-width);
     border-color: green;
+}
+
+
+.control-container > .control > * {
+    width: 100%;
+}
+
+
+.control-container #unity-drag-container {
+    max-width: 98%;
 }

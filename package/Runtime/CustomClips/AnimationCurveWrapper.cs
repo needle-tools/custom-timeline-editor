@@ -21,6 +21,8 @@ namespace Needle.Timeline
 			SupportedTypes = new[] { typeof(float) };
 			Instance = null;
 			ViewModel = null;
+			IsRecording = false;
+			RecordingStateChanged = default;
 			#if UNITY_EDITOR
 			AnimationUtility.onCurveWasModified += OnModify;
 			#endif
@@ -100,5 +102,8 @@ namespace Needle.Timeline
 			var float1 = (float)v1;
 			return Mathf.Lerp(float0, float1, t);
 		}
+
+		public bool IsRecording { get; set; }
+		public event Action RecordingStateChanged;
 	}
 }

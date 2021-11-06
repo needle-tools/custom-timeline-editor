@@ -32,9 +32,12 @@ namespace Needle.Timeline
 			if (!field.IsStatic && instance == null || instance?.GetType() != field.DeclaringType) return;
 			field.SetValue(instance, value);
 		}
-		
-		
-		
+
+		public Type ValueType => field.FieldType;
+		public string Name => field.Name;
+		public T GetCustomAttribute<T>() where T : Attribute => field.GetCustomAttribute<T>();
+
+
 		private readonly FieldInfo field;
 		private readonly ModuleView module;
 		private readonly IRecordable rec;
