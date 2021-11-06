@@ -114,7 +114,7 @@ namespace Needle.Timeline
 				{
 					if (keyframe == null) continue;
 					var contentType = keyframe.TryRetrieveKeyframeContentType();
-					if (contentType == null) throw new Exception("Failed getting content type");
+					if (contentType == null) ThrowHelper.Throw("Failed getting content type");
 					var context = new ToolContext()
 					{
 						Value = keyframe.value,
@@ -163,9 +163,9 @@ namespace Needle.Timeline
 		protected ICustomKeyframe? CreateAndAddNewKeyframe(ToolData toolData)
 		{
 			var clipType = toolData.Clip.SupportedTypes.FirstOrDefault();
-			if (clipType == null) throw new Exception("Expecting at least one clip type");
-			var keyframe = toolData.Clip.AddKeyframeWithUndo(toolData.Time, Activator.CreateInstance(clipType));
-			if (keyframe != null)
+			if (clipType == null) ThrowHelper.Throw("Expecting at least one clip type");
+			var keyframe = toolData.Clip.AddKeyframeWithUndo(toolData.Time, Activator.CreateInstance(clipType!));
+			if (keyframe != null) 
 				keyframe.time = toolData.Time;
 			return keyframe; 
 		}
@@ -228,7 +228,7 @@ namespace Needle.Timeline
 		private bool ProduceValues(InputData input, ToolContext toolContext)
 		{
 			var type = toolContext.ContentType ?? toolContext.Value?.GetType();
-			if (type == null) throw new Exception("Failed finding keyframe type that can be assigned: " + toolContext.Value);
+			if (type == null) ThrowHelper.Throw("Failed finding keyframe type that can be assigned: " + toolContext.Value);
 
 			var context = new ProduceContext(_producedCount, toolContext.List != null ? new uint?() : 1);
 			var didProduceValue = false;
@@ -243,7 +243,9 @@ namespace Needle.Timeline
 				}
 				else
 				{
-					instance = type.TryCreateInstance() ?? throw new Exception("Failed creating instance of " + toolContext.ContentType + ", Module: " + this);
+					instance = type.TryCreateInstance();
+					if(instance == null)
+						ThrowHelper.Throw("Failed creating instance of " + toolContext.ContentType + ", Module: " + this);
 				}
 				
 				

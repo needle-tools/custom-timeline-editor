@@ -117,7 +117,7 @@ namespace Needle.Timeline
 						menu.AddItem(new GUIContent("Test"), false, f => { Debug.Log("OK"); }, null);
 						menu.ShowAsContext();
 					}
-				});
+				}); 
 
 				void CreateSlider<T>(BaseSlider<T> slider) where T : IComparable<T>
 				{
