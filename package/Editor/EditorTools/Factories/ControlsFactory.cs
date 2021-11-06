@@ -13,19 +13,23 @@ namespace Needle.Timeline
 {
 	internal static class ControlsFactory
 	{
-		[InitializeOnLoadMethod]
 		private static void Init()
 		{
+			if (isInit) return;
+			isInit = true;
 			controlAsset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(AssetDatabase.GUIDToAssetPath("a9727f46214640d1be592eb4e81682ee"));
 			controlStyles = AssetDatabase.LoadAssetAtPath<StyleSheet>(AssetDatabase.GUIDToAssetPath("e29516eda36d4ad1b6f8822975c7f21c"));
 		}
 
+		private static bool isInit;
 		private static VisualTreeAsset controlAsset;
 		private static StyleSheet controlStyles;
 
 
 		public static VisualElement BuildControl(this IViewFieldBinding binding, VisualElement target = null)
 		{
+			Init();
+			
 			if (TryBuildControl(binding.ValueType, binding, out var control))
 			{
 				var instance = controlAsset.CloneTree();
