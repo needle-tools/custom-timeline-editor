@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using NUnit.Framework.Constraints;
+using Unity.Profiling;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Random = UnityEngine.Random;
@@ -180,16 +181,21 @@ namespace Needle.Timeline
 		protected override IList<Type> SupportedTypes { get; } = 
 			new[] { typeof(Enum), typeof(Vector3), typeof(float), typeof(double), typeof(Color), typeof(int) };
 
+		private static ProfilerMarker modifierModuleMarker = new ProfilerMarker("ModifierModule.OnModify");
+
 		protected override ToolInputResult OnModifyValue(InputData input, ref ModifyContext context, ref object value)
 		{
-			if (Random.value > Probability) return ToolInputResult.Failed;
-			var pos = ToolHelpers.TryGetPosition(context.Object, value);
-			if (pos == null) return ToolInputResult.Failed;
-			var screenDistance = input.GetRadiusDistanceScreenSpace(Radius, pos.Value);
-			if (screenDistance == null || screenDistance > 1) return ToolInputResult.Failed;
-			var weight = 1 - Mathf.Clamp01(screenDistance.Value);
-			context.Weight = weight * Weight;
-			return ToolInputResult.Success;
+			using (modifierModuleMarker.Auto())
+			{
+				if (Random.value > Probability) return ToolInputResult.Failed;
+				var pos = ToolHelpers.TryGetPosition(context.Object, value);
+				if (pos == null) return ToolInputResult.Failed;
+				var screenDistance = input.GetRadiusDistanceScreenSpace(Radius, pos.Value);
+				if (screenDistance == null || screenDistance > 1) return ToolInputResult.Failed;
+				var weight = 1 - Mathf.Clamp01(screenDistance.Value);
+				context.Weight = weight * Weight;
+				return ToolInputResult.Success;
+			}
 		}
 
 	}

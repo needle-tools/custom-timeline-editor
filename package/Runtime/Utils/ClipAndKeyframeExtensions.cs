@@ -69,7 +69,17 @@ namespace Needle.Timeline
 		}
 
 		private static ProfilerMarker _enumerateTypeFieldsMarker = new ProfilerMarker("EnumerateTypeFields");
-		
+		private static ProfilerMarker _findFieldsMarker = new ProfilerMarker("CacheTypeFields");
+
+		private class CachedType
+		{
+			public Type Type;
+			public BindingFlags Flags;
+			public FieldInfo[] Fields;
+		}
+
+		private static readonly List<CachedType> cachedFields = new List<CachedType>();
+
 		internal static IEnumerable<FieldInfo> EnumerateFields(this Type type,
 			Predicate<FieldInfo>? take = null,
 			BindingFlags flags = BindingFlags.Default | BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public)
@@ -77,32 +87,39 @@ namespace Needle.Timeline
 		{
 			using (_enumerateTypeFieldsMarker.Auto())
 			{
-				// TODO: cache fields
-				
-				if (typeof(ICollection).IsAssignableFrom(type))
+				var entry = cachedFields.FirstOrDefault(c => c.Type == type && c.Flags == flags);
+				if (entry == null)
 				{
-					if (type.IsGenericType)
+					using (_findFieldsMarker.Auto())
 					{
-						var content = type.GetGenericArguments().FirstOrDefault();
-						if (content != null)
+						entry = new CachedType() { Type = type, Flags = flags, Fields = Array.Empty<FieldInfo>()};
+						cachedFields.Add(entry);
+
+						if (typeof(ICollection).IsAssignableFrom(type))
 						{
-							foreach (var field in content.GetFields(flags))
+							if (type.IsGenericType)
 							{
-								if (take != null && !take.Invoke(field))
-									continue;
-								yield return field;
+								var content = type.GetGenericArguments().FirstOrDefault();
+								if (content != null)
+								{
+									entry.Fields = content.GetFields(flags);
+								}
+								else throw new Exception("Failed getting collection content type");
 							}
+							else throw new Exception("Failed getting collection content type");
+						}
+						else
+						{
+							entry.Fields = type.GetFields(flags);
 						}
 					}
 				}
-				else
+
+				foreach (var field in entry.Fields)
 				{
-					foreach (var field in type.GetFields(flags))
-					{
-						if (take != null && !take.Invoke(field))
-							continue;
-						yield return field;
-					}
+					if (take != null && !take.Invoke(field))
+						continue;
+					yield return field;
 				}
 			}
 		}

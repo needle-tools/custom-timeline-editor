@@ -364,25 +364,30 @@ namespace Needle.Timeline
 						var entry = list[index];
 						foreach (var matchingField in matchingFields)
 						{
-							var context = new ModifyContext(entry);
-							var value = matchingField.GetValue(entry);
-							var res = OnModifyValue(input, ref context, ref value);
-							if (res == ToolInputResult.AbortFurtherProcessing)
+							using (_modifyLoopFieldsMarker.Auto())
 							{
-								aborted = true;
-								break;
+								var context = new ModifyContext(entry);
+								var value = matchingField.GetValue(entry);
+								var res = OnModifyValue(input, ref context, ref value);
+								if (res == ToolInputResult.AbortFurtherProcessing)
+								{
+									aborted = true;
+									break;
+								}
+								if (res != ToolInputResult.Success) continue;
+								matchingField.SetValue(entry, value.Cast(matchingField.FieldType));
+								ApplyBinding(entry, context.Weight, matchingField);
+								list[index] = entry;
+								didRun = true;
 							}
-							if (res != ToolInputResult.Success) continue;
-							matchingField.SetValue(entry, value.Cast(matchingField.FieldType));
-							ApplyBinding(entry, context.Weight, matchingField);
-							list[index] = entry;
-							didRun = true;
 						}
 					}
 				}
 			}
 			return didRun;
 		}
+
+		private static ProfilerMarker _modifyLoopFieldsMarker = new ProfilerMarker("Modify.LoopFields");
 
 		protected virtual ToolInputResult OnModifyValue(InputData input, ref ModifyContext context, ref object value)
 		{
