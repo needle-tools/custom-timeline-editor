@@ -52,3 +52,12 @@ MonoBehaviour:
     Type: Needle.Timeline.CoreToolModule
     Method: Boolean ModifyValues(Needle.Timeline.InputData, Needle.Timeline.ToolData,
       Needle.Timeline.ToolContext)
+  - Enabled: 1
+    Assembly: Needle.Timeline, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+    Type: Needle.Timeline.ToolModule
+    Method: Boolean ApplyBinding(System.Object, Single, System.Reflection.MemberInfo)
+  - Enabled: 1
+    Assembly: Needle.Timeline, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+    Type: Needle.Timeline.CoreToolModule
+    Method: Needle.Timeline.ToolInputResult OnModifyValue(Needle.Timeline.InputData,
+      Needle.Timeline.ModifyContext ByRef, System.Object ByRef)
