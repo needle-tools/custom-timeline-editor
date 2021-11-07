@@ -21,7 +21,7 @@ namespace Needle.Timeline
 		}
 			
 		public bool Enabled { get; set; }
-		public event Action EnabledChanged;
+		public event Action<bool> EnabledChanged;
 		public IValueHandler ViewValue => this;
 		public VisualElement ViewElement { get; set; }
 			

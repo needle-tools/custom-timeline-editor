@@ -16,11 +16,11 @@ namespace Needle.Timeline
 			{
 				if (value == enabled) return;
 				enabled = value;
-				EnabledChanged?.Invoke();
+				EnabledChanged?.Invoke(enabled);
 			}
 		}
 
-		public event Action EnabledChanged;
+		public event Action<bool> EnabledChanged;
 
 		public object GetValue(object instance)
 		{
@@ -39,14 +39,12 @@ namespace Needle.Timeline
 
 
 		private readonly FieldInfo field;
-		private readonly ModuleViewController module;
 		private readonly IRecordable rec;
 		
 		private bool enabled = false;
 
-		public ViewFieldBindingController(ModuleViewController module, IRecordable rec, FieldInfo field, IValueHandler view)
+		public ViewFieldBindingController(IRecordable rec, FieldInfo field, IValueHandler view)
 		{
-			this.module = module;
 			this.rec = rec;
 			this.field = field;
 			ViewValue = view;

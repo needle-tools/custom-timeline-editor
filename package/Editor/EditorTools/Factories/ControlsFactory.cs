@@ -35,9 +35,6 @@ namespace Needle.Timeline
 				var instance = controlAsset.CloneTree();
 				instance.styleSheets.Add(controlStyles);
 
-				var toggle = instance.Q<Toggle>(null, "enabled");
-				toggle.value = binding.Enabled;
-
 
 				var labelText = ObjectNames.NicifyVariableName(binding.Name); // CultureInfo.CurrentCulture.TextInfo.ToTitleCase(binding.Name);
 				var name = instance.Q<Label>(null, "control-label");
@@ -58,7 +55,7 @@ namespace Needle.Timeline
 						name.RemoveFromHierarchy();
 					}
 				}
-				// else label = name;
+				else label = name;
 				//
 				// if (typeof(int).IsAssignableFrom(binding.ValueType))
 				// {
@@ -70,8 +67,22 @@ namespace Needle.Timeline
 				binding.ViewElement = control;
 				controlContainer.Add(control);
 
-				controlContainer.SetEnabled(toggle.value);
-				toggle.RegisterValueChangedCallback(evt => controlContainer.SetEnabled(evt.newValue));
+
+				var toggle = instance.Q<Toggle>(null, "enabled");
+				toggle.RegisterValueChangedCallback(evt =>
+				{
+					binding.Enabled = evt.newValue;
+					UpdateViews(evt.newValue);
+				});
+				binding.EnabledChanged += UpdateViews;
+				UpdateViews(binding.Enabled);
+
+				void UpdateViews(bool enabled)
+				{
+					toggle.SetValueWithoutNotify(enabled);
+					controlContainer.SetEnabled(enabled);
+					label?.SetEnabled(enabled);
+				}
 
 				if (target != null)
 					target.Add(instance);
@@ -98,7 +109,9 @@ namespace Needle.Timeline
 					var val = (Enum)Enum.Parse(type, evt.newValue);
 					viewValue.SetValue(val);
 				});
-				view.value = viewValue.GetValue().ToString();
+				var val = viewValue.GetValue();
+				if(val != null)
+					view.value = val.ToString();
 
 				control = view;
 				return true;
@@ -108,7 +121,9 @@ namespace Needle.Timeline
 			{
 				var view = new IntegerField();
 				view.RegisterValueChangedCallback(evt => { viewValue.SetValue(evt.newValue); });
-				view.value = (int)viewValue.GetValue();
+				var val = viewValue.GetValue();
+				if(val != null)
+					view.value = (int)val;
 				control = view;
 				view.label = "_";
 
@@ -139,7 +154,9 @@ namespace Needle.Timeline
 				var view = new TextField();
 				view.label = "_";
 				view.RegisterValueChangedCallback(evt => { viewValue.SetValue(evt.newValue); });
-				view.value = (string)viewValue.GetValue();
+				var val = viewValue.GetValue();
+				if(val != null)
+					view.value = (string)val;
 
 				control = view;
 				return true;
@@ -150,7 +167,9 @@ namespace Needle.Timeline
 				var view = new FloatField();
 				view.label = "_";
 				view.RegisterValueChangedCallback(evt => { viewValue.SetValue(evt.newValue); });
-				view.value = (float)viewValue.GetValue();
+				var val = viewValue.GetValue();
+				if(val != null)
+					view.value = (float)val;
 				control = view;
 
 				var range = binding.GetCustomAttribute<RangeAttribute>();
@@ -180,7 +199,9 @@ namespace Needle.Timeline
 				var view = new DoubleField();
 				view.label = "_";
 				view.RegisterValueChangedCallback(evt => { viewValue.SetValue(evt.newValue); });
-				view.value = (double)viewValue.GetValue();
+				var val = viewValue.GetValue();
+				if(val != null)
+					view.value = (double)val;
 
 				control = view;
 				return true;
@@ -191,7 +212,9 @@ namespace Needle.Timeline
 				var view = new Vector4Field();
 				view.label = "_";
 				view.RegisterValueChangedCallback(evt => { viewValue.SetValue(evt.newValue); });
-				view.value = (Vector4)viewValue.GetValue();
+				var val = viewValue.GetValue();
+				if(val != null)
+					view.value = (Vector4)val;
 
 				control = view;
 				return true;
@@ -202,7 +225,9 @@ namespace Needle.Timeline
 				var view = new Vector3Field();
 				view.label = "_";
 				view.RegisterValueChangedCallback(evt => { viewValue.SetValue(evt.newValue); });
-				view.value = (Vector3)viewValue.GetValue();
+				var val = viewValue.GetValue();
+				if(val != null)
+					view.value = (Vector3)val;
 
 				control = view;
 				return true;
@@ -213,7 +238,9 @@ namespace Needle.Timeline
 				var view = new Vector3IntField();
 				view.label = "_";
 				view.RegisterValueChangedCallback(evt => { viewValue.SetValue(evt.newValue); });
-				view.value = (Vector3Int)viewValue.GetValue();
+				var val = viewValue.GetValue();
+				if(val != null)
+					view.value = (Vector3Int)val;
 
 				control = view;
 				return true;
@@ -224,7 +251,9 @@ namespace Needle.Timeline
 				var view = new Vector2Field();
 				view.label = "_";
 				view.RegisterValueChangedCallback(evt => { viewValue.SetValue(evt.newValue); });
-				view.value = (Vector2)viewValue.GetValue();
+				var val = viewValue.GetValue();
+				if(val != null)
+					view.value = (Vector2)val;
 
 				control = view;
 				return true;
@@ -235,7 +264,9 @@ namespace Needle.Timeline
 				var view = new Vector2IntField();
 				view.label = "_";
 				view.RegisterValueChangedCallback(evt => { viewValue.SetValue(evt.newValue); });
-				view.value = (Vector2Int)viewValue.GetValue();
+				var val = viewValue.GetValue();
+				if(val != null)
+					view.value = (Vector2Int)val;
 
 				control = view;
 				return true;
@@ -246,7 +277,10 @@ namespace Needle.Timeline
 				var view = new ColorField();
 				view.label = "_";
 				view.RegisterValueChangedCallback(evt => { viewValue.SetValue(evt.newValue); });
-				view.value = (Color)viewValue.GetValue();
+				var val = viewValue.GetValue();
+				if(val != null)
+					view.value = (Color)val;
+				else view.value = Color.white;
 
 				control = view;
 				return true;

@@ -150,20 +150,25 @@ namespace Needle.Timeline
 
 			options.Add(bindingsContainer);
 			bindingsContainer.Clear();
-			
-			// TODO: stop recreating bindings every time and start reusing them
+
+			var stop = false;
 			if (Module is IBindsFields bindable && bindable.AllowBinding)
 			{
 				bindable.Bindings.Clear();
 				foreach (var t in tool.Targets)
 				{
 					foreach (var field in t.Clip.EnumerateFields())
-					{
+					{ 
 						if (BindingFactory.TryProduceBinding(this, field, t, bindable, out var handler))
 						{
+							Debug.Log(handler);
 							bindingsContainer.Add(handler.ViewElement);
+							// if(bindingsContainer.childCount > 2)
+							// stop = true;  
+							// break;
 						}
 					}
+					// break;
 				}
 			}
 		}

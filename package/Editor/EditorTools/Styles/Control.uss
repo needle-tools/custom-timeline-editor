@@ -45,7 +45,7 @@
     width: 100%;
     /*flex-direction: row-reverse;*/
     align-self: center;
-    flex-direction: row;
+    /*flex-direction: row;*/
     align-items: stretch;
     padding-right: 5px;
 
@@ -55,10 +55,10 @@
 
 
 .control-container > .control > * {
-    width: 100%;
+    /*width: 100%;*/
 }
 
 
 .control-container #unity-drag-container {
-    max-width: 98%;
+    /*max-width: 98%;*/
 }

@@ -4,6 +4,8 @@
 	{
 		private object _value;
 
+		public ViewValueProxy(object value) => this._value = value;
+
 		public object GetValue()
 		{
 			return _value;
