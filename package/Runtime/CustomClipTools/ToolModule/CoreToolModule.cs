@@ -336,6 +336,8 @@ namespace Needle.Timeline
 					// check if we found a instance
 					if (instance == null) return didRun;
 
+					// get all the fields in a type that are processable
+					// e.g. a direction has two position fields that we want to check against
 					IEnumerable<FieldInfo> matchingFields;
 					if (SupportedTypes.Count > 0)
 						matchingFields = instance.GetType().EnumerateFields(f => SupportedTypes.Any(e => e.IsAssignableFrom(f.FieldType)));
