@@ -164,6 +164,8 @@ namespace Needle.Timeline
 		[Range(.1f, 3)]
 		public float Radius = 1;
 		[Range(0,1)]
+		public float Probability = 1;
+		[Range(0,1)]
 		public float Weight = 1;
 		
 		float IWeighted.Weight
@@ -180,6 +182,7 @@ namespace Needle.Timeline
 
 		protected override ToolInputResult OnModifyValue(InputData input, ref ModifyContext context, ref object value)
 		{
+			if (Random.value > Probability) return ToolInputResult.Failed;
 			var pos = ToolHelpers.TryGetPosition(context.Object, value);
 			if (pos == null) return ToolInputResult.Failed;
 			var screenDistance = input.GetRadiusDistanceScreenSpace(Radius, pos.Value);
