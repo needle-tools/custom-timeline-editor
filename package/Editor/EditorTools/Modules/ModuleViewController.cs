@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Security.AccessControl;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -151,24 +152,20 @@ namespace Needle.Timeline
 			options.Add(bindingsContainer);
 			bindingsContainer.Clear();
 
-			var stop = false;
 			if (Module is IBindsFields bindable && bindable.AllowBinding)
 			{
 				bindable.Bindings.Clear();
 				foreach (var t in tool.Targets)
 				{
+					var headerText = ObjectNames.NicifyVariableName(t.Clip.Name);
+					bindingsContainer.Add(new Label(headerText));
 					foreach (var field in t.Clip.EnumerateFields())
 					{ 
-						if (BindingFactory.TryProduceBinding(this, field, t, bindable, out var handler))
+						if (ControlsFactory.TryProduceBinding(this, field, t, bindable, out var handler))
 						{
-							Debug.Log(handler);
 							bindingsContainer.Add(handler.ViewElement);
-							// if(bindingsContainer.childCount > 2)
-							// stop = true;  
-							// break;
 						}
 					}
-					// break;
 				}
 			}
 		}

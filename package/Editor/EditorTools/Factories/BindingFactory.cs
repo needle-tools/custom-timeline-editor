@@ -4,31 +4,6 @@ namespace Needle.Timeline
 {
 	internal static class BindingFactory
 	{
-		public static bool TryProduceBinding(ModuleViewController viewController, FieldInfo field, ToolTarget target, IBindsFields bindable, out ViewFieldBindingController res)
-		{
-			if (field.IsStatic)
-			{
-				res = null;
-				return false;
-			}
-
-			PersistenceHelper.TryGetPreviousValue(field, out var currentValue);
-			res = new ViewFieldBindingController(target.Clip, field, new ViewValueProxy(currentValue));
-			res.ViewElement = res.BuildControl();
-			bindable.Bindings.Add(res);
-			// res = binding; 
-			// CreateFieldView(field, binding);
-			//
-			// if (binding.ViewElement == null)
-			// {
-			// 	Debug.LogWarning("Did not find handler for " + field.FieldType);
-			// 	return false;
-			// }
-			//
-			// binding.Enabled = true;
-			// bindable.Bindings.Add(binding);
-			return res.ViewElement != null;
-		}
 
 		// private static void CreateFieldView(FieldInfo field, IViewFieldBinding binding)
 		// {

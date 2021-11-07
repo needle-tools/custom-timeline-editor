@@ -24,11 +24,11 @@ namespace Needle.Timeline
 			{
 				if (value == isRecording) return;
 				isRecording = value;
-				RecordingStateChanged?.Invoke();
+				RecordingStateChanged?.Invoke(isRecording);
 			}
 		}
 
-		public event Action RecordingStateChanged;
+		public event Action<bool> RecordingStateChanged;
 
 		[JsonIgnore]
 		public IInterpolator Interpolator

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using UnityEngine.Assertions.Must;
 using UnityEngine.UIElements;
 
 namespace Needle.Timeline
@@ -48,6 +49,17 @@ namespace Needle.Timeline
 			this.rec = rec;
 			this.field = field;
 			ViewValue = view;
+			this.rec.RecordingStateChanged += OnRecordingChanged;
+		}
+
+		internal void Init()
+		{
+			OnRecordingChanged(this.rec.IsRecording);
+		}
+
+		private void OnRecordingChanged(bool obj)
+		{
+			ViewElement.style.display = obj ? DisplayStyle.Flex : DisplayStyle.None;
 		}
 	}
 }
