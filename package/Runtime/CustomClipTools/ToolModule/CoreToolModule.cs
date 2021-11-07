@@ -17,7 +17,7 @@ namespace Needle.Timeline
 		Failed = 1,
 		AbortFurtherProcessing = 2,
 	}
-	
+
 	public interface IToolInputEntryCallback
 	{
 		void NotifyInputEvent(ToolStage stage, InputData data);
@@ -121,7 +121,7 @@ namespace Needle.Timeline
 					{
 						Value = keyframe.value,
 					};
-					var supportedType = TryGetSupportedType(contentType);// SupportedTypes.FirstOrDefault(s => contentType!.IsAssignableFrom(s));
+					var supportedType = TryGetSupportedType(contentType); // SupportedTypes.FirstOrDefault(s => contentType!.IsAssignableFrom(s));
 					context.MatchingType = supportedType;
 					context.ContentType = contentType;
 
@@ -150,7 +150,7 @@ namespace Needle.Timeline
 				kf.RaiseValueChangedEvent();
 			}
 
-			return _keyframesChanged.Count > 0; 
+			return _keyframesChanged.Count > 0;
 		}
 
 		private Type? TryGetSupportedType(Type contentType)
@@ -165,22 +165,23 @@ namespace Needle.Timeline
 			yield return keyframe;
 		}
 
-		protected bool IsCloseKeyframe(ToolData toolData, ICustomKeyframe? keyframe) => keyframe != null && Mathf.Abs(keyframe.time - toolData.Time) <= Mathf.Epsilon;
-		
+		protected bool IsCloseKeyframe(ToolData toolData, ICustomKeyframe? keyframe) =>
+			keyframe != null && Mathf.Abs(keyframe.time - toolData.Time) <= Mathf.Epsilon;
+
 		protected ICustomKeyframe? CreateAndAddNewKeyframe(ToolData toolData)
 		{
 			var clipType = toolData.Clip.SupportedTypes.FirstOrDefault();
 			if (clipType == null) ThrowHelper.Throw("Expecting at least one clip type");
 			var keyframe = toolData.Clip.AddKeyframeWithUndo(toolData.Time, Activator.CreateInstance(clipType!));
-			if (keyframe != null) 
+			if (keyframe != null)
 				keyframe.time = toolData.Time;
-			return keyframe; 
+			return keyframe;
 		}
 
 		private bool EraseValues(InputData input, ToolContext toolContext)
 		{
 			var didRun = false;
-			if (toolContext.List != null) 
+			if (toolContext.List != null)
 			{
 				FieldInfo? field = null;
 				var triedFindingField = false;
@@ -199,13 +200,13 @@ namespace Needle.Timeline
 							break;
 						}
 						var value = field.GetValue(e);
-						context = new DeleteContext(value, index); 
+						context = new DeleteContext(value, index);
 					}
 					else context = new DeleteContext(e, index);
 					var res = OnDeleteValue(input, ref context);
 					if (res == ToolInputResult.AbortFurtherProcessing) return didRun;
 					if (res != ToolInputResult.Success) continue;
-					if (context.Deleted) 
+					if (context.Deleted)
 					{
 						didRun = true;
 						toolContext.List.RemoveAt(index);
@@ -251,11 +252,11 @@ namespace Needle.Timeline
 				else
 				{
 					instance = type.TryCreateInstance();
-					if(instance == null)
+					if (instance == null)
 						ThrowHelper.Throw("Failed creating instance of " + toolContext.ContentType + ", Module: " + this);
 				}
-				
-				
+
+
 				ApplyBoundValues(instance, res.Weight);
 
 				// the content type is a field inside a type
@@ -334,28 +335,35 @@ namespace Needle.Timeline
 					}
 					// check if we found a instance
 					if (instance == null) return didRun;
-					
-					var matchingField = instance.GetType().EnumerateFields().FirstOrDefault(f =>
-						SupportedTypes.Any(e => e.IsAssignableFrom(f.FieldType)));
-					if (matchingField == null)
-					{
-						Debug.Log("Failed producing matching type or field not found... this is most likely a bug");
-						return false;
-					}
+
+					IEnumerable<FieldInfo> matchingFields;
+					if (SupportedTypes.Count > 0)
+						matchingFields = instance.GetType().EnumerateFields(f => SupportedTypes.Any(e => e.IsAssignableFrom(f.FieldType)));
+					else // supported types is empty assume it supports all types
+						matchingFields = instance.GetType().EnumerateFields();
+
+					var aborted = false;
 					for (var index = 0; index < list.Count; index++)
 					{
+						if (aborted) break;
 						var entry = list[index];
-						var context = new ModifyContext(entry);
-						var value = matchingField.GetValue(entry);
-						var res = OnModifyValue(input, ref context, ref value);
-						if (res == ToolInputResult.AbortFurtherProcessing)
-							break;
-						if (res != ToolInputResult.Success) continue;
-						matchingField.SetValue(entry, value.Cast(matchingField.FieldType));
+						foreach (var matchingField in matchingFields)
+						{
+							var context = new ModifyContext(entry);
+							var value = matchingField.GetValue(entry);
+							var res = OnModifyValue(input, ref context, ref value);
+							if (res == ToolInputResult.AbortFurtherProcessing)
+							{
+								aborted = true;
+								break;
+							}
+							if (res != ToolInputResult.Success) continue;
+							matchingField.SetValue(entry, value.Cast(matchingField.FieldType));
 
-						ApplyBoundValues(entry, context.Weight);
-						list[index] = entry;
-						didRun = true;
+							ApplyBoundValues(entry, context.Weight);
+							list[index] = entry;
+							didRun = true;
+						}
 					}
 				}
 			}
@@ -428,5 +436,4 @@ namespace Needle.Timeline
 			Weight = weight;
 		}
 	}
-
 }

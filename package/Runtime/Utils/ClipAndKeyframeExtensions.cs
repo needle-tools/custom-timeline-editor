@@ -30,7 +30,7 @@ namespace Needle.Timeline
 			}
 			return null;
 		}
-		
+
 		internal static Type? TryRetrieveKeyframeContentType(this ICustomKeyframe kf)
 		{
 			var valueType = kf.value?.GetType() ?? kf.AcceptedTypes()?.FirstOrDefault();
@@ -42,13 +42,13 @@ namespace Needle.Timeline
 					var content = valueType.GetGenericArguments().First();
 					return content;
 				}
-				
+
 				Debug.Log("Unhandled: " + valueType);
 			}
-			
+
 			return valueType;
 		}
-		
+
 		public static IEnumerable<FieldInfo> EnumerateFields(this ICustomClip clip)
 		{
 			foreach (var type in clip.SupportedTypes)
@@ -57,7 +57,7 @@ namespace Needle.Timeline
 					yield return field;
 			}
 		}
-		
+
 		public static IEnumerable<FieldInfo> EnumerateFields(this ICustomKeyframe kf)
 		{
 			foreach (var type in kf.AcceptedTypes())
@@ -68,6 +68,7 @@ namespace Needle.Timeline
 		}
 
 		internal static IEnumerable<FieldInfo> EnumerateFields(this Type type,
+			Predicate<FieldInfo>? take = null,
 			BindingFlags flags = BindingFlags.Default | BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public)
 
 		{
@@ -80,6 +81,8 @@ namespace Needle.Timeline
 					{
 						foreach (var field in content.GetFields(flags))
 						{
+							if (take != null && !take.Invoke(field))
+								continue;
 							yield return field;
 						}
 					}
@@ -89,6 +92,8 @@ namespace Needle.Timeline
 			{
 				foreach (var field in type.GetFields(flags))
 				{
+					if (take != null && !take.Invoke(field))
+						continue;
 					yield return field;
 				}
 			}
