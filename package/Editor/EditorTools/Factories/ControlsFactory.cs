@@ -279,8 +279,12 @@ namespace Needle.Timeline
 				view.RegisterValueChangedCallback(evt => { viewValue.SetValue(evt.newValue); });
 				var val = viewValue.GetValue();
 				if(val != null)
-					view.value = (Color)val;
-				else view.value = Color.white;
+					view.value = (Color)val; 
+				else
+				{
+					view.value = Color.white;
+					viewValue.SetValue(view.value);
+				}
 
 				control = view;
 				return true;
