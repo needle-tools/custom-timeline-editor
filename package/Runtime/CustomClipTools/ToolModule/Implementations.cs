@@ -108,55 +108,6 @@ namespace Needle.Timeline
 			return ToolInputResult.Failed;
 		}
 	}
-	
-	public class PaintColor : CoreToolModule
-	{
-		[Range(.1f, 10)]
-		public float Radius = 1;
-		[Range(0.01f, 3)] public float Falloff = 1;
-
-		protected override IList<Type> SupportedTypes { get; } = new[] { typeof(Color) };
-
-		protected override bool AllowedButton(MouseButton button)
-		{
-			return button == MouseButton.LeftMouse || button == MouseButton.RightMouse;
-		}
-
-		protected override bool AllowedModifiers(InputData data, EventModifiers current)
-		{
-			return current == EventModifiers.None;
-		}
-
-		protected override ToolInputResult OnModifyValue(InputData input, ref ModifyContext context, ref object value)
-		{
-			if (value is Color col)
-			{
-				float strength = 1;
-				var pos = ToolHelpers.TryGetPosition(context.Object, value);
-				if (pos == null) return ToolInputResult.Failed;
-				
-				var sp = input.ToScreenPoint(pos.Value);
-
-				var dist = Vector2.Distance(input.StartScreenPosition, sp) / 100;
-				strength = Mathf.Clamp01(((Radius - dist) / Radius) / Falloff);
-				if (strength <= 0.001f) return ToolInputResult.Failed;
-
-				// TODO: we need to have access to other fields of custom types, e.g. here we want the position to get the distance
-
-				// TODO: figure out how we create new objects e.g. in a list
-
-				Color.RGBToHSV(col, out var h, out var s, out var v);
-				h += input.ScreenDelta.x * .005f;
-				if ((Event.current.button == (int)MouseButton.RightMouse))
-					s += input.ScreenDelta.y * .01f;
-				else
-					v += input.ScreenDelta.y * .01f;
-				col = Color.HSVToRGB(h, s, v);
-				value = Color.Lerp((Color)value, col, strength);
-			}
-			return ToolInputResult.Success;
-		}
-	}
 
 	public class ModifierModule : CoreToolModule, IWeighted
 	{
@@ -200,6 +151,55 @@ namespace Needle.Timeline
 
 	}
 
+	
+	// public class PaintColor : CoreToolModule
+	// {
+	// 	[Range(.1f, 10)]
+	// 	public float Radius = 1;
+	// 	[Range(0.01f, 3)] public float Falloff = 1;
+	//
+	// 	protected override IList<Type> SupportedTypes { get; } = new[] { typeof(Color) };
+	//
+	// 	protected override bool AllowedButton(MouseButton button)
+	// 	{
+	// 		return button == MouseButton.LeftMouse || button == MouseButton.RightMouse;
+	// 	}
+	//
+	// 	protected override bool AllowedModifiers(InputData data, EventModifiers current)
+	// 	{
+	// 		return current == EventModifiers.None;
+	// 	}
+	//
+	// 	protected override ToolInputResult OnModifyValue(InputData input, ref ModifyContext context, ref object value)
+	// 	{
+	// 		if (value is Color col)
+	// 		{
+	// 			float strength = 1;
+	// 			var pos = ToolHelpers.TryGetPosition(context.Object, value);
+	// 			if (pos == null) return ToolInputResult.Failed;
+	// 			
+	// 			var sp = input.ToScreenPoint(pos.Value);
+	//
+	// 			var dist = Vector2.Distance(input.StartScreenPosition, sp) / 100;
+	// 			strength = Mathf.Clamp01(((Radius - dist) / Radius) / Falloff);
+	// 			if (strength <= 0.001f) return ToolInputResult.Failed;
+	//
+	// 			// TODO: we need to have access to other fields of custom types, e.g. here we want the position to get the distance
+	//
+	// 			// TODO: figure out how we create new objects e.g. in a list
+	//
+	// 			Color.RGBToHSV(col, out var h, out var s, out var v);
+	// 			h += input.ScreenDelta.x * .005f;
+	// 			if ((Event.current.button == (int)MouseButton.RightMouse))
+	// 				s += input.ScreenDelta.y * .01f;
+	// 			else
+	// 				v += input.ScreenDelta.y * .01f;
+	// 			col = Color.HSVToRGB(h, s, v);
+	// 			value = Color.Lerp((Color)value, col, strength);
+	// 		}
+	// 		return ToolInputResult.Success;
+	// 	}
+	// }
 
 	// public class FloatScaleDrag : ToolModule
 	// {
