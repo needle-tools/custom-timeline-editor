@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
+using UnityEngine;
 
 namespace Needle.Timeline
 {
-	public class HandlesModule : ToolModule
+	public class HandlesModule : CoreToolModule
 	{
 		// TODO: how can we delete elements
 
@@ -11,19 +13,21 @@ namespace Needle.Timeline
 			return typeof(ICustomControls).IsAssignableFrom(type);
 		}
 
+		protected override IList<Type> SupportedTypes => Type.EmptyTypes;
+
 		public override bool WantsInput(InputData input)
 		{
 			return true;
 		}
 
-		public override bool OnModify(InputData input, ref ToolData toolData)
+		protected override ToolInputResult OnModifyValue(InputData input, ref ModifyContext context, ref object value)
 		{
-			if (toolData.Value == null) return false;
-			if (toolData.Value is ICustomControls mod)
+			if (value is ICustomControls cc)
 			{
-				return mod.OnCustomControls(input, this);
+				var res = cc.OnCustomControls(input, this);
+				if (res) return ToolInputResult.Success;
 			}
-			return false;
+			return ToolInputResult.Failed;
 		}
 	}
 }

@@ -13,10 +13,6 @@ namespace Needle.Timeline
 {
 	public class ModularTool : CustomClipToolBase
 	{
-		private ICustomKeyframe keyframe;
-
-		private float radius = .5f;
-
 		protected override bool OnSupports(Type type)
 		{
 			if (ToolModuleRegistry.Modules.Any(m => m.CanModify(type))) return true;
@@ -33,14 +29,13 @@ namespace Needle.Timeline
 		protected override void OnAttach(VisualElement element)
 		{
 			base.OnAttach(element);
-			keyframe = null;
 			modulesContainer ??= new VisualElement();
 			element.Add(modulesContainer);
 		}
 
 		private static readonly List<IToolModule> buffer = new List<IToolModule>();
 		private VisualElement modulesContainer;
-		private readonly List<ModuleView> modulesUI = new List<ModuleView>();
+		private readonly List<ModuleViewController> moduleViewControllers = new List<ModuleViewController>();
 
 
 		protected override void OnAddedTarget(ToolTarget _)
@@ -79,7 +74,7 @@ namespace Needle.Timeline
 				}
 			}
 
-			foreach (var view in modulesUI)
+			foreach (var view in moduleViewControllers)
 			{
 				view.OnTargetsChanged();
 			}
@@ -91,7 +86,7 @@ namespace Needle.Timeline
 
 			foreach (var module in buffer)
 			{
-				var entry = modulesUI.FirstOrDefault(e => e.Is(module));
+				var entry = moduleViewControllers.FirstOrDefault(e => e.Is(module));
 				if (entry != null) continue;
 				var type = module.GetType();
 				var meta = type.GetCustomAttribute<Meta>();
@@ -99,13 +94,13 @@ namespace Needle.Timeline
 				var container = new VisualElement();
 				modulesContainer.Add(container);
 
-				entry = new ModuleView(modulesContainer, (ToolModule)module, this);
-				modulesUI.Add(entry);
+				entry = new ModuleViewController(modulesContainer, module, this);
+				moduleViewControllers.Add(entry);
 
 				Button button = null;
 				button = new Button(() =>
 				{
-					foreach (var e in modulesUI)
+					foreach (var e in moduleViewControllers)
 					{
 						if (e == entry) continue;
 						e.SetActive(false);
@@ -121,36 +116,14 @@ namespace Needle.Timeline
 
 		private readonly InputData input = new InputData();
 
-		[DrawGizmo(GizmoType.NonSelected | GizmoType.Selected)]
-		private static void DrawGizmos(PlayableDirector component, GizmoType gizmoType)
-		{
-			foreach (var tools in ToolsHandler.ActiveTools)
-			{
-				if (tools is ModularTool mod)
-				{
-					if (mod.modulesUI == null) continue;
-					if (mod.modulesUI.Any(m => m.IsActive))
-					{
-						mod.input.Update();
-						foreach (var view in mod.modulesUI)
-						{
-							if (!view.IsActive) continue;
-							var module = view.Module;
-							module.OnDrawGizmos(mod.input);
-						}
-					}
-				}
-			}
-		}
-		
 
 		protected override void OnHandleInput()
 		{
 			input.Update();
 
-			if (modulesUI.Any(m => m.IsActive))
+			if (moduleViewControllers.Any(m => m.IsActive))
 			{
-				foreach (var mod in modulesUI)
+				foreach (var mod in moduleViewControllers)
 				{
 					if (!mod.IsActive) continue;
 					var module = mod.Module;
@@ -159,11 +132,8 @@ namespace Needle.Timeline
 					foreach (var tar in Targets)
 					{
 						if (tar.IsNull()) continue;
-						if (tar.Clip is IRecordable rec)
-						{
-							if (!rec.IsRecording) continue;
-						}
-						
+						if (tar.Clip is IRecordable { IsRecording: false }) continue;
+
 						if (!tar.Clip.SupportedTypes.Any(module.CanModify))
 						{
 							var data = new ToolData()
@@ -176,7 +146,6 @@ namespace Needle.Timeline
 						}
 					}
 				}
-				
 			}
 			
 			switch (Event.current.type)
@@ -186,10 +155,35 @@ namespace Needle.Timeline
 					{
 						case KeyCode.Escape:
 							this.Deselect();
-							break;
+							return;
 					}
 					break;
 			}
+
 		}
+		
+		
+		[DrawGizmo(GizmoType.NonSelected | GizmoType.Selected)]
+		private static void DrawGizmos(PlayableDirector component, GizmoType gizmoType)
+		{
+			foreach (var tools in ToolsHandler.ActiveTools)
+			{
+				if (tools is ModularTool mod)
+				{
+					if (mod.moduleViewControllers == null) continue;
+					if (mod.moduleViewControllers.Any(m => m.IsActive))
+					{
+						mod.input.Update();
+						foreach (var view in mod.moduleViewControllers)
+						{
+							if (!view.IsActive) continue;
+							var module = view.Module;
+							module.OnDrawGizmos(mod.input);
+						}
+					}
+				}
+			}
+		}
+
 	}
 }

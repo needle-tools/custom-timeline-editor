@@ -39,12 +39,12 @@ namespace Needle.Timeline
 
 
 		private readonly FieldInfo field;
-		private readonly ModuleView module;
+		private readonly ModuleViewController module;
 		private readonly IRecordable rec;
 		
 		private bool enabled = false;
 
-		public ViewFieldBindingController(ModuleView module, IRecordable rec, FieldInfo field, IValueHandler view)
+		public ViewFieldBindingController(ModuleViewController module, IRecordable rec, FieldInfo field, IValueHandler view)
 		{
 			this.module = module;
 			this.rec = rec;

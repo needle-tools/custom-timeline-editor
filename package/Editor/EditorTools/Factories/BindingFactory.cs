@@ -12,14 +12,14 @@ namespace Needle.Timeline
 {
 	internal static class BindingFactory
 	{
-		public static bool TryProduceBinding(ModuleView view, FieldInfo field, ToolTarget target, IBindsFields bindable, out ViewFieldBindingController res)
+		public static bool TryProduceBinding(ModuleViewController viewController, FieldInfo field, ToolTarget target, IBindsFields bindable, out ViewFieldBindingController res)
 		{
 			if (field.IsStatic)
 			{
 				res = null;
 				return false;
 			}
-			var binding = new ViewFieldBindingController(view, target.Clip as IRecordable, field, new ViewValueProxy());
+			var binding = new ViewFieldBindingController(viewController, target.Clip as IRecordable, field, new ViewValueProxy());
 			res = binding; 
 			CreateFieldView(field, binding);
 			

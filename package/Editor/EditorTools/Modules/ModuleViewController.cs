@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
 using System.Reflection;
 using UnityEditor;
 using UnityEditor.UIElements;
@@ -10,9 +8,9 @@ using UnityEngine.UIElements;
 
 namespace Needle.Timeline
 {
-	public class ModuleView
+	public class ModuleViewController
 	{
-		public ToolModule Module;
+		public readonly IToolModule Module;
 		private readonly ICustomClipTool tool;
 		public TextElement Label;
 
@@ -33,7 +31,7 @@ namespace Needle.Timeline
 			options.style.visibility = state ? Visibility.Visible : Visibility.Hidden;
 		}
 
-		public ModuleView(VisualElement container, ToolModule module, ICustomClipTool tool)
+		public ModuleViewController(VisualElement container, IToolModule module, ICustomClipTool tool)
 		{
 			this.Module = module;
 			this.tool = tool;
@@ -154,7 +152,7 @@ namespace Needle.Timeline
 			bindingsContainer.Clear();
 			
 			// TODO: stop recreating bindings every time and start reusing them
-			if (Module.AllowBinding && Module is IBindsFields bindable)
+			if (Module is IBindsFields bindable && bindable.AllowBinding)
 			{
 				bindable.Bindings.Clear();
 				foreach (var t in tool.Targets)

@@ -18,7 +18,7 @@ namespace Needle.Timeline
 		public bool OnSurface = false;
 		public bool AllKeyframes = false;
 
-		protected override IEnumerable<Type> SupportedTypes { get; } = new[] { typeof(Vector3), typeof(Vector2) };
+		protected override IList<Type> SupportedTypes { get; } = new[] { typeof(Vector3), typeof(Vector2) };
 
 		protected override IEnumerable<ICustomKeyframe?> GetKeyframes(ToolData toolData)
 		{
@@ -70,7 +70,7 @@ namespace Needle.Timeline
 	{
 		public float Radius = 1;
 
-		protected override IEnumerable<Type> SupportedTypes { get; } = new[] { typeof(Vector3), typeof(Vector2) };
+		protected override IList<Type> SupportedTypes { get; } = new[] { typeof(Vector3), typeof(Vector2) };
 
 		protected override ToolInputResult OnModifyValue(InputData input, ref ModifyContext context, ref object value)
 		{
@@ -92,7 +92,7 @@ namespace Needle.Timeline
 	{
 		public float Radius = 1;
 
-		protected override IEnumerable<Type> SupportedTypes { get; } = new[] { typeof(Vector3), typeof(Vector2) };
+		protected override IList<Type> SupportedTypes { get; } = new[] { typeof(Vector3), typeof(Vector2) };
 
 		protected override ToolInputResult OnDeleteValue(InputData input, ref DeleteContext context)
 		{
@@ -114,7 +114,7 @@ namespace Needle.Timeline
 		public float Radius = 1;
 		[Range(0.01f, 3)] public float Falloff = 1;
 
-		protected override IEnumerable<Type> SupportedTypes { get; } = new[] { typeof(Color) };
+		protected override IList<Type> SupportedTypes { get; } = new[] { typeof(Color) };
 
 		protected override bool AllowedButton(MouseButton button)
 		{
@@ -175,7 +175,7 @@ namespace Needle.Timeline
 		// public override bool CanModify(Type type) => true;
 
 		// TODO: how can we make sure we know what to return here
-		protected override IEnumerable<Type> SupportedTypes { get; } = 
+		protected override IList<Type> SupportedTypes { get; } = 
 			new[] { typeof(Enum), typeof(Vector3), typeof(float), typeof(double), typeof(Color), typeof(int) };
 
 		protected override ToolInputResult OnModifyValue(InputData input, ref ModifyContext context, ref object value)

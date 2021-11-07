@@ -58,7 +58,10 @@ namespace Needle.Timeline
 			return SupportedTypes.Any(t => t.IsAssignableFrom(type));
 		}
 
-		protected abstract IEnumerable<Type> SupportedTypes { get; }
+		/// <summary>
+		/// Return empty array to support any type
+		/// </summary>
+		protected abstract IList<Type> SupportedTypes { get; }
 
 		public override bool OnModify(InputData input, ref ToolData toolData)
 		{
@@ -89,7 +92,6 @@ namespace Needle.Timeline
 				}
 			}
 
-			if (toolData.Value != null) return false;
 			if (input.WorldPosition == null) return false;
 
 			// IDEA: could created objects have creation-properties that could/should be exposed in ui?
@@ -119,7 +121,7 @@ namespace Needle.Timeline
 					{
 						Value = keyframe.value,
 					};
-					var supportedType = SupportedTypes.FirstOrDefault(s => contentType.IsAssignableFrom(s));
+					var supportedType = TryGetSupportedType(contentType);// SupportedTypes.FirstOrDefault(s => contentType!.IsAssignableFrom(s));
 					context.MatchingType = supportedType;
 					context.ContentType = contentType;
 
@@ -151,6 +153,11 @@ namespace Needle.Timeline
 			return _keyframesChanged.Count > 0; 
 		}
 
+		private Type? TryGetSupportedType(Type contentType)
+		{
+			if (SupportedTypes.Count <= 0) return contentType;
+			return SupportedTypes.FirstOrDefault(s => contentType.IsAssignableFrom(s));
+		}
 
 		protected virtual IEnumerable<ICustomKeyframe?> GetKeyframes(ToolData toolData)
 		{
