@@ -30,6 +30,8 @@ namespace Needle.Timeline
 
 			options.style.display = new StyleEnum<DisplayStyle>(state ? StyleKeyword.Auto : StyleKeyword.None);
 			options.style.visibility = state ? Visibility.Visible : Visibility.Hidden;
+
+			bindingsContainer.style.display = state ? DisplayStyle.Flex : DisplayStyle.None;
 		}
 
 		public ModuleViewController(VisualElement container, IToolModule module, ICustomClipTool tool)
@@ -56,7 +58,7 @@ namespace Needle.Timeline
 		private void OnBuildUI()
 		{
 			options.Clear();
-			options.Add(new Button(OnBuildUI) { text = "DEBUG REBUILD UI" });
+			// options.Add(new Button(OnBuildUI) { text = "DEBUG REBUILD UI" });
 
 			foreach (var field in Module.GetType().EnumerateFields())
 			{
@@ -157,8 +159,8 @@ namespace Needle.Timeline
 				bindable.Bindings.Clear();
 				foreach (var t in tool.Targets)
 				{
-					var headerText = ObjectNames.NicifyVariableName(t.Clip.Name);
-					bindingsContainer.Add(new Label(headerText));
+					// var headerText = ObjectNames.NicifyVariableName(t.Clip.Name);
+					// bindingsContainer.Add(new Label(headerText));
 					foreach (var field in t.Clip.EnumerateFields())
 					{ 
 						if (ControlsFactory.TryProduceBinding(this, field, t, bindable, out var handler))
@@ -168,6 +170,7 @@ namespace Needle.Timeline
 					}
 				}
 			}
+			ToolsWindow.Root.Add(bindingsContainer);
 		}
 	}
 }
