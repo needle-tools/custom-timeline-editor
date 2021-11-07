@@ -102,7 +102,7 @@ namespace Needle.Timeline
 							clip.Changed -= OnClipOnChanged; 
 							return;
 						}
-						Debug.Log("clip changed");
+						// Debug.Log("clip changed");
 						EditorUtility.SetDirty(data.Track);
 						// TODO: figure out if we really need this
 						data.Track.dirtyCount = (data.Track.dirtyCount + 1) % uint.MaxValue;

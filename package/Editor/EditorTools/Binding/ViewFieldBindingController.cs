@@ -41,7 +41,7 @@ namespace Needle.Timeline
 		{
 			return field.Equals(member);
 		}
-
+		
 
 		private readonly FieldInfo field;
 		private readonly IRecordable rec;

@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Unity.Profiling;
 using UnityEngine;
 
 namespace Needle.Timeline
@@ -67,34 +68,41 @@ namespace Needle.Timeline
 			}
 		}
 
+		private static ProfilerMarker _enumerateTypeFieldsMarker = new ProfilerMarker("EnumerateTypeFields");
+		
 		internal static IEnumerable<FieldInfo> EnumerateFields(this Type type,
 			Predicate<FieldInfo>? take = null,
 			BindingFlags flags = BindingFlags.Default | BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public)
 
 		{
-			if (typeof(ICollection).IsAssignableFrom(type))
+			using (_enumerateTypeFieldsMarker.Auto())
 			{
-				if (type.IsGenericType)
+				// TODO: cache fields
+				
+				if (typeof(ICollection).IsAssignableFrom(type))
 				{
-					var content = type.GetGenericArguments().FirstOrDefault();
-					if (content != null)
+					if (type.IsGenericType)
 					{
-						foreach (var field in content.GetFields(flags))
+						var content = type.GetGenericArguments().FirstOrDefault();
+						if (content != null)
 						{
-							if (take != null && !take.Invoke(field))
-								continue;
-							yield return field;
+							foreach (var field in content.GetFields(flags))
+							{
+								if (take != null && !take.Invoke(field))
+									continue;
+								yield return field;
+							}
 						}
 					}
 				}
-			}
-			else
-			{
-				foreach (var field in type.GetFields(flags))
+				else
 				{
-					if (take != null && !take.Invoke(field))
-						continue;
-					yield return field;
+					foreach (var field in type.GetFields(flags))
+					{
+						if (take != null && !take.Invoke(field))
+							continue;
+						yield return field;
+					}
 				}
 			}
 		}

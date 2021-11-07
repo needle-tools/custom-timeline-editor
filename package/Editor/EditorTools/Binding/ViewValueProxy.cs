@@ -1,6 +1,8 @@
-﻿namespace Needle.Timeline
+﻿using System;
+
+namespace Needle.Timeline
 {
-	internal class ViewValueProxy : IValueHandler
+	internal class ViewValueProxy : IViewValueHandler
 	{
 		private object _value;
 
@@ -13,7 +15,12 @@
 
 		public void SetValue(object newValue)
 		{
+			if (_value == null && newValue == null) return;
+			if(newValue == _value) return;
 			_value = newValue;
+			ValueChanged?.Invoke(_value);
 		}
+
+		public event Action<object> ValueChanged;
 	}
 }

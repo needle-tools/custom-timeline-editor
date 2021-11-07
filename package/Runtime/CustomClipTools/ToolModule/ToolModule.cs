@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Unity.Profiling;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -23,39 +24,43 @@ namespace Needle.Timeline
 
 		public bool AllowBinding { get; protected set; } = false;
 		List<IViewFieldBinding> IBindsFields.Bindings { get; } = new List<IViewFieldBinding>();
+		private static ProfilerMarker _bindingMarker = new ProfilerMarker("ToolModule.ApplyBinding");
 		
 		protected virtual bool ApplyBinding(object obj, float weight, MemberInfo? member = null)
 		{
 			if (!AllowBinding) return false;
 			if (weight <= 0) return false;
-			// Debug.Log(weight);
 			var appliedAny = false;
-			var bindings = ((IBindsFields)this).Bindings;
-			foreach (var field in bindings)
+			using (_bindingMarker.Auto())
 			{
-				if (!field.Enabled) continue;
-				if (member != null && !field.Equals(member)) continue;
-				appliedAny = true;
-				var viewValue = field.ViewValue.GetValue();
-
-				if (viewValue != null)
+				// Debug.Log(weight);
+				var bindings = ((IBindsFields)this).Bindings;
+				foreach (var field in bindings)
 				{
-					var type = viewValue.GetType();
-					if (interpolateCache.TryGetValue(type, out var interpolatable))
-					{	
-						// using cached interpolator if exists
-					}
-					else
+					if (!field.Enabled) continue;
+					if (member != null && !field.Equals(member)) continue;
+					appliedAny = true;
+					var viewValue = field.ViewValue.GetValue();
+
+					if (viewValue != null)
 					{
-						if (InterpolatorBuilder.TryFindInterpolatable(type, out interpolatable, true))
-							interpolateCache.Add(type, interpolatable);
-						else interpolateCache.Add(type, null);
+						var type = viewValue.GetType();
+						if (interpolateCache.TryGetValue(type, out var interpolatable))
+						{	
+							// using cached interpolator if exists
+						}
+						else
+						{
+							if (InterpolatorBuilder.TryFindInterpolatable(type, out interpolatable, true))
+								interpolateCache.Add(type, interpolatable);
+							else interpolateCache.Add(type, null);
+						}
+						if(interpolatable != null)
+							interpolatable.Interpolate(ref viewValue, field.GetValue(obj), viewValue, weight);
 					}
-					if(interpolatable != null)
-						interpolatable.Interpolate(ref viewValue, field.GetValue(obj), viewValue, weight);
-				}
 				
-				field.SetValue(obj, viewValue);
+					field.SetValue(obj, viewValue);
+				}
 			}
 			return appliedAny;
 		}

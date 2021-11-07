@@ -19,6 +19,11 @@ namespace Needle.Timeline
 		object Instance { get; set; }
 	}
 
+	public interface IViewValueHandler : IValueHandler
+	{
+		event Action<object> ValueChanged;
+	}
+
 	public interface IViewFieldBinding : IEnabled
 	{
 		IValueHandler ViewValue { get; }

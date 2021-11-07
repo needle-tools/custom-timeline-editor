@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Unity.Profiling;
 using UnityEngine;
 
 // ReSharper disable ReplaceWithSingleAssignment.False
@@ -52,6 +53,9 @@ namespace Needle.Timeline
 		private uint _producedCount;
 		private readonly List<IToolInputEntryCallback> _created = new List<IToolInputEntryCallback>();
 		private readonly List<ICustomKeyframe> _keyframesChanged = new List<ICustomKeyframe>();
+		private static readonly ProfilerMarker _eraseMarker = new ProfilerMarker("CoreToolModule.Erase");
+		private static readonly ProfilerMarker _modifyMarker = new ProfilerMarker("CoreToolModule.Modify");
+		private static readonly ProfilerMarker _produceMarker = new ProfilerMarker("CoreToolModule.Produce");
 
 		public override bool CanModify(Type type)
 		{
@@ -127,15 +131,24 @@ namespace Needle.Timeline
 
 					var didRun = false;
 
-					if (ProduceValues(input, context))
-						didRun = true;
+					using (_produceMarker.Auto())
+					{
+						if (ProduceValues(input, context))
+							didRun = true;
+					}
 
-					// modify values
-					if (ModifyValues(input, toolData, context))
-						didRun = true;
+					using (_modifyMarker.Auto())
+					{
+						// modify values
+						if (ModifyValues(input, toolData, context))
+							didRun = true;
+					}
 
-					if (EraseValues(input, context))
-						didRun = true;
+					using (_eraseMarker.Auto())
+					{
+						if (EraseValues(input, context))
+							didRun = true;
+					}
 
 					if (didRun) _keyframesChanged.Add(keyframe);
 				}

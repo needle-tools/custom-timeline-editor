@@ -35,7 +35,12 @@ namespace Needle.Timeline
 			}
 
 			PersistenceHelper.TryGetPreviousValue(field, out var currentValue);
-			res = new ViewFieldBindingController(target.Clip, field, new ViewValueProxy(currentValue));
+			var viewValue = new ViewValueProxy(currentValue);
+			viewValue.ValueChanged += newValue =>
+			{
+				PersistenceHelper.OnValueChanged(field, newValue);
+			};
+			res = new ViewFieldBindingController(target.Clip, field, viewValue);
 			res.ViewElement = res.BuildControl();
 			res.Init();
 			bindable.Bindings.Add(res);
