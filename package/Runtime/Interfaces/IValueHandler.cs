@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using UnityEngine.UIElements;
 
 namespace Needle.Timeline
@@ -27,5 +28,6 @@ namespace Needle.Timeline
 		Type ValueType { get; }
 		string Name { get; }
 		T GetCustomAttribute<T>() where T : Attribute;
+		bool Equals(MemberInfo member);
 	}
 }

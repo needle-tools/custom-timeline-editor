@@ -24,7 +24,7 @@ namespace Needle.Timeline
 		public bool AllowBinding { get; protected set; } = false;
 		List<IViewFieldBinding> IBindsFields.Bindings { get; } = new List<IViewFieldBinding>();
 		
-		protected virtual bool ApplyBoundValues(object obj, float weight)
+		protected virtual bool ApplyBinding(object obj, float weight, MemberInfo? member = null)
 		{
 			if (!AllowBinding) return false;
 			if (weight <= 0) return false;
@@ -34,6 +34,7 @@ namespace Needle.Timeline
 			foreach (var field in bindings)
 			{
 				if (!field.Enabled) continue;
+				if (member != null && !field.Equals(member)) continue;
 				appliedAny = true;
 				var viewValue = field.ViewValue.GetValue();
 

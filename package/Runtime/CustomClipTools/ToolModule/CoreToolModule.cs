@@ -257,7 +257,7 @@ namespace Needle.Timeline
 				}
 
 
-				ApplyBoundValues(instance, res.Weight);
+				ApplyBinding(instance, res.Weight);
 
 				// the content type is a field inside a type
 				if (instance is IToolEvents i) i.OnToolEvent(ToolStage.InstanceCreated, input);
@@ -314,7 +314,7 @@ namespace Needle.Timeline
 						if (res == ToolInputResult.AbortFurtherProcessing)
 							break;
 						if (res != ToolInputResult.Success) continue;
-						ApplyBoundValues(value, context.Weight);
+						ApplyBinding(value, context.Weight);
 						list[index] = value;
 						didRun = true;
 					}
@@ -361,10 +361,9 @@ namespace Needle.Timeline
 							}
 							if (res != ToolInputResult.Success) continue;
 							matchingField.SetValue(entry, value.Cast(matchingField.FieldType));
-							ApplyBoundValues(entry, context.Weight);
+							ApplyBinding(entry, context.Weight, matchingField);
 							list[index] = entry;
 							didRun = true;
-							break;
 						}
 					}
 				}

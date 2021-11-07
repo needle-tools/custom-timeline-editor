@@ -37,6 +37,10 @@ namespace Needle.Timeline
 		public Type ValueType => field.FieldType;
 		public string Name => field.Name;
 		public T GetCustomAttribute<T>() where T : Attribute => field.GetCustomAttribute<T>();
+		public bool Equals(MemberInfo member)
+		{
+			return field.Equals(member);
+		}
 
 
 		private readonly FieldInfo field;

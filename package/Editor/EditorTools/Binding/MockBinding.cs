@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Reflection;
 using UnityEngine.UIElements;
 
 namespace Needle.Timeline
@@ -38,6 +39,10 @@ namespace Needle.Timeline
 		public Type ValueType => type;
 		public string Name => name;
 		public T GetCustomAttribute<T>() where T : Attribute => customAttributes.FirstOrDefault(a => a is T) as T;
+		public bool Equals(MemberInfo member)
+		{
+			return member is FieldInfo f && f.FieldType == type && f.Name == name;
+		}
 
 		public object GetValue()
 		{
