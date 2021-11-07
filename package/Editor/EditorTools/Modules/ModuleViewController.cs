@@ -151,26 +151,34 @@ namespace Needle.Timeline
 				}
 			}
 
-			options.Add(bindingsContainer);
-			bindingsContainer.Clear();
+			// options.Add(bindingsContainer);
+			// bindingsContainer.Clear();
 
 			if (Module is IBindsFields bindable && bindable.AllowBinding)
 			{
 				bindable.Bindings.Clear();
+				
 				foreach (var t in tool.Targets)
 				{
-					// var headerText = ObjectNames.NicifyVariableName(t.Clip.Name);
+					Foldout foldout = null;
+					
 					// bindingsContainer.Add(new Label(headerText));
 					foreach (var field in t.Clip.EnumerateFields())
 					{ 
 						if (ControlsFactory.TryProduceBinding(this, field, t, bindable, out var handler))
 						{
-							bindingsContainer.Add(handler.ViewElement);
+							if (foldout == null)
+							{
+								var headerText = ObjectNames.NicifyVariableName(t.Clip.Name);
+								foldout = new Foldout() { text = headerText }; 
+								options.Add(foldout);
+							}
+							foldout.Add(handler.ViewElement);
 						}
 					}
 				}
 			}
-			ToolsWindow.Root.Add(bindingsContainer);
+			ToolsWindow.Root.Add(options);
 		}
 	}
 }

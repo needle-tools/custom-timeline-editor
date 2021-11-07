@@ -40,6 +40,11 @@ namespace Needle.Timeline
 			new MockBinding("Text", "test 123").BuildControl(controls);
 			new MockBinding("Options", MyEnum.Option1).BuildControl(controls);
 
+			var foldout = new Foldout() { text = "My Foldout" };
+			controls.Add(foldout);
+			new MockBinding("some option", 1f).BuildControl(foldout);
+			new MockBinding("some option", "test 123").BuildControl(foldout);
+
 
 			// root.styleSheets.Add(AssetDatabase.LoadAssetAtPath<StyleSheet>(AssetDatabase.GUIDToAssetPath("006df79959ca42f5b836147e5d456c46")));
 			// var quickToolVisualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(AssetDatabase.GUIDToAssetPath("4023379787424b2ebf184f0e90ebc800"));
