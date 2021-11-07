@@ -46,7 +46,8 @@
     "com.unity.modules.xr": "1.0.0",
     "com.needle.console": "file:../../../modules/needle-console/package",
     "com.needle.transform-extensions": "file:../../../modules/transform-changed-helper/package",
-    "com.needle.inspector": "file:C:/git/timeline-editor/modules/inspector/package"
+    "com.needle.inspector": "file:../../..//modules/inspector/package",
+    "com.needle.selective-profiling": "file:../../..//modules/selective-profiling/package"
   },
   "testables": [
     "com.needle.timeline-editor"

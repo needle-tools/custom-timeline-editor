@@ -1,0 +1,54 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &1
+MonoBehaviour:
+  m_ObjectHideFlags: 61
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f52273eee02c4063a24a332d916bdea0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  FirstInstall: 0
+  Enabled: 1
+  RuntimeSave: 1
+  UseAlwaysProfile: 0
+  CollapseProperties: 1
+  CollapseHierarchyNesting: 1
+  CollapseNoImpactSamples: 0
+  ColorPerformanceImpact: 1
+  DeepProfiling: 0
+  MaxDepth: 1
+  DeepProfileMaxLevel: -1
+  DebugLog: 0
+  PinnedMethods: []
+  Methods:
+  - Enabled: 1
+    Assembly: Needle.Timeline-Editor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+    Type: Needle.Timeline.CustomClipToolBase
+    Method: Void OnToolGUI(UnityEditor.EditorWindow)
+  - Enabled: 1
+    Assembly: Needle.Timeline-Editor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+    Type: Needle.Timeline.CustomClipToolBase
+    Method: Void OnInput(UnityEditor.EditorWindow)
+  - Enabled: 1
+    Assembly: Needle.Timeline-Editor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+    Type: Needle.Timeline.CustomClipToolBase
+    Method: Void UseEventDelayed()
+  - Enabled: 1
+    Assembly: Needle.Timeline-Editor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+    Type: Needle.Timeline.CustomClipToolBase
+    Method: Void UseEvent()
+  - Enabled: 1
+    Assembly: Needle.Timeline, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+    Type: Needle.Timeline.CoreToolModule
+    Method: Boolean OnModify(Needle.Timeline.InputData, Needle.Timeline.ToolData
+      ByRef)
+  - Enabled: 1
+    Assembly: Needle.Timeline, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+    Type: Needle.Timeline.CoreToolModule
+    Method: Boolean ModifyValues(Needle.Timeline.InputData, Needle.Timeline.ToolData,
+      Needle.Timeline.ToolContext)

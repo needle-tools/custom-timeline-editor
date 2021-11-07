@@ -13,10 +13,18 @@
       "dependencies": {}
     },
     "com.needle.inspector": {
-      "version": "file:C:/git/timeline-editor/modules/inspector/package",
+      "version": "file:../../..//modules/inspector/package",
       "depth": 0,
       "source": "local",
       "dependencies": {}
+    },
+    "com.needle.selective-profiling": {
+      "version": "file:../../..//modules/selective-profiling/package",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.unity.nuget.mono-cecil": "1.10.1-preview.1"
+      }
     },
     "com.needle.timeline-editor": {
       "version": "file:../../../package",
@@ -99,6 +107,13 @@
     },
     "com.unity.mathematics": {
       "version": "1.2.1",
+      "depth": 1,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://packages.unity.com"
+    },
+    "com.unity.nuget.mono-cecil": {
+      "version": "1.10.1-preview.1",
       "depth": 1,
       "source": "registry",
       "dependencies": {},
