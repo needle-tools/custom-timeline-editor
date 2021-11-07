@@ -5,7 +5,7 @@ using UnityEngine.UIElements;
 
 namespace Needle.Timeline
 {
-	internal class ViewFieldBindingController : IViewFieldBinding
+	internal class ClipFieldBindingController : IViewFieldBinding
 	{
 		public IValueHandler ViewValue { get; }
 		public VisualElement ViewElement { get; set; }
@@ -48,7 +48,7 @@ namespace Needle.Timeline
 		
 		private bool enabled = false;
 
-		public ViewFieldBindingController(IRecordable rec, FieldInfo field, IValueHandler view)
+		public ClipFieldBindingController(IRecordable rec, FieldInfo field, IValueHandler view)
 		{
 			this.rec = rec;
 			this.field = field;

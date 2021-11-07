@@ -18,9 +18,9 @@ namespace Needle.Timeline
 			if (_value == null && newValue == null) return;
 			if(newValue == _value) return;
 			_value = newValue;
-			ValueChanged?.Invoke(_value);
+			ViewValueChanged?.Invoke(_value);
 		}
 
-		public event Action<object> ValueChanged;
+		public event Action<object> ViewValueChanged;
 	}
 }

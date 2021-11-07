@@ -72,6 +72,8 @@ namespace Needle.Timeline
 				VisualElement element = null;
 				const float labelMinWidth = 40;
 
+				// new MockBinding(field.Name, field.GetValue(Module), true, range).BuildControl(options);
+
 				if (field.FieldType == typeof(float))
 				{
 					if (range != null)
@@ -165,7 +167,7 @@ namespace Needle.Timeline
 					// bindingsContainer.Add(new Label(headerText));
 					foreach (var field in t.Clip.EnumerateFields())
 					{ 
-						if (ControlsFactory.TryProduceBinding(this, field, t, bindable, out var handler))
+						if (ControlsFactory.TryBuildBinding(this, field, t, bindable, out var handler))
 						{
 							if (foldout == null)
 							{

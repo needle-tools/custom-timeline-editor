@@ -21,7 +21,7 @@ namespace Needle.Timeline
 
 	public interface IViewValueHandler : IValueHandler
 	{
-		event Action<object> ValueChanged;
+		event Action<object> ViewValueChanged;
 	}
 
 	public interface IViewFieldBinding : IEnabled

@@ -26,7 +26,7 @@ namespace Needle.Timeline
 		private static StyleSheet controlStyles;
 
 		
-		public static bool TryProduceBinding(ModuleViewController viewController, FieldInfo field, ToolTarget target, IBindsFields bindable, out ViewFieldBindingController res)
+		public static bool TryBuildBinding(ModuleViewController viewController, FieldInfo field, ToolTarget target, IBindsFields bindable, out ClipFieldBindingController res)
 		{
 			if (field.IsStatic)
 			{
@@ -36,11 +36,11 @@ namespace Needle.Timeline
 
 			PersistenceHelper.TryGetPreviousValue(field, out var currentValue);
 			var viewValue = new ViewValueProxy(currentValue);
-			viewValue.ValueChanged += newValue =>
+			viewValue.ViewValueChanged += newValue =>
 			{
 				PersistenceHelper.OnValueChanged(field, newValue);
 			};
-			res = new ViewFieldBindingController(target.Clip, field, viewValue);
+			res = new ClipFieldBindingController(target.Clip, field, viewValue);
 			res.ViewElement = res.BuildControl();
 			res.Init();
 			bindable.Bindings.Add(res);
