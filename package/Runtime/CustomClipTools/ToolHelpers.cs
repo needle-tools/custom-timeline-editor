@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Reflection;
+using UnityEditor;
 using UnityEngine;
 
 namespace Needle.Timeline
@@ -8,16 +9,9 @@ namespace Needle.Timeline
 	{
 		public static Vector3? TryGetPosition(object valueOwner, object value)
 		{
-			// if (keyframe.value == null) return null;
-			// var val = keyframe.value;
-			// if (val is IList list)
-			// {
-			// 	var obj = 
-			// }
-
-			if (valueOwner == value && value is Vector3 pos)
+			if (value != null && value is Vector3)
 			{
-				return pos;
+				return (Vector3)value;
 			}
 			if (valueOwner != null)
 			{

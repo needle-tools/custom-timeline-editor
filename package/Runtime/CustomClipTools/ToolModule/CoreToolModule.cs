@@ -361,10 +361,10 @@ namespace Needle.Timeline
 							}
 							if (res != ToolInputResult.Success) continue;
 							matchingField.SetValue(entry, value.Cast(matchingField.FieldType));
-
 							ApplyBoundValues(entry, context.Weight);
 							list[index] = entry;
 							didRun = true;
+							break;
 						}
 					}
 				}
