@@ -15,7 +15,7 @@ namespace Needle.Timeline.Tests.RegistryTests
 			var reg = new ImplementorsRegistry<INotImplemented>();
 
 			var res = reg.TryFind(e => true, out _);
-			var created = reg.TryGetInstance<INotImplemented>(out var inst);
+			var created = reg.TryGetNewInstance<INotImplemented>(out var inst);
 
 			Assert.IsFalse(res);
 			Assert.IsFalse(created);
@@ -35,7 +35,7 @@ namespace Needle.Timeline.Tests.RegistryTests
 			var reg = new ImplementorsRegistry<IInterface0>();
 
 			var res = reg.TryFind(e => true, out var type);
-			var created = reg.TryGetInstance<Impl0>(out var inst);
+			var created = reg.TryGetNewInstance<Impl0>(out var inst);
 
 			Assert.IsTrue(res);
 			Assert.AreEqual(typeof(Impl0), type);

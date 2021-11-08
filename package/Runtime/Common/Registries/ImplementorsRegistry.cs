@@ -8,7 +8,35 @@ namespace Needle.Timeline
 {
 	public class ImplementorsRegistry<T> : IRegistry<T> where T : class
 	{
-		public bool TryGetInstance<TInstanceType>(out TInstanceType instance) where TInstanceType : T
+		public bool TryGetInstance(Predicate<T> test, out T instance)
+		{
+			EnsureCached();
+
+			if (instances == null)
+			{
+				instances = new T[cache!.Length];
+				for (var index = 0; index < cache.Length; index++)
+				{
+					var t = cache[index];
+					var i = (T)Activator.CreateInstance(t);
+					instances[index] = i;
+				}
+			}
+			foreach (var inst in instances)
+			{
+				var obj = inst;
+				if (test(obj))
+				{
+					instance = obj;
+					return true;
+				}
+			}
+			
+			instance = default!;
+			return false;
+		}
+		
+		public bool TryGetNewInstance<TInstanceType>(out TInstanceType instance) where TInstanceType : T
 		{
 			if (TryFind(e => typeof(TInstanceType).IsAssignableFrom(e), out var type))
 			{
@@ -41,6 +69,7 @@ namespace Needle.Timeline
 		}
 
 		private Type[]? cache;
+		private T[]? instances;
 
 		private void EnsureCached()
 		{
