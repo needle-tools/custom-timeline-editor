@@ -54,7 +54,7 @@ namespace Needle.Timeline.Tests
 
         private class MyClass
         {
-            
+            public int MyField;
         }
 
         [Test]
@@ -62,6 +62,7 @@ namespace Needle.Timeline.Tests
         {
             var list = new List<MyClass>();
             var entry = new MyClass();
+            entry.MyField = 42;
             list.Add(entry);
 
             var obj = CloneUtil.TryClone(list);
@@ -71,6 +72,7 @@ namespace Needle.Timeline.Tests
             Assert.AreNotSame(obj, list);
             Assert.IsTrue(obj[0] != entry, "Content was not cloned");
             Assert.IsTrue(!ReferenceEquals(obj[0], entry));
+            Assert.AreEqual(42, obj[0].MyField);
         }
 
         private class MyClassWithNestedReference
@@ -96,6 +98,34 @@ namespace Needle.Timeline.Tests
             Assert.IsTrue(obj[0].Nested != entry.Nested, "Nested content was not cloned");
             Assert.IsTrue(!ReferenceEquals(obj[0], entry));
             Assert.IsTrue(!ReferenceEquals(obj[0].Nested, entry.Nested), "Nested reference type was not cloned");
+        }
+
+        private class MyClassWithNestedList
+        {
+            public List<MyClass> List;
+        }
+
+        [Test]
+        public void ListReferenceCloneNestedList()
+        {
+            var list = new List<MyClassWithNestedList>();
+            var entry = new MyClassWithNestedList();
+            var nestedList = new List<MyClass>();
+            nestedList.Add(new MyClass());
+            entry.List = nestedList;
+            list.Add(entry);
+
+            var obj = CloneUtil.TryClone(list);
+
+            Assert.NotNull(obj);
+            Assert.IsInstanceOf<List<MyClassWithNestedList>>(obj);
+            Assert.AreNotSame(obj, list);
+            Assert.IsTrue(obj[0] != entry, "Content was not cloned");
+            Assert.IsTrue(obj[0].List != entry.List, "Nested content was not cloned");
+            Assert.IsTrue(obj[0].List[0] != entry.List[0], "Nested list content was not cloned");
+            Assert.IsTrue(!ReferenceEquals(obj[0], entry));
+            Assert.IsTrue(!ReferenceEquals(obj[0].List, entry.List), "Nested reference type was not cloned");
+            Assert.IsTrue(!ReferenceEquals(obj[0].List[0], entry.List[0]), "Nested list content was not cloned");
         }
     }
 }
