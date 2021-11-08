@@ -69,8 +69,33 @@ namespace Needle.Timeline.Tests
             Assert.NotNull(obj);
             Assert.IsInstanceOf<List<MyClass>>(obj);
             Assert.AreNotSame(obj, list);
-            Assert.IsTrue(obj![0] != entry, "Content was not cloned");
+            Assert.IsTrue(obj[0] != entry, "Content was not cloned");
             Assert.IsTrue(!ReferenceEquals(obj[0], entry));
+        }
+
+        private class MyClassWithNestedReference
+        {
+            public MyClass Nested;
+        }
+
+        [Test]
+        public void ListReferenceCloneNestedReference()
+        {
+            var list = new List<MyClassWithNestedReference>();
+            var entry = new MyClassWithNestedReference();
+            var nested = new MyClass();
+            entry.Nested = nested;
+            list.Add(entry);
+
+            var obj = CloneUtil.TryClone(list);
+
+            Assert.NotNull(obj);
+            Assert.IsInstanceOf<List<MyClassWithNestedReference>>(obj);
+            Assert.AreNotSame(obj, list);
+            Assert.IsTrue(obj[0] != entry, "Content was not cloned");
+            Assert.IsTrue(obj[0].Nested != entry.Nested, "Nested content was not cloned");
+            Assert.IsTrue(!ReferenceEquals(obj[0], entry));
+            Assert.IsTrue(!ReferenceEquals(obj[0].Nested, entry.Nested), "Nested reference type was not cloned");
         }
     }
 }

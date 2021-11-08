@@ -57,7 +57,6 @@ namespace Needle.Timeline
 
 			if (value is IList col)
 			{
-				// TODO: check if list contains value types, otherwise we need to copy list content as well
 				var clonedList = (IList)Activator.CreateInstance(value.GetType(), col);
 				var didCheckType = false;
 				for (var i = 0; i < clonedList.Count; i++)
