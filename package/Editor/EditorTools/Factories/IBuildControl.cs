@@ -6,6 +6,6 @@ namespace Needle.Timeline
 	public interface IControlBuilder
 	{
 		bool CanBuild(Type type);
-		VisualElement Build(Type type, IValueHandler binding);
+		VisualElement Build(Type type, IViewValueHandler binding);
 	}
 }

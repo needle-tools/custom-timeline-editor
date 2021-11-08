@@ -26,7 +26,7 @@ namespace Needle.Timeline
 
 	public interface IViewFieldBinding : IEnabled
 	{
-		IValueHandler ViewValue { get; }
+		IViewValueHandler ViewValue { get; }
 		VisualElement ViewElement { get; set; }
 		object GetValue(object instance);
 		void SetValue(object instance, object value);

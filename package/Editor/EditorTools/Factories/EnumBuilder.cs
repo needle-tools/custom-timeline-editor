@@ -12,7 +12,7 @@ namespace Needle.Timeline
 			return typeof(Enum).IsAssignableFrom(type);
 		}
 
-		public VisualElement Build(Type type, IValueHandler binding)
+		public VisualElement Build(Type type, IViewValueHandler binding)
 		{
 			var enumOptions = Enum.GetNames(type);
 			var view = new PopupField<string>(enumOptions.ToList(), 0);
@@ -26,6 +26,8 @@ namespace Needle.Timeline
 			var val = binding.GetValue();
 			if(val != null)
 				view.value = val.ToString();
+			
+			binding.ViewValueChanged += newValue => view.value = (string)newValue;
 
 			return view;
 		}

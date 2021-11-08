@@ -5,7 +5,7 @@ using UnityEngine.UIElements;
 
 namespace Needle.Timeline
 {
-	internal class MockBinding : IViewFieldBinding, IValueHandler
+	internal class MockBinding : IViewFieldBinding, IViewValueHandler
 	{
 		private readonly string name;
 		private object value;
@@ -23,7 +23,7 @@ namespace Needle.Timeline
 			
 		public bool Enabled { get; set; }
 		public event Action<bool> EnabledChanged;
-		public IValueHandler ViewValue => this;
+		public IViewValueHandler ViewValue => this;
 		public VisualElement ViewElement { get; set; }
 			
 		public object GetValue(object instance)
@@ -51,7 +51,11 @@ namespace Needle.Timeline
 
 		public void SetValue(object newValue)
 		{
+			if (newValue == value) return;
 			this.value = newValue;
+			ViewValueChanged?.Invoke(value);
 		}
+
+		public event Action<object> ViewValueChanged;
 	}
 }
