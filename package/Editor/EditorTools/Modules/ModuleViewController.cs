@@ -31,7 +31,7 @@ namespace Needle.Timeline
 			options.style.display = new StyleEnum<DisplayStyle>(state ? StyleKeyword.Auto : StyleKeyword.None);
 			options.style.visibility = state ? Visibility.Visible : Visibility.Hidden;
 
-			bindingsContainer.style.display = state ? DisplayStyle.Flex : DisplayStyle.None;
+			// options.SetEnabled(state);
 		}
 
 		public ModuleViewController(VisualElement container, IToolModule module, ICustomClipTool tool)

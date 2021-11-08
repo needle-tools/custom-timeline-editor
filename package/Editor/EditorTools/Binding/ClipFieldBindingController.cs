@@ -63,7 +63,7 @@ namespace Needle.Timeline
 
 		private void OnRecordingChanged(bool obj)
 		{
-			ViewElement.style.display = obj ? DisplayStyle.Flex : DisplayStyle.None;
+			ViewElement.SetEnabled(obj);
 		}
 	}
 }
