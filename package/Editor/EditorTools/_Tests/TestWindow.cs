@@ -32,6 +32,7 @@ namespace Needle.Timeline
 			new MockBinding("val", 123).BuildControl(controls);
 			new MockBinding("MinMaxInteger", 50, true, new RangeAttribute(0,100)).BuildControl(controls);
 			new MockBinding("my color", Color.red).BuildControl(controls);
+			new MockBinding("hdr no alpha", Color.red, true, new ColorUsageAttribute(false, true)).BuildControl(controls);
 			new MockBinding("weight", 1f).BuildControl(controls);
 			new MockBinding("Weight Slider", 1f, true, new RangeAttribute(0,1)).BuildControl(controls);
 			new MockBinding("pos2", new Vector2(1, 2)).BuildControl(controls);
