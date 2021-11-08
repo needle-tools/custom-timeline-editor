@@ -4,15 +4,17 @@ namespace Needle.Timeline
 {
 	public class ToolTarget
 	{
-		public readonly ClipInfoViewModel ViewModel;
+		// private to limit binding stuff even more with timeline
+		private readonly ClipInfoViewModel viewModel;
+		
 		public readonly ICustomClip Clip;
 		public bool IsNull() => Clip == null;
-		public double Time => ViewModel?.clipTime ?? 0;
-		public float TimeF => (float)(ViewModel?.clipTime ?? 0f);
+		public double Time => viewModel?.clipTime ?? 0;
+		public float TimeF => (float)(viewModel?.clipTime ?? 0f);
 
 		public ToolTarget(ClipInfoViewModel viewModel, ICustomClip clip)
 		{
-			ViewModel = viewModel;
+			this.viewModel = viewModel;
 			Clip = clip;
 		}
 	}
