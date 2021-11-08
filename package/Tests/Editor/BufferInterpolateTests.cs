@@ -136,7 +136,7 @@ namespace Needle.Timeline.Tests
 		
 		private static T TestInterpolate<T>(ComputeShader shader, string keyword, int stride, T t0, T t1, float t = 0.5f) where T : struct
 		{
-			Debug.Log("Type\t" + typeof(T) + "\nStride\t" + stride + "\nKW\t" + keyword);
+			// Debug.Log("Type\t" + typeof(T) + "\nStride\t" + stride + "\nKW\t" + keyword);
 			
 			using var i0 = new ComputeBuffer(1, stride);
 			i0.SetData(new[]{t0});
@@ -153,7 +153,7 @@ namespace Needle.Timeline.Tests
 			var data = new T[1];
 			res.GetData(data);
 			var output = data[0];
-			Debug.Log("i0\t" + t0 + "\ni1\t" + t1 + "\nt\t" + t + "\nres\t" + output + "\n");
+			// Debug.Log("i0\t" + t0 + "\ni1\t" + t1 + "\nt\t" + t + "\nres\t" + output + "\n");
 			return output;
 		}
 		
