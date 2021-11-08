@@ -51,5 +51,26 @@ namespace Needle.Timeline.Tests
             Assert.IsTrue(clonedList![0] == 1);
             Assert.IsTrue(clonedList![1] == 42);
         }
+
+        private class MyClass
+        {
+            
+        }
+
+        [Test]
+        public void ListReferenceClone()
+        {
+            var list = new List<MyClass>();
+            var entry = new MyClass();
+            list.Add(entry);
+
+            var obj = CloneUtil.TryClone(list);
+
+            Assert.NotNull(obj);
+            Assert.IsInstanceOf<List<MyClass>>(obj);
+            Assert.AreNotSame(obj, list);
+            Assert.IsTrue(obj![0] != entry, "Content was not cloned");
+            Assert.IsTrue(!ReferenceEquals(obj[0], entry));
+        }
     }
 }
