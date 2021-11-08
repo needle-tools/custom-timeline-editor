@@ -5,6 +5,6 @@
 	/// </summary>
 	public interface IWeightProvider<in T>
 	{
-		float GetCustomWeight(T context);
+		float GetCustomWeight(object caller, T context);
 	}
 }
