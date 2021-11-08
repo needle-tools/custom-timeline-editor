@@ -317,6 +317,12 @@ namespace Needle.Timeline
 					view.value = Color.white;
 					viewValue.SetValue(view.value);
 				}
+				var usage = binding.GetCustomAttribute<ColorUsageAttribute>();
+				if (usage != null)
+				{
+					view.hdr = usage.hdr;
+					view.showAlpha = usage.showAlpha;
+				}
 
 				control = view;
 				return true;
