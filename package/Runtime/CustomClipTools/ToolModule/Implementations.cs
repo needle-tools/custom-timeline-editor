@@ -144,9 +144,18 @@ namespace Needle.Timeline
 				if (Random.value > Probability) return ToolInputResult.Failed;
 				var pos = ToolHelpers.TryGetPosition(context.Object, value);
 				if (pos == null) return ToolInputResult.Failed;
-				var screenDistance = input.GetRadiusDistanceScreenSpace(Radius, pos.Value);
-				if (screenDistance == null || screenDistance > 1) return ToolInputResult.Failed;
-				var weight = 1 - Mathf.Clamp01(screenDistance.Value);
+
+				float weight;
+				if (value is IWeightProvider<InputData> prov)
+				{
+					weight = prov.GetCustomWeight(input);
+				}
+				else
+				{
+					var screenDistance = input.GetRadiusDistanceScreenSpace(Radius, pos.Value);
+					if (screenDistance == null || screenDistance > 1) return ToolInputResult.Failed;
+					weight = 1 - screenDistance.Value;
+				}
 				context.Weight = weight * Weight;
 				return ToolInputResult.Success;
 			}
