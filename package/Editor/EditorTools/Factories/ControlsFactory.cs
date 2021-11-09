@@ -36,7 +36,7 @@ namespace Needle.Timeline
 
 			PersistenceHelper.TryGetPreviousValue(field, out var currentValue);
 			var viewValue = new ViewValueProxy(currentValue);
-			viewValue.ViewValueChanged += newValue =>
+			viewValue.ValueChanged += newValue =>
 			{
 				PersistenceHelper.OnValueChanged(field, newValue);
 			};

@@ -23,7 +23,7 @@ namespace Needle.Timeline.Tests
 		public void BuildPopup()
 		{
 			var builder = new EnumBuilder();
-			var handler = new ValueHandler(MyEnum.Opt1);
+			var handler = new ViewValueProxy(MyEnum.Opt1);
 
 			var res = builder.Build(typeof(MyEnum), handler) as PopupField<string>;
 
@@ -36,21 +36,17 @@ namespace Needle.Timeline.Tests
 		public void ViewChangesModel()
 		{
 			var builder = new EnumBuilder();
-			var handler = new ValueHandler(MyEnum.Opt1);
-			var parent = new VisualElement();
+			var handler = new ViewValueProxy(MyEnum.Opt1);
 
 			var res = builder.Build(typeof(MyEnum), handler) as PopupField<string>;
-			parent.Add(res);
 
 			Assert.IsNotNull(res);
 			Assert.AreEqual(MyEnum.Opt1.ToString(), res.value);
 			Assert.AreEqual(MyEnum.Opt1, handler.GetValue());
 
-			// res.panel = new
-			// var evt = ChangeEvent<string>.GetPooled(res.value, MyEnum.Opt2.ToString());
-			// res.value = evt.newValue;
-			// res.SendEvent(evt);
-			
+			using var context = new InWindowContext();
+			context.Add(res);
+			res.value = (MyEnum.Opt2).ToString();
 			Assert.AreEqual(MyEnum.Opt2.ToString(), res.value);
 			Assert.AreEqual(MyEnum.Opt2, handler.GetValue());
 		}
@@ -59,7 +55,7 @@ namespace Needle.Timeline.Tests
 		public void ModelChangesView()
 		{
 			var builder = new EnumBuilder();
-			var handler = new ValueHandler(MyEnum.Opt1);
+			var handler = new ViewValueProxy(MyEnum.Opt1);
 			var parent = new VisualElement();
 
 			var res = builder.Build(typeof(MyEnum), handler) as PopupField<string>;

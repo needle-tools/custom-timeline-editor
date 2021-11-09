@@ -53,9 +53,14 @@ namespace Needle.Timeline
 		{
 			if (newValue == value) return;
 			this.value = newValue;
-			ViewValueChanged?.Invoke(value);
+			ValueChanged?.Invoke(value);
 		}
 
-		public event Action<object> ViewValueChanged;
+		public void SetValueWithoutNotify(object newValue)
+		{
+			this.value = newValue;
+		}
+
+		public event Action<object> ValueChanged;
 	}
 }

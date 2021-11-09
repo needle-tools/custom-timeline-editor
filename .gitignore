@@ -14,3 +14,4 @@ projects/**/Assets/Samples/Timeline
 projects/**/Assets/TextMesh Pro
 projects/*/Timeline/Clips
 projects/**/UserSettings
+package/Tests/**/.idea/*

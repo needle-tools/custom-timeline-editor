@@ -13,15 +13,11 @@ namespace Needle.Timeline
 	{
 		void SetValue(object newValue);
 	}
-	
-	public interface IInstanceValueHandler : IValueHandler
-	{
-		object Instance { get; set; }
-	}
 
 	public interface IViewValueHandler : IValueHandler
 	{
-		event Action<object> ViewValueChanged;
+		void SetValueWithoutNotify(object newValue);
+		event Action<object> ValueChanged;
 	}
 
 	public interface IViewFieldBinding : IEnabled
