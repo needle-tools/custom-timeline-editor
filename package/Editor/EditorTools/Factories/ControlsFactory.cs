@@ -126,27 +126,16 @@ namespace Needle.Timeline
 			return missingLabel;
 		}
 
+		private static readonly ImplementorsRegistry<IControlBuilder> builders = new ImplementorsRegistry<IControlBuilder>();
+
 		private static bool TryBuildControl(Type type, IViewFieldBinding binding, out VisualElement control)
 		{
 			var viewValue = binding.ViewValue;
 
-			if (typeof(Enum).IsAssignableFrom(type))
+			if (builders.TryGetInstance(i => i.CanBuild(type), out var match))
 			{
-				var enumOptions = Enum.GetNames(type);
-				var view = new PopupField<string>(enumOptions.ToList(), 0);
-				view.label = "_";
-
-				view.RegisterValueChangedCallback(evt =>
-				{
-					var val = (Enum)Enum.Parse(type, evt.newValue);
-					viewValue.SetValue(val);
-				});
-				var val = viewValue.GetValue();
-				if(val != null)
-					view.value = val.ToString();
-
-				control = view;
-				return true;
+				control = match.Build(type, binding.ViewValue);
+				return control != null;
 			}
 
 			if (typeof(int).IsAssignableFrom(type))

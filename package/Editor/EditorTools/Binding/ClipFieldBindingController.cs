@@ -7,7 +7,7 @@ namespace Needle.Timeline
 {
 	internal class ClipFieldBindingController : IViewFieldBinding
 	{
-		public IValueHandler ViewValue { get; }
+		public IViewValueHandler ViewValue { get; }
 		public VisualElement ViewElement { get; set; }
 
 		public bool Enabled
@@ -48,7 +48,7 @@ namespace Needle.Timeline
 		
 		private bool enabled = false;
 
-		public ClipFieldBindingController(IRecordable rec, FieldInfo field, IValueHandler view)
+		public ClipFieldBindingController(IRecordable rec, FieldInfo field, IViewValueHandler view)
 		{
 			this.rec = rec;
 			this.field = field;

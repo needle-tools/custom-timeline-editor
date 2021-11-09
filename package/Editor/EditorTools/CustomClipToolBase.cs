@@ -30,7 +30,6 @@ namespace Needle.Timeline
 				var t = targets[index];
 				if (t.Clip == clip)
 				{
-					Debug.Log("Remove " + clip.Name + "@" + t.ViewModel.startTime);
 					targets.RemoveAt(index);
 					OnRemovedTarget(t);
 				}

@@ -18,7 +18,7 @@ namespace Needle.Timeline
 		}
 		public event Action<bool> EnabledChanged;
 		
-		public IValueHandler ViewValue => this;
+		public IViewValueHandler ViewValue => this;
 		public VisualElement ViewElement { get; set; }
 		
 		
