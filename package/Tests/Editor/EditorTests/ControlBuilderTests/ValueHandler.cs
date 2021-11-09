@@ -3,7 +3,7 @@
 namespace Needle.Timeline.Tests
 {
 	
-	internal struct ValueHandler : IViewValueHandler
+	internal class ValueHandler : IViewValueHandler
 	{
 		private object value;
 

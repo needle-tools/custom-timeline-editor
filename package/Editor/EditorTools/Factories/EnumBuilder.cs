@@ -27,7 +27,10 @@ namespace Needle.Timeline
 			if(val != null)
 				view.value = val.ToString();
 			
-			binding.ViewValueChanged += newValue => view.value = (string)newValue;
+			binding.ViewValueChanged += newValue =>
+			{
+				view.SetValueWithoutNotify(newValue.ToString());
+			};
 
 			return view;
 		}
