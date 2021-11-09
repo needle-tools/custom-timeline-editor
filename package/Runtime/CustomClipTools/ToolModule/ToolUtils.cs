@@ -18,6 +18,20 @@ namespace Needle.Timeline
 			var point = screenPoint;
 			return Vector2.Distance(point, sp) / screenRadius;
 		}
+
+		public static float? GetLineDistanceScreenSpace(this InputData input, float radius, Vector3 worldPointFrom, Vector3 worldPointTo)
+		{
+			var sp0 = input.ToScreenPoint(worldPointFrom);
+			var sp1 = input.ToScreenPoint(worldPointTo);
+			var wp = input.ToScreenPoint(input.WorldPosition.GetValueOrDefault());
+#if UNITY_EDITOR
+			var dist = UnityEditor.HandleUtility.DistancePointLine(wp, sp0, sp1);
+			var screenRadius = ToScreenRadius(wp, input.ScreenPosition, radius);
+			return dist / screenRadius;
+#else
+			throw new System.NotImplementedException("Distance Point to Line is not implemented for runtime yet");
+#endif
+		}
 		
 		private static float ToScreenRadius(Vector3 worldPoint, Vector2 screenPoint, float radius)
 		{
