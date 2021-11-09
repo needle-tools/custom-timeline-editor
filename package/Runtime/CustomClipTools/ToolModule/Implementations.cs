@@ -145,18 +145,20 @@ namespace Needle.Timeline
 				var pos = ToolHelpers.TryGetPosition(context.Object, value);
 				if (pos == null) return ToolInputResult.Failed;
 
-				float weight;
-				if (value is IWeightProvider<InputData> prov)
+				float? weight = null;
+				if (context.Object is IWeightProvider<InputData> prov)
 				{
 					weight = prov.GetCustomWeight(this, input);
 				}
-				else
+				
+				if(weight == null)
 				{
 					var screenDistance = input.GetRadiusDistanceScreenSpace(Radius, pos.Value);
 					if (screenDistance == null || screenDistance > 1) return ToolInputResult.Failed;
 					weight = 1 - screenDistance.Value;
 				}
-				context.Weight = weight * Weight;
+				if (weight == null) return ToolInputResult.Failed;
+				context.Weight = weight.Value * Weight;
 				return ToolInputResult.Success;
 			}
 		}
