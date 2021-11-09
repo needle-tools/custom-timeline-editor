@@ -148,7 +148,9 @@ namespace Needle.Timeline
 				float? weight = null;
 				if (context.Object is IWeightProvider<InputData> prov)
 				{
-					weight = prov.GetCustomWeight(this, input);
+					var customWeight = prov.GetCustomWeight(this, input);
+					if (customWeight == null || customWeight < 0) return ToolInputResult.Failed;
+					weight = customWeight;
 				}
 				
 				if(weight == null)
