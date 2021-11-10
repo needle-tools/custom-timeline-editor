@@ -81,6 +81,8 @@ namespace Needle.Timeline
 		/// </summary>
 		private readonly List<(string type, int index)> componentTypeIndices = new List<(string, int)>();
 
+		private AssetDatabaseProvider prov = new AssetDatabaseProvider();
+
 		protected override Playable CreatePlayable(PlayableGraph graph, GameObject gameObject, TimelineClip timelineClip)
 		{
 			using (CreateTrackMarker.Auto())
@@ -99,7 +101,8 @@ namespace Needle.Timeline
 				asset.name = gameObject.name;
 				asset.viewModels?.RemoveAll(vm => !vm.IsValid);
 
-				// Debug.Log("Create " + asset + ", " + viewModels.Count);
+				Debug.Log("Create " + asset + ", " + viewModels.Count + ", " + AssetDatabase.GetAssetPath(asset), asset);
+				prov.TestSaveOnce(asset);
 
 				var animationComponents = boundObject.GetComponents<IAnimated>();
 				if (animationComponents.Length <= 0) return Playable.Null;
