@@ -37,16 +37,23 @@
     align-self: center;
     align-items: stretch;
     padding-right: 5px;
-    
-    /*display: flex;*/
-    /* TODO: figure out how we can inline multiple controls without breaking 100% width */
-    /*flex-direction: row;*/
 }
 
-.control-container .main {
-
+.control-container .composite-control {
+    width: 100%;
     flex-grow: 5;
+    flex-direction: row;
 }
+.control-container .composite-control .pre {
+    min-width: 30px;
+    flex-grow: .1;
+}
+.control-container .composite-control .main {
+
+    flex-grow: 1;
+}
+
+
 
 .control-container > .control > * {
     /*width: 100%;*/

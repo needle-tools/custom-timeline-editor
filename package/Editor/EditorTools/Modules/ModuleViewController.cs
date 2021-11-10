@@ -58,8 +58,13 @@ namespace Needle.Timeline
 		private void OnBuildUI()
 		{
 			options.Clear();
-			// options.Add(new Button(OnBuildUI) { text = "DEBUG REBUILD UI" });
+			
+			options.Add(new Label(Module.GetType().Name)
+			{
+				style = { unityFontStyleAndWeight = FontStyle.Bold}
+			});
 
+			var addedModuleField = false;
 			foreach (var field in Module.GetType().EnumerateFields())
 			{
 				if (!field.IsPublic)
@@ -67,7 +72,13 @@ namespace Needle.Timeline
 					if (field.GetCustomAttribute<Expose>() == null)
 						continue;
 				}
+				
+				if (!addedModuleField)
+				{
+					options.Add(new Label("Toggle at start doesnt do anything right now and will be removed"));
+				}
 
+				addedModuleField = true;
 				field.BuildControl(Module, options, true);
 			}
 			

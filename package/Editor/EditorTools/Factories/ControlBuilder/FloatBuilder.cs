@@ -12,7 +12,7 @@ namespace Needle.Timeline
 			return typeof(float).IsAssignableFrom(type);
 		}
 
-		public VisualElement? Build(Type type, IViewValueHandler viewValue, IContext? context = null)
+		public VisualElement Build(Type type, IViewValueHandler viewValue, IContext? context = null)
 		{
 			var view = new FloatField();
 			view.label = "_";
@@ -25,7 +25,6 @@ namespace Needle.Timeline
 			if (range != null) 
 			{
 				var slider = new Slider(range.min, range.max);
-				slider.AddToClassList("main");
 				var value = viewValue.GetValue();
 				if(value != null)
 					slider.value = (float)value;
@@ -39,11 +38,8 @@ namespace Needle.Timeline
 					view.value = Mathf.Clamp(view.value, range.min, range.max);
 					slider.SetValueWithoutNotify(view.value);
 				});
-
-				// sliderContainer.Add(slider);
-				// slider.Insert(0, view);
-				// sliderContainer.Add(view);
-				view.Add(slider);
+				
+				return Utils.MakeComposite(view, slider);
 			}
 
 			return view;

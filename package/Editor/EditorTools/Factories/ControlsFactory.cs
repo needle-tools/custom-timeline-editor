@@ -16,7 +16,7 @@ namespace Needle.Timeline
 		
 		[BindAsset("907bae41c16d4edcbfd166200df5be05")]
 		private static VisualTreeAsset? toolsPanel;
-		[BindAsset("e1df1297d0a64f8185b0bf8e4c55c5a0")]
+		[BindAsset("e1df1297d0a64f8185b0bf8e4c55c5a0")] 
 		private static StyleSheet? toolsPanelStyles;  
 
 		public static bool TryBuildToolPanel(out VisualElement panel, bool preview = false)

@@ -27,7 +27,6 @@ namespace Needle.Timeline
 				if (range != null) 
 				{
 					var slider = new SliderInt((int)range.min, (int)range.max);
-					slider.AddToClassList("main");
 					slider.value = (int)viewValue.GetValue();
 					slider.RegisterValueChangedCallback(evt =>
 					{
@@ -39,7 +38,8 @@ namespace Needle.Timeline
 						view.value = (int)Mathf.Clamp(view.value, range.min, range.max);
 						slider.SetValueWithoutNotify(view.value);
 					});
-					view.Add(slider);
+					
+					return Utils.MakeComposite(view, slider);
 				}
 			}
 			return view;
