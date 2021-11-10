@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Needle.Timeline
 {
-	public class AssetDatabaseProvider
+	public class AssetDatabaseProvider : ISaveLoadHandler
 	{
 		public void TestSaveOnce(Object rootAsset)
 		{ 
@@ -26,6 +26,16 @@ namespace Needle.Timeline
 			container.Content = "123"; 
 			AssetDatabase.AddObjectToAsset(container, rootAsset);
 			AssetDatabase.SaveAssets(); 
+		}
+
+		public void Save(object obj)
+		{
+			throw new System.NotImplementedException();
+		}
+
+		public object Load()
+		{
+			throw new System.NotImplementedException();
 		}
 	}
 }
