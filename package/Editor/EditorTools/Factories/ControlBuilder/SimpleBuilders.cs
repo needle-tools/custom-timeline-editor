@@ -4,60 +4,59 @@ using UnityEngine.UIElements;
 
 namespace Needle.Timeline
 {
-	public class SimpleBuilders
+	public class TextBuilder : SimpleGenericBuilder<string>
 	{
-		public class StringBuilder : SimpleGenericBuilder<string>
+		protected override BaseField<string> GetField()
 		{
-			protected override BaseField<string> GetField()
-			{
-				return new TextField();
-			}
+			return new TextField();
 		}
-		
-		public class DoubleBuilder : SimpleGenericBuilder<double>
+	}
+
+	public class DoubleBuilder : SimpleGenericBuilder<double>
+	{
+		protected override BaseField<double> GetField()
 		{
-			protected override BaseField<double> GetField()
-			{
-				return new DoubleField();
-			}
+			return new DoubleField();
 		}
-		
-		public class Vector2IntBuilder : SimpleGenericBuilder<Vector2Int>
+	}
+
+	public class Vector2IntBuilder : SimpleGenericBuilder<Vector2Int>
+	{
+		protected override BaseField<Vector2Int> GetField()
 		{
-			protected override BaseField<Vector2Int> GetField()
-			{
-				return new Vector2IntField();
-			}
+			return new Vector2IntField();
 		}
-		public class Vector2Builder : SimpleGenericBuilder<Vector2>
+	}
+
+	public class Vector2Builder : SimpleGenericBuilder<Vector2>
+	{
+		protected override BaseField<Vector2> GetField()
 		{
-			protected override BaseField<Vector2> GetField()
-			{
-				return new Vector2Field();
-			}
+			return new Vector2Field();
 		}
-		
-		public class Vector3IntBuilder : SimpleGenericBuilder<Vector3Int>
+	}
+
+	public class Vector3IntBuilder : SimpleGenericBuilder<Vector3Int>
+	{
+		protected override BaseField<Vector3Int> GetField()
 		{
-			protected override BaseField<Vector3Int> GetField()
-			{
-				return new Vector3IntField();
-			}
+			return new Vector3IntField();
 		}
-		public class Vector3Builder : SimpleGenericBuilder<Vector3>
+	}
+
+	public class Vector3Builder : SimpleGenericBuilder<Vector3>
+	{
+		protected override BaseField<Vector3> GetField()
 		{
-			protected override BaseField<Vector3> GetField()
-			{
-				return new Vector3Field();
-			}
+			return new Vector3Field();
 		}
-		
-		public class Vector4Builder : SimpleGenericBuilder<Vector4>
+	}
+
+	public class Vector4Builder : SimpleGenericBuilder<Vector4>
+	{
+		protected override BaseField<Vector4> GetField()
 		{
-			protected override BaseField<Vector4> GetField()
-			{
-				return new Vector4Field();
-			}
+			return new Vector4Field();
 		}
 	}
 }
