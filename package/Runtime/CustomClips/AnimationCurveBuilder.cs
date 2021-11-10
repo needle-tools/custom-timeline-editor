@@ -149,7 +149,7 @@ namespace Needle.Timeline
 						if (successfullyLoaded)
 						{
 							Debug.Log("<b>FOUND FORMERLY SERIALIZED</b>: " + former + " is now "  + data.Member.Name);
-							if (!loader.Rename(former, data.Id))
+							if (!loader.Rename(former, data.Id, serContext))
 							{
 								Debug.LogError("Failed updating former name for " + data.Member.Name + ", is this Id already assigned?");
 							}

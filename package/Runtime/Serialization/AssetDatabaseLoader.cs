@@ -5,12 +5,14 @@ using UnityEngine;
 
 namespace Needle.Timeline
 {
-	public class AssetDatabaseProvider : ILoader
+	public class AssetDatabaseLoader : ILoader
 	{
+		internal HideFlags Flags = HideFlags.None;
+		
 		private JsonSerializer serializer;
 
 		
-		public AssetDatabaseProvider(ISerializer ser)
+		public AssetDatabaseLoader(ISerializer ser)
 		{
 			((ILoader)this).Serializer = ser as JsonSerializer;
 		}
@@ -41,7 +43,7 @@ namespace Needle.Timeline
 					json.name = context.DisplayName ?? id;
 					json.Id = id;
 					json.Content = (string)serializer.Serialize(@object);
-					json.hideFlags = HideFlags.HideInHierarchy;
+					json.hideFlags = Flags;
 					EditorUtility.SetDirty(asset);
 					return !string.IsNullOrWhiteSpace(json.Content);
 				}
@@ -50,7 +52,7 @@ namespace Needle.Timeline
 			container.name = context.DisplayName ?? id;
 			container.Id = id;
 			container.Content = (string)serializer.Serialize(@object); 
-			container.hideFlags = HideFlags.HideInHierarchy;
+			container.hideFlags = Flags;
 			AssetDatabase.AddObjectToAsset(container, asset);
 			EditorUtility.SetDirty(asset);
 			return !string.IsNullOrEmpty(container.Content); 
@@ -82,8 +84,26 @@ namespace Needle.Timeline
 			return false;
 		}
 
-		public bool Rename(string oldId, string newId)
+		public bool Rename(string oldId, string newId, ISerializationContext context)
 		{
+			var asset = context.Clip.asset;
+			if (!EditorUtility.IsPersistent(asset)) 
+			{
+				return false;
+			}
+			
+			var objs = AssetDatabase.LoadAllAssetsAtPath(AssetDatabase.GetAssetPath(asset));
+			foreach (var sub in objs)
+			{
+				if (sub is JsonContainer json && json.Id == oldId)
+				{
+					json.name = context.DisplayName ?? newId;
+					json.Id = newId;
+					json.hideFlags = Flags;
+					EditorUtility.SetDirty(asset);
+					return true;
+				}
+			}
 			return false;
 		}
 	}
