@@ -7,7 +7,7 @@ namespace Needle.Timeline
 {
 	public class AssetDatabaseLoader : ILoader
 	{
-		internal HideFlags Flags = HideFlags.None;
+		internal HideFlags Flags = HideFlags.NotEditable;
 		
 		private JsonSerializer serializer;
 
@@ -21,7 +21,7 @@ namespace Needle.Timeline
 		{
 			get => serializer;
 			set
-			{
+			{ 
 				serializer = value as JsonSerializer;
 				if (serializer == null) throw new Exception("Invalid serializer");
 			}
