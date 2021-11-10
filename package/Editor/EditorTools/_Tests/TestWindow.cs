@@ -27,8 +27,10 @@ namespace Needle.Timeline
 		{
 			var root = rootVisualElement;
 			
-			var controls = new VisualElement();
+			var controls = new Foldout(){text = "Controls"};
 			root.Add(controls);
+			controls.value = SessionState.GetBool("ControlsFoldout", true);
+			controls.RegisterValueChangedCallback(v => SessionState.SetBool("ControlsFoldout", v.newValue));
 			new MockBinding("val", 123).BuildControl(controls);
 			new MockBinding("MinMaxInteger", 50, true, new RangeAttribute(0,100)).BuildControl(controls);
 			new MockBinding("my color", Color.red).BuildControl(controls);
@@ -45,11 +47,9 @@ namespace Needle.Timeline
 			controls.Add(foldout);
 			new MockBinding("some option", 1f).BuildControl(foldout);
 			new MockBinding("some option", "test 123").BuildControl(foldout);
-
-
-			// root.styleSheets.Add(AssetDatabase.LoadAssetAtPath<StyleSheet>(AssetDatabase.GUIDToAssetPath("006df79959ca42f5b836147e5d456c46")));
-			// var quickToolVisualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(AssetDatabase.GUIDToAssetPath("4023379787424b2ebf184f0e90ebc800"));
-			// quickToolVisualTree.CloneTree(root);
+			
+			
+			
 		}
 
 		private enum MyEnum

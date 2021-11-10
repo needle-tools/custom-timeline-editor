@@ -1,33 +1,28 @@
 ﻿#nullable enable
 using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Net.Sockets;
 using System.Reflection;
+using Needle.Timeline.AssetBinding;
 using UnityEditor;
-using UnityEditor.UIElements;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Needle.Timeline
 {
 	internal static class ControlsFactory
 	{
-		private static void Init()
+		[BindAsset("a9727f46214640d1be592eb4e81682ee")]
+		private static VisualTreeAsset? controlAsset;
+		[BindAsset("e29516eda36d4ad1b6f8822975c7f21c")]
+		private static StyleSheet? controlStyles;
+		[BindAsset("907bae41c16d4edcbfd166200df5be05")]
+		private static VisualTreeAsset? toolsPanel;
+
+		public static bool TryBuildToolPanel()
 		{
-			if (isInit) return;
-			isInit = true;
-			controlAsset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(AssetDatabase.GUIDToAssetPath("a9727f46214640d1be592eb4e81682ee"));
-			controlStyles = AssetDatabase.LoadAssetAtPath<StyleSheet>(AssetDatabase.GUIDToAssetPath("e29516eda36d4ad1b6f8822975c7f21c"));
+			return false;
 		}
 
-		private static bool isInit;
-		private static VisualTreeAsset controlAsset;
-		private static StyleSheet controlStyles;
 
-		
-		public static bool TryBuildBinding(ModuleViewController viewController, FieldInfo field, ToolTarget target, IBindsFields bindable, out ClipFieldBindingController res)
+		public static bool TryBuildBinding(ModuleViewController viewController, FieldInfo field, ToolTarget target, IBindsFields bindable, out ClipFieldBindingController? res)
 		{
 			if (field.IsStatic)
 			{
@@ -59,10 +54,8 @@ namespace Needle.Timeline
 			return res.ViewElement != null;
 		}
 
-		public static VisualElement BuildControl(this IViewFieldBinding binding, VisualElement target = null)
+		public static VisualElement BuildControl(this IViewFieldBinding binding, VisualElement? target = null)
 		{
-			Init();
-			
 			if (TryBuildControl(binding.ValueType, binding, out var control))
 			{
 				var instance = controlAsset.CloneTree();
