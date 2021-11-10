@@ -51,6 +51,7 @@ namespace Needle.Timeline
 				var context = new SerializationContext(viewModel.TimelineClip);
 				foreach (var clip in viewModel.clips)
 				{
+					context.DisplayName = clip.Name;
 					loader.Save(clip.Id, context, clip);
 				}
 			}

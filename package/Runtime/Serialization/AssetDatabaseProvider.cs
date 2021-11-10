@@ -34,24 +34,26 @@ namespace Needle.Timeline
 			}
 			
 			var objs = AssetDatabase.LoadAllAssetsAtPath(AssetDatabase.GetAssetPath(asset));
-			foreach (var obj in objs)
+			foreach (var sub in objs)
 			{
-				if (obj is JsonContainer c && c.Id == id)
+				if (sub is JsonContainer json && json.Id == id)
 				{
-					c.name = id;
-					c.Id = id;
-					c.Content = (string)serializer.Serialize(@object);
+					json.name = context.DisplayName ?? id;
+					json.Id = id;
+					json.Content = (string)serializer.Serialize(@object);
+					json.hideFlags = HideFlags.HideInHierarchy;
 					EditorUtility.SetDirty(asset);
-					return !string.IsNullOrWhiteSpace(c.Content);
+					return !string.IsNullOrWhiteSpace(json.Content);
 				}
 			}
 			var container = ScriptableObject.CreateInstance<JsonContainer>();
-			container.name = id;
+			container.name = context.DisplayName ?? id;
 			container.Id = id;
 			container.Content = (string)serializer.Serialize(@object); 
+			container.hideFlags = HideFlags.HideInHierarchy;
 			AssetDatabase.AddObjectToAsset(container, asset);
 			EditorUtility.SetDirty(asset);
-			return !string.IsNullOrEmpty(container.Content);
+			return !string.IsNullOrEmpty(container.Content); 
 		}
 
 		public bool Load(string id, ISerializationContext context, out object res)
