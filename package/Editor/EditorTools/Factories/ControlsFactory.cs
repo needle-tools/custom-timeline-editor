@@ -13,16 +13,30 @@ namespace Needle.Timeline
 		private static VisualTreeAsset? controlAsset;
 		[BindAsset("e29516eda36d4ad1b6f8822975c7f21c")]
 		private static StyleSheet? controlStyles;
+		
 		[BindAsset("907bae41c16d4edcbfd166200df5be05")]
 		private static VisualTreeAsset? toolsPanel;
+		[BindAsset("e1df1297d0a64f8185b0bf8e4c55c5a0")]
+		private static StyleSheet? toolsPanelStyles;  
 
-		public static bool TryBuildToolPanel()
+		public static bool TryBuildToolPanel(out VisualElement panel, bool preview = false)
 		{
-			return false;
+			panel = toolsPanel!.CloneTree().contentContainer;
+			panel.styleSheets.Add(toolsPanelStyles);
+
+			if (!preview)
+			{
+				foreach (var p in panel.Query<VisualElement>(null, "template").ToList())
+				{
+					p.style.display = DisplayStyle.None;
+				}
+			}
+
+			return true;
 		}
 
 
-		public static bool TryBuildBinding(ModuleViewController viewController, FieldInfo field, ToolTarget target, IBindsFields bindable, out ClipFieldBindingController? res)
+		public static bool TryBuildBinding(ModuleViewController viewController, FieldInfo field, ToolTarget target, IBindsFields bindable, out ViewValueBindingController? res)
 		{
 			if (field.IsStatic)
 			{
@@ -36,7 +50,7 @@ namespace Needle.Timeline
 			{
 				PersistenceHelper.OnValueChanged(field, newValue);
 			};
-			res = new ClipFieldBindingController(target.Clip, field, viewValue);
+			res = new ViewValueBindingController(field, viewValue, target.Clip);
 			res.ViewElement = res.BuildControl();
 			res.Init();
 			bindable.Bindings.Add(res);
@@ -54,11 +68,21 @@ namespace Needle.Timeline
 			return res.ViewElement != null;
 		}
 
+		public static IViewFieldBinding BuildControl(this FieldInfo field, object instance, VisualElement? target = null, bool? enabled = null)
+		{
+			var viewBinding = new FieldViewBinding(instance, field);
+			var controller = new ViewValueBindingController(field, viewBinding, instance as IRecordable);
+			if (enabled != null)
+				controller.Enabled = enabled.Value;
+			BuildControl(controller, target);
+			return controller;
+		}
+
 		public static VisualElement BuildControl(this IViewFieldBinding binding, VisualElement? target = null)
 		{
 			if (TryBuildControl(binding.ValueType, binding, out var control))
 			{
-				var instance = controlAsset.CloneTree();
+				var instance = controlAsset!.CloneTree();
 				instance.styleSheets.Add(controlStyles);
 
 

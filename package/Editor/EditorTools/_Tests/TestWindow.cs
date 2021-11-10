@@ -26,6 +26,11 @@ namespace Needle.Timeline
 		private void CreateGUI()
 		{
 			var root = rootVisualElement;
+
+			if (ControlsFactory.TryBuildToolPanel(out var panel, true))
+			{
+				root.Add(panel);
+			}
 			
 			var controls = new Foldout(){text = "Controls"};
 			root.Add(controls);
@@ -47,9 +52,7 @@ namespace Needle.Timeline
 			controls.Add(foldout);
 			new MockBinding("some option", 1f).BuildControl(foldout);
 			new MockBinding("some option", "test 123").BuildControl(foldout);
-			
-			
-			
+
 		}
 
 		private enum MyEnum

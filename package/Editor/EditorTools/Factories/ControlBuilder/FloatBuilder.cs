@@ -24,20 +24,26 @@ namespace Needle.Timeline
 			var range = context?.Attributes?.GetCustomAttribute<RangeAttribute>();
 			if (range != null) 
 			{
-				var sliderContainer = new VisualElement();
-				sliderContainer.AddToClassList("control");
 				var slider = new Slider(range.min, range.max);
-				slider.value = (float)viewValue.GetValue();
+				slider.AddToClassList("main");
+				var value = viewValue.GetValue();
+				if(value != null)
+					slider.value = (float)value;
 				slider.RegisterValueChangedCallback(evt =>
 				{
 					view.SetValueWithoutNotify(evt.newValue);
 					viewValue.SetValue(evt.newValue);
 				});
-				view.RegisterValueChangedCallback(evt => { slider.SetValueWithoutNotify(evt.newValue); });
+				view.RegisterValueChangedCallback(evt =>
+				{
+					view.value = Mathf.Clamp(view.value, range.min, range.max);
+					slider.SetValueWithoutNotify(view.value);
+				});
 
-				sliderContainer.Add(view);
-				sliderContainer.Add(slider);
-				return sliderContainer;
+				// sliderContainer.Add(slider);
+				// slider.Insert(0, view);
+				// sliderContainer.Add(view);
+				view.Add(slider);
 			}
 
 			return view;

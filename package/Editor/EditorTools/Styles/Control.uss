@@ -9,7 +9,6 @@
     align-items: center;
     align-content: center;
     align-self: stretch;
-
 }
 
 
@@ -24,7 +23,7 @@
     padding-right:10px;
     
     min-width: 25%; 
-    width: auto;
+    /*width: auto;*/
     width: 25%;
     overflow: hidden;
     
@@ -38,8 +37,15 @@
     align-self: center;
     align-items: stretch;
     padding-right: 5px;
-    display: flex;
+    
+    /*display: flex;*/
+    /* TODO: figure out how we can inline multiple controls without breaking 100% width */
     /*flex-direction: row;*/
+}
+
+.control-container .main {
+
+    flex-grow: 5;
 }
 
 .control-container > .control > * {

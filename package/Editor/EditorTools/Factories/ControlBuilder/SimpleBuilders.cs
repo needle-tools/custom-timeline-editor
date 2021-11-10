@@ -19,6 +19,13 @@ namespace Needle.Timeline
 			return new DoubleField();
 		}
 	}
+	public class ToggleBuilder : SimpleGenericBuilder<bool>
+	{
+		protected override BaseField<bool> GetField()
+		{
+			return new Toggle();
+		}
+	}
 
 	public class Vector2IntBuilder : SimpleGenericBuilder<Vector2Int>
 	{

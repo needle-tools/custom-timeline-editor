@@ -1,0 +1,12 @@
+﻿
+
+.tools-panel
+{
+    /*padding: 20px;*/
+}
+
+.tools-panel .tool-button
+{
+    min-height: 30px;
+    max-width: 90px;
+}

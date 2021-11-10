@@ -1,6 +1,6 @@
 ﻿<UXML xmlns="UnityEngine.UIElements">
     <VisualElement class="tools-panel">
-        <Button class="myButton item" text="test123">
+        <Button class="tool-button template" text="Tool Button">
         </Button>
     </VisualElement>
 </UXML>
