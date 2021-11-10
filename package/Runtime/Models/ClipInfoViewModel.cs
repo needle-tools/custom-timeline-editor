@@ -25,6 +25,8 @@ namespace Needle.Timeline
 		private readonly TimelineClip timelineClip;
 		internal PlayableDirector director;
 
+		internal TimelineClip TimelineClip => timelineClip;
+
 		private ClipInfoViewModel()
 		{
 			instances.Add(this);

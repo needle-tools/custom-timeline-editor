@@ -6,6 +6,7 @@ namespace Needle.Timeline
 {
 	public interface ICustomClip : IInterpolator, IRecordable
 	{
+		string Id { get; set; }
 		string Name { get; set; }
 		object Evaluate(float time);
 		bool CanAdd(Type type);

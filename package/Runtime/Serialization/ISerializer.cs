@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Needle.Timeline.Serialization
+namespace Needle.Timeline
 {
 	public interface ISerializer
 	{

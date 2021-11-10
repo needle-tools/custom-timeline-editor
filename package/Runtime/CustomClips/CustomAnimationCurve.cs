@@ -15,6 +15,7 @@ namespace Needle.Timeline
 		private readonly ProfilerMarker _evaluateMarker = new ProfilerMarker("CustomAnimationCurve Evaluate " + typeof(T));
 		private readonly ProfilerMarker _interpolationMarker = new ProfilerMarker("CustomAnimationCurve Interpolate " + typeof(T));
 
+		public string Id { get; set; }
 		public string Name { get; set; }
 
 		public bool IsRecording

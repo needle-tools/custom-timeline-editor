@@ -9,12 +9,14 @@ namespace Needle.Timeline
 	public struct AnimationCurveWrapper : ICustomClip<float>
 	{
 		private readonly Func<AnimationCurve> curve;
-		
+
+		public string Id { get; set; }
 		public string Name { get; set; }
 		
-		public AnimationCurveWrapper(Func<AnimationCurve> curve, string name)
+		public AnimationCurveWrapper(Func<AnimationCurve> curve, string name, string id = null)
 		{
 			this.curve = curve;
+			Id = id ?? name;
 			Name = name;
 			Changed = default;
 			Keyframes = null;

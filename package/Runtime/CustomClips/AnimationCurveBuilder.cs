@@ -73,7 +73,7 @@ namespace Needle.Timeline
 				this.Asset = asset;
 			}
 		}
-
+		
 		public enum CreationResult
 		{
 			None = 0,
@@ -82,9 +82,19 @@ namespace Needle.Timeline
 			Failed = 3,
 		}
 
+		public readonly struct Context
+		{
+			public readonly ILoader Loader;
+
+			public Context(ILoader loader)
+			{
+				Loader = loader;
+			}
+		}
+
 		private static ProfilerMarker CreateMarker = new ProfilerMarker("CurveBuilder Create");
 
-		public static CreationResult Create(Data data)
+		public static CreationResult Create(Data data, Context context)
 		{
 			using (CreateMarker.Auto())
 			{
@@ -92,7 +102,7 @@ namespace Needle.Timeline
 				var res = CreateAnimationCurve(attribute, data);
 				if (res == CreationResult.Successful) return res;
 
-				res = CreateCustomAnimationCurve(attribute, data, out var clip);
+				res = CreateCustomAnimationCurve(attribute, data, context, out var clip);
 				if (clip != null) 
 				{
 					void OnClipOnChanged()
@@ -116,27 +126,30 @@ namespace Needle.Timeline
 			}
 		}
 
-		private static CreationResult CreateCustomAnimationCurve([CanBeNull] AnimateAttribute attribute, Data data, out ICustomClip curve)
+		private static CreationResult CreateCustomAnimationCurve([CanBeNull] AnimateAttribute attribute, Data data, Context context, out ICustomClip curve)
 		{
 			curve = default;
 			if (attribute == null) return CreationResult.NotMarked;
 
 			var name = data.Member.Name;//.ToLowerInvariant();
-			var ser = new JsonSerializer();
+			// var ser = new JsonSerializer();
 
 			var curveType = typeof(CustomAnimationCurve<>).MakeGenericType(data.MemberType);
 			try
 			{
-				var content = SaveUtil.Load(data.Id);
-				if (content == null)
+				var loader = context.Loader;
+				var serContext = new SerializationContext(data.TimelineClip);
+				serContext.Type = curveType;
+				var successfullyLoaded = loader.Load(data.Id, serContext, out var result);
+				if (!successfullyLoaded)
 				{
 					foreach (var former in data.EnumerateFormerNames(true))
 					{
-						content = SaveUtil.Load(former);
-						if (content != null)
+						successfullyLoaded = loader.Load(former, serContext, out result);
+						if (successfullyLoaded)
 						{
-							Debug.Log("FOUND: " + data.Member.Name + " as " + former);
-							if (!SaveUtil.Replace(former, data.Id))
+							Debug.Log("<b>FOUND FORMERLY SERIALIZED</b>: " + former + " is now "  + data.Member.Name);
+							if (!loader.Rename(former, data.Id))
 							{
 								Debug.LogError("Failed updating former name for " + data.Member.Name + ", is this Id already assigned?");
 							}
@@ -144,11 +157,9 @@ namespace Needle.Timeline
 						}
 					}
 				}
+				else if(!(result is ICustomClip)) throw new Exception("Loading succeeded but result is not a custom clip");
 
-				if (content != null)
-				{
-					curve = ser.Deserialize(content, curveType) as ICustomClip;
-				}
+				curve = result as ICustomClip;
 			}
 			catch (Exception e)
 			{
@@ -161,26 +172,25 @@ namespace Needle.Timeline
 				curve = Activator.CreateInstance(curveType) as ICustomClip;
 			}
 
-			if (curve != null)
-			{
-				if (curve is IHasInterpolator i)
-				{
-					if (InterpolatorBuilder.TryFindInterpolator(attribute, data.MemberType, out var interpolator))
-					{
-						// Debug.Log("Chose " + interpolator + ", " + data.Member.Name);
-						i.Interpolator = interpolator;
-					}
-					else
-					{
-						// Debug.Log("No Interpolator: " + data.Member.Name);
-						i.Interpolator = new NoInterpolator();
-					}
-				}
-			}
-
 			if (curve == null)
 				return CreationResult.Failed;
 
+			
+			if (curve is IHasInterpolator i)
+			{
+				if (InterpolatorBuilder.TryFindInterpolator(attribute, data.MemberType, out var interpolator))
+				{
+					// Debug.Log("Chose " + interpolator + ", " + data.Member.Name);
+					i.Interpolator = interpolator;
+				}
+				else
+				{
+					// Debug.Log("No Interpolator: " + data.Member.Name);
+					i.Interpolator = new NoInterpolator();
+				}
+			}
+
+			curve.Id = data.Id;
 			curve.Name = name;
 
 			object Resolve() => data.ViewModel.Script; //data.Director.GetGenericBinding(data.Track);

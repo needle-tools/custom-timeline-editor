@@ -3,12 +3,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace Needle.Timeline
 {
-	public class ImplementorsRegistry<T> : IRegistry<T> where T : class
+	public class ImplementorsRegistry<T> : IRegistry where T : class
 	{
-		public bool TryGetInstance(Predicate<T> test, out T instance)
+		public bool TryGetInstance(Predicate<T> test, out T instance, IList<IArgument>? args = null)
 		{
 			EnsureCached();
 
@@ -18,13 +19,13 @@ namespace Needle.Timeline
 				for (var index = 0; index < cache.Length; index++)
 				{
 					var t = cache[index];
-					var i = (T)Activator.CreateInstance(t);
-					instances[index] = i;
+					if(t.TryCreateInstance(args, out var i))
+						instances[index] = (T)i; 
 				}
 			}
 			foreach (var inst in instances)
 			{
-				var obj = inst;
+				var obj = inst; 
 				if (test(obj))
 				{
 					instance = obj;
@@ -36,12 +37,15 @@ namespace Needle.Timeline
 			return false;
 		}
 		
-		public bool TryGetNewInstance<TInstanceType>(out TInstanceType instance) where TInstanceType : T
+		public bool TryGetNewInstance<TInstanceType>(out TInstanceType instance, IList<IArgument>? args = null) where TInstanceType : T
 		{
 			if (TryFind(e => typeof(TInstanceType).IsAssignableFrom(e), out var type))
 			{
-				instance = (TInstanceType)Activator.CreateInstance(type);
-				return instance != null;
+				if (type.TryCreateInstance(args, out var i))
+				{
+					instance = (TInstanceType)i;
+					return instance != null;
+				}
 			}
 			instance = default!;
 			return false;

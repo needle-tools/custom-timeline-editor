@@ -7,7 +7,7 @@ using System.Reflection;
 
 namespace Needle.Timeline
 {
-	public class AttributeRegistry<T> : IRegistry<T> where T : Attribute
+	public class AttributeRegistry<T> : IRegistry where T : Attribute
 	{
 		public bool TryFind(Predicate<Type> test, out Type match)
 		{

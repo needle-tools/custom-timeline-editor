@@ -43,23 +43,21 @@ namespace Needle.Timeline
 		internal void Save()
 		{
 			// TODO: how can we prevent override by accident -> e.g. field name Point and point
-			
-			var ser = new JsonSerializer();
+
+			var loader = LoadersRegistry.GetDefault();
 			foreach (var viewModel in viewModels)
 			{
 				if (!viewModel.IsValid) continue;
+				var context = new SerializationContext(viewModel.TimelineClip);
 				foreach (var clip in viewModel.clips)
 				{
-					var json = (string)ser.Serialize(clip);
-					var id = viewModel.Id + "_" + clip.Name;
-					SaveUtil.Save(id, json);
-					Debug.Log("saved " + id);
+					loader.Save(clip.Id, context, clip);
 				}
 			}
 		}
 
 		internal const bool IsUsingMixer = true;
-
+ 
 		[SerializeField, HideInInspector] internal uint dirtyCount; 
 		[SerializeField, HideInInspector] private List<ClipInfoModel> clips = new List<ClipInfoModel>();
 		[NonSerialized] private readonly List<ClipInfoViewModel> viewModels = new List<ClipInfoViewModel>();
@@ -80,9 +78,7 @@ namespace Needle.Timeline
 		/// For id generation per gameobject / type
 		/// </summary>
 		private readonly List<(string type, int index)> componentTypeIndices = new List<(string, int)>();
-
-		private AssetDatabaseProvider prov = new AssetDatabaseProvider();
-
+		
 		protected override Playable CreatePlayable(PlayableGraph graph, GameObject gameObject, TimelineClip timelineClip)
 		{
 			using (CreateTrackMarker.Auto())
@@ -102,7 +98,6 @@ namespace Needle.Timeline
 				asset.viewModels?.RemoveAll(vm => !vm.IsValid);
 
 				Debug.Log("Create " + asset + ", " + viewModels.Count + ", " + AssetDatabase.GetAssetPath(asset), asset);
-				prov.TestSaveOnce(asset);
 
 				var animationComponents = boundObject.GetComponents<IAnimated>();
 				if (animationComponents.Length <= 0) return Playable.Null;
@@ -170,12 +165,14 @@ namespace Needle.Timeline
 
 					// TODO: handle formerly serialized name
 
+					var context = new AnimationCurveBuilder.Context(LoadersRegistry.GetDefault());
+
 					var fields = type.GetFields(DefaultFlags);
 					foreach (var field in fields)
 					{
 						var data = new AnimationCurveBuilder.Data(this, dir, viewModel, type, clipBindings, timelineClip, path,
 							field, field.FieldType, dir.playableAsset);
-						if (AnimationCurveBuilder.Create(data) == AnimationCurveBuilder.CreationResult.Failed)
+						if (AnimationCurveBuilder.Create(data, context) == AnimationCurveBuilder.CreationResult.Failed)
 							OnFailedCreatingCurves(field.FieldType);
 					}
 
@@ -184,7 +181,7 @@ namespace Needle.Timeline
 					{
 						var data = new AnimationCurveBuilder.Data(this, dir, viewModel, type, clipBindings, timelineClip, path,
 							prop, prop.PropertyType, dir.playableAsset);
-						if (AnimationCurveBuilder.Create(data) == AnimationCurveBuilder.CreationResult.Failed)
+						if (AnimationCurveBuilder.Create(data, context) == AnimationCurveBuilder.CreationResult.Failed)
 							OnFailedCreatingCurves(prop.PropertyType);
 					}
 				}
