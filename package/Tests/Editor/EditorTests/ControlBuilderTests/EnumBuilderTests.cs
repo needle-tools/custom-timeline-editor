@@ -25,7 +25,7 @@ namespace Needle.Timeline.Tests
 			var builder = new EnumBuilder();
 			var handler = new ViewValueProxy(MyEnum.Opt1);
 
-			var res = builder.Build(typeof(MyEnum), handler) as PopupField<string>;
+			var res = builder.Build(typeof(MyEnum), handler, null) as PopupField<string>;
 
 			Assert.IsNotNull(res);
 			Assert.AreEqual(MyEnum.Opt1.ToString(), res.value);
@@ -38,7 +38,7 @@ namespace Needle.Timeline.Tests
 			var builder = new EnumBuilder();
 			var handler = new ViewValueProxy(MyEnum.Opt1);
 
-			var res = builder.Build(typeof(MyEnum), handler) as PopupField<string>;
+			var res = builder.Build(typeof(MyEnum), handler, null) as PopupField<string>;
 
 			Assert.IsNotNull(res);
 			Assert.AreEqual(MyEnum.Opt1.ToString(), res.value);
@@ -58,7 +58,7 @@ namespace Needle.Timeline.Tests
 			var handler = new ViewValueProxy(MyEnum.Opt1);
 			var parent = new VisualElement();
 
-			var res = builder.Build(typeof(MyEnum), handler) as PopupField<string>;
+			var res = builder.Build(typeof(MyEnum), handler, null) as PopupField<string>;
 			parent.Add(res);
 
 			Assert.IsNotNull(res);

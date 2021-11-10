@@ -20,7 +20,12 @@ namespace Needle.Timeline
 		event Action<object> ValueChanged;
 	}
 
-	public interface IViewFieldBinding : IEnabled
+	public interface IHasCustomAttributes
+	{
+		T GetCustomAttribute<T>() where T : Attribute;
+	}
+
+	public interface IViewFieldBinding : IEnabled, IHasCustomAttributes
 	{
 		IViewValueHandler ViewValue { get; }
 		VisualElement ViewElement { get; set; }
@@ -28,7 +33,6 @@ namespace Needle.Timeline
 		void SetValue(object instance, object value);
 		Type ValueType { get; }
 		string Name { get; }
-		T GetCustomAttribute<T>() where T : Attribute;
 		bool Equals(MemberInfo member);
 	}
 }

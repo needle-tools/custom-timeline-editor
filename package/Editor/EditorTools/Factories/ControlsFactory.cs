@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -128,196 +129,23 @@ namespace Needle.Timeline
 
 		private static readonly ImplementorsRegistry<IControlBuilder> builders = new ImplementorsRegistry<IControlBuilder>();
 
-		private static bool TryBuildControl(Type type, IViewFieldBinding binding, out VisualElement control)
+		private struct Context : IContext
 		{
-			var viewValue = binding.ViewValue;
+			public Context(IHasCustomAttributes? attributes)
+			{
+				Attributes = attributes;
+			}
 
+			public IHasCustomAttributes? Attributes { get; }
+		}
+
+		private static bool TryBuildControl(Type type, IViewFieldBinding binding, out VisualElement? control)
+		{
 			if (builders.TryGetInstance(i => i.CanBuild(type), out var match))
 			{
-				control = match.Build(type, binding.ViewValue);
+				control = match.Build(type, binding.ViewValue, new Context(binding)); 
 				return control != null;
 			}
-
-			if (typeof(int).IsAssignableFrom(type))
-			{
-				var view = new IntegerField();
-				view.RegisterValueChangedCallback(evt => { viewValue.SetValue(evt.newValue); });
-				var val = viewValue.GetValue();
-				if(val != null)
-					view.value = (int)val;
-				control = view;
-				view.label = "_";
-
-				var range = binding.GetCustomAttribute<RangeAttribute>();
-				if (range != null) 
-				{
-					var sliderContainer = new VisualElement();
-					sliderContainer.AddToClassList("control");
-					var slider = new SliderInt((int)range.min, (int)range.max);
-					slider.value = (int)viewValue.GetValue();
-					slider.RegisterValueChangedCallback(evt =>
-					{
-						view.SetValueWithoutNotify(evt.newValue);
-						viewValue.SetValue(evt.newValue);
-					});
-					view.RegisterValueChangedCallback(evt => { slider.SetValueWithoutNotify(evt.newValue); });
-
-					sliderContainer.Add(view);
-					sliderContainer.Add(slider);
-					control = sliderContainer;
-				}
-
-				return true;
-			}
-
-			if (typeof(string).IsAssignableFrom(type))
-			{
-				var view = new TextField();
-				view.label = "_";
-				view.RegisterValueChangedCallback(evt => { viewValue.SetValue(evt.newValue); });
-				var val = viewValue.GetValue();
-				if(val != null)
-					view.value = (string)val;
-
-				control = view;
-				return true;
-			}
-
-			if (typeof(float).IsAssignableFrom(type))
-			{
-				var view = new FloatField();
-				view.label = "_";
-				view.RegisterValueChangedCallback(evt => { viewValue.SetValue(evt.newValue); });
-				var val = viewValue.GetValue();
-				if(val != null)
-					view.value = (float)val;
-				control = view;
-
-				var range = binding.GetCustomAttribute<RangeAttribute>();
-				if (range != null) 
-				{
-					var sliderContainer = new VisualElement();
-					sliderContainer.AddToClassList("control");
-					var slider = new Slider(range.min, range.max);
-					slider.value = (float)viewValue.GetValue();
-					slider.RegisterValueChangedCallback(evt =>
-					{
-						view.SetValueWithoutNotify(evt.newValue);
-						viewValue.SetValue(evt.newValue);
-					});
-					view.RegisterValueChangedCallback(evt => { slider.SetValueWithoutNotify(evt.newValue); });
-
-					sliderContainer.Add(view);
-					sliderContainer.Add(slider);
-					control = sliderContainer;
-				}
-
-				return true;
-			}
-
-			if (typeof(double).IsAssignableFrom(type))
-			{
-				var view = new DoubleField();
-				view.label = "_";
-				view.RegisterValueChangedCallback(evt => { viewValue.SetValue(evt.newValue); });
-				var val = viewValue.GetValue();
-				if(val != null)
-					view.value = (double)val;
-
-				control = view;
-				return true;
-			}
-
-			if (typeof(Vector4).IsAssignableFrom(type))
-			{
-				var view = new Vector4Field();
-				view.label = "_";
-				view.RegisterValueChangedCallback(evt => { viewValue.SetValue(evt.newValue); });
-				var val = viewValue.GetValue();
-				if(val != null)
-					view.value = (Vector4)val;
-
-				control = view;
-				return true;
-			}
-
-			if (typeof(Vector3).IsAssignableFrom(type))
-			{
-				var view = new Vector3Field();
-				view.label = "_";
-				view.RegisterValueChangedCallback(evt => { viewValue.SetValue(evt.newValue); });
-				var val = viewValue.GetValue();
-				if(val != null)
-					view.value = (Vector3)val;
-
-				control = view;
-				return true;
-			}
-
-			if (typeof(Vector3Int).IsAssignableFrom(type))
-			{
-				var view = new Vector3IntField();
-				view.label = "_";
-				view.RegisterValueChangedCallback(evt => { viewValue.SetValue(evt.newValue); });
-				var val = viewValue.GetValue();
-				if(val != null)
-					view.value = (Vector3Int)val;
-
-				control = view;
-				return true;
-			}
-
-			if (typeof(Vector2).IsAssignableFrom(type))
-			{
-				var view = new Vector2Field();
-				view.label = "_";
-				view.RegisterValueChangedCallback(evt => { viewValue.SetValue(evt.newValue); });
-				var val = viewValue.GetValue();
-				if(val != null)
-					view.value = (Vector2)val;
-
-				control = view;
-				return true;
-			}
-
-			if (typeof(Vector2Int).IsAssignableFrom(type))
-			{
-				var view = new Vector2IntField();
-				view.label = "_";
-				view.RegisterValueChangedCallback(evt => { viewValue.SetValue(evt.newValue); });
-				var val = viewValue.GetValue();
-				if(val != null)
-					view.value = (Vector2Int)val;
-
-				control = view;
-				return true;
-			}
-
-			if (typeof(Color).IsAssignableFrom(type))
-			{
-				var view = new ColorField();
-				view.label = "_";
-				view.RegisterValueChangedCallback(evt => { viewValue.SetValue(evt.newValue); });
-				var val = viewValue.GetValue();
-				if(val != null)
-					view.value = (Color)val; 
-				else
-				{
-					view.value = Color.white;
-					viewValue.SetValue(view.value);
-				}
-				var usage = binding.GetCustomAttribute<ColorUsageAttribute>();
-				if (usage != null)
-				{
-					view.hdr = usage.hdr;
-					view.showAlpha = usage.showAlpha;
-				}
-
-				control = view;
-				return true;
-			}
-
-
 			control = null;
 			return false;
 		}

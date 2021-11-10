@@ -1,17 +1,15 @@
-﻿.container {
-    /* Populates the elements in this container horizontally. */
-    flex-direction: row;
-    /* Makes the content of the container wrap when resized. */
-    flex-wrap: wrap;
+﻿/*.container {*/
+/*    flex-direction: row;*/
+/*    flex-wrap: wrap;*/
 
-    width: 100%;
-    height: 100%;
-    align-items: stretch; 
-} 
+/*    width: 100%;*/
+/*    height: 100%;*/
+/*    align-items: stretch; */
+/*} */
 
-.item {
-    flex: auto;
-}
+/*.item {*/
+/*    flex: auto;*/
+/*}*/
 
-.myButton {
-}
+/*.myButton {*/
+/*}*/
