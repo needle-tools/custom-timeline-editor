@@ -6,6 +6,7 @@ using UnityEngine.Playables;
 
 namespace Needle.Timeline
 {
+	[Priority(10)]
 	public class AssetDatabaseLoader : ILoader
 	{
 		// TODO: should be only visible during dev

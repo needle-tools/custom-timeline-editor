@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿#nullable enable
+using System.Collections.Generic;
 using Needle.Timeline.Serialization;
 
 namespace Needle.Timeline
@@ -11,15 +12,10 @@ namespace Needle.Timeline
 			new JsonSerializer().AsArg(),
 		};
 		
-		public static ILoader GetDefault()
+		public static ILoader? GetDefault()
 		{ 
-			#if UNITY_EDITOR
-			if (_instance.TryGetInstance(l => l.GetType().Name == "AssetDatabaseLoader", out var i, _args))
-				return i; 
-			#else 
-			if (_instance.TryGetInstance(l => l is RuntimeLoader, out var i, _args))
-				return i; 
-			#endif
+			if (_instance.TryGetInstance(l => l != null, out var i, _args))
+				return i;
 			return null;
 		}
 	}
