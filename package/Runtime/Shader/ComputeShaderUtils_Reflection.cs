@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEditor;
-using UnityEditor.Rendering;
 using UnityEngine;
 
 namespace Needle.Timeline
@@ -54,17 +53,18 @@ namespace Needle.Timeline
 		{
 			get
 			{
-				if (HasError && errorMessage != null) 
+				if (HasError && errorMessage != null)
 					return errorMessage;
 				return null;
 			}
 		}
+
 		public bool HasError
 		{
 			get
 			{
 				if (hasError == null)
-				{ 
+				{
 					hasError = false;
 					if (!Shader)
 					{
@@ -78,7 +78,7 @@ namespace Needle.Timeline
 						var messages = ShaderUtil.GetComputeShaderMessages(Shader);
 						foreach (var msg in messages)
 						{
-							if (msg.severity == ShaderCompilerMessageSeverity.Error)
+							if (msg.severity == UnityEditor.Rendering.ShaderCompilerMessageSeverity.Error)
 							{
 								hasError = true;
 								errorMessage += $"{Shader.name}: {msg.message}; {msg.line}; {msg.messageDetails}\n";
@@ -88,7 +88,7 @@ namespace Needle.Timeline
 #endif
 				}
 				return hasError.GetValueOrDefault();
-			}	
+			}
 		}
 	}
 
@@ -119,15 +119,17 @@ namespace Needle.Timeline
 		public string TypeName;
 		public int Stride;
 		public bool? RandomWrite;
+
 		/// <summary>
 		/// If the type is a known struct
 		/// </summary>
 		public ComputeShaderStructInfo? GenericType;
+
 		public string? GenericTypeName;
-		
+
 		// TODO: currently we only check in kernel methods if the field is used
 		public List<ComputeShaderKernelInfo>? Kernels;
-		
+
 		public string FilePath;
 
 		public override string ToString()
@@ -136,7 +138,7 @@ namespace Needle.Timeline
 			if (RandomWrite != null) res += ", RandomWrite=" + RandomWrite;
 			if (GenericType != null) res += ", GenericType=" + GenericType?.Name;
 			if (GenericTypeName != null) res += ", GenericTypeName=" + GenericTypeName;
-			if(Kernels != null) res += ", Used in Kernels: " + string.Join(", ", Kernels.Select(k => k.Name));
+			if (Kernels != null) res += ", Used in Kernels: " + string.Join(", ", Kernels.Select(k => k.Name));
 			return res;
 		}
 	}
@@ -174,16 +176,23 @@ namespace Needle.Timeline
 		// 	var message = ShaderUtil.GetComputeShaderMessages(shader);
 		// 	
 		// }
-		
-		
+
+
 		public static bool TryParse(this ComputeShader? shader, out ComputeShaderInfo? shaderInfo)
 		{
+#if UNITY_EDITOR
 			shaderInfo = null;
 			if (!shader) return false;
 			shaderInfo = new ComputeShaderInfo();
 			shaderInfo.Shader = shader!;
 			var asset = AssetDatabase.GetAssetPath(shader);
 			return TryParse(asset, shaderInfo);
+#else
+			// TODO: implement
+			// throw new NotImplementedException();
+			shaderInfo = null;
+			return false;
+#endif
 		}
 
 		public static bool TryParse(string shaderPath, ComputeShaderInfo shaderInfo)
@@ -209,9 +218,9 @@ namespace Needle.Timeline
 					if (kernelMatch.Success)
 					{
 						var kernel = new ComputeShaderKernelInfo(
-							kernelMatch.Groups["kernel_name"].Value, 
+							kernelMatch.Groups["kernel_name"].Value,
 							shaderInfo.Kernels.Count
-							);
+						);
 						shaderInfo.Kernels.Add(kernel);
 					}
 				}
@@ -293,7 +302,7 @@ namespace Needle.Timeline
 								if (!charBeforeIsOk) continue;
 								var charAfterIsOk = i == line.Length - 1 || allowedSurroundingVariableName.Contains(line[i + field.FieldName.Length]);
 								if (!charAfterIsOk) continue;
- 								field.Kernels ??= new List<ComputeShaderKernelInfo>();
+								field.Kernels ??= new List<ComputeShaderKernelInfo>();
 								if (!field.Kernels.Contains(currentKernelMethod))
 									field.Kernels.Add(currentKernelMethod);
 								break;
@@ -301,8 +310,8 @@ namespace Needle.Timeline
 						}
 					}
 				}
-				
-				if(blockLevel == 0 || inStruct)
+
+				if (blockLevel == 0 || inStruct)
 				{
 					var fieldMatch = fieldRegex.Match(line.Trim());
 					if (fieldMatch.Success)
@@ -334,7 +343,7 @@ namespace Needle.Timeline
 								}
 								return null;
 							}
-							
+
 							if (inStruct)
 							{
 								currentStructInfo!.Fields.Add(field);
@@ -351,7 +360,7 @@ namespace Needle.Timeline
 		}
 
 		private static readonly char[] allowedSurroundingVariableName = new[] { ' ', '+', '-', '*', '/', '=', '|', ';', '[', '.', '(', ')' };
-		
+
 		// https://regex101.com/r/SBWf77/2
 		private static readonly Regex fieldRegex = new Regex("((?<field_type>.+?)(<(?<generic_type>.+?)>)?) (?<field_names>.+);",
 			RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.IgnoreCase);
@@ -455,7 +464,7 @@ namespace Needle.Timeline
 			}
 			return null;
 		}
-		
+
 		private static IEnumerable<int> AllIndexesOf(this string str, string search)
 		{
 			int minIndex = str.IndexOf(search, StringComparison.Ordinal);

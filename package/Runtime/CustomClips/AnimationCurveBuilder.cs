@@ -4,7 +4,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using JetBrains.Annotations;
-using Needle.Timeline.Serialization;
 using Unity.Profiling;
 using UnityEditor;
 using UnityEngine;
@@ -16,19 +15,23 @@ namespace Needle.Timeline
 {
 	public static class AnimationCurveBuilder
 	{
-		public readonly struct Data
+		public class Data
 		{
-			public readonly string Id;
+			public string Id => ViewModel.ToId(Member);
 			public readonly CodeControlTrack Track;
 			public readonly PlayableDirector Director;
 			public readonly ClipInfoViewModel ViewModel;
 			public readonly Type Type;
-			public readonly EditorCurveBinding[] Bindings;
 			public readonly TimelineClip TimelineClip;
-			public readonly string Path;
-			public readonly MemberInfo Member;
-			public readonly Type MemberType;
 			public readonly PlayableAsset Asset;
+
+			public MemberInfo Member;
+			public Type MemberType;
+			public string TransformPath;
+
+#if UNITY_EDITOR
+			public EditorCurveBinding[] Bindings;
+#endif
 
 			public IEnumerable<string> EnumerateFormerNames(bool id)
 			{
@@ -52,28 +55,22 @@ namespace Needle.Timeline
 				PlayableDirector director,
 				ClipInfoViewModel viewModel,
 				Type type,
-				EditorCurveBinding[] bindings,
 				TimelineClip timelineClip,
-				string path,
-				MemberInfo member,
-				Type memberType,
 				PlayableAsset asset
 			)
 			{
-				this.Id = viewModel.Id + "_" + member.Name;
 				Track = track;
 				Director = director;
 				ViewModel = viewModel;
 				Type = type;
-				Bindings = bindings;
 				TimelineClip = timelineClip;
-				Path = path;
-				Member = member;
-				MemberType = memberType;
 				this.Asset = asset;
 			}
 		}
-		
+
+		public static string ToId(this ClipInfoViewModel vm, ICustomClip clip) => vm.Id + "_" + clip.Id;
+		public static string ToId(this ClipInfoViewModel vm, MemberInfo member) => vm.Id + "_" + member.Name;
+
 		public enum CreationResult
 		{
 			None = 0,
@@ -103,21 +100,25 @@ namespace Needle.Timeline
 				if (res == CreationResult.Successful) return res;
 
 				res = CreateCustomAnimationCurve(attribute, data, context, out var clip);
-				if (clip != null) 
+				if (clip != null)
 				{
 					void OnClipOnChanged()
 					{
 						if (!data.Track)
 						{
-							clip.Changed -= OnClipOnChanged; 
+							clip.Changed -= OnClipOnChanged;
 							return;
 						}
 						// Debug.Log("clip changed");
+#if UNITY_EDITOR
 						EditorUtility.SetDirty(data.Track);
+#endif
 						// TODO: figure out if we really need this
 						data.Track.dirtyCount = (data.Track.dirtyCount + 1) % uint.MaxValue;
 						data.Director.Evaluate();
+#if UNITY_EDITOR
 						TimelineWindowUtil.TryRepaint();
+#endif
 					}
 
 					clip.Changed += OnClipOnChanged;
@@ -131,13 +132,14 @@ namespace Needle.Timeline
 			curve = default;
 			if (attribute == null) return CreationResult.NotMarked;
 
-			var name = data.Member.Name;//.ToLowerInvariant();
+			var name = data.Member.Name; //.ToLowerInvariant();
 			// var ser = new JsonSerializer();
 
 			var curveType = typeof(CustomAnimationCurve<>).MakeGenericType(data.MemberType);
 			try
 			{
 				var loader = context.Loader;
+				if (loader == null) throw new Exception("CurveBuilderContext has no loader");
 				var serContext = new SerializationContext(data.TimelineClip);
 				serContext.Type = curveType;
 				var successfullyLoaded = loader.Load(data.Id, serContext, out var result);
@@ -148,7 +150,7 @@ namespace Needle.Timeline
 						successfullyLoaded = loader.Load(former, serContext, out result);
 						if (successfullyLoaded)
 						{
-							Debug.Log("<b>FOUND FORMERLY SERIALIZED</b>: " + former + " is now "  + data.Member.Name);
+							Debug.Log("<b>FOUND FORMERLY SERIALIZED</b>: " + former + " is now " + data.Member.Name);
 							if (!loader.Rename(former, data.Id, serContext))
 							{
 								Debug.LogError("Failed updating former name for " + data.Member.Name + ", is this Id already assigned?");
@@ -157,7 +159,7 @@ namespace Needle.Timeline
 						}
 					}
 				}
-				else if(!(result is ICustomClip)) throw new Exception("Loading succeeded but result is not a custom clip");
+				else if (!(result is ICustomClip)) throw new Exception("Loading succeeded but result is not a custom clip");
 
 				curve = result as ICustomClip;
 			}
@@ -175,7 +177,7 @@ namespace Needle.Timeline
 			if (curve == null)
 				return CreationResult.Failed;
 
-			
+
 			if (curve is IHasInterpolator i)
 			{
 				if (InterpolatorBuilder.TryFindInterpolator(attribute, data.MemberType, out var interpolator))
@@ -210,6 +212,7 @@ namespace Needle.Timeline
 
 		private static CreationResult CreateAnimationCurve([CanBeNull] AnimateAttribute attribute, Data data)
 		{
+#if UNITY_EDITOR
 			if (!animationCurveTypes.Contains(data.MemberType))
 			{
 				if (attribute == null) return CreationResult.NotMarked;
@@ -253,10 +256,10 @@ namespace Needle.Timeline
 			{
 				Debug.Log("Create curve: " + data.Member.Name);
 				var curve = new AnimationCurve();
-				data.ViewModel.AnimationClip.SetCurve(data.Path, data.Type, data.Member.Name, curve);
+				data.ViewModel.AnimationClip.SetCurve(data.TransformPath, data.Type, data.Member.Name, curve);
 				binding.propertyName = data.Member.Name;
 				binding.type = data.Type;
-				binding.path = data.Path;
+				binding.path = data.TransformPath;
 			}
 
 			// Debug.Log(data.Member.Name + " on <b>" + data.ViewModel.Script?.GetType() + "</b>");
@@ -266,6 +269,10 @@ namespace Needle.Timeline
 			var animationCurve = new AnimationCurveWrapper(() => AnimationUtility.GetEditorCurve(clip, binding), data.Member.Name);
 			data.ViewModel.Register(handler, animationCurve);
 			return CreationResult.Successful;
+#else
+			Debug.LogError("Not implemented");
+			return CreationResult.Failed;
+#endif
 		}
 
 		private static List<Vector3> GetPointsList(int count)

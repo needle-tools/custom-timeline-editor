@@ -2,8 +2,6 @@
 using System.Linq;
 using Unity.Profiling;
 using UnityEditor;
-using UnityEditor.Profiling;
-using UnityEngine;
 using UnityEngine.Playables;
 
 namespace Needle.Timeline

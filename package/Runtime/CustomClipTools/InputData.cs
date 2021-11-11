@@ -81,6 +81,7 @@ namespace Needle.Timeline
 			{
 				DeltaWorld = null;
 				LastWorldPosition = WorldPosition;
+				#if UNITY_EDITOR
 				var sceneView = SceneView.lastActiveSceneView;
 				var cur = Camera.current;
 				if (sceneView.camera == cur)
@@ -90,8 +91,10 @@ namespace Needle.Timeline
 					else WorldNormal = (cur.transform.position - WorldPosition).Value.normalized;
 				}
 				else
+				#endif
 				{
-					WorldPosition = PlaneUtils.GetPointInWorld(cur, out var normal);
+					var camera = Camera.current;
+					WorldPosition = PlaneUtils.GetPointInWorld(camera, out var normal);
 					WorldNormal = normal;
 				}
 				// Debug.DrawLine(WorldPosition.Value, WorldPosition.Value + WorldNormal.Value, Color.white, 1);

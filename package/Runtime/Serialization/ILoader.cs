@@ -10,6 +10,7 @@ namespace Needle.Timeline
 		bool Save(string id, ISerializationContext context, object @object);
 		bool Load(string id, ISerializationContext context, out object obj);
 		bool Rename(string oldId, string newId, ISerializationContext context);
+		// TODO: add and handle delete
 	}
 
 	public class LoadersRegistry : ImplementorsRegistry<ILoader>
@@ -19,7 +20,7 @@ namespace Needle.Timeline
 		
 		public static ILoader GetDefault()
 		{ 
-			if (_instance.TryGetInstance(l => l is AssetDatabaseLoader, out var i, _args))
+			if (_instance.TryGetInstance(l => l.GetType().Name == "AssetDatabaseLoader", out var i, _args))
 				return i; 
 			return null;
 		}

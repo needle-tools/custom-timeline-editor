@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Needle.Timeline.Serialization;
 using Unity.Profiling;
 using UnityEngine;
 using UnityEngine.Playables;
@@ -42,6 +41,7 @@ namespace Needle.Timeline
 
 		internal void Save()
 		{
+			// TODO: handle delete (remove serialized data)
 			// TODO: how can we prevent override by accident -> e.g. field name Point and point
 
 			var loader = LoadersRegistry.GetDefault();
@@ -58,8 +58,8 @@ namespace Needle.Timeline
 		}
 
 		internal const bool IsUsingMixer = true;
- 
-		[SerializeField, HideInInspector] internal uint dirtyCount; 
+
+		[SerializeField, HideInInspector] internal uint dirtyCount;
 		[SerializeField, HideInInspector] private List<ClipInfoModel> clips = new List<ClipInfoModel>();
 		[NonSerialized] private readonly List<ClipInfoViewModel> viewModels = new List<ClipInfoViewModel>();
 		internal IReadOnlyList<ClipInfoViewModel> ViewModels => viewModels;
@@ -79,7 +79,7 @@ namespace Needle.Timeline
 		/// For id generation per gameobject / type
 		/// </summary>
 		private readonly List<(string type, int index)> componentTypeIndices = new List<(string, int)>();
-		
+
 		protected override Playable CreatePlayable(PlayableGraph graph, GameObject gameObject, TimelineClip timelineClip)
 		{
 			using (CreateTrackMarker.Auto())
@@ -87,8 +87,11 @@ namespace Needle.Timeline
 				viewModels.RemoveAll(vm => !vm.IsValid);
 
 				var dir = gameObject.GetComponent<PlayableDirector>();
+				
+				#if UNITY_EDITOR
 				var assetPath = AssetDatabase.GetAssetPath(dir.playableAsset);
 				UnitySaveUtil.Register(this, assetPath);
+				#endif
 
 				var boundObject = dir.GetGenericBinding(this) as MonoBehaviour;
 				if (!boundObject) return Playable.Null;
@@ -98,14 +101,21 @@ namespace Needle.Timeline
 				asset.name = gameObject.name;
 				asset.viewModels?.RemoveAll(vm => !vm.IsValid);
 
+#if UNITY_EDITOR
 				Debug.Log("Create " + asset + ", " + viewModels.Count + ", " + AssetDatabase.GetAssetPath(asset), asset);
+#endif
 
 				var animationComponents = boundObject.GetComponents<IAnimated>();
 				if (animationComponents.Length <= 0) return Playable.Null;
 
 
+				#if UNITY_EDITOR
 				AssetDatabase.TryGetGUIDAndLocalFileIdentifier(asset.GetInstanceID(), out var guid, out long _id);
 				var id = guid + "@" + _id;
+				asset.id = id;
+				#else
+				string id = asset.id;
+				#endif
 
 				// Debug.Log("<b>Create Playable</b> " + boundObject, timelineClip.asset);
 				timelineClip.CreateCurves(id);
@@ -160,29 +170,35 @@ namespace Needle.Timeline
 						asset.viewModels.Add(viewModel);
 					viewModels.Add(viewModel);
 
-					var animationClip = timelineClip.curves;
-					var clipBindings = AnimationUtility.GetCurveBindings(animationClip);
-					var path = AnimationUtility.CalculateTransformPath(boundObject.transform, null);
-
-					// TODO: handle formerly serialized name
 
 					var context = new AnimationCurveBuilder.Context(LoadersRegistry.GetDefault());
 
 					var fields = type.GetFields(DefaultFlags);
+					var data = new AnimationCurveBuilder.Data(this, dir, viewModel, type, timelineClip, dir.playableAsset);
+
+					// TODO: make animation curves work for runtime
+#if UNITY_EDITOR
+					var animationClip = timelineClip.curves;
+					var clipBindings = AnimationUtility.GetCurveBindings(animationClip);
+					var path = AnimationUtility.CalculateTransformPath(boundObject.transform, null);
+					data.TransformPath = path;
+					data.Bindings = clipBindings;
+#endif
+
 					foreach (var field in fields)
 					{
-						var data = new AnimationCurveBuilder.Data(this, dir, viewModel, type, clipBindings, timelineClip, path,
-							field, field.FieldType, dir.playableAsset);
-						if (AnimationCurveBuilder.Create(data, context) == AnimationCurveBuilder.CreationResult.Failed)
+						data.Member = field;
+						data.MemberType = field.FieldType;
+						if (AnimationCurveBuilder.Create(data, context) is AnimationCurveBuilder.CreationResult.Failed)
 							OnFailedCreatingCurves(field.FieldType);
 					}
 
 					var properties = type.GetProperties(DefaultFlags);
 					foreach (var prop in properties)
 					{
-						var data = new AnimationCurveBuilder.Data(this, dir, viewModel, type, clipBindings, timelineClip, path,
-							prop, prop.PropertyType, dir.playableAsset);
-						if (AnimationCurveBuilder.Create(data, context) == AnimationCurveBuilder.CreationResult.Failed)
+						data.Member = prop;
+						data.MemberType = prop.PropertyType;
+						if (AnimationCurveBuilder.Create(data, context) is AnimationCurveBuilder.CreationResult.Failed)
 							OnFailedCreatingCurves(prop.PropertyType);
 					}
 				}

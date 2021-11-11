@@ -61,7 +61,7 @@ namespace Needle.Timeline
 		{
 			if (cache == null)
 			{
-				var types = RuntimeTypeCache.GetTypesDerivingFrom<IShaderValueConversionHandler>().ToArray();
+				var types = RuntimeTypeCache.GetTypesDerivedFrom<IShaderValueConversionHandler>().ToArray();
 				cache = new Implementation[types.Length];
 				var index = 0;
 				foreach (var t in types)

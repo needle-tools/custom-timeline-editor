@@ -41,7 +41,11 @@ namespace Needle.Timeline
 
 		public static Task RequestBuffer(this IAnimated _, float duration = 10)
 		{
+#if UNITY_EDITOR
 			return TimelineBuffer.RequestBufferCurrentInspectedTimeline(duration);
+#else
+			return Task.CompletedTask;
+#endif
 		}
 
 		private static float time;
@@ -55,7 +59,7 @@ namespace Needle.Timeline
 		}
 
 		public static float DeltaTime(this IAnimated _) => deltaTime;
-		
+
 		public static void SetTime(this IAnimated _, ComputeShader shader)
 		{
 			var vec = new Vector4(time, Mathf.Sin(time), Mathf.Cos(time), deltaTime);

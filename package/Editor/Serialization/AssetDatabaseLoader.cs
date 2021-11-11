@@ -7,6 +7,7 @@ namespace Needle.Timeline
 {
 	public class AssetDatabaseLoader : ILoader
 	{
+		// TODO: should be only visible during dev
 		internal HideFlags Flags = HideFlags.NotEditable;
 		
 		private JsonSerializer serializer;

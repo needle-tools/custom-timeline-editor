@@ -28,11 +28,17 @@ namespace Needle.Timeline
 			}
 		}
 
-		public static IEnumerable<Type> GetTypesDerivingFrom<T>()
+		public static IEnumerable<Type> GetTypesDerivedFrom<T>()
+		{
+			return GetTypesDerivedFrom(typeof(T));
+		}
+		
+		
+		public static IEnumerable<Type> GetTypesDerivedFrom(Type type)
 		{
 			foreach (var t in Types)
 			{
-				if (typeof(T).IsAssignableFrom(t)) yield return t;
+				if (type.IsAssignableFrom(t)) yield return t;
 			}
 		}
 	}

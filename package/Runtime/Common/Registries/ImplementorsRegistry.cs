@@ -80,7 +80,7 @@ namespace Needle.Timeline
 			if (cache == null)
 			{
 				var list = new List<Type>();
-				foreach (var t in RuntimeTypeCache.GetTypesDerivingFrom<T>())
+				foreach (var t in RuntimeTypeCache.GetTypesDerivedFrom<T>())
 				{
 					if (t.IsAbstract || t.IsInterface) continue;
 					list.Add(t);

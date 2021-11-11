@@ -15,7 +15,7 @@ namespace Needle.Timeline
 				if (!modulesInit)
 				{
 					modulesInit = true;
-					foreach (var mod in RuntimeTypeCache.GetTypesDerivingFrom<ToolModule>())
+					foreach (var mod in RuntimeTypeCache.GetTypesDerivedFrom<ToolModule>())
 					{
 						if (mod.IsAbstract || mod.IsInterface) continue;
 						if (Activator.CreateInstance(mod) is ToolModule moduleInstance)

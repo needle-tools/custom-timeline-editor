@@ -12,6 +12,8 @@ namespace Needle.Timeline
 		[SerializeField, HideInInspector]
 		private CodeControlBehaviour template;
 
+		internal string id;
+
 		internal readonly List<ClipInfoViewModel> viewModels = new List<ClipInfoViewModel>();
 
 		public override Playable CreatePlayable(PlayableGraph graph, GameObject owner)

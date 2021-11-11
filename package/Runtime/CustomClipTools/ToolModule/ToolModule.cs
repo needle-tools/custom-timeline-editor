@@ -14,7 +14,7 @@ namespace Needle.Timeline
 		bool AllowBinding { get; }
 		internal List<IViewFieldBinding> Bindings { get; }
 	}
-	
+
 	public abstract class ToolModule : IToolModule, IBindsFields
 	{
 		/// <summary>
@@ -25,7 +25,7 @@ namespace Needle.Timeline
 		public bool AllowBinding { get; protected set; } = false;
 		List<IViewFieldBinding> IBindsFields.Bindings { get; } = new List<IViewFieldBinding>();
 		private static ProfilerMarker _bindingMarker = new ProfilerMarker("ToolModule.ApplyBinding");
-		
+
 		protected virtual bool ApplyBinding(object obj, float weight, MemberInfo? member = null)
 		{
 			if (!AllowBinding) return false;
@@ -46,7 +46,7 @@ namespace Needle.Timeline
 					{
 						var type = viewValue.GetType();
 						if (interpolateCache.TryGetValue(type, out var interpolatable))
-						{	
+						{
 							// using cached interpolator if exists
 						}
 						else
@@ -55,10 +55,10 @@ namespace Needle.Timeline
 								interpolateCache.Add(type, interpolatable);
 							else interpolateCache.Add(type, null);
 						}
-						if(interpolatable != null)
+						if (interpolatable != null)
 							interpolatable.Interpolate(ref viewValue, field.GetValue(obj), viewValue, weight);
 					}
-				
+
 					field.SetValue(obj, viewValue);
 				}
 			}
@@ -66,10 +66,9 @@ namespace Needle.Timeline
 		}
 
 		public abstract bool CanModify(Type type);
-		
+
 		public virtual void Reset()
-		{ 
-			
+		{
 		}
 
 		public virtual bool WantsInput(InputData input)
@@ -82,8 +81,10 @@ namespace Needle.Timeline
 		{
 			if (input.WorldPosition != null)
 			{
+#if UNITY_EDITOR
 				Handles.color = new Color(.5f, .5f, .5f, .5f);
 				Handles.DrawWireDisc(input.WorldPosition.Value, input.WorldNormal!.Value, GetRadius());
+#endif
 				Gizmos.color = Color.green;
 				GizmoUtils.DrawArrow(input.WorldPosition.Value, input.WorldPosition.Value + input.WorldNormal.Value);
 				// Handles.DrawWireDisc(input.WorldPosition.Value, Camera.current.transform.forward, 1);
@@ -97,7 +98,7 @@ namespace Needle.Timeline
 		protected virtual float GetRadius()
 		{
 			if (radiusField != null) return (float)radiusField.GetValue(this);
-			if (didSearchRadius) return .1f; 
+			if (didSearchRadius) return .1f;
 			didSearchRadius = true;
 			foreach (var field in GetType().GetRuntimeFields())
 			{

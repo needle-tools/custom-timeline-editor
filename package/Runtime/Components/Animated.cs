@@ -32,16 +32,18 @@ namespace Needle.Timeline
 
 		private void OnShaderChanged(ComputeShader obj)
 		{
+#if UNITY_EDITOR
 			if (!obj) return;
 			if (shaderInfos.Any(s => s != null && s.Shader == obj))
 			{
 				didSearchFields = false;
-				
+
 #pragma warning disable CS4014
 				TimelineBuffer.RequestBufferCurrentInspectedTimeline();
 #pragma warning restore CS4014
 				// OnInternalEvaluate();
 			}
+#endif
 		}
 
 		private void InternalInit()
@@ -129,6 +131,7 @@ namespace Needle.Timeline
 		}
 
 		private bool requestedEvaluation;
+
 		protected async void OnRequestEvaluation()
 		{
 			if (requestedEvaluation) return;
@@ -148,12 +151,12 @@ namespace Needle.Timeline
 
 				void BeforeDispatch()
 				{
-					if(!didDispatchAny)
+					if (!didDispatchAny)
 						OnBeforeDispatching();
 					didDispatchAny = true;
 				}
-				
-				
+
+
 				foreach (var dispatch in OnDispatch())
 				{
 					BeforeDispatch();
@@ -184,7 +187,7 @@ namespace Needle.Timeline
 								break;
 							}
 						}
-						
+
 						foreach (var k in shader.Kernels)
 						{
 							BeforeDispatch();
@@ -199,12 +202,10 @@ namespace Needle.Timeline
 					OnAfterEvaluation();
 				}
 			}
-			
 		}
-		
+
 		protected virtual void OnBeforeDispatching()
 		{
-			
 		}
 
 		protected virtual void OnDispatched(DispatchInfo info)

@@ -15,7 +15,7 @@ namespace Needle.Timeline
 			int Ordering(MemberInfo t) => t.GetCustomAttribute<Priority>()?.Rating ?? 0;
 			
 			// first check if we have a concrete implementation
-			foreach (var t in TypeCache.GetTypesDerivedFrom(genericType).OrderByDescending(Ordering))
+			foreach (var t in RuntimeTypeCache.GetTypesDerivedFrom(genericType).OrderByDescending(Ordering))
 			{
 				if (t.IsAbstract || t.IsInterface) continue;
 				if (t.GetCustomAttribute<NoAutoSelect>() != null) continue;  
@@ -31,7 +31,7 @@ namespace Needle.Timeline
 			}
 
 
-			foreach (var t in TypeCache.GetTypesDerivedFrom(typeof(IInterpolatable)).OrderByDescending(Ordering))
+			foreach (var t in RuntimeTypeCache.GetTypesDerivedFrom(typeof(IInterpolatable)).OrderByDescending(Ordering))
 			{ 
 				var sup = t.GetCustomAttribute<InterpolatableAttribute>();
 				if (sup == null) continue;
@@ -72,7 +72,7 @@ namespace Needle.Timeline
 			var genericInterpolatorType = typeof(IInterpolator<>).MakeGenericType(memberType);
 			int Ordering(Type t) => t.GetCustomAttribute<Priority>()?.Rating ?? 0;
 
-			foreach (var t in TypeCache.GetTypesDerivedFrom(genericInterpolatorType).OrderByDescending(Ordering))
+			foreach (var t in RuntimeTypeCache.GetTypesDerivedFrom(genericInterpolatorType).OrderByDescending(Ordering))
 			{
 				if (t.IsAbstract || t.IsInterface) continue;
 				if (t.GetCustomAttribute<NoAutoSelect>() != null) continue;
@@ -91,7 +91,7 @@ namespace Needle.Timeline
 			}
 
 
-			foreach (var type in TypeCache.GetTypesDerivedFrom(typeof(IInterpolator)).OrderByDescending(Ordering))
+			foreach (var type in RuntimeTypeCache.GetTypesDerivedFrom(typeof(IInterpolator)).OrderByDescending(Ordering))
 			{
 				if (type.IsAbstract || type.IsInterface) continue;
 				if (typeof(ICustomClip).IsAssignableFrom(type)) continue;
