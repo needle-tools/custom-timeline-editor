@@ -2,16 +2,23 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
+using Needle.Timeline.CurveModifiers;
 using Newtonsoft.Json;
 using Unity.Profiling;
 using UnityEngine;
 
 namespace Needle.Timeline
 {
-	public class CustomAnimationCurve<T> : ICustomClip<T>, IInterpolator<T>, IKeyframesProvider, IHasInterpolator, IRecordable
+	public class CustomAnimationCurve<T> 
+		: ICustomClip<T>, IInterpolator<T>, IKeyframesProvider, IHasInterpolator
 	{
 		private IInterpolator _interpolator;
+		private readonly List<ICurveEasing> _modifiers;
 		private readonly List<ICustomKeyframe<T>> _keyframes;
+		
+		[JsonIgnore] private ICurveEasing _easingDefault = new QuadraticInOutModifier();
+		
 		private readonly ProfilerMarker _evaluateMarker = new ProfilerMarker("CustomAnimationCurve Evaluate " + typeof(T));
 		private readonly ProfilerMarker _interpolationMarker = new ProfilerMarker("CustomAnimationCurve Interpolate " + typeof(T));
 
@@ -57,7 +64,7 @@ namespace Needle.Timeline
 
 		public T Interpolate(T v0, T v1, float t)
 		{
-			_interpolator.Instance = ViewModel?.Script;
+			// _interpolator.Instance = ViewModel?.Script;
 			return (T)_interpolator.Interpolate(v0, v1, t);
 		}
 
@@ -79,6 +86,7 @@ namespace Needle.Timeline
 			this._interpolator = null;
 			this._keyframes = new List<ICustomKeyframe<T>>();
 		}
+
 
 		public T Evaluate(float time)
 		{
@@ -102,10 +110,10 @@ namespace Needle.Timeline
 						// if the next keyframe is also <= time we have not found the closest keyframe yet
 						if (next.time < time) continue;
 						// interpolate between this and the next keyframe
-						var t = GetPosition01(time, current.time, next.time);
+						var t = GetPosition01(time, current.time, next.time, _easingDefault);
 						using (_interpolationMarker.Auto())
 						{
-							_interpolator.Instance = ViewModel?.Script;
+							// _interpolator.Instance = ViewModel?.Script;
 							var res = _interpolator.Interpolate(current.value, next.value, t);
 							return (T)res;
 						} 
@@ -238,12 +246,14 @@ namespace Needle.Timeline
 			_keyframes.Sort((k1, k2) => Mathf.RoundToInt((k1.time - k2.time) * 100_00));
 		}
 
-		private static float GetPosition01(float current, float start, float end)
+		private static float GetPosition01(float value, float start, float end, IFloatModifier easing = null)
 		{
 			var diff = end - start;
-			current -= start;
-			current /= diff;
-			return current;
+			value -= start;
+			value /= diff;
+			if (easing != null)
+				value = easing.Modify(value);
+			return value;
 		}
 
 	}
