@@ -171,7 +171,9 @@ namespace Needle.Timeline
 					viewModels.Add(viewModel);
 
 
-					var context = new AnimationCurveBuilder.Context(LoadersRegistry.GetDefault());
+					var loader = LoadersRegistry.GetDefault();
+					if (loader == null) throw new Exception("Missing default loader");
+					var context = new AnimationCurveBuilder.Context();
 
 					var fields = type.GetFields(DefaultFlags);
 					var data = new AnimationCurveBuilder.Data(this, dir, viewModel, type, timelineClip, dir.playableAsset);
