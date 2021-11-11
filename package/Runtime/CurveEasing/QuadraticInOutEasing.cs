@@ -1,6 +1,6 @@
-﻿namespace Needle.Timeline.CurveModifiers
+﻿namespace Needle.Timeline.CurveEasing
 {
-	public class QuadraticInOutModifier : ICurveEasing
+	public class QuadraticInOutEasing : ICurveEasing
 	{
 		public float Modify(float value)
 		{

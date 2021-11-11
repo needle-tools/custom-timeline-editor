@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using Needle.Timeline.CurveModifiers;
+using Needle.Timeline.CurveEasing;
 using Newtonsoft.Json;
 using Unity.Profiling;
 using UnityEngine;
@@ -17,7 +17,7 @@ namespace Needle.Timeline
 		private readonly List<ICurveEasing> _modifiers;
 		private readonly List<ICustomKeyframe<T>> _keyframes;
 		
-		[JsonIgnore] private ICurveEasing _easingDefault = new QuadraticInOutModifier();
+		[JsonIgnore] private ICurveEasing _easingDefault = new QuadraticInOutEasing();
 		
 		private readonly ProfilerMarker _evaluateMarker = new ProfilerMarker("CustomAnimationCurve Evaluate " + typeof(T));
 		private readonly ProfilerMarker _interpolationMarker = new ProfilerMarker("CustomAnimationCurve Interpolate " + typeof(T));
