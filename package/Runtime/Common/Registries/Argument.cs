@@ -1,6 +1,7 @@
 ﻿#nullable enable
 using System;
 using System.Collections;
+using System.Reflection;
 
 namespace Needle.Timeline
 {
@@ -34,7 +35,12 @@ namespace Needle.Timeline
 			Value = value;
 			this.strictType = strictType;
 			if (!Type.IsInstanceOfType(value))
-				throw new Exception("Type value mismatch");
+				ThrowHelper.Throw("Type value mismatch");
+		}
+		
+		public static implicit operator Argument((string? name, object value) obj)
+		{
+			return new Argument(obj.name, obj.value);
 		}
 	}
 }

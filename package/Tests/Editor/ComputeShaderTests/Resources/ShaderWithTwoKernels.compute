@@ -7,7 +7,7 @@ void CSMain(uint3 id : SV_DispatchThreadID)
 {
 }
 
-[numthreads(8,24,32)]
+[numthreads(8,12,16)]
 void CSMain2(uint3 id : SV_DispatchThreadID)
 {
 }

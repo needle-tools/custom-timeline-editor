@@ -6,7 +6,10 @@ namespace Needle.Timeline
 	public class LoadersRegistry : ImplementorsRegistry<ILoader>
 	{
 		private static readonly LoadersRegistry _instance = new LoadersRegistry();
-		private static readonly IList<IArgument> _args = new List<IArgument>() { new Argument(null, new JsonSerializer()) };
+		private static readonly IList<IArgument> _args = new List<IArgument>
+		{
+			new JsonSerializer().AsArg(),
+		};
 		
 		public static ILoader GetDefault()
 		{ 

@@ -54,7 +54,7 @@ namespace Needle.Timeline.Tests.Bind_ComputeShaderTests
 			Assert.AreEqual(0, shaderInfo.Fields.Count);
 			Assert.AreEqual(0, shaderInfo.Structs.Count);
 			Assert.AreEqual(new Vector3Int(1, 1, 128), shaderInfo.Kernels[0].Threads, shaderInfo.Kernels[0].ToString());
-			Assert.AreEqual(new Vector3Int(8, 24, 32), shaderInfo.Kernels[1].Threads, shaderInfo.Kernels[1].ToString());
+			Assert.AreEqual(new Vector3Int(8, 12, 16), shaderInfo.Kernels[1].Threads, shaderInfo.Kernels[1].ToString());
 			Assert.AreEqual(0, shaderInfo.Kernels![0].Index);
 			Assert.AreEqual(1, shaderInfo.Kernels![1].Index);
 		}

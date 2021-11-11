@@ -6,6 +6,11 @@ namespace Needle.Timeline
 {
 	public static class ArgumentExtensions
 	{
+		public static IArgument AsArg(this object obj, string name = null)
+		{
+			return new Argument(name, obj);
+		}
+		
 		public static bool TryFind(this IList<IArgument> args, string name, Type type, out IArgument arg)
 		{
 			for (var index = 0; index < args.Count; index++)
@@ -26,7 +31,6 @@ namespace Needle.Timeline
 			return args.Select(a => a.Value).ToArray();
 		}
 
-
 		public static bool TryCreateInstance<T>(IList<IArgument>? args, out T instance)
 		{
 			if (TryCreateInstance(typeof(T), args, out var i))
@@ -42,7 +46,7 @@ namespace Needle.Timeline
 		{
 			if (type.IsAbstract || type.IsInterface)
 			{
-				throw new Exception("Invalid type (abstract or interface?): " + type.FullName);
+				ThrowHelper.Throw("Invalid type (abstract or interface?): " + type.FullName);
 			}
 
 			var hasDefaultConstructor = false;
