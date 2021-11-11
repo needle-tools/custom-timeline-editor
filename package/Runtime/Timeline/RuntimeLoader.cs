@@ -4,7 +4,7 @@ using UnityEngine.Timeline;
 
 namespace Needle.Timeline
 {
-	[Priority(10)]
+	[Priority(0)]
 	public class RuntimeLoader : ILoader
 	{
 		private ISerializer serializer;
