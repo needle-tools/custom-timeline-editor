@@ -9,10 +9,10 @@ namespace Needle.Timeline
 	[Serializable]
 	public class CodeControlAsset : PlayableAsset, ITimelineClipAsset
 	{
-		[SerializeField, HideInInspector]
-		private CodeControlBehaviour template;
+		[SerializeField, HideInInspector] private CodeControlBehaviour template;
 
-		internal string id;
+		[SerializeField] internal string id;
+		[SerializeField] private List<JsonContainer> clipData = new List<JsonContainer>();
 
 		internal readonly List<ClipInfoViewModel> viewModels = new List<ClipInfoViewModel>();
 
@@ -22,9 +22,25 @@ namespace Needle.Timeline
 			var b = scriptPlayable.GetBehaviour();
 			b.viewModels = viewModels;
 			// Debug.Log("Create Playable: " + b.viewModels.Count);
-			return scriptPlayable; 
+			return scriptPlayable;
 		}
 
-		public ClipCaps clipCaps => ClipCaps.All; 
+		public ClipCaps clipCaps => ClipCaps.All;
+
+		internal JsonContainer TryFind(string clipId)
+		{
+			foreach (var e in clipData)
+			{
+				if (e.Id == clipId) return e;
+			}
+			return null;
+		}
+
+		internal void AddOrUpdate(JsonContainer container)
+		{
+			clipData.RemoveAll(c => !c);
+			if (clipData.Contains(container)) return;
+			clipData.Add(container);
+		}
 	}
 }

@@ -48,7 +48,7 @@ namespace Needle.Timeline
 			foreach (var viewModel in viewModels)
 			{
 				if (!viewModel.IsValid) continue;
-				var context = new SerializationContext(viewModel.TimelineClip);
+				var context = new SerializationContext(viewModel.TimelineClip, viewModel.asset);
 				foreach (var clip in viewModel.clips)
 				{
 					context.DisplayName = clip.Name;
@@ -160,6 +160,7 @@ namespace Needle.Timeline
 					// Debug.Log("existing?? " + existing); 
 					var viewModel = existing ?? new ClipInfoViewModel(boundObject.name, script, model, timelineClip);
 					viewModel.director = dir;
+					viewModel.asset = asset;
 					if (existing != null)
 					{
 						// Debug.Log("VM exists: " + id);
@@ -176,7 +177,7 @@ namespace Needle.Timeline
 					var context = new AnimationCurveBuilder.Context(loader);
 
 					var fields = type.GetFields(DefaultFlags);
-					var data = new AnimationCurveBuilder.Data(this, dir, viewModel, type, timelineClip, dir.playableAsset);
+					var data = new AnimationCurveBuilder.Data(this, asset, dir, viewModel, type, timelineClip, dir.playableAsset);
 
 					// TODO: make animation curves work for runtime
 #if UNITY_EDITOR

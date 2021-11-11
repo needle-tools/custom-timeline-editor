@@ -1,6 +1,6 @@
 ﻿#nullable enable
 using System;
-using JetBrains.Annotations;
+using UnityEngine.Playables;
 using UnityEngine.Timeline;
 
 namespace Needle.Timeline
@@ -10,5 +10,6 @@ namespace Needle.Timeline
 		string? DisplayName { get; }
 		TimelineClip Clip { get; }	
 		Type Type { get; }
+		PlayableAsset Asset { get; }
 	}
 }

@@ -2,6 +2,7 @@
 using Needle.Timeline.Serialization;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Playables;
 
 namespace Needle.Timeline
 {
@@ -46,6 +47,7 @@ namespace Needle.Timeline
 					json.Content = (string)serializer.Serialize(@object);
 					json.hideFlags = Flags;
 					EditorUtility.SetDirty(asset);
+					SaveForRuntime(json, context.Asset);
 					return !string.IsNullOrWhiteSpace(json.Content);
 				}
 			}
@@ -56,6 +58,7 @@ namespace Needle.Timeline
 			container.hideFlags = Flags;
 			AssetDatabase.AddObjectToAsset(container, asset);
 			EditorUtility.SetDirty(asset);
+			SaveForRuntime(container, context.Asset);
 			return !string.IsNullOrEmpty(container.Content); 
 		}
 
@@ -106,6 +109,22 @@ namespace Needle.Timeline
 				}
 			}
 			return false;
+		}
+
+
+		private void SaveForRuntime(JsonContainer container, PlayableAsset asset)
+		{
+			SaveForRuntime(container, asset as CodeControlAsset);
+		}
+
+		private void SaveForRuntime(JsonContainer container, CodeControlAsset asset)
+		{
+			if (!asset || !container)
+			{
+				Debug.LogError("Not saved for runtime");
+				return;
+			}
+			asset.AddOrUpdate(container);
 		}
 	}
 }

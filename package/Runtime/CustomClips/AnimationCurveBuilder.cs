@@ -19,6 +19,7 @@ namespace Needle.Timeline
 		{
 			public string Id => ViewModel.ToId(Member);
 			public readonly CodeControlTrack Track;
+			public readonly CodeControlAsset TrackAsset;
 			public readonly PlayableDirector Director;
 			public readonly ClipInfoViewModel ViewModel;
 			public readonly Type Type;
@@ -52,6 +53,7 @@ namespace Needle.Timeline
 
 			public Data(
 				CodeControlTrack track,
+				CodeControlAsset trackAsset,
 				PlayableDirector director,
 				ClipInfoViewModel viewModel,
 				Type type,
@@ -60,6 +62,7 @@ namespace Needle.Timeline
 			)
 			{
 				Track = track;
+				this.TrackAsset = trackAsset;
 				Director = director;
 				ViewModel = viewModel;
 				Type = type;
@@ -140,7 +143,7 @@ namespace Needle.Timeline
 			{
 				var loader = context.Loader;
 				if (loader == null) throw new Exception("CurveBuilderContext has no loader");
-				var serContext = new SerializationContext(data.TimelineClip);
+				var serContext = new SerializationContext(data.TimelineClip, data.TrackAsset);
 				serContext.Type = curveType;
 				var successfullyLoaded = loader.Load(data.Id, serContext, out var result);
 				if (!successfullyLoaded)
@@ -171,6 +174,9 @@ namespace Needle.Timeline
 
 			if (curve == null)
 			{
+#if !UNITY_EDITOR
+				Debug.Log("Create new custom clip instance: " + curveType);
+#endif
 				curve = Activator.CreateInstance(curveType) as ICustomClip;
 			}
 
