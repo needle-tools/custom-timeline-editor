@@ -93,7 +93,7 @@ namespace Needle.Timeline
 					// bindingsContainer.Add(new Label(headerText));
 					foreach (var field in t.Clip.EnumerateFields())
 					{ 
-						if (ControlsFactory.TryBuildBinding(this, field, t, bindable, out var handler))
+						if (ControlsFactory.TryBuildBinding(field, t, bindable, out var handler))
 						{
 							if (foldout == null)
 							{

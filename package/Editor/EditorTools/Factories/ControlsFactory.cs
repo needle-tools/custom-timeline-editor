@@ -36,7 +36,7 @@ namespace Needle.Timeline
 		}
 
 
-		public static bool TryBuildBinding(ModuleViewController viewController, FieldInfo field, ToolTarget target, IBindsFields bindable, out ViewValueBindingController? res)
+		public static bool TryBuildBinding(FieldInfo field, ToolTarget target, IBindsFields bindable, out ViewValueBindingController? res)
 		{
 			if (field.IsStatic)
 			{
@@ -54,17 +54,6 @@ namespace Needle.Timeline
 			res.ViewElement = res.BuildControl();
 			res.Init();
 			bindable.Bindings.Add(res);
-			// res = binding; 
-			// CreateFieldView(field, binding);
-			//
-			// if (binding.ViewElement == null)
-			// {
-			// 	Debug.LogWarning("Did not find handler for " + field.FieldType);
-			// 	return false;
-			// }
-			//
-			// binding.Enabled = true;
-			// bindable.Bindings.Add(binding);
 			return res.ViewElement != null;
 		}
 
