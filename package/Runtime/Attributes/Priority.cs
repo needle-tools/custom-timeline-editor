@@ -2,7 +2,7 @@
 
 namespace Needle.Timeline
 {
-	public class Priority : Attribute
+	public class Priority : Attribute, IPriority
 	{
 		/// <summary>
 		/// Higher rating is chosen earlier
@@ -12,6 +12,12 @@ namespace Needle.Timeline
 		public Priority(int rating)
 		{
 			Rating = rating;
+		}
+
+		int IPriority.Priority
+		{
+			get => Rating; 
+			set => throw new NotSupportedException();
 		}
 	}
 }
