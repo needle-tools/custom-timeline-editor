@@ -1,0 +1,323 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Needle.Timeline.CurveEasing;
+using UnityEditor;
+using UnityEditor.Timeline;
+using UnityEngine;
+using UnityEngine.Timeline;
+using Task = System.Threading.Tasks.Task;
+
+namespace Needle.Timeline.Editors.CustomCurve
+{
+	[CustomTimelineEditor(typeof(CodeControlTrack))]
+	public class CustomCurvesEditor : UnityEditor.Timeline.CustomCurvesEditor
+	{
+		internal readonly float lineHeight = EditorGUIUtility.singleLineHeight * 1.1f;
+
+		protected override void OnDrawHeader(Rect rect)
+		{
+			customCurvesEditorHeader.OnDrawHeader(rect);
+		}
+
+		private ICustomKeyframe _dragging, _lastClicked;
+		private double _lastKeyframeClickedTime;
+		private readonly Color _keySelectedColor = new Color(1, 1, 0, .7f);
+		private readonly Color _normalColor = new Color(.8f, .8f, .8f, .4f);
+		private readonly Color _assetSelectedColor = new Color(.8f, .8f, .8f, .9f);
+		private ICustomKeyframe _copy;
+		private ICustomClip _copyClip;
+
+		private bool _isMultiSelectDragging => _dragTrack == Track;
+		private Vector2 _startDragPoint;
+		private Rect _dragRect;
+		private TrackAsset _dragTrack;
+
+		private readonly List<KeyframeModifyTime> modifyTimeActions = new List<KeyframeModifyTime>();
+		private static readonly List<DeleteKeyframe> deletionList = new List<DeleteKeyframe>();
+
+		private readonly CustomCurvesEditor_Header customCurvesEditorHeader;
+
+		public CustomCurvesEditor()
+		{
+			customCurvesEditorHeader = new CustomCurvesEditor_Header(this); 
+		}
+
+		protected override void OnDrawTrack(Rect rect)
+		{
+			
+			// GUI.DrawTexture(rect, Texture2D.whiteTexture, ScaleMode.StretchToFill, true);
+			var useEvent = false;
+			var mouseDownOnKeyframe = false;
+			var didApplyDeltaToSelectedKeyframes = false;
+			var controlId = GUIUtility.GetControlID(FocusType.Passive);
+			var evt = Event.current;
+			var evtType = evt.GetTypeForControl(controlId);
+			var mousePos = Event.current.mousePosition;
+
+			switch (evtType)
+			{
+				case EventType.MouseDown:
+					GUIUtility.hotControl = controlId;
+					// first deselect
+					if (rect.Contains(mousePos))
+					{
+						if (_isMultiSelectDragging)
+						{
+							_dragTrack = Track;
+							KeyframeSelector.Deselect();
+						}
+					}
+					break;
+				case EventType.MouseUp:
+					for (var index = modifyTimeActions.Count - 1; index >= 0; index--)
+					{
+						var mod = modifyTimeActions[index];
+						mod.IsDone = true;
+						if (Mathf.Approximately(mod.keyframe.time, mod.previousTime))
+							modifyTimeActions.RemoveAt(index);
+						else mod.newTime = mod.keyframe.time;
+					}
+					if (modifyTimeActions.Count > 0)
+						CustomUndo.Register(modifyTimeActions.ToCompound("Modify Keyframe(s) time", true));
+					modifyTimeActions.Clear();
+					break;
+
+				case EventType.MouseDrag:
+					if (_isMultiSelectDragging)
+					{
+						_dragRect.xMin = Mathf.Min(mousePos.x, _startDragPoint.x);
+						_dragRect.yMin = Mathf.Min(mousePos.y, _startDragPoint.y);
+						_dragRect.xMax = Mathf.Max(mousePos.x, _startDragPoint.x);
+						_dragRect.yMax = Mathf.Max(mousePos.y, _startDragPoint.y);
+						useEvent = true;
+					}
+					break;
+
+				case EventType.Repaint:
+					if (_isMultiSelectDragging)
+					{
+						var col = new Color(.6f, .6f, 1, .2f);
+						GUI.DrawTexture(_dragRect, Texture2D.whiteTexture, ScaleMode.StretchToFill, true, 1, col, 0, 0);
+					}
+					break;
+			}
+
+			foreach (var timelineClip in EnumerateClips())
+			{
+				if (timelineClip.asset is CodeControlAsset code)
+				{
+					var row = 0;
+					foreach (var viewModel in code.viewModels)
+					{
+						if (viewModel?.clips == null) continue;
+						foreach (var clip in viewModel.clips)
+						{
+							if (!(clip is IKeyframesProvider prov)) continue;
+							foreach (var kf in prov.Keyframes)
+							{
+								if (!GetIsInKeyframeRect(rect, timelineClip, kf, row, out var keyframeRect)) 
+									continue;
+
+								if (evt.button == 0 || evt.isKey)
+								{
+									switch (evtType)
+									{
+										case EventType.MouseDown:
+											if (keyframeRect.Contains(evt.mousePosition))
+											{
+												mouseDownOnKeyframe = true;
+												useEvent = true;
+												_dragging = kf;
+
+												if (!kf.IsSelected())
+													KeyframeSelector.Deselect();
+												kf.Select(clip);
+
+												// double click keyframe?
+												var time = DateTime.Now.TimeOfDay.TotalSeconds;
+												if (time - _lastKeyframeClickedTime < 1 && _lastClicked == kf)
+												{
+													var newTime = kf.time / timelineClip.timeScale + timelineClip.start;
+													CustomUndo.Register(new TimelineModifyTime(viewModel.director, newTime));
+													UpdatePreview();
+												}
+												_lastKeyframeClickedTime = time;
+												_lastClicked = kf;
+											}
+
+											break;
+										case EventType.MouseDrag:
+											if (_dragging == kf)
+											{
+												var timeDelta = PixelDeltaToDeltaTime(evt.delta.x * (float)timelineClip.timeScale);
+												if (KeyframeSelector.SelectionCount > 0 &&
+												    KeyframeSelector.selectedKeyframes.Any(s => s.Keyframe == kf))
+												{
+													if (!didApplyDeltaToSelectedKeyframes)
+													{
+														didApplyDeltaToSelectedKeyframes = true;
+														var canPerform = true;
+														foreach (var entry in KeyframeSelector.EnumerateSelected())
+														{
+															if (!canPerform) break;
+															if (entry.time + timeDelta < 0)
+															{
+																canPerform = false;
+															}
+														}
+														foreach (var entry in KeyframeSelector.EnumerateSelected())
+														{
+															if (!canPerform) break;
+															if (!modifyTimeActions.Any(e => e.keyframe == entry))
+																modifyTimeActions.Add(new KeyframeModifyTime(entry));
+															entry.time += timeDelta;
+															Repaint();
+															UpdatePreview();
+															useEvent = true;
+														}
+													}
+												}
+												else
+												{
+													if (!modifyTimeActions.Any(e => e.keyframe == kf))
+														modifyTimeActions.Add(new KeyframeModifyTime(kf));
+													kf.Select(clip);
+													kf.time += timeDelta;
+													if (kf.time < 0) kf.time = 0;
+													Repaint();
+													UpdatePreview();
+													useEvent = true;
+												}
+											}
+
+											break;
+										case EventType.MouseUp:
+											_dragging = null;
+
+											if (_dragRect.Contains(keyframeRect.position))
+											{
+												if (_isMultiSelectDragging)
+													kf.Select(clip);
+											}
+											else if (keyframeRect.Contains(evt.mousePosition))
+											{
+												// Debug.Log("Up on keyframe");
+												// deselect previously selected
+												KeyframeSelector.Deselect();
+												kf.Select(clip);
+												useEvent = true;
+											}
+
+											break;
+
+										case EventType.KeyDown:
+											switch (evt.keyCode)
+											{
+												case KeyCode.Delete:
+													if (kf.IsSelected())
+														deletionList.Add(new DeleteKeyframe(kf, clip));
+													break;
+
+												case KeyCode.C:
+													if (kf.IsSelected() && (evt.modifiers & EventModifiers.Control) != 0)
+													{
+														_copy = kf;
+														_copyClip = clip;
+													}
+													break;
+												case KeyCode.V:
+													if ((evt.modifiers & EventModifiers.Control) != 0)
+													{
+														if (_copy != null && _copy is ICloneable cloneable && clip == _copyClip)
+														{
+															if (viewModel.currentlyInClipTime)
+															{
+																if (cloneable.Clone() is ICustomKeyframe copy)
+																{
+																	copy.time = (float)viewModel.clipTime;
+																	CustomUndo.Register(new CreateKeyframe(copy, clip));
+																	Repaint();
+																	UpdatePreview();
+																	return;
+																}
+															}
+														}
+													}
+													break;
+											}
+											break;
+									}
+								}
+							}
+
+							++row;
+						}
+					}
+				}
+			}
+
+			if (deletionList.Count > 0)
+			{
+				if (deletionList.Any(c => c.IsValid))
+					CustomUndo.Register(deletionList.ToCompound("Delete Keyframes"));
+				deletionList.Clear();
+				Repaint();
+				UpdatePreview();
+			}
+
+			switch (evtType)
+			{
+				case EventType.MouseDown:
+					if (!mouseDownOnKeyframe && !_isMultiSelectDragging)
+					{
+						_startDragPoint = Event.current.mousePosition;
+						_dragRect = Rect.zero;
+						_dragTrack = Track;
+						KeyframeSelector.Deselect();
+					}
+					break;
+
+				case EventType.MouseUp:
+					var wasDragging = _isMultiSelectDragging && (_dragRect.width > 5 || _dragRect.height > 5) && Track == _dragTrack;
+					if (wasDragging && _isMultiSelectDragging) useEvent = true;
+					if (_dragTrack == Track) _dragTrack = null;
+					break;
+			}
+
+			// if (isClick && !mouseUpOnKeyframe)
+			// 	KeyframeInspectorHelper.Deselect();
+
+			if (useEvent)
+			{
+				// Debug.Log("Use " + Event.current.type);
+				Event.current.Use();
+			}
+		}
+
+		private bool GetIsInKeyframeRect(Rect rect, TimelineClip timelineClip, ICustomKeyframe kf, int row, out Rect keyframeRect)
+		{
+			keyframeRect = new Rect();
+			keyframeRect.x += TimeToPixel(timelineClip.start + kf.time / timelineClip.timeScale);
+			keyframeRect.width = 8;
+			keyframeRect.x -= keyframeRect.width * .5f;
+			keyframeRect.height = keyframeRect.width;
+			keyframeRect.y = rect.y + keyframeRect.height;
+			keyframeRect.y += row * lineHeight;
+			if (!rect.Contains(keyframeRect.max) && !rect.Contains(keyframeRect.min)) 
+				return false;
+			DoDrawKeyframe(timelineClip, kf, keyframeRect);
+			return true;
+		}
+
+		private void DoDrawKeyframe(TimelineClip timelineClip, ICustomKeyframe kf, Rect keyframeRect)
+		{
+			if (Event.current.type != EventType.Repaint) return;
+			var col = SelectedClip == timelineClip ? _assetSelectedColor : _normalColor;
+			if (kf.IsSelected()) col = _keySelectedColor;
+			GUI.DrawTexture(keyframeRect, Texture2D.whiteTexture, ScaleMode.StretchToFill, true,
+				1, col, 0, 4);
+		}
+	}
+}

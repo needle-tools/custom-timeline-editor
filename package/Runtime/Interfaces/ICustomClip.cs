@@ -28,4 +28,9 @@ namespace Needle.Timeline
 	{
 		new T Evaluate(float time);
 	}
+
+	public interface IHasEasing
+	{
+		ICurveEasing DefaultEasing { get; set; }
+	}
 }

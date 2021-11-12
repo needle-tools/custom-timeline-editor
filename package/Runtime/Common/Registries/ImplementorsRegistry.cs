@@ -36,14 +36,25 @@ namespace Needle.Timeline
 			instance = default!;
 			return false;
 		}
-		
+
 		public bool TryGetNewInstance<TInstanceType>(out TInstanceType instance, IList<IArgument>? args = null) where TInstanceType : T
 		{
-			if (TryFind(e => typeof(TInstanceType).IsAssignableFrom(e), out var type))
+			if (TryGetNewInstance(typeof(TInstanceType), out var i, args))
 			{
-				if (type.TryCreateInstance(args, out var i))
+				instance = (TInstanceType)i;
+				return true;
+			}
+			instance = default!;
+			return false;
+		}
+
+		public bool TryGetNewInstance(Type type, out object instance, IList<IArgument>? args = null)
+		{
+			if (TryFind(type.IsAssignableFrom, out var t))
+			{
+				if (t.TryCreateInstance(args, out var i))
 				{
-					instance = (TInstanceType)i;
+					instance = i;
 					return instance != null;
 				}
 			}
@@ -69,7 +80,8 @@ namespace Needle.Timeline
 
 		public IList<Type> GetAll()
 		{
-			return cache!;
+			EnsureCached();
+			return cache ?? Array.Empty<Type>();
 		}
 
 		private Type[]? cache;

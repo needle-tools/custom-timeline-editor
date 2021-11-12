@@ -11,14 +11,24 @@ using UnityEngine;
 namespace Needle.Timeline
 {
 	public class CustomAnimationCurve<T> 
-		: ICustomClip<T>, IInterpolator<T>, IKeyframesProvider, IHasInterpolator
+		: ICustomClip<T>, IInterpolator<T>, IKeyframesProvider, IHasInterpolator, IHasEasing
 	{
 		private IInterpolator _interpolator;
 		private readonly List<ICurveEasing> _modifiers;
 		private readonly List<ICustomKeyframe<T>> _keyframes;
-		
-		[JsonIgnore] private ICurveEasing _easingDefault = new QuadraticInOutEasing();
-		
+
+		[JsonIgnore]
+		public ICurveEasing DefaultEasing
+		{
+			get => defaultEasing;
+			set
+			{
+				if (value == defaultEasing) return;
+				defaultEasing = value;
+				Changed?.Invoke();
+			}
+		}
+
 		private readonly ProfilerMarker _evaluateMarker = new ProfilerMarker("CustomAnimationCurve Evaluate " + typeof(T));
 		private readonly ProfilerMarker _interpolationMarker = new ProfilerMarker("CustomAnimationCurve Interpolate " + typeof(T));
 
@@ -110,7 +120,7 @@ namespace Needle.Timeline
 						// if the next keyframe is also <= time we have not found the closest keyframe yet
 						if (next.time < time) continue;
 						// interpolate between this and the next keyframe
-						var t = GetPosition01(time, current.time, next.time, _easingDefault);
+						var t = GetPosition01(time, current.time, next.time, DefaultEasing);
 						using (_interpolationMarker.Auto())
 						{
 							// _interpolator.Instance = ViewModel?.Script;
@@ -188,6 +198,7 @@ namespace Needle.Timeline
 		private bool keyframesTimeChanged, keyframeAdded;
 		private bool didRegisterKeyframeEvents;
 		private bool isRecording;
+		private ICurveEasing defaultEasing = new QuadraticInOutEasing();
 
 		private void RegisterKeyframeEvents()
 		{
