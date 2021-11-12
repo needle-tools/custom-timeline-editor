@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using UnityEditor;
 using UnityEngine;
@@ -8,6 +9,8 @@ namespace Needle.Timeline
 	[CustomEditor(typeof(JsonContainer))]
 	public class JsonContainerEditor : Editor
 	{
+		private string formatted, lastContent;
+
 		public override void OnInspectorGUI()
 		{
 			base.OnInspectorGUI();
@@ -15,8 +18,17 @@ namespace Needle.Timeline
 			if (!t) return;
 			EditorGUILayout.Space(5);
 			EditorGUILayout.LabelField("Pretty", EditorStyles.boldLabel);
-			var jsonFormatted = JToken.Parse(t.Content).ToString(Formatting.Indented);
-			EditorGUILayout.TextArea(jsonFormatted, GUILayout.ExpandHeight(true));
+			UpdateIfNecessary();
+			EditorGUILayout.TextArea(formatted, GUILayout.ExpandHeight(true));
+		}
+
+		private void UpdateIfNecessary()
+		{
+			var t = target as JsonContainer;
+			if (!t) return;
+			if (t.Content == lastContent) return;
+			formatted = !string.IsNullOrEmpty(t.Content) ? JToken.Parse(t.Content).ToString(Formatting.Indented) : "<empty>";
+			lastContent = t.Content;
 		}
 	}
 }

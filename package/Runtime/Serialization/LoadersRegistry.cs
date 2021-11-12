@@ -9,7 +9,7 @@ namespace Needle.Timeline
 		private static readonly LoadersRegistry _instance = new LoadersRegistry();
 		private static readonly IList<IArgument> _args = new List<IArgument>
 		{
-			new JsonSerializer().AsArg(),
+			new NewtonsoftSerializer().AsArg(),
 		};
 		
 		public static ILoader? GetDefault()

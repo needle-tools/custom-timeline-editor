@@ -14,10 +14,9 @@ namespace Needle.Timeline
 		: ICustomClip<T>, IInterpolator<T>, IKeyframesProvider, IHasInterpolator, IHasEasing
 	{
 		private IInterpolator _interpolator;
-		private readonly List<ICurveEasing> _modifiers;
 		private readonly List<ICustomKeyframe<T>> _keyframes;
 
-		[JsonIgnore]
+		// [JsonIgnore]
 		public ICurveEasing DefaultEasing
 		{
 			get => defaultEasing;
@@ -198,6 +197,7 @@ namespace Needle.Timeline
 		private bool keyframesTimeChanged, keyframeAdded;
 		private bool didRegisterKeyframeEvents;
 		private bool isRecording;
+		// [JsonProperty("DefaultEasing")]
 		private ICurveEasing defaultEasing = new QuadraticInOutEasing();
 
 		private void RegisterKeyframeEvents()

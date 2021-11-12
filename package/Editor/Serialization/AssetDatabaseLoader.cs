@@ -12,12 +12,12 @@ namespace Needle.Timeline
 		// TODO: should be only visible during dev
 		internal HideFlags Flags = HideFlags.NotEditable;
 		
-		private JsonSerializer serializer;
+		private NewtonsoftSerializer serializer;
 
 		
 		public AssetDatabaseLoader(ISerializer ser)
 		{
-			((ILoader)this).Serializer = ser as JsonSerializer;
+			((ILoader)this).Serializer = ser as NewtonsoftSerializer;
 		}
 		
 		ISerializer ILoader.Serializer
@@ -25,7 +25,7 @@ namespace Needle.Timeline
 			get => serializer;
 			set
 			{ 
-				serializer = value as JsonSerializer;
+				serializer = value as NewtonsoftSerializer;
 				if (serializer == null) throw new Exception("Invalid serializer");
 			}
 		}

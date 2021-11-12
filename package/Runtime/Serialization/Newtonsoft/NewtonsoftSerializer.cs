@@ -6,7 +6,7 @@ using Object = UnityEngine.Object;
 
 namespace Needle.Timeline.Serialization
 {
-	public class JsonSerializer : ISerializer
+	public class NewtonsoftSerializer : ISerializer
 	{
 		private static JsonSerializerSettings _settings;
 		public static JsonSerializerSettings Settings
@@ -23,7 +23,10 @@ namespace Needle.Timeline.Serialization
 						new ColConv(),
 						
 						new KeyframeConverter(),
-					}
+						new EasingConverter()
+					},
+					ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+					// PreserveReferencesHandling = PreserveReferencesHandling.Objects
 				};
 			}
 		}
