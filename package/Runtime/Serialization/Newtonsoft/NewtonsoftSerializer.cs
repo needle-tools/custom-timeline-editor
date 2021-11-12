@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -9,8 +10,8 @@ namespace Needle.Timeline.Serialization
 {
 	public class NewtonsoftSerializer : ISerializer
 	{
-		private static JsonSerializerSettings _settings;
-		public static JsonSerializerSettings Settings
+		private static JsonSerializerSettings? _settings;
+		private static JsonSerializerSettings Settings
 		{
 			get
 			{
@@ -29,24 +30,22 @@ namespace Needle.Timeline.Serialization
 					}, 
 					TypeNameHandling = TypeNameHandling.All,
 					ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+					Error = OnSerializationError,
+					SerializationBinder = new TimelineSerializationBinder()
 					// ContractResolver = new Resolver(),
 					// PreserveReferencesHandling = PreserveReferencesHandling.Objects
 				};
 			}
 		}
 
-		public class Resolver : IContractResolver
+		private static void OnSerializationError(object sender, ErrorEventArgs e)
 		{
-			public JsonContract ResolveContract(Type type)
-			{
-				Debug.Log(type);
-				return null;
-			}
+			// e.ErrorContext.Handled = true;
 		}
 
 		public bool Indented = false;
 		
-		public object Serialize(object obj)
+		public object? Serialize(object obj)
 		{
 			try
 			{
@@ -62,10 +61,10 @@ namespace Needle.Timeline.Serialization
 
 		public T Deserialize<T>(object value)
 		{
-			return JsonConvert.DeserializeObject<T>((string)value, Settings);
+			return JsonConvert.DeserializeObject<T>((string)value, Settings)!;
 		}
 
-		public object Deserialize(object value, Type type)
+		public object? Deserialize(object value, Type type)
 		{
 			return JsonConvert.DeserializeObject((string)value, type, Settings);
 		}

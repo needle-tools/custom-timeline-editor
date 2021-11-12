@@ -14,7 +14,7 @@ namespace Needle.Timeline.Tests.SerializationTests.Json
 		public void SerializeCurve_ProducesExpectedJson()
 		{
 			var curve = new CustomAnimationCurve<List<int>>();
-			curve.DefaultEasing = new NoEasing();
+			curve.DefaultEasing = new DefaultEasing();
 			var ser = new NewtonsoftSerializer() { Indented = false };
 
 			var json = (string)ser.Serialize(curve);
@@ -27,7 +27,7 @@ namespace Needle.Timeline.Tests.SerializationTests.Json
 		public void MultipleSerializationsOfSameObject_ProduceSameJson()
 		{
 			var curve = new CustomAnimationCurve<List<int>>();
-			curve.DefaultEasing = new NoEasing();
+			curve.DefaultEasing = new DefaultEasing();
 			var ser = new NewtonsoftSerializer() { Indented = false };
 
 			var json = (string)ser.Serialize(curve);
@@ -50,24 +50,25 @@ namespace Needle.Timeline.Tests.SerializationTests.Json
 			Assert.AreEqual(0, curve.Keyframes.Count);
 			Assert.IsTrue(curve.SupportedTypes.Contains(typeof(List<int>)));
 			Assert.NotNull(curve.DefaultEasing, "Default easing is null");
-			Assert.AreEqual(typeof(NoEasing),curve.DefaultEasing.GetType());
+			Assert.AreEqual(typeof(DefaultEasing),curve.DefaultEasing.GetType());
 		}
 		
 		[Test]
 		public void SerializeAndDeserialize_ProducesSameCurve()
 		{
 			var curve = new CustomAnimationCurve<List<int>>();
-			curve.DefaultEasing = new NoEasing();
+			curve.DefaultEasing = new DefaultEasing();
 			var ser = new NewtonsoftSerializer() { Indented = false };
 
 			var json = (string)ser.Serialize(curve);
+			Assert.NotNull(json);
 			var curve2 = ser.Deserialize<CustomAnimationCurve<List<int>>>(json);
 			
 			Assert.NotNull(curve2.Keyframes, "Keyframes are null");
 			Assert.AreEqual(0, curve2.Keyframes.Count);
 			Assert.IsTrue(curve2.SupportedTypes.Contains(typeof(List<int>)));
 			Assert.NotNull(curve2.DefaultEasing, "Default easing is null");
-			Assert.AreEqual(typeof(NoEasing),curve2.DefaultEasing.GetType());
+			Assert.AreEqual(typeof(DefaultEasing),curve2.DefaultEasing.GetType());
 		}
 		
 		[Test]
