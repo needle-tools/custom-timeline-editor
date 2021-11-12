@@ -69,7 +69,7 @@ namespace Needle.Timeline
 		public event Action Changed;
 		#pragma warning restore CS0414
 		
-		public IReadOnlyCollection<IReadonlyCustomKeyframe> Keyframes { get; }
+		public IReadOnlyList<IReadonlyCustomKeyframe> Keyframes { get; }
 		
 		public ICustomKeyframe GetPrevious(float time)
 		{

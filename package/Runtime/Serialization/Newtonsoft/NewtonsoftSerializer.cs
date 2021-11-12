@@ -23,19 +23,23 @@ namespace Needle.Timeline.Serialization
 						new ColConv(),
 						
 						new KeyframeConverter(),
-						new EasingConverter()
-					},
+						// new CustomClipConverter(),
+						// new EasingConverter()
+					}, 
+					TypeNameHandling = TypeNameHandling.All,
 					ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
 					// PreserveReferencesHandling = PreserveReferencesHandling.Objects
 				};
 			}
 		}
+
+		public bool Indented = false;
 		
 		public object Serialize(object obj)
 		{
 			try
 			{
-				return JsonConvert.SerializeObject(obj, Settings);
+				return JsonConvert.SerializeObject(obj, Indented ? Formatting.Indented : Formatting.None, Settings);
 			}
 			catch (JsonSerializationException ser)
 			{

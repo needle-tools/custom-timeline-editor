@@ -15,7 +15,8 @@ namespace Needle.Timeline
 	{
 		private IInterpolator _interpolator;
 		private readonly List<ICustomKeyframe<T>> _keyframes;
-
+		
+		// [JsonProperty]
 		// [JsonIgnore]
 		public ICurveEasing DefaultEasing
 		{
@@ -54,7 +55,9 @@ namespace Needle.Timeline
 			set => _interpolator = value;
 		}
 		
-		public IEnumerable<ICustomKeyframe> Keyframes => _keyframes;
+		IEnumerable<ICustomKeyframe> IKeyframesProvider.Keyframes => _keyframes;
+		public IReadOnlyList<IReadonlyCustomKeyframe> Keyframes => _keyframes;
+		public event Action Changed;
 		
 		public ICustomKeyframe GetPrevious(float time)
 		{
@@ -76,8 +79,6 @@ namespace Needle.Timeline
 			// _interpolator.Instance = ViewModel?.Script;
 			return (T)_interpolator.Interpolate(v0, v1, t);
 		}
-
-		public object Instance { get; set; }
 
 		public bool CanInterpolate(Type type)
 		{
@@ -186,9 +187,6 @@ namespace Needle.Timeline
 			}
 		}
 
-		public event Action Changed;
-		IReadOnlyCollection<IReadonlyCustomKeyframe> ICustomClip.Keyframes => _keyframes;
-
 		object ICustomClip.Evaluate(float time)
 		{
 			return Evaluate(time);
@@ -197,7 +195,6 @@ namespace Needle.Timeline
 		private bool keyframesTimeChanged, keyframeAdded;
 		private bool didRegisterKeyframeEvents;
 		private bool isRecording;
-		// [JsonProperty("DefaultEasing")]
 		private ICurveEasing defaultEasing = new QuadraticInOutEasing();
 
 		private void RegisterKeyframeEvents()

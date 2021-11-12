@@ -168,8 +168,8 @@ namespace Needle.Timeline
 			}
 			catch (Exception e)
 			{
-				Debug.LogError(data.Member + ", " + data.MemberType);
 				Debug.LogException(e);
+				Debug.LogError(data.Member + ", " + data.MemberType);
 			}
 
 			if (curve == null)
