@@ -95,6 +95,7 @@ namespace Needle.Timeline
 				foreach (var t in RuntimeTypeCache.GetTypesDerivedFrom<T>())
 				{
 					if (t.IsAbstract || t.IsInterface) continue;
+					if (t.GetCustomAttribute<RegistryIgnoreAttribute>() != null) continue;
 					list.Add(t);
 				}
 

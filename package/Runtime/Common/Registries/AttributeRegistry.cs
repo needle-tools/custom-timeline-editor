@@ -47,6 +47,7 @@ namespace Needle.Timeline
 				var list = new List<Type>();
 				foreach (var t in RuntimeTypeCache.Types)
 				{
+					if (t.GetCustomAttribute<RegistryIgnoreAttribute>() != null) continue;
 					var att = t.GetCustomAttribute<T>();
 					if (att != null) list.Add(t);
 				}
