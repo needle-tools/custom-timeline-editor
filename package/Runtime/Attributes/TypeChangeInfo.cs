@@ -10,9 +10,9 @@ namespace Needle.Timeline
 	public class RefactorInfo : Attribute
 	{
 		public readonly string? OldAssemblyName;
-		public readonly string OldName;
+		public readonly string? OldName;
 
-		public RefactorInfo(string oldName, string? oldAssemblyName = null)
+		public RefactorInfo(string? oldName, string? oldAssemblyName = null)
 		{
 			OldName = oldName;
 			OldAssemblyName = oldAssemblyName;

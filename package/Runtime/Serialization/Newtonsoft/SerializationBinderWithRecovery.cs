@@ -45,19 +45,22 @@ namespace Needle.Timeline.Serialization
 			{
 				var info = type.GetCustomAttribute<RefactorInfo>();
 				if (info == null) continue;
-				if (string.IsNullOrEmpty(info.OldName)) continue;
 					
 				var typeAssemblyName = type.Assembly.GetName().Name;
-				if (typeName.EndsWith(info.OldName) && typeAssemblyName == assemblyName)
+				if (!string.IsNullOrEmpty(info.OldName) && typeName.EndsWith(info.OldName!) && typeAssemblyName == assemblyName)
 				{
 					// Debug.Log("FOUND " + typeName + ", is now: " + type.FullName);
 					return type;
 				}
 				if(!string.IsNullOrEmpty(info.OldAssemblyName) && info.OldAssemblyName == assemblyName)
 				{
-					if (typeName.EndsWith(info.OldName) || typeName.EndsWith(type.Name))
+					if (typeName.EndsWith(type.Name))
 					{
-						// Debug.Log("FOUND " + typeName + ", is now: " + type.FullName);
+						return type;
+					}
+					
+					if (!string.IsNullOrEmpty(info.OldName) && typeName.EndsWith(info.OldName!))
+					{
 						return type;
 					}
 				}
