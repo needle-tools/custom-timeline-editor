@@ -9,12 +9,12 @@ using UnityEngine;
 
 namespace Needle.Timeline.Serialization
 {
-	public class SerializationBinderWithRecoveryStrategy : ISerializationBinder
+	public class SerializationBinderWithRecovery : ISerializationBinder
 	{
 		private readonly ISerializationBinder forward;
 		// private List<(Type type, RefactorInfo info)>? typesWithRefactorInfo;
 
-		public SerializationBinderWithRecoveryStrategy(ISerializationBinder? fallback = null)
+		public SerializationBinderWithRecovery(ISerializationBinder? fallback = null)
 		{
 			this.forward = fallback ?? new DefaultSerializationBinder();
 		}
@@ -40,7 +40,7 @@ namespace Needle.Timeline.Serialization
 
 		private Type? ResolveType(string? assemblyName, string typeName)
 		{
-			Debug.Log("Try resolve " + assemblyName + ", " + typeName);
+			// Debug.Log("Try resolve " + assemblyName + ", " + typeName);
 			foreach (var type in RuntimeTypeCache.Types)
 			{
 				var info = type.GetCustomAttribute<RefactorInfo>();
@@ -50,14 +50,14 @@ namespace Needle.Timeline.Serialization
 				var typeAssemblyName = type.Assembly.GetName().Name;
 				if (typeName.EndsWith(info.OldName) && typeAssemblyName == assemblyName)
 				{
-					Debug.Log("FOUND " + typeName + ", is now: " + type.FullName);
+					// Debug.Log("FOUND " + typeName + ", is now: " + type.FullName);
 					return type;
 				}
-				if(!string.IsNullOrEmpty(info.OldAssemblyName) && info.OldAssemblyName == typeAssemblyName)
+				if(!string.IsNullOrEmpty(info.OldAssemblyName) && info.OldAssemblyName == assemblyName)
 				{
-					if (type.Name == typeName)
+					if (typeName.EndsWith(info.OldName) || typeName.EndsWith(type.Name))
 					{
-						Debug.Log("FOUND " + typeName + ", is now: " + type.FullName);
+						// Debug.Log("FOUND " + typeName + ", is now: " + type.FullName);
 						return type;
 					}
 				}

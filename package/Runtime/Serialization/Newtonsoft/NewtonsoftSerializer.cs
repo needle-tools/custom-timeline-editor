@@ -31,7 +31,7 @@ namespace Needle.Timeline.Serialization
 					TypeNameHandling = TypeNameHandling.All,
 					ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
 					Error = OnSerializationError,
-					SerializationBinder = new SerializationBinderWithRecoveryStrategy()
+					SerializationBinder = new SerializationBinderWithRecovery()
 					// ContractResolver = new Resolver(),
 					// PreserveReferencesHandling = PreserveReferencesHandling.Objects
 				};
