@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -28,8 +29,18 @@ namespace Needle.Timeline.Serialization
 					}, 
 					TypeNameHandling = TypeNameHandling.All,
 					ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+					// ContractResolver = new Resolver(),
 					// PreserveReferencesHandling = PreserveReferencesHandling.Objects
 				};
+			}
+		}
+
+		public class Resolver : IContractResolver
+		{
+			public JsonContract ResolveContract(Type type)
+			{
+				Debug.Log(type);
+				return null;
 			}
 		}
 

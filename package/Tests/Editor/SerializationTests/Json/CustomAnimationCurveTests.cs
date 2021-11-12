@@ -4,6 +4,7 @@ using Needle.Timeline.CurveEasing;
 using Needle.Timeline.Serialization;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Needle.Timeline.Tests.SerializationTests.Json
 {
