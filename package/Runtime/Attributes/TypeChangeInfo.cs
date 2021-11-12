@@ -4,15 +4,18 @@ using JetBrains.Annotations;
 
 namespace Needle.Timeline
 {
+	// MovedFrom?
+	
 	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Field | AttributeTargets.Property)]
 	public class RefactorInfo : Attribute
 	{
 		public readonly string? OldAssemblyName;
 		public readonly string OldName;
 
-		public RefactorInfo(string oldName)
+		public RefactorInfo(string oldName, string? oldAssemblyName = null)
 		{
 			OldName = oldName;
+			OldAssemblyName = oldAssemblyName;
 		}
 	}
 }

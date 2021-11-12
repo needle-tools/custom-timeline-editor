@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
@@ -8,11 +9,12 @@ using UnityEngine;
 
 namespace Needle.Timeline.Serialization
 {
-	public class TimelineSerializationBinder : ISerializationBinder
+	public class SerializationBinderWithRecoveryStrategy : ISerializationBinder
 	{
 		private readonly ISerializationBinder forward;
+		// private List<(Type type, RefactorInfo info)>? typesWithRefactorInfo;
 
-		public TimelineSerializationBinder(ISerializationBinder? fallback = null)
+		public SerializationBinderWithRecoveryStrategy(ISerializationBinder? fallback = null)
 		{
 			this.forward = fallback ?? new DefaultSerializationBinder();
 		}
@@ -39,22 +41,24 @@ namespace Needle.Timeline.Serialization
 		private Type? ResolveType(string? assemblyName, string typeName)
 		{
 			Debug.Log("Try resolve " + assemblyName + ", " + typeName);
-			var assemblies = AppDomain.CurrentDomain.GetAssemblies();
-			foreach (var assembly in assemblies)
+			foreach (var type in RuntimeTypeCache.Types)
 			{
-				if (assembly.GetName().Name == assemblyName)
+				var info = type.GetCustomAttribute<RefactorInfo>();
+				if (info == null) continue;
+				if (string.IsNullOrEmpty(info.OldName)) continue;
+					
+				var typeAssemblyName = type.Assembly.GetName().Name;
+				if (typeName.EndsWith(info.OldName) && typeAssemblyName == assemblyName)
 				{
-					foreach (var type in assembly.GetTypes())
+					Debug.Log("FOUND " + typeName + ", is now: " + type.FullName);
+					return type;
+				}
+				if(!string.IsNullOrEmpty(info.OldAssemblyName) && info.OldAssemblyName == typeAssemblyName)
+				{
+					if (type.Name == typeName)
 					{
-						var info = type.GetCustomAttribute<RefactorInfo>();
-						if (info == null) continue;
-						if (string.IsNullOrEmpty(info.OldName)) continue;
-						var oldTypeName = info.OldName;
-						if (typeName.EndsWith(oldTypeName))
-						{
-							Debug.Log("FOUND " + typeName + ", is now: " + type.FullName);
-							return type;
-						}
+						Debug.Log("FOUND " + typeName + ", is now: " + type.FullName);
+						return type;
 					}
 				}
 			}

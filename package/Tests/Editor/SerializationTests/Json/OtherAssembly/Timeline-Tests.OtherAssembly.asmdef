@@ -1,0 +1,15 @@
+﻿{
+    "name": "Timeline-Tests.OtherAssembly",
+    "references": [
+        "guid:717e44f821bd3b74c9fc8e6d845c0a95"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

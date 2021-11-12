@@ -8,7 +8,7 @@ namespace Needle.Timeline.Tests.SerializationTests.Json
 	public class RecoveryTests
 	{
 		[RefactorInfo("MyOldTypeName")]
-		public class MyNewTypeName
+		public class TypeWasRenamed
 		{
 			
 		}
@@ -20,10 +20,10 @@ namespace Needle.Timeline.Tests.SerializationTests.Json
 			
 			var ser = new NewtonsoftSerializer() { Indented = false };
 			
-			var res = ser.Deserialize<MyNewTypeName>(inputJson);
+			var res = ser.Deserialize<TypeWasRenamed>(inputJson);
 
 			Assert.NotNull(res);
-			Assert.IsAssignableFrom(typeof(MyNewTypeName), res);
+			Assert.IsAssignableFrom(typeof(TypeWasRenamed), res);
 		}
 		
 		[Test]
@@ -33,10 +33,16 @@ namespace Needle.Timeline.Tests.SerializationTests.Json
 			
 			var ser = new NewtonsoftSerializer() { Indented = false };
 			
-			var res = ser.Deserialize<MyNewTypeName>(inputJson);
+			var res = ser.Deserialize<TypeWasRenamed>(inputJson);
 
 			Assert.NotNull(res);
-			Assert.IsAssignableFrom(typeof(MyNewTypeName), res);
+			Assert.IsAssignableFrom(typeof(TypeWasRenamed), res);
+		}
+		
+		[RefactorInfo("Needle.Timeline.Tests.SerializationTests.InOtherNamespace+MyNewTypeName")]
+		public class TypeMovedNamespace
+		{
+			
 		}
 		
 		[Test]
@@ -46,10 +52,23 @@ namespace Needle.Timeline.Tests.SerializationTests.Json
 			
 			var ser = new NewtonsoftSerializer() { Indented = false };
 			
-			var res = ser.Deserialize<MyNewTypeName>(inputJson);
+			var res = ser.Deserialize<TypeMovedNamespace>(inputJson);
 
 			Assert.NotNull(res);
-			Assert.IsAssignableFrom(typeof(MyNewTypeName), res);
+			Assert.IsAssignableFrom(typeof(TypeMovedNamespace), res);
+		}
+		
+		[Test]
+		public void CanResolve_AssemblyChanged()
+		{
+			const string inputJson = "{\"$type\":\"Needle.Timeline.Tests.SerializationTests.Json.RecoveryTests+TypeMovedAssembly, Needle.Timeline-Tests\"}";
+			
+			var ser = new NewtonsoftSerializer() { Indented = false };
+			
+			var res = ser.Deserialize<TypeMovedAssembly>(inputJson);
+			
+			Assert.NotNull(res);
+			Assert.IsAssignableFrom(typeof(TypeMovedAssembly), res);
 		}
 	}
 }
