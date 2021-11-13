@@ -59,6 +59,8 @@ namespace Needle.Timeline
 		public IReadOnlyList<IReadonlyCustomKeyframe> Keyframes => _keyframes;
 		public event Action Changed;
 		
+		void ICustomClip.RaiseChangedEvent() => Changed?.Invoke();
+		
 		public ICustomKeyframe GetPrevious(float time)
 		{
 			return FindKeyframe(time, true);

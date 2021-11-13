@@ -7,7 +7,6 @@ using UnityEditor;
 using UnityEditor.Timeline;
 using UnityEngine;
 using UnityEngine.Timeline;
-using Task = System.Threading.Tasks.Task;
 
 namespace Needle.Timeline.Editors.CustomCurve
 {
@@ -21,7 +20,7 @@ namespace Needle.Timeline.Editors.CustomCurve
 			customCurvesEditorHeader.OnDrawHeader(rect);
 		}
 
-		private ICustomKeyframe _dragging, _lastClicked;
+		private object _dragging, _lastClicked;
 		private double _lastKeyframeClickedTime;
 		private readonly Color _keySelectedColor = new Color(1, 1, 0, .7f);
 		private readonly Color _normalColor = new Color(.8f, .8f, .8f, .4f);
@@ -163,6 +162,8 @@ namespace Needle.Timeline.Editors.CustomCurve
 			}
 		}
 
+		private readonly object _markerDragging = new object();
+		private int _markerDraggingIndex;
 		private bool OnRenderClip(Rect rect,
 			ICustomClip clip,
 			TimelineClip timelineClip,
@@ -180,16 +181,45 @@ namespace Needle.Timeline.Editors.CustomCurve
 				if (!GetIsInKeyframeRect(rect, timelineClip, kf, row, out var keyframeRect))
 					continue;
 
-				if (index >= 1)
+				if (index >= 1 && clip.TryGetEasing(out var e) && e is IWeighted easing)
 				{
-					var middle = lastKeyframeRect.x + (keyframeRect.x - lastKeyframeRect.x) * .5f;
+					var dist = keyframeRect.x - lastKeyframeRect.x;
+					var middle = lastKeyframeRect.x + dist * easing.Weight;
 					var r = new Rect(keyframeRect);
 					r.x = middle;
-					r.y += r.height * .25f;
-					r.height *= .5f;
-					r.width *= .5f;
+					// r.y += r.height * .25f;
+					// r.height *= .5f;
+					// r.width *= .5f;
 					GUI.DrawTexture(r, Texture2D.whiteTexture, ScaleMode.StretchToFill, true,
 						1, new Color(.5f,.5f,.5f, .3f), 0, 4);
+					if (evt.button == 0 || evt.isKey)
+					{
+						switch (evtType)
+						{
+							case EventType.MouseDown:
+								if (r.Contains(evt.mousePosition))
+								{
+									_dragging = _markerDragging;
+									_markerDraggingIndex = index;
+									mouseDownOnKeyframe = true;
+								}
+								break;
+							case EventType.MouseUp:
+								if(_dragging == _markerDragging)
+									_dragging = null;
+								break;
+							case EventType.MouseDrag:
+								if (_dragging == _markerDragging && _markerDraggingIndex == index)
+								{
+									easing.Weight += evt.delta.x / dist;
+									easing.Weight = Mathf.Clamp(easing.Weight, .1f, .9f);
+									Repaint();
+									UpdatePreview();
+									clip.RaiseChangedEvent();
+								}
+								break;
+						}
+					}
 				}
 
 				lastKeyframeRect = keyframeRect;

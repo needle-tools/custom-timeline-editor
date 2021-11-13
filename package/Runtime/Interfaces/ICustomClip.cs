@@ -22,15 +22,12 @@ namespace Needle.Timeline
 		/// Set before evaluation
 		/// </summary>
 		ClipInfoViewModel ViewModel { get; set; }
+
+		internal void RaiseChangedEvent();
 	}
 
 	public interface ICustomClip<out T> : ICustomClip
 	{
 		new T Evaluate(float time);
-	}
-
-	public interface IHasEasing
-	{
-		ICurveEasing DefaultEasing { get; set; }
 	}
 }

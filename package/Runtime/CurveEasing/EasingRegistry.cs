@@ -44,5 +44,16 @@ namespace Needle.Timeline.CurveEasing
 			}
 			return false;
 		}
+
+		public static bool TryGetEasing(this ICustomClip clip, out ICurveEasing easing)
+		{
+			if (clip is IHasEasing e && e.DefaultEasing != null)
+			{
+				easing = e.DefaultEasing;
+				return true;
+			}
+			easing = null;
+			return false;
+		}
 	}
 }

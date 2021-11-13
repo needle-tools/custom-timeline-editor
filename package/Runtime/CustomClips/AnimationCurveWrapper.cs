@@ -86,6 +86,11 @@ namespace Needle.Timeline
 		[JsonIgnore] 
 		public ClipInfoViewModel ViewModel { get; set; }
 
+		void ICustomClip.RaiseChangedEvent()
+		{
+			Changed?.Invoke();
+		}
+
 		object ICustomClip.Evaluate(float time)
 		{
 			return Evaluate(time);
