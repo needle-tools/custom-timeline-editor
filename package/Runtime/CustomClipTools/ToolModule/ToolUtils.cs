@@ -19,6 +19,13 @@ namespace Needle.Timeline
 			return Vector2.Distance(point, sp) / screenRadius;
 		}
 
+		public static float? GetRadiusInPixel(this InputData input, float radius)
+		{
+			if(input.WorldPosition != null)
+				return ToScreenRadius(input.WorldPosition.Value, input.ScreenPosition, radius);
+			return null;
+		}
+
 		public static float? GetLineDistanceScreenSpace(this InputData input, float radius, Vector3 worldPointFrom, Vector3 worldPointTo)
 		{
 			var wp = input.WorldPosition.GetValueOrDefault();

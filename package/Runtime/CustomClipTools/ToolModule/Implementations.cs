@@ -37,26 +37,28 @@ namespace Needle.Timeline
 					if (IsCloseKeyframe(toolData, keyframe)) continue;
 					yield return keyframe;
 				}
-			}
+			} 
 		}
 
 		protected override IEnumerable<ProducedValue> OnProduceValues(InputData input, ProduceContext context)
 		{
 			if (input.HasKeyPressed(KeyCode.M)) yield break;
 			if (context.Count >= Max) yield break;
-			if (input.WorldPosition == null) yield break;
+			if (input.WorldPosition == null) yield break; 
 
 			var offset = Random.insideUnitSphere * Radius;
 			var pos = input.WorldPosition.Value + offset;
 
 			if (OnSurface && input.WorldNormal != null)
 			{
-				if (Physics.SphereCast(pos, Radius * .5f, -input.WorldNormal.Value, out var hit, Radius * 2f))
-					pos = hit.point;
-				else
+				var screenPoint = input.ScreenPosition + Random.insideUnitCircle * input.GetRadiusInPixel(Radius).Value;
+				var ray = input.ToRay(screenPoint);
+				if (Physics.Raycast(ray.origin, ray.direction, out var hit, Radius * 100))
 				{
-					yield return new ProducedValue(pos, true);
+					Debug.DrawLine(hit.point,hit.point + hit.normal, Color.green, 1);
+					pos = hit.point; 
 				}
+				else yield return new ProducedValue(pos, false);
 			}
 			pos += Offset * input.WorldNormal.GetValueOrDefault() * Radius;
 

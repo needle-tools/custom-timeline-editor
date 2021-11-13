@@ -31,6 +31,11 @@ namespace Needle.Timeline
 			return Camera.current.WorldToScreenPoint(worldPoint);
 		}
 
+		public Ray ToRay(Vector2 screenPoint)
+		{
+			return Camera.current.ScreenPointToRay(screenPoint);
+		}
+
 		public Vector2 ScreenPosition { get; private set; }
 		public Vector2 LastScreenPosition;
 		public Vector2 StartScreenPosition;
