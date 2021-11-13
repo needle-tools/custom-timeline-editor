@@ -65,7 +65,7 @@ namespace Needle.Timeline
 			set => model.solo = value;
 		}
 
-		public bool IsValid => director && !failedLoading;
+		public bool IsValid => director;// && !failedLoading;
 		public string Name { get; set; }
 		public string Id => model.id;
 		public readonly IAnimated Script;
