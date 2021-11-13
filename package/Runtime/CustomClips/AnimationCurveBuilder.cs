@@ -168,6 +168,7 @@ namespace Needle.Timeline
 			}
 			catch (Exception e)
 			{
+				data.ViewModel.failedLoading = true;
 				Debug.LogException(e);
 				Debug.LogError(data.Member + ", " + data.MemberType);
 			}

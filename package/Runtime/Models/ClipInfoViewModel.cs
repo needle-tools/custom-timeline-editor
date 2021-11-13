@@ -16,18 +16,19 @@ namespace Needle.Timeline
 		// private static readonly List<ClipInfoViewModel> _lastActiveInstances = new List<ClipInfoViewModel>();
 		public static IEnumerable<ClipInfoViewModel> ActiveInstances => instances.Where(vm => vm.IsValid && vm.currentlyInClipTime && vm.timelineClip.asset);
 
+		private static readonly List<ClipInfoViewModel> instances = new List<ClipInfoViewModel>();
+		
 		public static event Action<ClipInfoViewModel> Created;
 
-		private static readonly List<ClipInfoViewModel> instances = new List<ClipInfoViewModel>();
-
+		
+		internal PlayableDirector director;
+		internal PlayableAsset asset;
+		internal TimelineClip TimelineClip => timelineClip;
+		internal bool failedLoading;
 
 		private readonly ClipInfoModel model;
 		private readonly TimelineClip timelineClip;
-		internal PlayableDirector director;
-		internal PlayableAsset asset;
-
-		internal TimelineClip TimelineClip => timelineClip;
-
+		
 		private ClipInfoViewModel()
 		{
 			instances.Add(this);
@@ -64,7 +65,7 @@ namespace Needle.Timeline
 			set => model.solo = value;
 		}
 
-		public bool IsValid => director;
+		public bool IsValid => director && !failedLoading;
 		public string Name { get; set; }
 		public string Id => model.id;
 		public readonly IAnimated Script;
