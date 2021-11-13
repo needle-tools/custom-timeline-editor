@@ -85,7 +85,7 @@ namespace Needle.Timeline
 				var sceneView = SceneView.lastActiveSceneView;
 				var cur = Camera.current;
 				if (sceneView.camera == cur)
-				{
+				{ 
 					WorldPosition = PlaneUtils.GetPointOnCameraPlane(cur, sceneView.pivot, out _);
 					if (WorldPosition == null) WorldNormal = null;
 					else WorldNormal = (cur.transform.position - WorldPosition).Value.normalized;

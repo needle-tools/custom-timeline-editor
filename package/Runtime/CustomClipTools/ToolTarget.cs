@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using UnityEngine.Playables;
 
 namespace Needle.Timeline
 {
@@ -11,6 +12,12 @@ namespace Needle.Timeline
 		public bool IsNull() => Clip == null;
 		public double Time => viewModel?.clipTime ?? 0;
 		public float TimeF => (float)(viewModel?.clipTime ?? 0f);
+		
+		public void EnsurePaused()
+		{
+			if(viewModel.director.state == PlayState.Playing)
+				viewModel.director.Pause();
+		}
 
 		public ToolTarget(ClipInfoViewModel viewModel, ICustomClip clip)
 		{

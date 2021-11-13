@@ -133,7 +133,8 @@ namespace Needle.Timeline
 					{
 						if (tar.IsNull()) continue;
 						if (tar.Clip is IRecordable { IsRecording: false }) continue;
-
+						
+						
 						if (!tar.Clip.SupportedTypes.Any(module.CanModify))
 						{
 							var data = new ToolData()
@@ -141,6 +142,7 @@ namespace Needle.Timeline
 								Clip = tar.Clip,
 								Time = tar.TimeF
 							};
+							tar.EnsurePaused();
 							module.OnModify(input, ref data);
 							UseEventDelayed();
 						}
