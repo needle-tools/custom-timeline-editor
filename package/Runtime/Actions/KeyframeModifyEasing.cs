@@ -1,15 +1,14 @@
 ﻿namespace Needle.Timeline
 {
-	public class KeyframeModifyEasing : Command, ICapture
+	public class KeyframeModifyEasing : Command
 	{
 		private readonly ICustomKeyframe keyframe;
 		private readonly float easeIn;
 		private readonly float easeOut;
 		private float newEaseIn;
 		private float newEaseOut;
-		private bool captured;
 
-		public override bool IsValid => captured && keyframe != null && base.IsValid;
+		public override bool IsValid => keyframe != null && base.IsValid;
 
 		public KeyframeModifyEasing(ICustomKeyframe keyframe)
 		{
@@ -18,10 +17,9 @@
 			easeOut = keyframe.easeOutWeight;
 		}
 
-		public void CaptureState()
+		protected override void OnCaptureState()
 		{
-			if (captured) return;
-			captured = true;
+			base.OnCaptureState();
 			newEaseIn = keyframe.easeInWeight;
 			newEaseOut = keyframe.easeOutWeight;
 			this.IsDone = true;
@@ -29,7 +27,6 @@
 
 		protected override void OnRedo()
 		{
-			if (!captured) return;
 			keyframe.easeInWeight = newEaseIn;
 			keyframe.easeOutWeight = newEaseOut;
 		}
