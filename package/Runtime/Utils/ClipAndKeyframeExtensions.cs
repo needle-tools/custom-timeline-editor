@@ -38,7 +38,6 @@ namespace Needle.Timeline
 		{
 			current.easeOutWeight -= change;
 			next.easeInWeight += change;
-			// Debug.Log(change + ", " + current.easeOutWeight + " <> " + next.easeInWeight);
 		}
 		
 		public static float GetWeight(this ICustomKeyframe current, ICustomKeyframe next)
