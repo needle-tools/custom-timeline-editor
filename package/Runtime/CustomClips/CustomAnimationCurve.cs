@@ -276,12 +276,10 @@ namespace Needle.Timeline
 
 		public void OnBeforeSerialize()
 		{
-			Debug.Log("Saving");
 		}
 
 		public void OnAfterDeserialize()
 		{
-			Debug.Log("Loaded");
 		}
 	}
 }

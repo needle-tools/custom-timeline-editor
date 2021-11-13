@@ -22,12 +22,9 @@ namespace Needle.Timeline
 		public static Vector2 GetMousePoint()
 		{
 #if UNITY_EDITOR
-			var mp = Application.isPlaying ? (Vector2)Input.mousePosition : Event.current.mousePosition;
-			if (!Application.isPlaying)
-			{
-				mp.y = Screen.height - mp.y;
-				mp.y -= 40;
-			}
+			var mp = Event.current.mousePosition;
+			mp.y = Screen.height - mp.y;
+			mp.y -= 40;
 #else
 			var mp = Input.mousePosition;
 #endif
