@@ -22,6 +22,8 @@ namespace Needle.Timeline
 		event Action TimeChanged, ValueChanged;
 		void RaiseValueChangedEvent();
 		Type[] AcceptedTypes();
+		float easeInWeight { get; set; }
+		float easeOutWeight { get; set; }
 	}
 	
 	public interface ICustomKeyframe<T> : ICustomKeyframe

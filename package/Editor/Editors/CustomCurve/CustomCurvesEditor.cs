@@ -181,10 +181,17 @@ namespace Needle.Timeline.Editors.CustomCurve
 				if (!GetIsInKeyframeRect(rect, timelineClip, kf, row, out var keyframeRect))
 					continue;
 
-				if (index >= 1 && clip.TryGetEasing(out var e) && e is IWeighted easing)
+				
+				var keyframe = kf as ICustomKeyframe;
+				if (keyframe == null) continue;
+
+				if (index >= 1)
 				{
+					var prev = clip.Keyframes[index-1] as ICustomKeyframe;
+					var weight = prev.GetWeight(keyframe);
+					weight = Mathf.Clamp(weight, .1f, .9f);
 					var dist = keyframeRect.x - lastKeyframeRect.x;
-					var middle = lastKeyframeRect.x + dist * easing.Weight;
+					var middle = lastKeyframeRect.x + dist * weight;
 					var r = new Rect(keyframeRect);
 					r.x = middle;
 					// r.y += r.height * .25f;
@@ -211,8 +218,10 @@ namespace Needle.Timeline.Editors.CustomCurve
 							case EventType.MouseDrag:
 								if (_dragging == _markerDragging && _markerDraggingIndex == index)
 								{
-									easing.Weight += evt.delta.x / dist;
-									easing.Weight = Mathf.Clamp(easing.Weight, .1f, .9f);
+									var weightChange = evt.delta.x / dist;
+									prev.AddWeightChange(keyframe, weightChange);
+									// easing.Weight += evt.delta.x / dist;
+									// easing.Weight = Mathf.Clamp(easing.Weight, .1f, .9f);
 									Repaint();
 									UpdatePreview();
 									clip.RaiseChangedEvent();
@@ -221,11 +230,7 @@ namespace Needle.Timeline.Editors.CustomCurve
 						}
 					}
 				}
-
 				lastKeyframeRect = keyframeRect;
-				
-				var keyframe = kf as ICustomKeyframe;
-				if (keyframe == null) continue;
 
 				if (evt.button == 0 || evt.isKey)
 				{

@@ -61,9 +61,25 @@ namespace Needle.Timeline
 		}
 
 		private readonly Type[] types = { typeof(T) };
+
 		public Type[] AcceptedTypes()
 		{
 			return types;
+		}
+
+		private float _easeInWeight = .5f;
+		private float _easeOutWeight = .5f;
+		
+		public float easeInWeight
+		{
+			get => _easeInWeight;
+			set => _easeInWeight = Mathf.Clamp(value, 0, 1);
+		}
+
+		public float easeOutWeight
+		{
+			get => _easeOutWeight;
+			set => _easeOutWeight = Mathf.Clamp(value, 0, 1);
 		}
 
 		// ReSharper disable once UnusedMember.Global
@@ -83,7 +99,7 @@ namespace Needle.Timeline
 			T clonedValue = default;
 			try
 			{
-				clonedValue = (T)CloneUtil.TryClone(value);
+				clonedValue = CloneUtil.TryClone(value);
 			}
 			catch (CouldNotCloneException)
 			{

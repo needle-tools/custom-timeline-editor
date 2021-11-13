@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Unity.Profiling;
 using UnityEngine;
 
@@ -12,6 +13,7 @@ namespace Needle.Timeline
 {
 	public static class ClipAndKeyframeExtensions
 	{
+		
 		public static ICustomKeyframe? AddKeyframeWithUndo(this ICustomClip clip, float time, object? value = null)
 		{
 			if (clip.GetType().IsGenericType)
@@ -30,6 +32,40 @@ namespace Needle.Timeline
 				}
 			}
 			return null;
+		}
+
+		public static void AddWeightChange(this ICustomKeyframe current, ICustomKeyframe next, float change)
+		{
+			current.easeOutWeight -= change;
+			next.easeInWeight += change;
+			// Debug.Log(change + ", " + current.easeOutWeight + " <> " + next.easeInWeight);
+		}
+		
+		public static float GetWeight(this ICustomKeyframe current, ICustomKeyframe next)
+		{
+			EnsureWeightSumIs1(current, next);
+			var sum = current.easeOutWeight + next.easeInWeight;
+			if (sum > 0)
+				return Mathf.Lerp(0, 1, next.easeInWeight / sum);
+			return .5f;
+		}
+
+		private static void EnsureWeightSumIs1(this ICustomKeyframe current, ICustomKeyframe next)
+		{
+			var sum = current.easeOutWeight + next.easeInWeight;
+			if (Math.Abs(sum - 1) > .01f)
+			{
+				if (sum == 0)
+				{
+					current.easeOutWeight = .5f;
+					next.easeInWeight = .5f;
+				}
+				else
+				{
+					current.easeOutWeight = Mathf.Lerp(0, 1, current.easeOutWeight / sum);
+					next.easeInWeight = 1 - current.easeOutWeight;
+				}
+			}
 		}
 
 		internal static Type? TryRetrieveKeyframeContentType(this ICustomKeyframe kf)

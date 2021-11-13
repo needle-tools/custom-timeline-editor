@@ -7,6 +7,7 @@ using JetBrains.Annotations;
 using Needle.Timeline.CurveEasing;
 using Newtonsoft.Json;
 using Unity.Profiling;
+using UnityEditorInternal;
 using UnityEngine;
 
 namespace Needle.Timeline
@@ -123,7 +124,8 @@ namespace Needle.Timeline
 						// if the next keyframe is also <= time we have not found the closest keyframe yet
 						if (next.time < time) continue;
 						// interpolate between this and the next keyframe
-						var t = GetPosition01(time, current.time, next.time, DefaultEasing);
+						var weight = current.GetWeight(next);
+						var t = GetPosition01(time, current.time, next.time, DefaultEasing, weight);
 						using (_interpolationMarker.Auto())
 						{
 							// _interpolator.Instance = ViewModel?.Script;
@@ -257,14 +259,16 @@ namespace Needle.Timeline
 			_keyframes.Sort((k1, k2) => Mathf.RoundToInt((k1.time - k2.time) * 100_00));
 		}
 
-		private static float GetPosition01(float value, float start, float end, IFloatModifier easing = null)
+		private static float GetPosition01(float t01, float start, float end, IFloatModifier easing = null, float weight = -1)
 		{
 			var diff = end - start;
-			value -= start;
-			value /= diff;
+			t01 -= start;
+			t01 /= diff;
+			if (weight >= 0) 
+				t01 = WeightedEasing.ApplyWeight(t01, weight);
 			if (easing != null)
-				value = easing.Modify(value);
-			return value;
+				t01 = easing.Modify(t01);
+			return t01;
 		}
 
 		public void OnBeforeSerialize()
