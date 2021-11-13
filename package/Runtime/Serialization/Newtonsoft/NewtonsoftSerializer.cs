@@ -1,6 +1,7 @@
 ﻿#nullable enable
 using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using UnityEngine;
@@ -49,6 +50,7 @@ namespace Needle.Timeline.Serialization
 		{
 			try
 			{
+				if(obj is ISerializationCallbackReceiver res) res.OnBeforeSerialize();
 				return JsonConvert.SerializeObject(obj, Indented ? Formatting.Indented : Formatting.None, Settings);
 			}
 			catch (JsonSerializationException ser)
@@ -61,12 +63,18 @@ namespace Needle.Timeline.Serialization
 
 		public T Deserialize<T>(object value)
 		{
-			return JsonConvert.DeserializeObject<T>((string)value, Settings)!;
+			var res = Deserialize(value, typeof(T));
+			if(res != null)
+				return (T)res;
+			return default!;
 		}
 
 		public object? Deserialize(object value, Type type)
 		{
-			return JsonConvert.DeserializeObject((string)value, type, Settings);
+			var res = JsonConvert.DeserializeObject((string)value, type, Settings);
+			if(res is ISerializationCallbackReceiver cb)
+				cb.OnAfterDeserialize();
+			return res;
 		}
 	}
 }

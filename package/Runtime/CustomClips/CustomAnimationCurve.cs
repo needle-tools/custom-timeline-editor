@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Needle.Timeline.CurveEasing;
 using Newtonsoft.Json;
@@ -11,7 +12,7 @@ using UnityEngine;
 namespace Needle.Timeline
 {
 	public class CustomAnimationCurve<T> 
-		: ICustomClip<T>, IInterpolator<T>, IKeyframesProvider, IHasInterpolator, IHasEasing
+		: ICustomClip<T>, IInterpolator<T>, IKeyframesProvider, IHasInterpolator, IHasEasing, ISerializationCallbackReceiver
 	{
 		private IInterpolator _interpolator;
 		private readonly List<ICustomKeyframe<T>> _keyframes;
@@ -266,5 +267,14 @@ namespace Needle.Timeline
 			return value;
 		}
 
+		public void OnBeforeSerialize()
+		{
+			Debug.Log("Saving");
+		}
+
+		public void OnAfterDeserialize()
+		{
+			Debug.Log("Loaded");
+		}
 	}
 }
