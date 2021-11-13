@@ -4,8 +4,8 @@ namespace Needle.Timeline.CurveEasing
 {
 	public class WeightedEasing : ICurveEasing, IWeighted
 	{
-		
-		public float Weight { get; set; }
+
+		public float Weight { get; set; } = .5f;
 
 		public float Modify(float value)
 		{
