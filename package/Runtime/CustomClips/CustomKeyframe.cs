@@ -54,7 +54,8 @@ namespace Needle.Timeline
 
 		public event Action? TimeChanged;
 		public event Action? ValueChanged;
-		
+		public event Action? EasingChanged;
+
 		public void RaiseValueChangedEvent()
 		{
 			ValueChanged?.Invoke();
@@ -73,13 +74,23 @@ namespace Needle.Timeline
 		public float easeInWeight
 		{
 			get => _easeInWeight;
-			set => _easeInWeight = Mathf.Clamp(value, 0, 1);
+			set
+			{
+				if (Math.Abs(_easeInWeight - value) < float.Epsilon) return;
+				_easeInWeight = Mathf.Clamp(value, 0, 1);
+				EasingChanged?.Invoke();
+			}
 		}
 
 		public float easeOutWeight
 		{
 			get => _easeOutWeight;
-			set => _easeOutWeight = Mathf.Clamp(value, 0, 1);
+			set
+			{
+				if (Math.Abs(_easeOutWeight - value) < float.Epsilon) return;
+				_easeOutWeight = Mathf.Clamp(value, 0, 1);
+				EasingChanged?.Invoke();
+			}
 		}
 
 		// ReSharper disable once UnusedMember.Global

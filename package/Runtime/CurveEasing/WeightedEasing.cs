@@ -6,17 +6,10 @@ namespace Needle.Timeline.CurveEasing
 	public class WeightedEasing : ICurveEasing, IWeighted
 	{
 		public float Weight { get; set; } = .5f;
-
-
-		[JsonIgnore]
-		private readonly ICurveEasing add = new QuadraticInOutEasing();
 		
-
 		public float Modify(float value)
 		{
-			var res = ApplyWeight(value, Weight);
-			// hack to test how it could be with combining easings
-			return add.Modify(res);
+			return ApplyWeight(value, Weight);
 		}
 
 		public static float ApplyWeight(float value, float weight)

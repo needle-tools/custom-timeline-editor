@@ -35,6 +35,7 @@ namespace Needle.Timeline.Editors.CustomCurve
 
 		private readonly List<KeyframeModifyTime> modifyTimeActions = new List<KeyframeModifyTime>();
 		private static readonly List<DeleteKeyframe> deletionList = new List<DeleteKeyframe>();
+		private readonly List<ICommand> dragActions = new List<ICommand>();
 
 		private readonly CustomCurvesEditor_Header customCurvesEditorHeader;
 
@@ -81,6 +82,14 @@ namespace Needle.Timeline.Editors.CustomCurve
 					if (modifyTimeActions.Count > 0)
 						CustomUndo.Register(modifyTimeActions.ToCompound("Modify Keyframe(s) time", true));
 					modifyTimeActions.Clear();
+
+					if (dragActions.Count > 0)
+					{
+						var compound = dragActions.ToCompound("Modified Keyframes", true);
+						CustomUndo.Register(compound);
+						dragActions.Clear();
+					}
+					
 					break;
 
 				case EventType.MouseDrag:
@@ -206,6 +215,8 @@ namespace Needle.Timeline.Editors.CustomCurve
 							case EventType.MouseDown:
 								if (r.Contains(evt.mousePosition))
 								{
+									dragActions.Add(new KeyframeModifyEasing(prev));
+									dragActions.Add(new KeyframeModifyEasing(keyframe));
 									_dragging = _markerDragging;
 									_markerDraggingIndex = index;
 									mouseDownOnKeyframe = true;
@@ -220,10 +231,6 @@ namespace Needle.Timeline.Editors.CustomCurve
 								{
 									var weightChange = evt.delta.x / dist;
 									prev.AddWeightChange(keyframe, weightChange);
-									// easing.Weight += evt.delta.x / dist;
-									// easing.Weight = Mathf.Clamp(easing.Weight, .1f, .9f);
-									Repaint();
-									UpdatePreview();
 									clip.RaiseChangedEvent();
 								}
 								break;

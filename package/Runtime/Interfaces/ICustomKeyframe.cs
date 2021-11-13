@@ -19,7 +19,7 @@ namespace Needle.Timeline
 	{
 		new object value { get; set; }
 		new float time { get; set; }
-		event Action TimeChanged, ValueChanged;
+		event Action TimeChanged, ValueChanged, EasingChanged;
 		void RaiseValueChangedEvent();
 		Type[] AcceptedTypes();
 		float easeInWeight { get; set; }

@@ -209,12 +209,19 @@ namespace Needle.Timeline
 		{
 			kf.TimeChanged += OnKeyframeTimeChanged;
 			kf.ValueChanged += OnKeyframeValueChanged;
+			kf.EasingChanged += OnKeyframeEasingChanged;
 		}
 
 		private void UnregisterKeyframeEvents(ICustomKeyframe kf)
 		{
 			kf.TimeChanged -= OnKeyframeTimeChanged;
 			kf.ValueChanged -= OnKeyframeValueChanged;
+			kf.EasingChanged -= OnKeyframeEasingChanged;
+		}
+
+		private void OnKeyframeEasingChanged()
+		{
+			Changed?.Invoke();
 		}
 
 		private void OnKeyframeValueChanged()
