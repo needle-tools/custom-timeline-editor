@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
+using UnityEngine.Scripting.APIUpdating;
 
-namespace Needle.Timeline.Easings
+namespace Needle.Timeline.CurveEasing
 {
 	public class RandomEasing : ICurveEasing
 	{

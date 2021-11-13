@@ -114,144 +114,11 @@ namespace Needle.Timeline.Editors.CustomCurve
 						if (viewModel?.clips == null) continue;
 						foreach (var clip in viewModel.clips)
 						{
-							if (!(clip is IKeyframesProvider prov)) continue;
-							foreach (var kf in prov.Keyframes)
-							{
-								if (!GetIsInKeyframeRect(rect, timelineClip, kf, row, out var keyframeRect)) 
-									continue;
-
-								if (evt.button == 0 || evt.isKey)
-								{
-									switch (evtType)
-									{
-										case EventType.MouseDown:
-											if (keyframeRect.Contains(evt.mousePosition))
-											{
-												mouseDownOnKeyframe = true;
-												useEvent = true;
-												_dragging = kf;
-
-												if (!kf.IsSelected())
-													KeyframeSelector.Deselect();
-												kf.Select(clip);
-
-												// double click keyframe?
-												var time = DateTime.Now.TimeOfDay.TotalSeconds;
-												if (time - _lastKeyframeClickedTime < 1 && _lastClicked == kf)
-												{
-													var newTime = kf.time / timelineClip.timeScale + timelineClip.start;
-													CustomUndo.Register(new TimelineModifyTime(viewModel.director, newTime));
-													UpdatePreview();
-												}
-												_lastKeyframeClickedTime = time;
-												_lastClicked = kf;
-											}
-
-											break;
-										case EventType.MouseDrag:
-											if (_dragging == kf)
-											{
-												var timeDelta = PixelDeltaToDeltaTime(evt.delta.x * (float)timelineClip.timeScale);
-												if (KeyframeSelector.SelectionCount > 0 &&
-												    KeyframeSelector.selectedKeyframes.Any(s => s.Keyframe == kf))
-												{
-													if (!didApplyDeltaToSelectedKeyframes)
-													{
-														didApplyDeltaToSelectedKeyframes = true;
-														var canPerform = true;
-														foreach (var entry in KeyframeSelector.EnumerateSelected())
-														{
-															if (!canPerform) break;
-															if (entry.time + timeDelta < 0)
-															{
-																canPerform = false;
-															}
-														}
-														foreach (var entry in KeyframeSelector.EnumerateSelected())
-														{
-															if (!canPerform) break;
-															if (!modifyTimeActions.Any(e => e.keyframe == entry))
-																modifyTimeActions.Add(new KeyframeModifyTime(entry));
-															entry.time += timeDelta;
-															Repaint();
-															UpdatePreview();
-															useEvent = true;
-														}
-													}
-												}
-												else
-												{
-													if (!modifyTimeActions.Any(e => e.keyframe == kf))
-														modifyTimeActions.Add(new KeyframeModifyTime(kf));
-													kf.Select(clip);
-													kf.time += timeDelta;
-													if (kf.time < 0) kf.time = 0;
-													Repaint();
-													UpdatePreview();
-													useEvent = true;
-												}
-											}
-
-											break;
-										case EventType.MouseUp:
-											_dragging = null;
-
-											if (_dragRect.Contains(keyframeRect.position))
-											{
-												if (_isMultiSelectDragging)
-													kf.Select(clip);
-											}
-											else if (keyframeRect.Contains(evt.mousePosition))
-											{
-												// Debug.Log("Up on keyframe");
-												// deselect previously selected
-												KeyframeSelector.Deselect();
-												kf.Select(clip);
-												useEvent = true;
-											}
-
-											break;
-
-										case EventType.KeyDown:
-											switch (evt.keyCode)
-											{
-												case KeyCode.Delete:
-													if (kf.IsSelected())
-														deletionList.Add(new DeleteKeyframe(kf, clip));
-													break;
-
-												case KeyCode.C:
-													if (kf.IsSelected() && (evt.modifiers & EventModifiers.Control) != 0)
-													{
-														_copy = kf;
-														_copyClip = clip;
-													}
-													break;
-												case KeyCode.V:
-													if ((evt.modifiers & EventModifiers.Control) != 0)
-													{
-														if (_copy != null && _copy is ICloneable cloneable && clip == _copyClip)
-														{
-															if (viewModel.currentlyInClipTime)
-															{
-																if (cloneable.Clone() is ICustomKeyframe copy)
-																{
-																	copy.time = (float)viewModel.clipTime;
-																	CustomUndo.Register(new CreateKeyframe(copy, clip));
-																	Repaint();
-																	UpdatePreview();
-																	return;
-																}
-															}
-														}
-													}
-													break;
-											}
-											break;
-									}
-								}
-							}
-
+							if (OnRenderClip(rect, clip, timelineClip, row, viewModel, 
+								    ref didApplyDeltaToSelectedKeyframes,
+								    ref mouseDownOnKeyframe
+								    )) 
+								return;
 							++row;
 						}
 					}
@@ -296,7 +163,171 @@ namespace Needle.Timeline.Editors.CustomCurve
 			}
 		}
 
-		private bool GetIsInKeyframeRect(Rect rect, TimelineClip timelineClip, ICustomKeyframe kf, int row, out Rect keyframeRect)
+		private bool OnRenderClip(Rect rect,
+			ICustomClip clip,
+			TimelineClip timelineClip,
+			int row,
+			ClipInfoViewModel viewModel,
+			ref bool didApplyDeltaToSelectedKeyframes,
+			ref bool mouseDownOnKeyframe)
+		{
+			var evt = Event.current;
+			var evtType = evt.type;
+			Rect lastKeyframeRect = Rect.zero;
+			for (var index = 0; index < clip.Keyframes.Count; index++)
+			{
+				var kf = clip.Keyframes[index];
+				if (!GetIsInKeyframeRect(rect, timelineClip, kf, row, out var keyframeRect))
+					continue;
+
+				if (index >= 1)
+				{
+					var middle = lastKeyframeRect.x + (keyframeRect.x - lastKeyframeRect.x) * .5f;
+					var r = new Rect(keyframeRect);
+					r.x = middle;
+					r.y += r.height * .25f;
+					r.height *= .5f;
+					r.width *= .5f;
+					GUI.DrawTexture(r, Texture2D.whiteTexture, ScaleMode.StretchToFill, true,
+						1, new Color(.5f,.5f,.5f, .3f), 0, 4);
+				}
+
+				lastKeyframeRect = keyframeRect;
+				
+				var keyframe = kf as ICustomKeyframe;
+				if (keyframe == null) continue;
+
+				if (evt.button == 0 || evt.isKey)
+				{
+					switch (evtType)
+					{
+						case EventType.MouseDown:
+							if (keyframeRect.Contains(evt.mousePosition))
+							{
+								_dragging = keyframe;
+								mouseDownOnKeyframe = true;
+
+								if (!kf.IsSelected())
+									KeyframeSelector.Deselect();
+								keyframe.Select(clip);
+
+								// double click keyframe?
+								var time = DateTime.Now.TimeOfDay.TotalSeconds;
+								if (time - _lastKeyframeClickedTime < 1 && _lastClicked == kf)
+								{
+									var newTime = kf.time / timelineClip.timeScale + timelineClip.start;
+									CustomUndo.Register(new TimelineModifyTime(viewModel.director, newTime));
+									UpdatePreview();
+								}
+								_lastKeyframeClickedTime = time;
+								_lastClicked = keyframe;
+							}
+
+							break;
+						case EventType.MouseDrag:
+							if (_dragging == kf)
+							{
+								var timeDelta = PixelDeltaToDeltaTime(evt.delta.x * (float)timelineClip.timeScale);
+								if (KeyframeSelector.SelectionCount > 0 &&
+								    KeyframeSelector.selectedKeyframes.Any(s => s.Keyframe == kf))
+								{
+									if (!didApplyDeltaToSelectedKeyframes)
+									{
+										didApplyDeltaToSelectedKeyframes = true;
+										var canPerform = true;
+										foreach (var entry in KeyframeSelector.EnumerateSelected())
+										{
+											if (!canPerform) break;
+											if (entry.time + timeDelta < 0)
+											{
+												canPerform = false;
+											}
+										}
+										foreach (var entry in KeyframeSelector.EnumerateSelected())
+										{
+											if (!canPerform) break;
+											if (!modifyTimeActions.Any(e => e.keyframe == entry))
+												modifyTimeActions.Add(new KeyframeModifyTime(entry));
+											entry.time += timeDelta;
+											Repaint();
+											UpdatePreview();
+										}
+									}
+								}
+								else
+								{
+									if (!modifyTimeActions.Any(e => e.keyframe == kf))
+										modifyTimeActions.Add(new KeyframeModifyTime(keyframe));
+									keyframe.Select(clip);
+									keyframe.time += timeDelta;
+									if (kf.time < 0) keyframe.time = 0;
+									Repaint();
+									UpdatePreview();
+								}
+							}
+
+							break;
+						case EventType.MouseUp:
+							_dragging = null;
+
+							if (_dragRect.Contains(keyframeRect.position))
+							{
+								if (_isMultiSelectDragging)
+									keyframe.Select(clip);
+							}
+							else if (keyframeRect.Contains(evt.mousePosition))
+							{
+								// Debug.Log("Up on keyframe");
+								// deselect previously selected
+								KeyframeSelector.Deselect();
+								keyframe.Select(clip);
+							}
+
+							break;
+
+						case EventType.KeyDown:
+							switch (evt.keyCode)
+							{
+								case KeyCode.Delete:
+									if (kf.IsSelected())
+										deletionList.Add(new DeleteKeyframe(keyframe, clip));
+									break;
+
+								case KeyCode.C:
+									if (kf.IsSelected() && (evt.modifiers & EventModifiers.Control) != 0)
+									{
+										_copy = keyframe;
+										_copyClip = clip;
+									}
+									break;
+								case KeyCode.V:
+									if ((evt.modifiers & EventModifiers.Control) != 0)
+									{
+										if (_copy != null && _copy is ICloneable cloneable && clip == _copyClip)
+										{
+											if (viewModel.currentlyInClipTime)
+											{
+												if (cloneable.Clone() is ICustomKeyframe copy)
+												{
+													copy.time = (float)viewModel.clipTime;
+													CustomUndo.Register(new CreateKeyframe(copy, clip));
+													Repaint();
+													UpdatePreview();
+													return true;
+												}
+											}
+										}
+									}
+									break;
+							}
+							break;
+					}
+				}
+			}
+			return false;
+		}
+
+		private bool GetIsInKeyframeRect(Rect rect, TimelineClip timelineClip, IReadonlyCustomKeyframe kf, int row, out Rect keyframeRect)
 		{
 			keyframeRect = new Rect();
 			keyframeRect.x += TimeToPixel(timelineClip.start + kf.time / timelineClip.timeScale);
@@ -311,7 +342,7 @@ namespace Needle.Timeline.Editors.CustomCurve
 			return true;
 		}
 
-		private void DoDrawKeyframe(TimelineClip timelineClip, ICustomKeyframe kf, Rect keyframeRect)
+		private void DoDrawKeyframe(TimelineClip timelineClip, IReadonlyCustomKeyframe kf, Rect keyframeRect)
 		{
 			if (Event.current.type != EventType.Repaint) return;
 			var col = SelectedClip == timelineClip ? _assetSelectedColor : _normalColor;
@@ -319,5 +350,7 @@ namespace Needle.Timeline.Editors.CustomCurve
 			GUI.DrawTexture(keyframeRect, Texture2D.whiteTexture, ScaleMode.StretchToFill, true,
 				1, col, 0, 4);
 		}
+		
+		
 	}
 }

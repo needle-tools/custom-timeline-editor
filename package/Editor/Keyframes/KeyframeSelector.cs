@@ -52,7 +52,7 @@ namespace Needle.Timeline
 				Selection.activeObject = null;
 		}
 
-		public static bool IsSelected(ICustomKeyframe keyframe)
+		public static bool IsSelected(IReadonlyCustomKeyframe keyframe)
 		{
 			return selectedKeyframes.Any(s => s.Keyframe == keyframe);
 		}
@@ -76,11 +76,11 @@ namespace Needle.Timeline
 			return KeyframeSelector.Select(clip, kf);
 		}
 		
-		public static bool IsSelected(this ICustomKeyframe kf) => 
+		public static bool IsSelected(this IReadonlyCustomKeyframe kf) => 
 			KeyframeSelector._instance && KeyframeSelector.IsSelected(kf) && 
 			Selection.activeObject == KeyframeSelector._instance;
 		
-		public static bool AnySelected(this ICustomKeyframe _) => 
+		public static bool AnySelected(this IReadonlyCustomKeyframe _) => 
 			KeyframeSelector._instance && KeyframeSelector.selectedKeyframes != null && Selection.activeObject == KeyframeSelector._instance;
 		
 		public static bool AnySelected() => 
