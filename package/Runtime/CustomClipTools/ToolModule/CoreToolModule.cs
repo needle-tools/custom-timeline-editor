@@ -497,8 +497,14 @@ namespace Needle.Timeline
 
 	public struct ModifyContext
 	{
+		/// <summary>
+		/// The owner of the original value (e.g. if modification happens on a field we need this)
+		/// </summary>
 		public readonly object Object;
 		public float Weight;
+		/// <summary>
+		/// The index in the original collection (if any)
+		/// </summary>
 		public readonly int Index;
 
 		public ModifyContext(object target, int index)
@@ -512,7 +518,13 @@ namespace Needle.Timeline
 	public struct CapturedModifyContext
 	{
 		public readonly ModifyContext Context;
+		/// <summary>
+		/// The value to be modified
+		/// </summary>
 		public object Value;
+		/// <summary>
+		/// The index of this capture in the capture list. We need this to get the matching field again and be safe if tool removes items or shuffles them around
+		/// </summary>
 		public readonly int Index;
 
 		public CapturedModifyContext(ModifyContext context, object value, int index)
