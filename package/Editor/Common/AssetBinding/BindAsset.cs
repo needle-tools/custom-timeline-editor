@@ -2,12 +2,15 @@
 using System.ComponentModel;
 using System.Reflection;
 using UnityEditor;
+using Object = UnityEngine.Object;
 
 namespace Needle.Timeline.AssetBinding
 {
 	[AttributeUsage(AttributeTargets.Field)]
 	public class BindAsset : Attribute
 	{
+		public static readonly Object CouldNotLoadMarker = new Object();
+		
 		public readonly string Guid;
 
 		public BindAsset(string guid)
@@ -15,12 +18,14 @@ namespace Needle.Timeline.AssetBinding
 			this.Guid = guid;
 		}
 
-		public void Apply(FieldInfo field, object instance = null)
+		public Object Apply(FieldInfo field, object instance = null)
 		{
-			if (!field.IsStatic && instance == null) return; 
-			if (string.IsNullOrEmpty(Guid)) return;
+			if (!field.IsStatic && instance == null) return null;
+			if (string.IsNullOrEmpty(Guid)) return null;
 			var value = AssetDatabase.LoadAssetAtPath(AssetDatabase.GUIDToAssetPath(Guid), field.FieldType);
 			field.SetValue(null, value);
+			if (!value) return CouldNotLoadMarker;
+			return value;
 		}
 	}
 }

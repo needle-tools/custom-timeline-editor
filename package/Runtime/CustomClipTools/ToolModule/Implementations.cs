@@ -69,22 +69,26 @@ namespace Needle.Timeline
 
 	public class DragPosition : CoreToolModule
 	{
+		[Range(0.01f, 10)]
 		public float Radius = 1;
+		[Range(0,1)]
 		public float Probability = 1f;
+		[Range(0,1)]
+		public float Strength = 1f;
 
 		protected override IList<Type> SupportedTypes { get; } = new[] { typeof(Vector3), typeof(Vector2) };
 
 		protected override ToolInputResult OnModifyValue(InputData input, ref ModifyContext context, ref object value)
 		{
 			if (input.WorldPosition == null) return ToolInputResult.Failed;
-			var vec = (Vector3)value.Cast(typeof(Vector3));
-
 			if (Random.value > Probability) return ToolInputResult.Failed;
+			
+			var vec = (Vector3)value.Cast(typeof(Vector3));
 			
 			var dist = input.GetRadiusDistanceScreenSpace(Radius, vec);
 			if (dist < 1)
 			{
-				vec += input.DeltaWorld.Value;
+				vec += input.DeltaWorld.Value * Strength;
 				value = vec;
 				return ToolInputResult.Success;
 			}

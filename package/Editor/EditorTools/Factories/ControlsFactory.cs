@@ -69,9 +69,12 @@ namespace Needle.Timeline
 
 		public static VisualElement BuildControl(this IViewFieldBinding binding, VisualElement? target = null)
 		{
+			
 			if (TryBuildControl(binding.ValueType, binding, out var control))
 			{
-				var instance = controlAsset!.CloneTree();
+				if (!controlAsset) 
+					AssetBinder.EnsureBinding(typeof(ControlsFactory));
+				var instance = controlAsset.CloneTree();
 				instance.styleSheets.Add(controlStyles);
 
 
