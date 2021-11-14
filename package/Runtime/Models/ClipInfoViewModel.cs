@@ -68,7 +68,7 @@ namespace Needle.Timeline
 		public bool IsValid => director;// && !failedLoading;
 		public string Name { get; set; }
 		public string Id => model.id;
-		public readonly IAnimated Script;
+		public IAnimated Script { get; internal set; }
 		public readonly List<IValueHandler> values = new List<IValueHandler>();
 		public readonly List<ICustomClip> clips = new List<ICustomClip>();
 		public double startTime => timelineClip.start;

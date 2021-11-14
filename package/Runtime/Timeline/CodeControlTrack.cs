@@ -6,6 +6,7 @@ using Unity.Profiling;
 using UnityEngine;
 using UnityEngine.Playables;
 using UnityEngine.Timeline;
+using Object = UnityEngine.Object;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -14,12 +15,6 @@ using UnityEditor.Timeline;
 
 namespace Needle.Timeline
 {
-	/*
-	 *	TODO: where to serialize keyframe data?
-	 *	TODO: real mixer interpolation
-	 * 
-	 */
-
 	[TrackClipType(typeof(CodeControlAsset))]
 	[TrackBindingType(typeof(MonoBehaviour))]
 	[TrackColor(.2f, .5f, 1f)]
@@ -152,7 +147,14 @@ namespace Needle.Timeline
 
 					timelineClip.displayName = typeName;
 
-					bool GetExisting(ClipInfoViewModel v) => v.Script == script && v.AnimationClip == timelineClip.curves && v.Id == model.id;
+					bool GetExisting(ClipInfoViewModel v)
+					{
+						var match = v.AnimationClip == timelineClip.curves && v.Id == model.id;
+						if (match && (v.Script == script || v.Script == null || v.Script is Object o && !o))
+							return true;
+						return false;
+					}
+
 					var existing = viewModels.FirstOrDefault(GetExisting);
 					if (existing == null && asset.viewModels != null)
 						existing = asset.viewModels.FirstOrDefault(GetExisting);
@@ -161,6 +163,7 @@ namespace Needle.Timeline
 					var viewModel = existing ?? new ClipInfoViewModel(boundObject.name, script, model, timelineClip);
 					viewModel.director = dir;
 					viewModel.asset = asset;
+					viewModel.Script = script;
 					if (existing != null)
 					{
 						// Debug.Log("VM exists: " + id);
