@@ -68,14 +68,24 @@ namespace Needle.Timeline
 	}
 
 
-	public class PositionModifier : CoreToolModule
+	public class Spreader : CoreToolModule
 	{
 		protected override IList<Type> SupportedTypes { get; } = new []{typeof(Vector3)};
 
+		[Range(.1f, 10)]
+		public float Radius = 1;
+		[Range(-1,1)]
+		public float Strength = .5f;
 		
 		protected override ToolInputResult OnModifyValue(InputData input, ref ModifyContext context, ref object value)
 		{
-			return ToolInputResult.CaptureForFinalize;
+			var vec = (Vector3)value.Cast(typeof(Vector3));
+			var dist = input.GetRadiusDistanceScreenSpace(Radius, vec);
+			if (dist < 1)
+			{
+				return ToolInputResult.CaptureForFinalize;
+			}
+			return ToolInputResult.Failed;
 		}
 
 		protected override ToolInputResult OnModifyCaptured(InputData input, List<CapturedModifyContext> captured)
@@ -88,11 +98,15 @@ namespace Needle.Timeline
 				sum += pos;
 			}
 			var center = sum / captured.Count;
+			var factor = 0.01f * Strength;
 			for (var index = 0; index < captured.Count; index++)
 			{
 				var e = captured[index];
 				var pos = (Vector3)e.Value.Cast(typeof(Vector3));
-				e.Value = Vector3.Lerp(pos, center, 0.001f);
+				var dir = center - pos;
+				dir.Normalize();
+				dir *= factor;
+				e.Value = pos - dir;
 				captured[index] = e;
 			}
 
