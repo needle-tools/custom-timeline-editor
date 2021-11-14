@@ -15,6 +15,8 @@ namespace Needle.Timeline
 			return _toolsSettings;
 		}
 
+		internal static void ForceRecreate() => _recreateUI = true;
+
 #if UNITY_EDITOR
 		[InitializeOnLoadMethod]
 #else

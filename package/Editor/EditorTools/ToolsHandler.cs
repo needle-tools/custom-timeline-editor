@@ -25,11 +25,25 @@ namespace Needle.Timeline
 		{
 			if (tool == null || !tool.IsValid)
 			{
-				Debug.LogError("Tool is null or invalid, this is a bug - maybe try recompile a script if this was at startup");
+				_requireRebuild = true;
+				ToolsGUI.ForceRecreate();
 				CreateToolInstances();
-				return;
+				if (tool != null) 
+					tool = ToolInstances.FirstOrDefault(t => t.GetType() == tool.GetType());
+				
+				if (tool == null || !tool.IsValid)
+				{
+					Debug.LogError("Tool is null or invalid and auto recovery failed, this is a bug! - maybe try recompile a script. Tool: " + tool?.GetType());
+					return;
+				}
+				Debug.LogWarning("Tool was invalid - this is a known issue and has been auto-resolved but the cause should be found at some point. This warning is here as a reminder to the author. Thanks! Have fun");
 			}
-			
+			InternalSelect(tool);
+		}
+
+		
+		private static void InternalSelect(ICustomClipTool tool)
+		{	
 			if (_selected.Contains(tool)) return;
 			_selected.Add(tool);
 
