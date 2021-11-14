@@ -70,13 +70,33 @@ namespace Needle.Timeline
 
 	public class PositionModifier : CoreToolModule
 	{
-		protected override IList<Type> SupportedTypes { get; } = new []{typeof(IList<Vector3>)};
+		protected override IList<Type> SupportedTypes { get; } = new []{typeof(Vector3)};
 
+		
 		protected override ToolInputResult OnModifyValue(InputData input, ref ModifyContext context, ref object value)
 		{
-			// TODO: how can we build a tool that requires a list of all the current matching values
-			Debug.Log(value);
-			return ToolInputResult.Failed;
+			return ToolInputResult.CaptureForFinalize;
+		}
+
+		protected override ToolInputResult OnModifyCaptured(InputData input, List<CapturedModifyContext> captured)
+		{
+			var sum = new Vector3();
+			for (var index = 0; index < captured.Count; index++)
+			{
+				var e = captured[index];
+				var pos = (Vector3)e.Value.Cast(typeof(Vector3));
+				sum += pos;
+			}
+			var center = sum / captured.Count;
+			for (var index = 0; index < captured.Count; index++)
+			{
+				var e = captured[index];
+				var pos = (Vector3)e.Value.Cast(typeof(Vector3));
+				e.Value = Vector3.Lerp(pos, center, 0.001f);
+				captured[index] = e;
+			}
+
+			return ToolInputResult.Success;
 		}
 	}
 

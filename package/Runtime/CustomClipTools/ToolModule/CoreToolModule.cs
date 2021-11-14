@@ -14,9 +14,22 @@ namespace Needle.Timeline
 {
 	public enum ToolInputResult
 	{
+		/// <summary>
+		/// Tool did modify value and value should be updated
+		/// </summary>
 		Success = 0,
+		/// <summary>
+		/// Tool did not affect value and just continue
+		/// </summary>
 		Failed = 1,
+		/// <summary>
+		/// Tool failed and should stop affecting any other value
+		/// </summary>
 		AbortFurtherProcessing = 2,
+		/// <summary>
+		/// Tool wants to collect this value to be captured and called with a list of all captured values at the end
+		/// </summary>
+		CaptureForFinalize = 5,
 	}
 
 	public interface IToolInputEntryCallback
@@ -332,7 +345,7 @@ namespace Needle.Timeline
 					for (var index = 0; index < list.Count; index++)
 					{
 						var value = list[index];
-						var context = new ModifyContext(value);
+						var context = new ModifyContext(value, index);
 						var res = OnModifyValue(input, ref context, ref value);
 						if (res == ToolInputResult.AbortFurtherProcessing)
 							break;
@@ -368,6 +381,7 @@ namespace Needle.Timeline
 						matchingFields = instance.GetType().EnumerateFields();
 
 					var aborted = false;
+					BeforeModifyList();
 					for (var index = 0; index < list.Count; index++)
 					{
 						if (aborted) break;
@@ -376,7 +390,7 @@ namespace Needle.Timeline
 						{
 							using (_modifyLoopFieldsMarker.Auto())
 							{
-								var context = new ModifyContext(entry);
+								var context = new ModifyContext(entry, index);
 								var value = matchingField.GetValue(entry);
 								var res = OnModifyValue(input, ref context, ref value);
 								if (res == ToolInputResult.AbortFurtherProcessing)
@@ -384,7 +398,15 @@ namespace Needle.Timeline
 									aborted = true;
 									break;
 								}
-								if (res != ToolInputResult.Success) continue;
+								if (res == ToolInputResult.CaptureForFinalize)
+								{
+									CaptureEntry(matchingField, context, value);
+									continue;
+								}
+								if (res != ToolInputResult.Success)
+								{
+									continue;
+								}
 								matchingField.SetValue(entry, value.Cast(matchingField.FieldType));
 								ApplyBinding(entry, context.Weight, matchingField);
 								list[index] = entry;
@@ -392,14 +414,59 @@ namespace Needle.Timeline
 							}
 						}
 					}
+					if (AfterModifyList(input, list))
+						didRun = true;
 				}
 			}
 			return didRun;
 		}
 
+		private readonly List<FieldInfo> capturedFieldsCache = new List<FieldInfo>();
+		private readonly List<CapturedModifyContext> capturedContexts = new List<CapturedModifyContext>();
+
+		private void BeforeModifyList()
+		{
+			capturedFieldsCache.Clear();
+			capturedContexts.Clear();
+		}
+
+		private void CaptureEntry(FieldInfo field, ModifyContext context, object value)
+		{
+			capturedFieldsCache.Add(field);
+			capturedContexts.Add(new CapturedModifyContext(context, value, capturedContexts.Count));
+		}
+
+		private bool AfterModifyList(InputData input, IList list)
+		{
+			if (capturedContexts.Count <= 0) return false;
+
+			var res = OnModifyCaptured(input, capturedContexts);
+			if (res == ToolInputResult.Success)
+			{
+				for (var index = 0; index < capturedContexts.Count; index++)
+				{
+					var cap = capturedContexts[index];
+					var field = capturedFieldsCache[cap.Index];
+					var value = cap.Value;
+					field.SetValue(cap.Context.Object, value.Cast(field.FieldType));
+					list[cap.Context.Index] = cap.Context.Object;
+				}
+			}
+
+			capturedFieldsCache.Clear();
+			capturedContexts.Clear();
+			return true;
+		}
+		
+
 		private static ProfilerMarker _modifyLoopFieldsMarker = new ProfilerMarker("Modify.LoopFields");
 
 		protected virtual ToolInputResult OnModifyValue(InputData input, ref ModifyContext context, ref object value)
+		{
+			return ToolInputResult.Failed;
+		}
+
+		protected virtual ToolInputResult OnModifyCaptured(InputData input, List<CapturedModifyContext> captured)
 		{
 			return ToolInputResult.Failed;
 		}
@@ -432,11 +499,27 @@ namespace Needle.Timeline
 	{
 		public readonly object Object;
 		public float Weight;
+		public readonly int Index;
 
-		public ModifyContext(object target)
+		public ModifyContext(object target, int index)
 		{
 			Object = target;
 			Weight = 1;
+			this.Index = index;
+		}
+	}
+
+	public struct CapturedModifyContext
+	{
+		public readonly ModifyContext Context;
+		public object Value;
+		public readonly int Index;
+
+		public CapturedModifyContext(ModifyContext context, object value, int index)
+		{
+			Context = context;
+			this.Value = value;
+			Index = index;
 		}
 	}
 
