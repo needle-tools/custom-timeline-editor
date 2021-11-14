@@ -1,8 +1,6 @@
-﻿using System;
-using UnityEngine;
-using UnityEngine.Timeline;
+﻿using UnityEngine;
 
-namespace Needle.Timeline
+namespace Needle.Timeline.Serialization
 {
 	[Priority(0)]
 	public class RuntimeLoader : ILoader
