@@ -59,7 +59,17 @@ namespace Needle.Timeline
 
 		public override bool CanModify(Type type)
 		{
-			return SupportedTypes.Any(t => t.IsAssignableFrom(type));
+			// var isList = typeof(IList).IsAssignableFrom(type);
+			foreach (var sup in SupportedTypes)
+			{
+				if (sup.IsAssignableFrom(type)) return true;
+				// if (isList)
+				// {
+				// 	return true;
+				// }
+			}
+
+			return false;
 		}
 
 		/// <summary>
