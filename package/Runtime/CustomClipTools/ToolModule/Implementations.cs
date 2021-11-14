@@ -1,6 +1,7 @@
 ﻿#nullable enable
 using System;
 using System.Collections.Generic;
+using Needle.Timeline.Models;
 using Unity.Profiling;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -17,7 +18,10 @@ namespace Needle.Timeline
 		public bool OnSurface = false;
 		public bool AllKeyframes = false;
 
-		protected override IList<Type> SupportedTypes { get; } = new[] { typeof(Vector3), typeof(Vector2) };
+		protected override IList<Type> SupportedTypes { get; } = new[]
+		{
+			typeof(Vector3), typeof(Vector2), typeof(GameObject)
+		};
 
 		protected override IEnumerable<ICustomKeyframe?> GetKeyframes(ToolData toolData)
 		{
@@ -42,10 +46,25 @@ namespace Needle.Timeline
 
 		protected override IEnumerable<ProducedValue> OnProduceValues(InputData input, ProduceContext context)
 		{
-			if (input.HasKeyPressed(KeyCode.M)) yield break;
 			if (context.Count >= Max) yield break;
-			if (input.WorldPosition == null) yield break; 
+			if (input.WorldPosition == null) yield break;
 
+			var isGameObject = typeof(GameObject).IsAssignableFrom(context.Type);
+			if (isGameObject)
+			{
+				var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
+				go.hideFlags = HideFlags.DontSaveInEditor;
+				var pos = GetPosition(input);
+				go.transform.position = pos;
+				// if (context.Target is Component c) go.transform.SetParent(c.transform);
+				yield return new ProducedValue(go, true);
+			}
+			else
+				yield return new ProducedValue(GetPosition(input), true);
+		}
+
+		private Vector3 GetPosition(InputData input)
+		{
 			var offset = Random.insideUnitSphere * Radius;
 			var pos = input.WorldPosition.Value + offset;
 
@@ -55,15 +74,14 @@ namespace Needle.Timeline
 				var ray = input.ToRay(screenPoint);
 				if (Physics.Raycast(ray.origin, ray.direction, out var hit, Radius * 100))
 				{
-					Debug.DrawLine(hit.point,hit.point + hit.normal, Color.green, 1);
-					pos = hit.point; 
+					Debug.DrawLine(hit.point, hit.point + hit.normal, Color.green, 1);
+					return hit.point;
 				}
-				else yield return new ProducedValue(pos, false);
 			}
 			pos += Offset * input.WorldNormal.GetValueOrDefault() * Radius;
-
 			if (input.IsIn2DMode) pos.z = 0;
-			yield return new ProducedValue(pos, true);
+			Debug.DrawLine(pos, pos + Vector3.up, Color.white, 1);
+			return pos;
 		}
 	}
 

@@ -131,7 +131,7 @@ namespace Needle.Timeline
 						cachedFields.Add(entry);
 
 						if (typeof(ICollection).IsAssignableFrom(type))
-						{
+						{ 
 							if (type.IsGenericType)
 							{
 								var content = type.GetGenericArguments().FirstOrDefault();

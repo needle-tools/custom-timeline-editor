@@ -29,12 +29,6 @@
         "com.unity.nuget.newtonsoft-json": "2.0.0"
       }
     },
-    "com.needle.timeline-editor-extras": {
-      "version": "file:../../../modules/custom-timeline-playground/extras",
-      "depth": 0,
-      "source": "local",
-      "dependencies": {}
-    },
     "com.needle.transform-extensions": {
       "version": "file:../../../modules/transform-changed-helper/package",
       "depth": 0,

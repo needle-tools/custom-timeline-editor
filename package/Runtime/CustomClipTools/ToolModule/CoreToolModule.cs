@@ -156,7 +156,7 @@ namespace Needle.Timeline
 
 					using (_produceMarker.Auto())
 					{
-						if (ProduceValues(input, context))
+						if (ProduceValues(input, context, ref toolData))
 							didRun = true;
 					}
 
@@ -269,36 +269,37 @@ namespace Needle.Timeline
 			return ToolInputResult.Failed;
 		}
 
-		private bool ProduceValues(InputData input, ToolContext toolContext)
+		private bool ProduceValues(InputData input, ToolContext toolContext, ref ToolData toolData)
 		{
 			var type = toolContext.ContentType ?? toolContext.Value?.GetType();
 			if (type == null) ThrowHelper.Throw("Failed finding keyframe type that can be assigned: " + toolContext.Value);
-
-			var context = new ProduceContext(_producedCount, toolContext.List != null ? new uint?() : 1);
+			
+			var context = new ProduceContext(_producedCount, toolContext.List != null ? new uint?() : 1, type!, toolData.Object);
 			var didProduceValue = false;
 			foreach (var res in OnProduceValues(input, context))
 			{
 				if (!res.Success) continue;
 				var value = res.Value;
-				object instance;
+				object? instance;
 				if (toolContext.MatchingType != null)
 				{
 					instance = value;
 				}
 				else
 				{
-					instance = type.TryCreateInstance();
+					instance = type!.TryCreateInstance();
 					if (instance == null)
 						ThrowHelper.Throw("Failed creating instance of " + toolContext.ContentType + ", Module: " + this);
 				}
 
 
-				ApplyBinding(instance, res.Weight);
+				if(instance != null)
+					ApplyBinding(instance, res.Weight);
 
 				// the content type is a field inside a type
 				if (instance is IToolEvents i) i.OnToolEvent(ToolStage.InstanceCreated, input);
 
-				if (toolContext.MatchingType == null)
+				if (toolContext.MatchingType == null && instance != null)
 				{
 					var matchingField = TryGetMatchingField(instance);
 					if (matchingField == null)
@@ -539,21 +540,25 @@ namespace Needle.Timeline
 	{
 		public readonly uint Count;
 		public readonly uint? MaxExpected;
+		public readonly Type Type;
+		public readonly object Target;
 
-		public ProduceContext(uint count, uint? maxExpected)
+		public ProduceContext(uint count, uint? maxExpected, Type type, object target)
 		{
 			Count = count;
-			this.MaxExpected = maxExpected;
+			MaxExpected = maxExpected;
+			Type = type;
+			this.Target = target;
 		}
 	}
 
 	public readonly struct ProducedValue
 	{
-		public readonly object Value;
+		public readonly object? Value;
 		public readonly bool Success;
 		public readonly float Weight;
 
-		public ProducedValue(object value, bool success, float weight = 1)
+		public ProducedValue(object? value, bool success, float weight = 1)
 		{
 			Value = value;
 			Success = success;

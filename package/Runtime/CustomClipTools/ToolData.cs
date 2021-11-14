@@ -4,9 +4,21 @@ using UnityEngine;
 
 namespace Needle.Timeline
 {
-	public struct ToolData
+	public readonly struct ToolData
 	{
-		public ICustomClip Clip;
-		public float Time;
+		public readonly ICustomClip Clip;
+		public readonly float Time;
+		
+		/// <summary>
+		/// The targeted (owner) object
+		/// </summary>
+		public readonly object Object;
+
+		public ToolData(object @object, ICustomClip clip, float time)
+		{
+			Object = @object;
+			Clip = clip;
+			Time = time;
+		}
 	}
 }

@@ -16,6 +16,15 @@ namespace Needle.Timeline
 		protected override bool OnSupports(Type type)
 		{
 			if (ToolModuleRegistry.Modules.Any(m => m.CanModify(type))) return true;
+			if (type.IsGenericType && typeof(IList).IsAssignableFrom(type))
+			{
+				var par = type.GetGenericArguments().FirstOrDefault();
+				if(par != null)
+				{
+					if (ToolModuleRegistry.Modules.Any(m => m.CanModify(par)))
+						return true;
+				}
+			}
 			foreach (var field in type.EnumerateFields())
 			{
 				if (ToolModuleRegistry.Modules.Any(m => m.CanModify(field.FieldType)))
@@ -137,11 +146,7 @@ namespace Needle.Timeline
 						
 						if (!tar.Clip.SupportedTypes.Any(module.CanModify))
 						{
-							var data = new ToolData()
-							{
-								Clip = tar.Clip,
-								Time = tar.TimeF
-							};
+							var data = new ToolData(tar.Object, tar.Clip, tar.TimeF);
 							tar.EnsurePaused();
 							module.OnModify(input, ref data);
 							UseEventDelayed();
