@@ -389,9 +389,7 @@ namespace Needle.Timeline
 							break;
 						if (res == ToolInputResult.CaptureForFinalize)
 						{
-							Debug.Log("TODO!!!!!");
-							break;
-							// CaptureEntry(matchingField, context, value);
+							CaptureEntry(context, value, null);
 							continue;
 						}
 						if (res != ToolInputResult.Success) continue;
@@ -399,6 +397,8 @@ namespace Needle.Timeline
 						list[index] = value;
 						didRun = true;
 					}
+					if (AfterModifyList(input, list))
+						didRun = true;
 				}
 			}
 			else
@@ -447,7 +447,7 @@ namespace Needle.Timeline
 								}
 								if (res == ToolInputResult.CaptureForFinalize)
 								{
-									CaptureEntry(matchingField, context, value);
+									CaptureEntry(context, value, matchingField);
 									continue;
 								}
 								if (res != ToolInputResult.Success)
@@ -477,9 +477,10 @@ namespace Needle.Timeline
 			capturedContexts.Clear();
 		}
 
-		private void CaptureEntry(FieldInfo field, ModifyContext context, object value)
+		private void CaptureEntry(ModifyContext context, object value, FieldInfo? field)
 		{
-			capturedFieldsCache.Add(field);
+			if(field != null)
+				capturedFieldsCache.Add(field);
 			capturedContexts.Add(new CapturedModifyContext(context, value, capturedContexts.Count));
 		}
 
@@ -493,9 +494,12 @@ namespace Needle.Timeline
 				for (var index = 0; index < capturedContexts.Count; index++)
 				{
 					var cap = capturedContexts[index];
-					var field = capturedFieldsCache[cap.Index];
-					var value = cap.Value;
-					field.SetValue(cap.Context.Object, value.Cast(field.FieldType));
+					if (index < capturedFieldsCache.Count)
+					{
+						var field = capturedFieldsCache[cap.Index];
+						var value = cap.Value;
+						field.SetValue(cap.Context.Object, value.Cast(field.FieldType));
+					}
 					list[cap.Context.Index] = cap.Context.Object;
 				}
 			}
