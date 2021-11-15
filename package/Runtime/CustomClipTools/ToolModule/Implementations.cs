@@ -91,15 +91,15 @@ namespace Needle.Timeline
 	{
 		protected override IList<Type> SupportedTypes { get; } = new []{typeof(Vector3)};
 
+		public SpreadMode Mode;
+		
 		[Range(.1f, 10)]
 		public float Radius = 1;
 		[Range(-10,10)]
 		public float Strength = 1f;
 		[Range(0,1)]
 		public float Falloff;
-
-		public SpreadMode Mode;
-
+		
 		public enum SpreadMode
 		{
 			Center = 0,
