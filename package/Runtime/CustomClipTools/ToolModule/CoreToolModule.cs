@@ -529,7 +529,7 @@ namespace Needle.Timeline
 		/// <summary>
 		/// Can be set to pass data from capturing stage to processing stage
 		/// </summary>
-		public object AdditionalData;
+		public object? AdditionalData;
 
 		public ModifyContext(object target, int index, int memberIndex)
 		{

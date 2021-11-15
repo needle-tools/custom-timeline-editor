@@ -234,7 +234,7 @@ namespace Needle.Timeline
 		[Range(0,1)]
 		public float Falloff = 1;
 		
-		// TODO: we should hide falloff and such when capure is on
+		// TODO: we should hide falloff and such when capture is on
 		public bool Capture = true;
 
 		private readonly List<ModificationIdentifier> captured = new List<ModificationIdentifier>();
