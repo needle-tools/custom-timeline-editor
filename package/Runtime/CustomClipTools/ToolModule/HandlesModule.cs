@@ -24,7 +24,7 @@ namespace Needle.Timeline
 		{
 			if (value is ICustomControls cc)
 			{
-				var res = cc.OnCustomControls(input, this);
+				var res = cc.OnCustomControls(ToolData, this);
 				if (res) return ToolInputResult.Success;
 			}
 			return ToolInputResult.Failed;

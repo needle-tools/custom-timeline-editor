@@ -37,7 +37,7 @@ namespace Needle.Timeline
 
 	public interface IToolInputEntryCallback
 	{
-		void NotifyInputEvent(ToolStage stage, InputData data);
+		void NotifyInputEvent(ToolStage stage, IToolData data);
 	}
 
 	public class ListEntryCallbackHandler : IToolInputEntryCallback
@@ -45,18 +45,21 @@ namespace Needle.Timeline
 		private readonly object obj;
 		private readonly IList list;
 		private readonly int index;
+		private readonly IToolEventContext? context;
 
-		public ListEntryCallbackHandler(object obj, IList list, int index)
+		public ListEntryCallbackHandler(object obj, IList list, int index, IToolEventContext? context)
 		{
 			this.obj = obj;
 			this.list = list;
 			this.index = index;
+			this.context = context;
 		}
 
-		public void NotifyInputEvent(ToolStage stage, InputData data)
+		public void NotifyInputEvent(ToolStage stage, IToolData data)
 		{
 			if (obj is IToolEvents evt)
 			{
+				data.Context = context;
 				evt.OnToolEvent(stage, data);
 				list[index] = evt;
 			}
@@ -72,6 +75,9 @@ namespace Needle.Timeline
 		private static readonly ProfilerMarker _eraseMarker = new ProfilerMarker("CoreToolModule.Erase");
 		private static readonly ProfilerMarker _modifyMarker = new ProfilerMarker("CoreToolModule.Modify");
 		private static readonly ProfilerMarker _produceMarker = new ProfilerMarker("CoreToolModule.Produce");
+
+		private readonly ToolDataProxy _toolData = new ToolDataProxy();
+		protected IToolData ToolData => _toolData;
 
 		public override bool CanModify(Type type)
 		{
@@ -95,6 +101,9 @@ namespace Needle.Timeline
 
 		public override bool OnModify(InputData input, ref ToolData toolData)
 		{
+			this._toolData.input = input;
+			this._toolData._radius = Radius;
+			
 			switch (input.Stage)
 			{
 				case InputEventStage.Begin:
@@ -107,7 +116,7 @@ namespace Needle.Timeline
 				case InputEventStage.Update:
 					foreach (var ad in _created)
 					{
-						ad.NotifyInputEvent(ToolStage.InputUpdated, input);
+						ad.NotifyInputEvent(ToolStage.InputUpdated, _toolData);
 					}
 					break;
 				case InputEventStage.End:
@@ -115,7 +124,7 @@ namespace Needle.Timeline
 					_didBegin = false;
 					foreach (var ad in _created)
 					{
-						ad.NotifyInputEvent(ToolStage.InputEnded, input);
+						ad.NotifyInputEvent(ToolStage.InputEnded, _toolData);
 					}
 					_created.Clear();
 					_producedCount = 0;
@@ -162,6 +171,8 @@ namespace Needle.Timeline
 					if (!toolData.CommandHandler.HasCommand(kf => kf is EditKeyframeValue ed && ed.IsKeyframe(keyframe)))
 						edit = new EditKeyframeValue(keyframe);
 					
+					var eventContext = KeyframeEventContext.Create(keyframe);
+					input.Context = eventContext;
 					using (_produceMarker.Auto())
 					{
 						if (ProduceValues(input, context, ref toolData))
@@ -219,11 +230,15 @@ namespace Needle.Timeline
 		protected bool IsCloseKeyframe(ToolData toolData, ICustomKeyframe? keyframe) =>
 			keyframe != null && Mathf.Abs(keyframe.time - toolData.Time) <= Mathf.Epsilon;
 
-		protected ICustomKeyframe? CreateAndAddNewKeyframe(ToolData toolData)
+		protected ICustomKeyframe? CreateAndAddNewKeyframe(ToolData toolData, 
+			IInputCommandHandler? commandHandler)
 		{
 			var clipType = toolData.Clip.SupportedTypes.FirstOrDefault();
 			if (clipType == null) ThrowHelper.Throw("Expecting at least one clip type");
-			var keyframe = toolData.Clip.AddKeyframeWithUndo(toolData.Time, Activator.CreateInstance(clipType!));
+			var keyframe = toolData.Clip.AddKeyframeWithUndo(
+				toolData.Time, 
+				Activator.CreateInstance(clipType!), 
+				commandHandler);
 			if (keyframe != null)
 				keyframe.time = toolData.Time;
 			return keyframe;
@@ -312,7 +327,8 @@ namespace Needle.Timeline
 					ApplyBinding(instance, res.Weight);
 
 				// the content type is a field inside a type
-				if (instance is IToolEvents i) i.OnToolEvent(ToolStage.InstanceCreated, input);
+				if (instance is IToolEvents i) 
+					i.OnToolEvent(ToolStage.InstanceCreated, _toolData);
 
 				if (toolContext.MatchingType == null && instance != null)
 				{
@@ -324,7 +340,8 @@ namespace Needle.Timeline
 					}
 					matchingField.SetValue(instance, value.Cast(matchingField.FieldType));
 				}
-				if (instance is IToolEvents init) init.OnToolEvent(ToolStage.BasicValuesSet, input);
+				if (instance is IToolEvents init) 
+					init.OnToolEvent(ToolStage.BasicValuesSet, _toolData);
 				if (toolContext.List != null)
 				{
 					toolContext.List.Add(instance);
@@ -332,7 +349,11 @@ namespace Needle.Timeline
 				++_producedCount;
 				didProduceValue = true;
 				if (instance is IToolEvents)
-					_created.Add(new ListEntryCallbackHandler(instance, toolContext.List, toolContext.List.Count - 1));
+					_created.Add(new ListEntryCallbackHandler(
+						instance, 
+						toolContext.List, 
+						toolContext.List.Count - 1, 
+						input.Context));
 			}
 			return didProduceValue;
 		}

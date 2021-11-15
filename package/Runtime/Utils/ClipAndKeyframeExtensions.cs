@@ -15,7 +15,7 @@ namespace Needle.Timeline
 	public static class ClipAndKeyframeExtensions
 	{
 		
-		public static ICustomKeyframe? AddKeyframeWithUndo(this ICustomClip clip, float time, object? value = null)
+		public static ICustomKeyframe? AddKeyframeWithUndo(this ICustomClip clip, float time, object? value = null, IInputCommandHandler? commandHandler = null)
 		{
 			if (clip.GetType().IsGenericType)
 			{
@@ -28,7 +28,9 @@ namespace Needle.Timeline
 					kf.time = time;
 					kf.value = value;
 					Debug.Log("create Keyframe at " + time);
-					CustomUndo.Register(new CreateKeyframe(kf, clip));
+					var cmd = new CreateKeyframe(kf, clip);
+					if (commandHandler != null) commandHandler.RegisterCommand(cmd);
+					else CustomUndo.Register(cmd);
 					return kf;
 				}
 			}

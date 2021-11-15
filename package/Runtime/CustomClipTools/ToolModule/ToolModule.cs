@@ -93,12 +93,21 @@ namespace Needle.Timeline
 		}
 
 		private bool didSearchRadius;
-		private FieldInfo radiusField;
+		private FieldInfo? radiusField;
+
+		public float? Radius
+		{
+			get
+			{
+				if (didSearchRadius && radiusField == null) return null;
+				return GetRadius();
+			}
+		}
 
 		protected virtual float GetRadius()
 		{
 			if (radiusField != null) return (float)radiusField.GetValue(this);
-			if (didSearchRadius) return .1f;
+			if (didSearchRadius) return 0;
 			didSearchRadius = true;
 			foreach (var field in GetType().GetRuntimeFields())
 			{
@@ -108,7 +117,7 @@ namespace Needle.Timeline
 					break;
 				}
 			}
-			return (float)(radiusField?.GetValue(this) ?? 0.1f);
+			return (float)(radiusField?.GetValue(this) ?? 0);
 		}
 
 		protected virtual bool AllowedButton(MouseButton button) => button == 0;

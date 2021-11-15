@@ -4,14 +4,14 @@ using UnityEngine.UIElements;
 
 namespace Needle.Timeline
 {
-	public class InputData : IToolData
+	public class InputData
 	{
 		public bool IsIn2DMode;
-		
 		
 		public Vector3? WorldPosition { get; private set; }
 		public Vector3? WorldNormal;
 		public Vector3? LastWorldPosition;
+		
 		public Vector3? StartWorldPosition { get; private set; }
 		
 		private Vector3? deltaWorld;
@@ -31,6 +31,8 @@ namespace Needle.Timeline
 		{
 			return Camera.current.WorldToScreenPoint(worldPoint);
 		}
+
+		public IToolEventContext? Context { get; set; }
 
 		public Ray ToRay(Vector2 screenPoint)
 		{

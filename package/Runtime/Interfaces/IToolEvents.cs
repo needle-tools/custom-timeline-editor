@@ -13,11 +13,13 @@ namespace Needle.Timeline
 	
 	public interface IToolData
 	{
+		float? Radius { get; internal set; }
 		Vector3? StartWorldPosition { get; }
 		Vector3? WorldPosition { get; }
 		Vector3? DeltaWorld { get; }
 		Vector2 ScreenPosition { get; }
 		Vector2 ToScreenPoint(Vector3 worldPoint);
+		IToolEventContext? Context { get; set; }
 	}
 
 	/// <summary>

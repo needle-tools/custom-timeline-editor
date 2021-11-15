@@ -1,8 +1,6 @@
 ﻿#nullable enable
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using Needle.Timeline.Models;
 using Unity.Profiling;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -32,7 +30,7 @@ namespace Needle.Timeline
 				if (IsCloseKeyframe(toolData, kf))
 					yield return kf;
 				else 
-					yield return CreateAndAddNewKeyframe(toolData);
+					yield return CreateAndAddNewKeyframe(toolData, null);
 			}
 
 			if (AllKeyframes)
