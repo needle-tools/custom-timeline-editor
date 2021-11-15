@@ -361,7 +361,7 @@ namespace Needle.Timeline
 					for (var index = 0; index < list.Count; index++)
 					{
 						var value = list[index];
-						var context = new ModifyContext(value, index);
+						var context = new ModifyContext(value, index, 0);
 						var res = OnModifyValue(input, ref context, ref value);
 						if (res == ToolInputResult.AbortFurtherProcessing)
 							break;
@@ -402,11 +402,13 @@ namespace Needle.Timeline
 					{
 						if (aborted) break;
 						var entry = list[index];
+						var memberIndex = 0;
 						foreach (var matchingField in matchingFields)
 						{
 							using (_modifyLoopFieldsMarker.Auto())
 							{
-								var context = new ModifyContext(entry, index);
+								var context = new ModifyContext(entry, index, memberIndex);
+								memberIndex++;
 								var value = matchingField.GetValue(entry);
 								var res = OnModifyValue(input, ref context, ref value);
 								if (res == ToolInputResult.AbortFurtherProcessing)
@@ -522,18 +524,20 @@ namespace Needle.Timeline
 		/// The index in the original collection (if any)
 		/// </summary>
 		public readonly int Index;
+		public readonly int MemberIndex;
 
 		/// <summary>
 		/// Can be set to pass data from capturing stage to processing stage
 		/// </summary>
 		public object AdditionalData;
 
-		public ModifyContext(object target, int index)
+		public ModifyContext(object target, int index, int memberIndex)
 		{
 			Object = target;
 			Weight = 1;
 			this.Index = index;
 			AdditionalData = null;
+			MemberIndex = memberIndex;
 		}
 	}
 

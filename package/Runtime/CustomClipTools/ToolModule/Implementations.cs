@@ -1,6 +1,7 @@
 ﻿#nullable enable
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Needle.Timeline.Models;
 using Unity.Profiling;
 using UnityEngine;
@@ -231,34 +232,62 @@ namespace Needle.Timeline
 		[Range(0,2)]
 		public float Strength = 1f;
 		[Range(0,1)]
-		public float Falloff;
+		public float Falloff = 1;
+		
+		// TODO: we should hide falloff and such when capure is on
+		public bool Capture = true;
+
+		private readonly List<ModificationIdentifier> captured = new List<ModificationIdentifier>();
 
 		protected override IList<Type> SupportedTypes { get; } = new[] { typeof(Vector3), typeof(Vector2) };
+
+		public override bool OnModify(InputData input, ref ToolData toolData)
+		{
+			if (input.Stage == InputEventStage.End && captured.Count > 0) captured.Clear();
+			return base.OnModify(input, ref toolData);
+		}
 
 		protected override ToolInputResult OnModifyValue(InputData input, ref ModifyContext context, ref object value)
 		{
 			if (input.WorldPosition == null) return ToolInputResult.Failed;
-			if (Random.value > Probability) return ToolInputResult.Failed;
+			if (!Capture && Random.value > Probability) return ToolInputResult.Failed;
 			if (!input.DeltaWorld.HasValue) return ToolInputResult.Failed;
-			
+
 			var vec = (Vector3)value.Cast(typeof(Vector3));
 			
 			var dist = input.GetRadiusDistanceScreenSpace(Radius, vec);
 			var factor = Strength;
-			if (dist < 1)
+			if (dist <= 1 || Capture)
 			{
-				if (Falloff > 0)
-				{
-					factor = (1-dist.Value);
-					factor /= Falloff;
-					factor = Strength * Mathf.Clamp01(factor);
-				}
 				var delta = input.DeltaWorld.Value;
-				delta *= factor;
+				
+				if (Capture)
+				{
+					if (input.Stage == InputEventStage.Begin && dist <= 1 && Random.value <= Probability)
+						captured.Add(new ModificationIdentifier(context));
+					else if (captured.Contains(context.Index, context.MemberIndex))
+					{
+						// it is in the list, we can proceed :)
+					}
+					else return ToolInputResult.Failed;
+				}
+				else
+				{
+					if (Falloff > 0)
+					{
+						factor = (1-dist.Value);
+						factor /= Falloff;
+						factor = Strength * Mathf.Clamp01(factor);
+					}
+					delta *= factor;
+				}
+				
 				vec += delta;
 				value = vec;
 				return ToolInputResult.Success;
 			}
+			
+			
 			return ToolInputResult.Failed;
 		}
 	}
