@@ -46,6 +46,13 @@ namespace Needle.Timeline
 			return field.Equals(member);
 		}
 
+		public bool Matches(MemberInfo member)
+		{
+			if (member is FieldInfo f)
+				return f.Name == field.Name && f.FieldType == field.FieldType;
+			return false;
+		}
+
 
 		private readonly FieldInfo field;
 		private readonly IRecordable? rec;

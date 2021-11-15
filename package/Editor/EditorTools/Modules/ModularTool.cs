@@ -15,24 +15,7 @@ namespace Needle.Timeline
 	{
 		protected override bool OnSupports(Type type)
 		{
-			if (ToolModuleRegistry.Modules.Any(m => m.CanModify(type))) return true;
-			if (type.IsGenericType && typeof(IList).IsAssignableFrom(type))
-			{
-				var par = type.GetGenericArguments().FirstOrDefault();
-				if(par != null)
-				{
-					if (ToolModuleRegistry.Modules.Any(m => m.CanModify(par)))
-						return true;
-				}
-			}
-			foreach (var field in type.EnumerateFields())
-			{
-				if (ToolModuleRegistry.Modules.Any(m => m.CanModify(field.FieldType)))
-				{
-					return true;
-				}
-			}
-			return false;
+			return ToolModuleRegistry.Modules.Any(m => m.CanModify(type));
 		}
 
 		protected override void OnAttach(VisualElement element)
@@ -143,8 +126,8 @@ namespace Needle.Timeline
 					{
 						if (tar.IsNull()) continue;
 						if (tar.Clip is IRecordable { IsRecording: false }) continue;
-						
-						if (!tar.Clip!.SupportedTypes.Any(module.CanModify))
+						var sup = tar.Clip!.SupportedTypes.Any(module.CanModify);
+						if (sup)
 						{
 							var data = new ToolData(tar.Object, tar.Clip, tar.TimeF, tar, CommandHandler);
 							tar.EnsurePaused();

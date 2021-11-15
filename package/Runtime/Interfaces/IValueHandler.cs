@@ -34,5 +34,6 @@ namespace Needle.Timeline
 		Type ValueType { get; }
 		string Name { get; }
 		bool Equals(MemberInfo member);
+		bool Matches(MemberInfo member);
 	}
 }

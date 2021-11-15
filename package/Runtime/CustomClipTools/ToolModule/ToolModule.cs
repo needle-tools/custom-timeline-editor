@@ -1,6 +1,8 @@
 ﻿#nullable enable
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Unity.Profiling;
 using UnityEditor;
@@ -21,6 +23,31 @@ namespace Needle.Timeline
 		/// the cache of interpolators, may also contain null entries if no interpolator for a type was found
 		/// </summary>
 		private static readonly Dictionary<Type, IInterpolatable?> interpolateCache = new Dictionary<Type, IInterpolatable?>();
+
+		protected bool TryGetInterpolatable(Type type, out IInterpolatable? i)
+		{
+			if (interpolateCache.TryGetValue(type, out i))
+				return i != null;
+			if (InterpolatorBuilder.TryFindInterpolatable(type, out i, true))
+			{
+				interpolateCache.Add(type, i);
+				return true;
+			}
+			interpolateCache.Add(type, null);
+			return false;
+		}
+
+		protected bool IsAnyBindingEnabled() => ((IBindsFields)this).Bindings.Any(b => b.Enabled);
+		protected bool IsEnabled(MemberInfo member)
+		{
+			var bindings = ((IBindsFields)this).Bindings;
+			foreach (var mem in bindings)
+			{
+				if (mem.Matches(member))
+					return mem.Enabled;
+			}
+			return false;
+		}
 
 		public bool AllowBinding { get; protected set; } = false;
 		List<IViewFieldBinding> IBindsFields.Bindings { get; } = new List<IViewFieldBinding>();
@@ -45,18 +72,11 @@ namespace Needle.Timeline
 					if (viewValue != null)
 					{
 						var type = viewValue.GetType();
-						if (interpolateCache.TryGetValue(type, out var interpolatable))
+						if (TryGetInterpolatable(type, out var interpolatable))
 						{
-							// using cached interpolator if exists
+							if (interpolatable != null)
+								interpolatable.Interpolate(ref viewValue, field.GetValue(obj), viewValue, weight);
 						}
-						else
-						{
-							if (InterpolatorBuilder.TryFindInterpolatable(type, out interpolatable, true))
-								interpolateCache.Add(type, interpolatable);
-							else interpolateCache.Add(type, null);
-						}
-						if (interpolatable != null)
-							interpolatable.Interpolate(ref viewValue, field.GetValue(obj), viewValue, weight);
 					}
 
 					field.SetValue(obj, viewValue);
@@ -65,7 +85,32 @@ namespace Needle.Timeline
 			return appliedAny;
 		}
 
-		public abstract bool CanModify(Type type);
+		public virtual bool CanModify(Type type)
+		{
+			if (OnTestCanModify(type)) return true;
+			if (type.IsGenericType && typeof(IList).IsAssignableFrom(type))
+			{
+				var par = type.GetGenericArguments().FirstOrDefault();
+				if(par != null)
+				{
+					if (OnTestCanModify(par))
+						return true;
+				}
+			}
+			foreach (var field in type.EnumerateFields())
+			{
+				if (OnTestCanModify(field.FieldType))
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+
+		protected virtual bool OnTestCanModify(Type type)
+		{
+			return false;
+		}
 
 		public virtual void Reset()
 		{

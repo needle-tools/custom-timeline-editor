@@ -28,7 +28,7 @@ namespace Needle.Timeline
 	{
 		public override void Interpolate(ref int instance, int t0, int t1, float t)
 		{
-			instance = Mathf.RoundToInt(Mathf.Lerp(t0, t1, t));
+			instance = Mathf.RoundToInt(Mathf.LerpUnclamped(t0, t1, t));
 		}
 	}
 	
@@ -36,7 +36,7 @@ namespace Needle.Timeline
 	{
 		public override void Interpolate(ref float instance, float t0, float t1, float t)
 		{
-			instance = Mathf.Lerp(t0, t1, t);
+			instance = Mathf.LerpUnclamped(t0, t1, t);
 		}
 	}
 	
@@ -52,7 +52,11 @@ namespace Needle.Timeline
 	{
 		public override void Interpolate(ref Color instance, Color t0, Color t1, float t)
 		{
-			instance = Color.Lerp(t0, t1, t);
+			// if (t < 0)
+			// {
+			// 	// Color.LerpUnclamped()
+			// }
+			instance = Color.LerpUnclamped(t0, t1, t);
 		}
 	}
 	

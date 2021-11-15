@@ -79,19 +79,10 @@ namespace Needle.Timeline
 		private readonly ToolDataProxy _toolData = new ToolDataProxy();
 		protected IToolData ToolData => _toolData;
 
-		public override bool CanModify(Type type)
-		{
-			// var isList = typeof(IList).IsAssignableFrom(type);
-			foreach (var sup in SupportedTypes)
-			{
-				if (sup.IsAssignableFrom(type)) return true;
-				// if (isList)
-				// {
-				// 	return true;
-				// }
-			}
 
-			return false;
+		protected override bool OnTestCanModify(Type type)
+		{
+			return SupportedTypes.Any(sup => sup.IsAssignableFrom(type));
 		}
 
 		/// <summary>

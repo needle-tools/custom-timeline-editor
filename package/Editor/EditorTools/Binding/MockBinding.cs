@@ -39,9 +39,17 @@ namespace Needle.Timeline
 		public Type ValueType => type;
 		public string Name => name;
 		public T GetCustomAttribute<T>() where T : Attribute => customAttributes.FirstOrDefault(a => a is T) as T;
+		
 		public bool Equals(MemberInfo member)
 		{
 			return member is FieldInfo f && f.FieldType == type && f.Name == name;
+		}
+		
+		public bool Matches(MemberInfo member)
+		{
+			if (member is FieldInfo f)
+				return f.Name == name && f.FieldType == type;
+			return false;
 		}
 
 		public object GetValue()
