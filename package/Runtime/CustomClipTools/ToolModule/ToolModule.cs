@@ -117,7 +117,9 @@ namespace Needle.Timeline
 					break;
 				}
 			}
-			return (float)(radiusField?.GetValue(this) ?? 0);
+			if (radiusField != null && radiusField.FieldType == typeof(float))
+				return (float)radiusField.GetValue(this);
+			return 0;
 		}
 
 		protected virtual bool AllowedButton(MouseButton button) => button == 0;

@@ -218,7 +218,7 @@ namespace Needle.Timeline
 		private Type? TryGetSupportedType(Type contentType)
 		{
 			if (SupportedTypes.Count <= 0) return contentType;
-			return SupportedTypes.FirstOrDefault(s => contentType.IsAssignableFrom(s));
+			return SupportedTypes.FirstOrDefault(s => s.IsAssignableFrom(contentType));
 		}
 
 		protected virtual IEnumerable<ICustomKeyframe?> GetKeyframes(ToolData toolData)
@@ -379,6 +379,7 @@ namespace Needle.Timeline
 				if (toolContext.List?.Count <= 0) return false;
 				if (list != null)
 				{
+					BeforeModifyList();
 					for (var index = 0; index < list.Count; index++)
 					{
 						var value = list[index];
@@ -386,6 +387,13 @@ namespace Needle.Timeline
 						var res = OnModifyValue(input, ref context, ref value);
 						if (res == ToolInputResult.AbortFurtherProcessing)
 							break;
+						if (res == ToolInputResult.CaptureForFinalize)
+						{
+							Debug.Log("TODO!!!!!");
+							break;
+							// CaptureEntry(matchingField, context, value);
+							continue;
+						}
 						if (res != ToolInputResult.Success) continue;
 						ApplyBinding(value, context.Weight);
 						list[index] = value;
