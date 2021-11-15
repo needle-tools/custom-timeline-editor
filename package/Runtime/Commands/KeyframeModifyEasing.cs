@@ -1,4 +1,4 @@
-﻿namespace Needle.Timeline
+﻿namespace Needle.Timeline.Commands
 {
 	public class KeyframeModifyEasing : Command
 	{

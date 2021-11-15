@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Needle.Timeline.Commands;
 using Unity.Profiling;
 using UnityEngine;
 
@@ -69,6 +70,7 @@ namespace Needle.Timeline
 		private static readonly ProfilerMarker _eraseMarker = new ProfilerMarker("CoreToolModule.Erase");
 		private static readonly ProfilerMarker _modifyMarker = new ProfilerMarker("CoreToolModule.Modify");
 		private static readonly ProfilerMarker _produceMarker = new ProfilerMarker("CoreToolModule.Produce");
+		private readonly List<Command> _commands = new List<Command>();
 
 		public override bool CanModify(Type type)
 		{
@@ -99,6 +101,7 @@ namespace Needle.Timeline
 					_didBegin = true;
 					_created.Clear();
 					_producedCount = 0;
+					_commands.Clear();
 					break;
 				case InputEventStage.Update:
 					foreach (var ad in _created)
@@ -115,6 +118,10 @@ namespace Needle.Timeline
 					}
 					_created.Clear();
 					_producedCount = 0;
+					_commands.Add(toolData.TimelineContext.GetTimeCommand());
+					var comp = _commands.ToCompound("Edited keyframes", true);
+					CustomUndo.Register(comp);
+					_commands.Clear();
 					return true;
 				}
 			}
@@ -153,6 +160,9 @@ namespace Needle.Timeline
 					context.ContentType = contentType;
 
 					var didRun = false;
+					
+					if(!_commands.Any(e => e is EditKeyframeValue edit && edit.IsKeyframe(keyframe)))
+						_commands.Add(new EditKeyframeValue(keyframe));
 
 					using (_produceMarker.Auto())
 					{
@@ -172,8 +182,11 @@ namespace Needle.Timeline
 						if (EraseValues(input, context))
 							didRun = true;
 					}
-
-					if (didRun) _keyframesChanged.Add(keyframe);
+					
+					if (didRun)
+					{
+						_keyframesChanged.Add(keyframe);
+					}
 				}
 			}
 			catch (Exception e)

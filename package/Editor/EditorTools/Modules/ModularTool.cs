@@ -144,9 +144,9 @@ namespace Needle.Timeline
 						if (tar.Clip is IRecordable { IsRecording: false }) continue;
 						
 						
-						if (!tar.Clip.SupportedTypes.Any(module.CanModify))
+						if (!tar.Clip!.SupportedTypes.Any(module.CanModify))
 						{
-							var data = new ToolData(tar.Object, tar.Clip, tar.TimeF);
+							var data = new ToolData(tar.Object, tar.Clip, tar.TimeF, tar);
 							tar.EnsurePaused();
 							module.OnModify(input, ref data);
 							UseEventDelayed();

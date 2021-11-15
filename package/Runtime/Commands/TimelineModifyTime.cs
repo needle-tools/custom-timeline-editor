@@ -1,6 +1,6 @@
 ﻿using UnityEngine.Playables;
 
-namespace Needle.Timeline
+namespace Needle.Timeline.Commands
 {
 	public class TimelineModifyTime : Command
 	{
@@ -20,6 +20,7 @@ namespace Needle.Timeline
 			dir.time = newTime;
 #if UNITY_EDITOR
 			TimelineWindowUtil.TryRepaint();
+			dir.Evaluate();
 #endif
 		}
 
@@ -28,6 +29,7 @@ namespace Needle.Timeline
 			dir.time = oldTime;
 #if UNITY_EDITOR
 			TimelineWindowUtil.TryRepaint();
+			dir.Evaluate();
 #endif
 		}
 	}

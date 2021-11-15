@@ -14,11 +14,14 @@ namespace Needle.Timeline
 		/// </summary>
 		public readonly object Object;
 
-		public ToolData(object @object, ICustomClip clip, float time)
+		public readonly ITimelineContext TimelineContext;
+		
+		public ToolData(object @object, ICustomClip clip, float time, ITimelineContext timelineContext)
 		{
 			Object = @object;
 			Clip = clip;
 			Time = time;
+			TimelineContext = timelineContext;
 		}
 	}
 }

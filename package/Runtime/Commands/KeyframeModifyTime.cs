@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Needle.Timeline
+﻿namespace Needle.Timeline.Commands
 {
 	public class KeyframeModifyTime : Command
 	{
