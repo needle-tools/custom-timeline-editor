@@ -198,7 +198,7 @@ namespace Needle.Timeline.Editors.CustomCurve
 				{
 					var prev = clip.Keyframes[index-1] as ICustomKeyframe;
 					var weight = prev.GetWeight(keyframe);
-					weight = Mathf.Clamp(weight, .1f, .9f);
+					weight = Mathf.Clamp(weight, .03f, .97f);
 					var dist = keyframeRect.x - lastKeyframeRect.x;
 					var middle = lastKeyframeRect.x + dist * weight;
 					var r = new Rect(keyframeRect);

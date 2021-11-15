@@ -9,18 +9,25 @@ namespace Needle.Timeline
 {
 	internal static class ControlsFactory
 	{
-		[BindAsset("a9727f46214640d1be592eb4e81682ee")]
 		private static VisualTreeAsset? controlAsset;
-		[BindAsset("e29516eda36d4ad1b6f8822975c7f21c")]
 		private static StyleSheet? controlStyles;
-		
-		[BindAsset("907bae41c16d4edcbfd166200df5be05")]
 		private static VisualTreeAsset? toolsPanel;
-		[BindAsset("e1df1297d0a64f8185b0bf8e4c55c5a0")] 
-		private static StyleSheet? toolsPanelStyles;  
+		private static StyleSheet? toolsPanelStyles;
+
+		private static bool isInit;
+		private static void Init()
+		{
+			if (isInit) return;
+			isInit = true;
+			controlAsset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(AssetDatabase.GUIDToAssetPath("a9727f46214640d1be592eb4e81682ee"));
+			controlStyles = AssetDatabase.LoadAssetAtPath<StyleSheet>(AssetDatabase.GUIDToAssetPath("e29516eda36d4ad1b6f8822975c7f21c"));
+			toolsPanel = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(AssetDatabase.GUIDToAssetPath("907bae41c16d4edcbfd166200df5be05"));
+			toolsPanelStyles = AssetDatabase.LoadAssetAtPath<StyleSheet>(AssetDatabase.GUIDToAssetPath("e1df1297d0a64f8185b0bf8e4c55c5a0"));
+		}
 
 		public static bool TryBuildToolPanel(out VisualElement panel, bool preview = false)
 		{
+			Init();
 			panel = toolsPanel!.CloneTree().contentContainer;
 			panel.styleSheets.Add(toolsPanelStyles);
 
@@ -72,11 +79,9 @@ namespace Needle.Timeline
 			
 			if (TryBuildControl(binding.ValueType, binding, out var control))
 			{
-				if (!controlAsset) 
-					AssetBinder.EnsureBinding(typeof(ControlsFactory));
+				Init();
 				var instance = controlAsset.CloneTree();
 				instance.styleSheets.Add(controlStyles);
-
 
 				var labelText = ObjectNames.NicifyVariableName(binding.Name); // CultureInfo.CurrentCulture.TextInfo.ToTitleCase(binding.Name);
 				var name = instance.Q<Label>(null, "control-label");
