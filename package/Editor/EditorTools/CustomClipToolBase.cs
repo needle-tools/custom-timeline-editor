@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Needle.Timeline.Commands;
 using Unity.Profiling;
 using UnityEditor;
 using UnityEditor.EditorTools;
@@ -67,17 +68,12 @@ namespace Needle.Timeline
 		void ICustomClipTool.GetOrCreateSettings(ref ScriptableObject obj)
 		{
 			OnGetOrCreateSettings(ref obj);
-			Settings = obj;
+			// Settings = obj;
 		}
 
 		bool ICustomClipTool.IsValid => this;
 		#endregion
-
-		private static Texture2D _toolIcon;
-		private VisualElement _toolRootElement;
-		private bool _receivedClickDownEvent;
-		private bool _receivedClickUpEvent;
-
+		
 		#region EditorTool
 		public sealed override void OnActivated()
 		{
@@ -108,9 +104,7 @@ namespace Needle.Timeline
 			}
 		}
 		#endregion
-
-		protected ScriptableObject Settings { get; private set; }
-
+		
 		protected virtual void OnGetOrCreateSettings(ref ScriptableObject settings)
 		{
 		}
@@ -127,14 +121,32 @@ namespace Needle.Timeline
 
 		private ProfilerMarker toolInputMarker;
 
+		protected IInputCommandHandler CommandHandler { get; } = new TimelineInputCommandHandler();
+
 		protected void OnInput(EditorWindow window)
 		{
 			using (toolInputMarker.Auto())
 			{
 				_useEventDelayed = false;
-				OnHandleInput();
+				var stage = OnHandleInput();
 				if (_useEventDelayed)
 					UseEvent();
+
+				switch (stage)
+				{
+					case InputEventStage.Begin:
+						break;
+					case InputEventStage.End:
+					case InputEventStage.Cancel:
+						if (CommandHandler.Count > 0)
+						{
+							var vm = targets.FirstOrDefault();
+							if(vm != null)
+								CommandHandler.RegisterCommand(vm.GetTimeCommand());
+							CommandHandler.FlushCommands(GetType().Name);
+						}
+						break;
+				}
 			}
 			
 		}
@@ -149,21 +161,10 @@ namespace Needle.Timeline
 		{
 		}
 
-		protected virtual void OnHandleInput()
+		protected virtual InputEventStage OnHandleInput()
 		{
+			return InputEventStage.Unknown;
 		}
-
-
-		protected static bool IsIn2DMode => SceneView.lastActiveSceneView?.in2DMode ?? false;
-
-		protected static Vector3 GetCurrentMousePositionInScene()
-		{
-			return PlaneUtils.GetPointOnPlane(Camera.current, out _, out _, out _);
-			// Vector3 mousePosition = Event.current.mousePosition;
-			// var placeObject = HandleUtility.PlaceObject(mousePosition, out var newPosition, out var normal);
-			// return placeObject ? newPosition : HandleUtility.GUIPointToWorldRay(mousePosition).GetPoint(10);
-		}
-
 
 		private bool _useEventDelayed;
 
@@ -172,7 +173,7 @@ namespace Needle.Timeline
 			_useEventDelayed = true;
 		}
 
-		protected static void UseEvent()
+		private static void UseEvent()
 		{
 			if (Event.current == null) return;
 			switch (Event.current.type)

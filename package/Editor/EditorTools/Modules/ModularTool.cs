@@ -126,10 +126,11 @@ namespace Needle.Timeline
 		private readonly InputData input = new InputData();
 
 
-		protected override void OnHandleInput()
+		protected override InputEventStage OnHandleInput()
 		{
+			base.OnHandleInput();
 			input.Update();
-
+			
 			if (moduleViewControllers.Any(m => m.IsActive))
 			{
 				foreach (var mod in moduleViewControllers)
@@ -143,10 +144,9 @@ namespace Needle.Timeline
 						if (tar.IsNull()) continue;
 						if (tar.Clip is IRecordable { IsRecording: false }) continue;
 						
-						
 						if (!tar.Clip!.SupportedTypes.Any(module.CanModify))
 						{
-							var data = new ToolData(tar.Object, tar.Clip, tar.TimeF, tar);
+							var data = new ToolData(tar.Object, tar.Clip, tar.TimeF, tar, CommandHandler);
 							tar.EnsurePaused();
 							module.OnModify(input, ref data);
 							UseEventDelayed();
@@ -162,11 +162,12 @@ namespace Needle.Timeline
 					{
 						case KeyCode.Escape:
 							this.Deselect();
-							return;
+							return input.Stage;
 					}
 					break;
 			}
 
+			return input.Stage;
 		}
 		
 		

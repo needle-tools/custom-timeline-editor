@@ -3,11 +3,13 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Needle.Timeline.Commands;
 using Unity.Profiling;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 // ReSharper disable ReplaceWithSingleAssignment.False
 
@@ -70,7 +72,6 @@ namespace Needle.Timeline
 		private static readonly ProfilerMarker _eraseMarker = new ProfilerMarker("CoreToolModule.Erase");
 		private static readonly ProfilerMarker _modifyMarker = new ProfilerMarker("CoreToolModule.Modify");
 		private static readonly ProfilerMarker _produceMarker = new ProfilerMarker("CoreToolModule.Produce");
-		private readonly List<Command> _commands = new List<Command>();
 
 		public override bool CanModify(Type type)
 		{
@@ -101,7 +102,7 @@ namespace Needle.Timeline
 					_didBegin = true;
 					_created.Clear();
 					_producedCount = 0;
-					_commands.Clear();
+					// _commands.Clear();
 					break;
 				case InputEventStage.Update:
 					foreach (var ad in _created)
@@ -118,10 +119,6 @@ namespace Needle.Timeline
 					}
 					_created.Clear();
 					_producedCount = 0;
-					_commands.Add(toolData.TimelineContext.GetTimeCommand());
-					var comp = _commands.ToCompound("Edited keyframes", true);
-					CustomUndo.Register(comp);
-					_commands.Clear();
 					return true;
 				}
 			}
@@ -161,9 +158,10 @@ namespace Needle.Timeline
 
 					var didRun = false;
 					
-					if(!_commands.Any(e => e is EditKeyframeValue edit && edit.IsKeyframe(keyframe)))
-						_commands.Add(new EditKeyframeValue(keyframe));
-
+					EditKeyframeValue? edit = default;
+					if (!toolData.CommandHandler.HasCommand(kf => kf is EditKeyframeValue ed && ed.IsKeyframe(keyframe)))
+						edit = new EditKeyframeValue(keyframe);
+					
 					using (_produceMarker.Auto())
 					{
 						if (ProduceValues(input, context, ref toolData))
@@ -186,6 +184,10 @@ namespace Needle.Timeline
 					if (didRun)
 					{
 						_keyframesChanged.Add(keyframe);
+						
+						// only register editing command if tool did do anything
+						if(edit != null)
+							toolData.CommandHandler.RegisterCommand(edit);
 					}
 				}
 			}
