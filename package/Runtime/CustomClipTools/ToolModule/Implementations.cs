@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Needle.Timeline.Models;
 using Unity.Profiling;
 using UnityEngine;
+using UnityEngine.UIElements;
 using Random = UnityEngine.Random;
 
 namespace Needle.Timeline
@@ -92,15 +93,28 @@ namespace Needle.Timeline
 
 		[Range(.1f, 10)]
 		public float Radius = 1;
-		[Range(-1,1)]
-		public float Strength = .5f;
-		
+		[Range(-10,10)]
+		public float Strength = 1f;
+		[Range(0,1)]
+		public float Falloff;
+
+		private struct SpreadData
+		{
+			public float RadiusDist;
+		}
+
+		protected override bool AllowedButton(MouseButton button)
+		{
+			return base.AllowedButton(button) || button == MouseButton.RightMouse;
+		}
+
 		protected override ToolInputResult OnModifyValue(InputData input, ref ModifyContext context, ref object value)
 		{
 			var vec = (Vector3)value.Cast(typeof(Vector3));
 			var dist = input.GetRadiusDistanceScreenSpace(Radius, vec);
 			if (dist < 1)
 			{
+				context.AdditionalData = new SpreadData() { RadiusDist = dist.Value };
 				return ToolInputResult.CaptureForFinalize;
 			}
 			return ToolInputResult.Failed;
@@ -116,14 +130,24 @@ namespace Needle.Timeline
 				sum += pos;
 			}
 			var center = sum / captured.Count;
-			var factor = 0.01f * Strength;
+			var factor = 0.01f;
+			factor *= Strength;
+			if (input.Button == MouseButton.RightMouse)
+			{
+				factor *= -1;
+			}
 			for (var index = 0; index < captured.Count; index++)
 			{
 				var e = captured[index];
 				var pos = (Vector3)e.Value.Cast(typeof(Vector3));
 				var dir = center - pos;
-				dir.Normalize();
+				if (Falloff > 0)
+				{
+					if (e.Context.AdditionalData is SpreadData data)
+						dir *= Mathf.Clamp01((1 - data.RadiusDist)/Falloff);
+				}
 				dir *= factor;
+				dir = Vector3.ClampMagnitude(dir, .1f);
 				e.Value = pos - dir;
 				captured[index] = e;
 			}
@@ -138,8 +162,10 @@ namespace Needle.Timeline
 		public float Radius = 1;
 		[Range(0,1)]
 		public float Probability = 1f;
-		[Range(0,1)]
+		[Range(0,2)]
 		public float Strength = 1f;
+		[Range(0,1)]
+		public float Falloff;
 
 		protected override IList<Type> SupportedTypes { get; } = new[] { typeof(Vector3), typeof(Vector2) };
 
@@ -147,13 +173,23 @@ namespace Needle.Timeline
 		{
 			if (input.WorldPosition == null) return ToolInputResult.Failed;
 			if (Random.value > Probability) return ToolInputResult.Failed;
+			if (!input.DeltaWorld.HasValue) return ToolInputResult.Failed;
 			
 			var vec = (Vector3)value.Cast(typeof(Vector3));
 			
 			var dist = input.GetRadiusDistanceScreenSpace(Radius, vec);
+			var factor = Strength;
 			if (dist < 1)
 			{
-				vec += input.DeltaWorld.Value * Strength;
+				if (Falloff > 0)
+				{
+					factor = (1-dist.Value);
+					factor /= Falloff;
+					factor = Strength * Mathf.Clamp01(factor);
+				}
+				var delta = input.DeltaWorld.Value;
+				delta *= factor;
+				vec += delta;
 				value = vec;
 				return ToolInputResult.Success;
 			}

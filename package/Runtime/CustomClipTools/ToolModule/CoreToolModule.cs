@@ -523,11 +523,17 @@ namespace Needle.Timeline
 		/// </summary>
 		public readonly int Index;
 
+		/// <summary>
+		/// Can be set to pass data from capturing stage to processing stage
+		/// </summary>
+		public object AdditionalData;
+
 		public ModifyContext(object target, int index)
 		{
 			Object = target;
 			Weight = 1;
 			this.Index = index;
+			AdditionalData = null;
 		}
 	}
 

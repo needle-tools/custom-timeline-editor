@@ -1,5 +1,6 @@
 ﻿using UnityEditor;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace Needle.Timeline
 {
@@ -43,6 +44,8 @@ namespace Needle.Timeline
 		public Vector2 ScreenDelta => ScreenPosition - LastScreenPosition;
 		public InputEventStage Stage;
 
+		public MouseButton Button;
+		
 		private KeyCode? keyPressed;
 		public bool HasKeyPressed(KeyCode key) => keyPressed == key;
 
@@ -53,7 +56,12 @@ namespace Needle.Timeline
 			if (evt.type == EventType.Used) return;
 
 #if UNITY_EDITOR
-			IsIn2DMode = SceneView.lastActiveSceneView?.in2DMode ?? false;
+			var sceneView = SceneView.lastActiveSceneView;
+			IsIn2DMode = false;
+			if (sceneView)
+			{
+				IsIn2DMode = sceneView.in2DMode;
+			}
 #endif
 			
 			switch (evt.type)
@@ -87,7 +95,6 @@ namespace Needle.Timeline
 				DeltaWorld = null;
 				LastWorldPosition = WorldPosition;
 				#if UNITY_EDITOR
-				var sceneView = SceneView.lastActiveSceneView;
 				var cur = Camera.current;
 				if (sceneView.camera == cur)
 				{ 
@@ -114,6 +121,7 @@ namespace Needle.Timeline
 					RecordCurrent();
 					StartWorldPosition = WorldPosition;
 					StartScreenPosition = ScreenPosition;
+					Button = (MouseButton)Event.current.button;
 					break;
 				case EventType.MouseDrag:
 				case EventType.MouseUp:
