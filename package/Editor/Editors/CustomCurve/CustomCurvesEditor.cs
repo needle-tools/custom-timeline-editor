@@ -172,8 +172,9 @@ namespace Needle.Timeline.Editors.CustomCurve
 			}
 		}
 
-		private readonly object _markerDragging = new object();
 		private int _markerDraggingIndex;
+		
+		
 		private bool OnRenderClip(Rect rect,
 			ICustomClip clip,
 			TimelineClip timelineClip,
@@ -218,17 +219,18 @@ namespace Needle.Timeline.Editors.CustomCurve
 								{
 									dragActions.Add(new KeyframeModifyEasing(prev));
 									dragActions.Add(new KeyframeModifyEasing(keyframe));
-									_dragging = _markerDragging;
+									// TODO: figure out how we unify these actions across various things that can receive input on a clip ui view
+									_dragging = clip;
 									_markerDraggingIndex = index;
 									mouseDownOnKeyframe = true;
 								}
 								break;
 							case EventType.MouseUp:
-								if(_dragging == _markerDragging)
+								if(_dragging == clip)
 									_dragging = null;
 								break;
 							case EventType.MouseDrag:
-								if (_dragging == _markerDragging && _markerDraggingIndex == index)
+								if (_dragging == clip && _markerDraggingIndex == index)
 								{
 									var weightChange = evt.delta.x / dist;
 									prev.AddWeightChange(keyframe, weightChange);
