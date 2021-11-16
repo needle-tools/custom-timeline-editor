@@ -6,7 +6,7 @@ namespace Needle.Timeline.Commands
 	public class EditKeyframeValue : Command
 	{
 		private readonly ICustomKeyframe keyframe;
-		private object lastValue;
+		private readonly object lastValue;
 		private object nextValue;
 
 		public bool IsKeyframe(ICustomKeyframe kf) => kf == keyframe;
@@ -20,9 +20,7 @@ namespace Needle.Timeline.Commands
 
 		protected override void OnRedo()
 		{
-			lastValue = CloneUtil.TryClone(keyframe.value);
 			keyframe.value = nextValue;
-			// keyframe.RaiseValueChangedEvent();
 		}
 
 		protected override void OnUndo()
