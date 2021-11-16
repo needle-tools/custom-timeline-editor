@@ -17,6 +17,8 @@ namespace Needle.Timeline
 			var view = new FloatField();
 			view.label = "_";
 			view.RegisterValueChangedCallback(evt => { viewValue.SetValue(evt.newValue); });
+			view.RegisterValueChangedCallback(viewValue);
+			
 			var val = viewValue.GetValue();
 			if(val != null)
 				view.value = (float)val;

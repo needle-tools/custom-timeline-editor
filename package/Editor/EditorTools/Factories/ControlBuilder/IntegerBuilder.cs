@@ -16,6 +16,7 @@ namespace Needle.Timeline
 		{
 			var view = new IntegerField();
 			view.RegisterValueChangedCallback(evt => { viewValue.SetValue(evt.newValue); });
+			view.RegisterValueChangedCallback(viewValue);
 			var val = viewValue.GetValue();
 			if(val != null)
 				view.value = (int)val;

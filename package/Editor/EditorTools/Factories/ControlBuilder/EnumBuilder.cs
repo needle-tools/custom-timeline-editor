@@ -23,6 +23,7 @@ namespace Needle.Timeline
 				var val = (Enum)Enum.Parse(type, evt.newValue);
 				viewValue.SetValue(val);
 			});
+			
 			var val = viewValue.GetValue();
 			if(val != null)
 				view.value = val.ToString();

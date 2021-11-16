@@ -1,4 +1,5 @@
-﻿using UnityEngine.UIElements;
+﻿using UnityEditor.UIElements;
+using UnityEngine.UIElements;
 
 namespace Needle.Timeline
 {
@@ -13,6 +14,11 @@ namespace Needle.Timeline
 			pre.AddToClassList("pre");
 			main.AddToClassList("main");
 			return composite;
+		}
+
+		internal static void RegisterValueChangedCallback<T>(this BaseField<T> field, IViewValueHandler viewValue)
+		{
+			viewValue.ValueChanged += val => field.value = (T)val;
 		}
 	}
 }

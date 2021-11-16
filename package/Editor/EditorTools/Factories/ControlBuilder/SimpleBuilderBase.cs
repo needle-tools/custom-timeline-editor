@@ -16,6 +16,7 @@ namespace Needle.Timeline
 			var view = GetField();
 			view.label = "_";
 			view.RegisterValueChangedCallback(evt => { viewValue.SetValue(evt.newValue); });
+			view.RegisterValueChangedCallback(viewValue);
 			var val = viewValue.GetValue();
 			if(val != null)
 				view.value = (T)val;
