@@ -102,16 +102,16 @@ namespace Needle.Timeline.Tests
 		}
 
 
-		[Test]
-		public void Interpolate_Custom3()
-		{
-			var shader = LoadShader();
-			var res = TestInterpolate(shader, "FLOAT2", typeof(CustomType3).GetStride(), 
-				new CustomType3(), 
-				new CustomType3(){v0=10, v1=1});
-			Assert.IsTrue(res.v0 == 5);
-			Assert.IsTrue(Mathf.Approximately(res.v1, .5f));
-		}
+		// [Test]
+		// public void Interpolate_Custom3()
+		// {
+		// 	var shader = LoadShader();
+		// 	var res = TestInterpolate(shader, "FLOAT2", typeof(CustomType3).GetStride(), 
+		// 		new CustomType3(), 
+		// 		new CustomType3(){v0=10, v1=1});
+		// 	Assert.IsTrue(res.v0 == 5);
+		// 	Assert.IsTrue(Mathf.Approximately(res.v1, .5f));
+		// }
 		
 		
 		[StructLayout(LayoutKind.Explicit)]

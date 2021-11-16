@@ -20,15 +20,16 @@ namespace Needle.Timeline.Commands
 
 		protected override void OnRedo()
 		{
+			lastValue = CloneUtil.TryClone(keyframe.value);
 			keyframe.value = nextValue;
-			keyframe.RaiseValueChangedEvent();
+			// keyframe.RaiseValueChangedEvent();
 		}
 
 		protected override void OnUndo()
 		{
 			if (nextValue == null) nextValue = CloneUtil.TryClone(keyframe.value);
 			keyframe.value = lastValue;
-			keyframe.RaiseValueChangedEvent();
+			// keyframe.RaiseValueChangedEvent();
 		}
 	}
 }

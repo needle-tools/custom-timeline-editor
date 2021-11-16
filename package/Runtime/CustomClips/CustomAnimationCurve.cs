@@ -177,15 +177,17 @@ namespace Needle.Timeline
 			return true; 
 		}
 
-		public void Remove(ICustomKeyframe kf)
+		public bool Remove(ICustomKeyframe kf)
 		{
 			if (kf == null || !(kf is ICustomKeyframe<T> keyframe))
-				return;
+				return false;
 			if (_keyframes.Remove(keyframe))
 			{
 				UnregisterKeyframeEvents(keyframe);
 				Changed?.Invoke();
+				return true;
 			}
+			return false;
 		}
 
 		object ICustomClip.Evaluate(float time)

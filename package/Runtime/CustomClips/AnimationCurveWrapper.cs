@@ -60,9 +60,9 @@ namespace Needle.Timeline
 			return false;
 		}
 
-		public void Remove(ICustomKeyframe kf)
+		public bool Remove(ICustomKeyframe kf)
 		{
-			
+			return false;
 		}
 
 		#pragma warning disable CS0414

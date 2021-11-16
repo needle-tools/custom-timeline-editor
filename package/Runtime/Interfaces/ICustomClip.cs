@@ -12,7 +12,7 @@ namespace Needle.Timeline
 		bool CanAdd(Type type);
 		bool CanAdd(ICustomKeyframe kf);
 		bool Add(ICustomKeyframe kf);
-		void Remove(ICustomKeyframe kf);
+		bool Remove(ICustomKeyframe kf);
 		event Action Changed;
 		IReadOnlyList<IReadonlyCustomKeyframe> Keyframes { get; }
 		ICustomKeyframe GetPrevious(float time);
