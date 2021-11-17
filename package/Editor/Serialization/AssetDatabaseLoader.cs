@@ -62,7 +62,7 @@ namespace Needle.Timeline
 			SaveForRuntime(container, context.Asset);
 			return !string.IsNullOrEmpty(container.Content); 
 			
-			string GetName() => context.Clip.start + (context.DisplayName ?? id);
+			string GetName() => context.Clip.start.ToString("0.0") + (context.DisplayName ?? id);
 		}
 
 		public bool Load(string id, ISerializationContext context, out object res)
