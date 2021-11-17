@@ -145,9 +145,33 @@ namespace Needle.Timeline
 			_keyframesChanged.Clear();
 			try
 			{
-				foreach (var keyframe in GetKeyframes(toolData))
+				foreach (var _kf in GetKeyframes(toolData))
 				{
-					if (keyframe == null) continue;
+					if (_kf == null) continue;
+
+					var keyframe = _kf;
+					if (input.Stage == InputEventStage.Begin 
+					    && input.HasKeyPressed(KeyCode.D) 
+					    && Mathf.Abs(toolData.Time - keyframe.time) > float.Epsilon)
+					{
+						// creating a new keyframe:
+						// we set the value null to avoid copying it twice
+						// we dont really want to clone the exact keyframe value
+						// but the evaluated value at the current time
+						// so we need to evaluate the clip and then clone that result
+						// as the new keyframe value
+						var prevValue = keyframe.value;
+						keyframe.value = null; 
+						var clone = CloneUtil.TryClone(keyframe);
+						keyframe.value = prevValue;
+						clone.time = toolData.Time;
+						clone.value = CloneUtil.TryClone(toolData.Clip.Evaluate(toolData.Time));
+						toolData.Clip.Add(clone);
+						var createCommand = new CreateKeyframe(clone, toolData.Clip, true);
+						toolData.CommandHandler.RegisterCommand(createCommand);
+						keyframe = clone;
+					}
+					
 					var contentType = keyframe.TryRetrieveKeyframeContentType();
 					if (contentType == null) ThrowHelper.Throw("Failed getting content type");
 					var context = new ToolContext()

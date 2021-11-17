@@ -47,6 +47,7 @@ namespace Needle.Timeline
 		public InputEventStage Stage;
 
 		public MouseButton Button;
+		public EventModifiers Modifiers;
 		
 		private KeyCode? keyPressed;
 		public bool HasKeyPressed(KeyCode key) => keyPressed == key;
@@ -94,6 +95,7 @@ namespace Needle.Timeline
 
 			void RecordCurrent()
 			{
+				Modifiers = evt.modifiers;
 				DeltaWorld = null;
 				LastWorldPosition = WorldPosition;
 				#if UNITY_EDITOR
