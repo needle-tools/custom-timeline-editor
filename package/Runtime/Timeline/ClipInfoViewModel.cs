@@ -61,6 +61,25 @@ namespace Needle.Timeline
 			clip.Changed += OnClipChanged;
 		}
 
+		/// <summary>
+		/// Called e.g. when clips are cloned
+		/// </summary>
+		internal void Replace(ICustomClip oldClip, ICustomClip newClip)
+		{
+			if (oldClip == newClip || oldClip == null || newClip == null) throw new Exception("Invalid op");
+			for (var index = 0; index < clips.Count; index++)
+			{
+				var clip = clips[index];
+				if (clip == oldClip)
+				{
+					clips[index] = newClip;
+					oldClip.Changed -= OnClipChanged;
+					newClip.Changed += OnClipChanged;
+					break;
+				}
+			}
+		}
+
 		private void OnClipChanged(ICustomClip clip)
 		{
 			if (!track)

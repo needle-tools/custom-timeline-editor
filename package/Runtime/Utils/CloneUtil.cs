@@ -101,7 +101,7 @@ namespace Needle.Timeline
 						name.IndexOf("<", StringComparison.Ordinal) + 1, 
 						name.IndexOf(">", StringComparison.Ordinal)-1);
 					var propertyInfo = source.GetType().GetProperty(propertyName, flags);
-					if (propertyInfo != null && propertyInfo.GetCustomAttribute<NoClone>() != null)
+					if (propertyInfo != null && propertyInfo.GetCustomAttribute<NoClone>() != null) 
 						continue;
 				}
 				
@@ -111,8 +111,8 @@ namespace Needle.Timeline
 				{
 					if (!type.IsValueType)
 					{
-						val = TryClone(val);
-					}
+						val = TryClone(val); 
+					} 
 				}
 				field.SetValue(target, val);
 			}

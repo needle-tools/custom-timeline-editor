@@ -12,12 +12,14 @@ namespace Needle.Timeline
 
 		public string Id { get; set; }
 		public string Name { get; set; }
+		public string DisplayName { get; set; }
 		
 		public AnimationCurveWrapper(Func<AnimationCurve> curve, string name, string id = null)
 		{
 			this.curve = curve;
 			Id = id ?? name;
 			Name = name;
+			DisplayName = name;
 			Changed = default;
 			Keyframes = null;
 			SupportedTypes = new[] { typeof(float) };

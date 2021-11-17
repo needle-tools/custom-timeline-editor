@@ -71,7 +71,7 @@ namespace Needle.Timeline
 			}
 		}
 
-		public static string ToId(this ClipInfoViewModel vm, ICustomClip clip) => vm.Id + "_" + clip.Id;
+		public static string ToId(this ClipInfoViewModel vm, ICustomClip clip) => vm.Id + "_" + clip.Name;
 		public static string ToId(this ClipInfoViewModel vm, MemberInfo member) => vm.Id + "_" + member.Name;
 
 		public enum CreationResult
@@ -111,10 +111,7 @@ namespace Needle.Timeline
 		{
 			clip = default;
 			if (attribute == null) return CreationResult.NotMarked;
-
-			var name = data.Member.Name; //.ToLowerInvariant();
-			// var ser = new JsonSerializer();
-
+			
 			var curveType = typeof(CustomAnimationCurve<>).MakeGenericType(data.MemberType);
 			try
 			{
@@ -178,7 +175,8 @@ namespace Needle.Timeline
 			}
 
 			clip.Id = data.Id;
-			clip.Name = name;
+			clip.DisplayName = data.Member.Name;
+			clip.Name = data.Member.Name;
 
 			object Resolve() => data.ViewModel.Script; //data.Director.GetGenericBinding(data.Track);
 			var handler = new MemberWrapper(data.Member, Resolve, data.MemberType);
