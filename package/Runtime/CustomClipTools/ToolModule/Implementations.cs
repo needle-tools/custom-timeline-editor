@@ -91,7 +91,7 @@ namespace Needle.Timeline
 	{
 		protected override IList<Type> SupportedTypes { get; } = new[] { typeof(Vector3) };
 
-		public SpreadMode Mode;
+		public SpreadMode Mode = SpreadMode.Neighbor;
 
 		[Range(.1f, 10)] public float Radius = 1;
 		[Range(-10, 10)] public float Strength = 1f;
@@ -378,7 +378,7 @@ namespace Needle.Timeline
 					weight = 1 - screenDistance.Value;
 				}
 				if (weight == null) return ToolInputResult.Failed;
-				context.Weight = weight.Value * Weight;
+				context.Weight = weight.Value * Mathf.Pow(Weight, 2);
 				return ToolInputResult.Success;
 			}
 		}
