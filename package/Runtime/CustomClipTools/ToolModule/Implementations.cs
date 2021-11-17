@@ -261,31 +261,29 @@ namespace Needle.Timeline
 			var vec = (Vector3)value.Cast(typeof(Vector3));
 
 			var dist = input.GetRadiusDistanceScreenSpace(Radius, vec);
-			var factor = Strength;
-			if (dist <= 1 || Capture)
+			if ((dist != null && dist <= 1) || Capture)
 			{
 				var delta = input.DeltaWorld.Value;
 
 				if (Capture)
 				{
 					var list = GetList(context.ClipHash);
+					ModificationIdentifier id;
 					if (input.Stage == InputEventStage.Begin && dist <= 1 && Random.value <= Probability)
-						list.Add(new ModificationIdentifier(context));
-					else if (list.Contains(context.TargetHash, context.Index, context.MemberIndex))
+					{
+						id = new ModificationIdentifier(context, CalculateFactor(dist.GetValueOrDefault()));
+						list.Add(id);
+					}
+					else if (list.Contains(context.TargetHash, context.Index, context.MemberIndex, out id))
 					{
 						// it is in the list, we can proceed :)
+						delta *= CalculateFactor(id.Weight);
 					}
 					else return ToolInputResult.Failed;
 				}
 				else
 				{
-					if (Falloff > 0)
-					{
-						factor = (1 - dist.Value);
-						factor /= Falloff;
-						factor = Strength * Mathf.Clamp01(factor);
-					}
-					delta *= factor;
+					delta *= CalculateFactor(dist.GetValueOrDefault());
 				}
 
 				vec += delta;
@@ -295,6 +293,18 @@ namespace Needle.Timeline
 
 
 			return ToolInputResult.Failed;
+		}
+
+		private float CalculateFactor(float dist)
+		{
+			var factor = Strength;
+			if (Falloff > 0)
+			{
+				factor = (1 - dist);
+				factor /= Falloff;
+				factor = Strength * Mathf.Clamp01(factor);
+			}
+			return factor;
 		}
 	}
 
