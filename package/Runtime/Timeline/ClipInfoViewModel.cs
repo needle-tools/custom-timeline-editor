@@ -17,7 +17,7 @@ namespace Needle.Timeline
 		
 		public static event Action<ClipInfoViewModel> Created;
 
-		public bool HasUnsavedChanges { get; private set; }
+		public bool HasUnsavedChanges { get; internal set; }
 
 		internal PlayableDirector director;
 		internal PlayableAsset asset;
@@ -41,6 +41,17 @@ namespace Needle.Timeline
 			this.Script = script;
 			this.model = model;
 			this.timelineClip = timelineClip;
+		}
+
+		internal void Save(ILoader loader)
+		{
+			Debug.Log("<b>SAVE</b> " + Id + "@" + startTime.ToString("0.00")); 
+			var context = new SerializationContext(TimelineClip, asset);
+			foreach (var clip in clips)
+			{
+				context.DisplayName = clip.Name;
+				loader.Save(clip.Id, context, clip);
+			}
 		}
 		
 		internal void Register(IValueHandler handler, ICustomClip clip)

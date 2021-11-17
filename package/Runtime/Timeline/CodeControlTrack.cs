@@ -6,9 +6,11 @@ using Unity.Profiling;
 using UnityEngine;
 using UnityEngine.Playables;
 using UnityEngine.Timeline;
+using UnityEngine.UIElements;
 using Object = UnityEngine.Object;
 
 #if UNITY_EDITOR
+using System.IO;
 using UnityEditor;
 using UnityEditor.Timeline;
 #endif
@@ -45,14 +47,10 @@ namespace Needle.Timeline
 			{
 				if (!viewModel.IsValid) continue;
 				if (!viewModel.HasUnsavedChanges) continue;
-				Debug.Log("<b>SAVE</b> " + viewModel.Id + "@" + viewModel.startTime.ToString("0.00")); 
-				var context = new SerializationContext(viewModel.TimelineClip, viewModel.asset);
-				foreach (var clip in viewModel.clips)
-				{
-					context.DisplayName = clip.Name;
-					loader.Save(clip.Id, context, clip);
-				}
+				viewModel.Save(loader);
+				viewModel.HasUnsavedChanges = false;
 			}
+			TempFileLocationLoader.DeleteTempUnsavedChangesDirectory();
 		}
 
 		internal const bool IsUsingMixer = true;
@@ -178,7 +176,7 @@ namespace Needle.Timeline
 					viewModels.Add(viewModel);
 
 
-					var loader = LoadersRegistry.GetDefault();
+					var loader = new TempFileLocationLoader(LoadersRegistry.GetDefault());
 					if (loader == null) throw new Exception("Missing default loader");
 					var context = new AnimationCurveBuilder.Context(loader);
 
