@@ -13,6 +13,7 @@ namespace Needle.Timeline
 
 		private static void OnDeleted(CodeControlAsset obj)
 		{
+			// TODO: we could be nicer here and move assets elsewhere instead of just deleting using some custom undo action but for now that's it 
 			var path = AssetDatabase.GetAssetPath(obj);
 			AssetDatabaseUtils.DeleteSubAssets(path, p =>
 			{
