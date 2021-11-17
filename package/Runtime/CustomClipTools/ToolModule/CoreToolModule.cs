@@ -80,7 +80,7 @@ namespace Needle.Timeline
 		protected IToolData ToolData => _toolData;
 
 
-		protected override bool OnTestCanModify(Type type)
+		protected override bool OnInternalCanModify(Type type)
 		{
 			return SupportedTypes.Any(sup => sup.IsAssignableFrom(type));
 		}

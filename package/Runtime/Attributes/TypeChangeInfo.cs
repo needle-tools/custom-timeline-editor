@@ -6,7 +6,7 @@ namespace Needle.Timeline
 {
 	// MovedFrom?
 	
-	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Field | AttributeTargets.Property)]
+	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Field | AttributeTargets.Property | AttributeTargets.Struct)]
 	public class RefactorInfo : Attribute
 	{
 		public readonly string? OldAssemblyName;

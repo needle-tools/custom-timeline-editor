@@ -70,5 +70,15 @@ namespace Needle.Timeline.Tests.SerializationTests.Json
 			Assert.NotNull(res);
 			Assert.IsAssignableFrom(typeof(TypeMovedAssembly), res);
 		}
+		
+
+		[Test]
+		public void CanResolve_AnimationCurveSerializationChanged()
+		{
+			// TODO: handle generics e.g. Needle.Timeline.CustomAnimationCurve`1[[System.Collections.Generic.List`1[[TestScript+ColorPoint, AssetsAssembly]], mscorlib]]
+			Debug.LogError("TODO, e.g. when you animate a type in assembly A " +
+			               "and then move that type into assembly B you get serialized generics" +
+			               "that don't exist in that assembly anymore");
+		}
 	}
 }

@@ -6,9 +6,7 @@ namespace Needle.Timeline
 {
 	public class HandlesModule : CoreToolModule
 	{
-		// TODO: how can we delete elements
-
-		public override bool CanModify(Type type)
+		protected override bool OnInternalCanModify(Type type)
 		{
 			return typeof(ICustomControls).IsAssignableFrom(type);
 		}

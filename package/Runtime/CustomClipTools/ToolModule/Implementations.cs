@@ -225,7 +225,7 @@ namespace Needle.Timeline
 		[Range(0.01f, 10)] public float Radius = 1;
 		[Range(0, 1)] public float Probability = 1f;
 		[Range(0, 2)] public float Strength = 1f;
-		[Range(0, 1)] public float Falloff = 1;
+		[Range(0, 1)] public float Falloff = 0;
 
 		// TODO: we should hide falloff and such when capture is on
 		public bool Capture = true;
@@ -340,6 +340,11 @@ namespace Needle.Timeline
 		{
 			get => Weight;
 			set => Weight = value;
+		}
+
+		public override bool CanModify()
+		{
+			return IsAnyBindingEnabled();
 		}
 
 		// public override bool CanModify(Type type) => true;

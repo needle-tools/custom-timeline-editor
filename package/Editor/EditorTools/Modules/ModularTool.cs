@@ -125,6 +125,9 @@ namespace Needle.Timeline
 			
 			if (moduleViewControllers.Any(m => m.IsActive))
 			{
+				if(Event.current.button == 0 && Event.current.modifiers == EventModifiers.None && !Event.current.isScrollWheel)
+					UseEventDelayed();
+				
 				foreach (var mod in moduleViewControllers)
 				{
 					if (!mod.IsActive) continue;

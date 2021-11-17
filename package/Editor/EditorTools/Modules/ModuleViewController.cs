@@ -116,6 +116,7 @@ namespace Needle.Timeline
 					}
 				}
 			}
+			
 			ToolsWindow.Root.Add(options);
 		}
 	}

@@ -38,23 +38,22 @@ namespace Needle.Timeline.Serialization
 			forward.BindToName(serializedType, out assemblyName, out typeName);
 		}
 
-		private Type? ResolveType(string? assemblyName, string typeName)
+		private static Type? ResolveType(string? assemblyName, string typeName)
 		{
 			// Debug.Log("Try resolve " + assemblyName + ", " + typeName);
 			foreach (var type in RuntimeTypeCache.Types)
 			{
 				var info = type.GetCustomAttribute<RefactorInfo>();
 				if (info == null) continue;
-					
-				var typeAssemblyName = type.Assembly.GetName().Name;
+				var typeAssemblyName = type.Assembly.GetName().Name;  
 				if (!string.IsNullOrEmpty(info.OldName) && typeName.EndsWith(info.OldName!) && typeAssemblyName == assemblyName)
-				{
+				{ 
 					// Debug.Log("FOUND " + typeName + ", is now: " + type.FullName);
-					return type;
-				}
+					return type; 
+				} 
 				if(!string.IsNullOrEmpty(info.OldAssemblyName) && info.OldAssemblyName == assemblyName)
 				{
-					if (typeName.EndsWith(type.Name))
+					if (typeName.EndsWith(type.Name)) 
 					{
 						return type;
 					}
