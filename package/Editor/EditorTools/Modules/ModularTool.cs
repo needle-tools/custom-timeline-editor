@@ -46,7 +46,7 @@ namespace Needle.Timeline
 		{
 			foreach (var view in moduleViewControllers)
 			{
-				// view.OnTargetsChanged();
+				view.OnTargetsChanged();
 			}
 		}
 

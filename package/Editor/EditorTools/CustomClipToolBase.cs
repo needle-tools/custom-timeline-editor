@@ -21,6 +21,8 @@ namespace Needle.Timeline
 			Debug.Log("Add " + clip.Name + "@" + vm.startTime);
 			var t = new ToolTarget(vm, clip);
 			targets.Add(t);
+			UnregisterTargetEvents(t);
+			RegisterTargetEvents(t);
 			OnAddedTarget(t);
 		}
 
@@ -31,6 +33,7 @@ namespace Needle.Timeline
 				var t = targets[index];
 				if (t.Clip == clip)
 				{
+					UnregisterTargetEvents(t);
 					targets.RemoveAt(index);
 					OnRemovedTarget(t);
 				}
@@ -41,6 +44,7 @@ namespace Needle.Timeline
 		{
 			foreach (var t in targets)
 			{
+				UnregisterTargetEvents(t);
 				OnRemovedTarget(t);
 			}
 			targets.Clear();

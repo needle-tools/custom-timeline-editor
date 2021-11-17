@@ -86,13 +86,14 @@ namespace Needle.Timeline
 			{
 				bindable.Bindings.Clear();
 				options.Add(foldout);
+				foldout.Clear();
 				
 				foreach (var t in tool.Targets)
 				{
 					var clip = t.Clip;
 					if (clip == null) continue;
-					
-					
+					if (t.Clip is IRecordable rec && !rec.IsRecording) continue;
+
 					foreach (var field in clip.EnumerateFields())
 					{
 						if (BindingsCache.TryGetFromCache(field, out var c))

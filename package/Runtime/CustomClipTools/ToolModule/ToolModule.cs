@@ -130,10 +130,10 @@ namespace Needle.Timeline
 			{
 #if UNITY_EDITOR
 				Handles.color = new Color(.5f, .5f, .5f, .5f);
-				Handles.DrawWireDisc(input.WorldPosition.Value, input.WorldNormal!.Value, GetRadius());
+				Handles.DrawWireDisc(input.WorldPosition.Value, input.WorldNormal!.Value, GetRadius(), 2f);
 #endif
-				Gizmos.color = Color.green;
-				GizmoUtils.DrawArrow(input.WorldPosition.Value, input.WorldPosition.Value + input.WorldNormal.Value);
+				// Gizmos.color = Color.green;
+				// GizmoUtils.DrawArrow(input.WorldPosition.Value, input.WorldPosition.Value + input.WorldNormal.Value);
 				// Handles.DrawWireDisc(input.WorldPosition.Value, Camera.current.transform.forward, 1);
 				// Handles.SphereHandleCap(0, input.WorldPosition.Value,  Quaternion.identity, .2f, EventType.Repaint);
 			}
