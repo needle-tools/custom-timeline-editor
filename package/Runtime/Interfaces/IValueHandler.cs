@@ -9,7 +9,7 @@ namespace Needle.Timeline
 {
 	public interface IValueProvider
 	{
-		object GetValue();
+		object? GetValue();
 	}
 	
 	public interface IValueHandler : IValueProvider
@@ -40,7 +40,6 @@ namespace Needle.Timeline
 		string Name { get; }
 		bool Equals(MemberInfo member);
 		bool Matches(MemberInfo member);
-		void SetField(FieldInfo field);
 		bool CanAssign(Type instanceType);
 	}
 }

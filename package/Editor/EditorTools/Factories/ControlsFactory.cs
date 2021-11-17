@@ -58,7 +58,7 @@ namespace Needle.Timeline
 			{
 				PersistenceHelper.OnValueChanged(field, newValue);
 			};
-			res = new ViewValueBindingController(field, viewValue, clip);
+			res = new ViewValueBindingController(field, viewValue);
 			res.ViewElement = res.BuildControl();
 			BindingsCache.Register(field.DeclaringType, res);
 			return res.ViewElement != null;
@@ -68,7 +68,7 @@ namespace Needle.Timeline
 			bool? enabled = null)
 		{
 			var viewBinding = new FieldViewBinding(instance, field);
-			var controller = new ViewValueBindingController(field, viewBinding, instance as IRecordable);
+			var controller = new ViewValueBindingController(field, viewBinding);
 			if (enabled != null)
 				controller.Enabled = enabled.Value;
 			controller.ViewElement = BuildControl(controller);
@@ -83,7 +83,7 @@ namespace Needle.Timeline
 			Init();
 			if (controlAsset == null) throw new Exception("Failed loading control uxml layout");
 
-			var instance = controlAsset.CloneTree();
+			var instance = controlAsset.CloneTree().contentContainer;
 			instance.styleSheets.Add(controlStyles);
 
 			var labelText = ObjectNames.NicifyVariableName(binding.Name); // CultureInfo.CurrentCulture.TextInfo.ToTitleCase(binding.Name);
@@ -106,17 +106,10 @@ namespace Needle.Timeline
 				}
 			}
 			else label = name;
-			//
-			// if (typeof(int).IsAssignableFrom(binding.ValueType))
-			// {
-			// 	var dragger = (BaseFieldMouseDragger)new FieldMouseDragger<int>(control.Q<IntegerField>());
-			// 	
-			// }
 				
 			var controlContainer = instance.Q<VisualElement>(null, "control");
 			binding.ViewElement = control;
 			controlContainer.Add(control);
-
 
 			var toggle = instance.Q<Toggle>(null, "enabled");
 			toggle.RegisterValueChangedCallback(evt =>

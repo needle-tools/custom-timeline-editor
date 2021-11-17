@@ -54,12 +54,6 @@ namespace Needle.Timeline
 			return false;
 		}
 
-		public void SetField(FieldInfo field)
-		{
-			if (Matches(field)) return;
-			throw new Exception("Invalid assignment");
-		}
-
 		public bool CanAssign(Type instanceType)
 		{
 			return true;

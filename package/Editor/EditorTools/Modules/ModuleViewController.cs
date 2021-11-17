@@ -85,8 +85,7 @@ namespace Needle.Timeline
 			if (IsActive && Module is IBindsFields bindable && bindable.AllowBinding)
 			{
 				bindable.Bindings.Clear();
-				options.Add(foldout);
-				foldout.Clear();
+				options.Add(new VisualElement(){style = { height = 10}});
 				
 				foreach (var t in tool.Targets)
 				{
@@ -98,9 +97,8 @@ namespace Needle.Timeline
 					{
 						if (BindingsCache.TryGetFromCache(field, out var c))
 						{
-							// Debug.Log("RESOLVED FROM CACHE: " + c.GetHashCode() + ", " + this.Module);
 							bindable.Bindings.Add(c);
-							foldout.Add(c.ViewElement);
+							options.Add(c.ViewElement);
 							continue;
 						}
 						// if (BindingsCache.TryGetFromCache(field, out var c))
@@ -113,7 +111,7 @@ namespace Needle.Timeline
 						{
 							Debug.Log("BUILT: " + handler.GetHashCode() + ", " + clip.Name + ":" + field.Name);
 							bindable.Bindings.Add(handler);
-							foldout.Add(handler.ViewElement);
+							options.Add(handler.ViewElement);
 						}
 					}
 				}

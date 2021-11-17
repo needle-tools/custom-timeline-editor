@@ -15,7 +15,7 @@ namespace Needle.Timeline
 
 		public bool Enabled
 		{
-			get => enabled && (rec?.IsRecording ?? true);
+			get => enabled;
 			set
 			{
 				if (value == enabled) return;
@@ -59,22 +59,13 @@ namespace Needle.Timeline
 			return false;
 		}
 
-		public void SetField(FieldInfo newField)
-		{
-			if (newField == this.field) return;
-			if (newField == null || !Matches(newField)) throw new Exception("Invalid field assignment");
-			this.field = newField;
-		}
-		
-		internal IRecordable? rec;
 		private FieldInfo field;
 		private bool enabled = false;
 
-		public ViewValueBindingController(FieldInfo field, IViewValueHandler view, IRecordable? rec)
+		public ViewValueBindingController(FieldInfo field, IViewValueHandler view)
 		{
 			this.field = field;
 			ViewValue = view;
-			this.rec = rec;
 		}
 	}
 }
