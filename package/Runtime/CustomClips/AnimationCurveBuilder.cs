@@ -102,7 +102,7 @@ namespace Needle.Timeline
 				var res = CreateAnimationCurve(attribute, data);
 				if (res == CreationResult.Successful) return res;
 
-				res = CreateCustomAnimationCurve(attribute, data, context, out var clip);
+				res = CreateCustomAnimationCurve(attribute, data, context, out _);
 				return res;
 			}
 		}
@@ -121,6 +121,7 @@ namespace Needle.Timeline
 				var loader = context.Loader;
 				if (loader == null) throw new Exception("CurveBuilderContext has no loader");
 				var serContext = new SerializationContext(data.TimelineClip, data.TrackAsset);
+				serContext.DisplayName = data.Member.Name;
 				serContext.Type = curveType;
 				var successfullyLoaded = loader.Load(data.Id, serContext, out var result);
 				if (!successfullyLoaded)

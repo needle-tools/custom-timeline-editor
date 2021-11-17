@@ -54,7 +54,7 @@ namespace Needle.Timeline
 			var path = basePath + "/" + id + ".json";
 			if (!string.IsNullOrEmpty(path) && File.Exists(path))
 			{
-				Debug.Log("Load from previously unsaved changes");
+				Debug.Log($"Load {context.DisplayName??id} from previously unsaved changes");
 				var json = File.ReadAllText(path);
 				// File.Delete(path);
 				if (!string.IsNullOrEmpty(json))
