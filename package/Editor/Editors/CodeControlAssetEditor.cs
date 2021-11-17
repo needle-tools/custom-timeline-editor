@@ -30,8 +30,12 @@ namespace Needle.Timeline
 			
 		}
 
-		private static void PopulateClip(ClipInfoViewModel source, TimelineClip createdClip)
+		private static async void PopulateClip(ClipInfoViewModel source, TimelineClip createdClip)
 		{
+			// copy paste works immediately but duplicate seems to be delayed?!
+			// so we wait
+			await Task.Delay(10);
+			
 			ClipInfoViewModel created = null;
 			foreach (var vm in ClipInfoViewModel.Instances) 
 			{ 
