@@ -52,9 +52,7 @@ namespace Needle.Timeline
 			}
 			TempFileLocationLoader.DeleteTempUnsavedChangesDirectory();
 		}
-
-		internal const bool IsUsingMixer = true;
-
+		
 		[SerializeField, HideInInspector] internal uint dirtyCount;
 		[SerializeField, HideInInspector] private List<ClipInfoModel> clips = new List<ClipInfoModel>();
 		[NonSerialized] private readonly List<ClipInfoViewModel> viewModels = new List<ClipInfoViewModel>();

@@ -23,8 +23,18 @@ namespace Needle.Timeline
 
 		public override void OnCreate(TrackAsset track, TrackAsset copiedFrom)
 		{
+			Debug.Log("TODO: clone whole track");
 			base.OnCreate(track, copiedFrom);
-			Debug.Log("copied track from " + copiedFrom);
+		}
+
+		public override TrackDrawOptions GetTrackOptions(TrackAsset track, Object binding)
+		{
+			return base.GetTrackOptions(track, binding);
+		}
+
+		public override void OnTrackChanged(TrackAsset track)
+		{
+			base.OnTrackChanged(track);
 		}
 	}
 }
