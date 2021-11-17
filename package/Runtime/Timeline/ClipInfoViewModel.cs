@@ -12,10 +12,7 @@ namespace Needle.Timeline
 	public class ClipInfoViewModel : IReadClipTime
 	{
 		public static IReadOnlyList<ClipInfoViewModel> Instances => instances;
-
-		// private static readonly List<ClipInfoViewModel> _lastActiveInstances = new List<ClipInfoViewModel>();
 		public static IEnumerable<ClipInfoViewModel> ActiveInstances => instances.Where(vm => vm.IsValid && vm.currentlyInClipTime && vm.timelineClip.asset);
-
 		private static readonly List<ClipInfoViewModel> instances = new List<ClipInfoViewModel>();
 		
 		public static event Action<ClipInfoViewModel> Created;
@@ -25,6 +22,7 @@ namespace Needle.Timeline
 		internal PlayableAsset asset;
 		internal TimelineClip TimelineClip => timelineClip;
 		internal bool failedLoading;
+		internal bool hasUnsavedChanges;
 
 		private readonly ClipInfoModel model;
 		private readonly TimelineClip timelineClip;
@@ -83,8 +81,7 @@ namespace Needle.Timeline
 		public double ClipTime => clipTime;
 
 
-		private List<(ICustomClip clip, IValueHandler handler, object value)>
-			storedValues = new List<(ICustomClip clip, IValueHandler handler, object value)>();
+		private readonly List<(ICustomClip clip, IValueHandler handler, object value)> storedValues = new List<(ICustomClip clip, IValueHandler handler, object value)>();
 
 		internal void StoreEvaluatedResult(IValueHandler handler, ICustomClip clip, object value)
 		{

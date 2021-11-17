@@ -130,9 +130,9 @@ namespace Needle.Timeline
 			}
 		}
 
-		private static CreationResult CreateCustomAnimationCurve([CanBeNull] AnimateAttribute attribute, Data data, Context context, out ICustomClip curve)
+		private static CreationResult CreateCustomAnimationCurve([CanBeNull] AnimateAttribute attribute, Data data, Context context, out ICustomClip clip)
 		{
-			curve = default;
+			clip = default;
 			if (attribute == null) return CreationResult.NotMarked;
 
 			var name = data.Member.Name; //.ToLowerInvariant();
@@ -164,7 +164,7 @@ namespace Needle.Timeline
 				}
 				else if (!(result is ICustomClip)) throw new Exception("Loading succeeded but result is not a custom clip");
 
-				curve = result as ICustomClip;
+				clip = result as ICustomClip;
 			}
 			catch (Exception e)
 			{
@@ -173,19 +173,19 @@ namespace Needle.Timeline
 				Debug.LogError(data.Member + ", " + data.MemberType);
 			}
 
-			if (curve == null)
+			if (clip == null)
 			{
 #if !UNITY_EDITOR
 				Debug.Log("Create new custom clip instance: " + curveType);
 #endif
-				curve = Activator.CreateInstance(curveType) as ICustomClip;
+				clip = Activator.CreateInstance(curveType) as ICustomClip;
 			}
 
-			if (curve == null)
+			if (clip == null)
 				return CreationResult.Failed;
 
 
-			if (curve is IHasInterpolator i)
+			if (clip is IHasInterpolator i)
 			{
 				if (InterpolatorBuilder.TryFindInterpolator(attribute, data.MemberType, out var interpolator))
 				{
@@ -199,12 +199,12 @@ namespace Needle.Timeline
 				}
 			}
 
-			curve.Id = data.Id;
-			curve.Name = name;
+			clip.Id = data.Id;
+			clip.Name = name;
 
 			object Resolve() => data.ViewModel.Script; //data.Director.GetGenericBinding(data.Track);
 			var handler = new MemberWrapper(data.Member, Resolve, data.MemberType);
-			data.ViewModel.Register(handler, curve);
+			data.ViewModel.Register(handler, clip);
 			return CreationResult.Successful;
 		}
 
