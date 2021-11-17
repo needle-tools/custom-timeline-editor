@@ -89,9 +89,22 @@ namespace Needle.Timeline
 
 		private static bool TryCloneMembers(object source, object target)
 		{
-			foreach (var field in source.GetType().GetFields(BindingFlags.Default | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+			var sourceType = source.GetType();
+			const BindingFlags flags = BindingFlags.Default | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+			foreach (var field in sourceType.GetFields(flags)) 
 			{
 				if (field.GetCustomAttribute<NoClone>() != null) continue;
+				var name = field.Name;
+				if (name.EndsWith("k__BackingField"))
+				{
+					var propertyName = name.Substring(
+						name.IndexOf("<", StringComparison.Ordinal) + 1, 
+						name.IndexOf(">", StringComparison.Ordinal)-1);
+					var propertyInfo = source.GetType().GetProperty(propertyName, flags);
+					if (propertyInfo != null && propertyInfo.GetCustomAttribute<NoClone>() != null)
+						continue;
+				}
+				
 				var val = field.GetValue(source);
 				var type = val?.GetType();
 				if (type != null)
