@@ -61,14 +61,9 @@ namespace Needle.Timeline
 			return false;
 		}
 		
-		public static bool TryFindInterpolator(AnimateAttribute attribute, Type memberType, out IInterpolator interpolator)
+		public static bool TryFindInterpolator(Type memberType, out IInterpolator interpolator, 
+			Type expectedType = null)
 		{
-			if (attribute.AllowInterpolation == false)
-			{
-				interpolator = new NoInterpolator();
-				return true;
-			}
-
 			var genericInterpolatorType = typeof(IInterpolator<>).MakeGenericType(memberType);
 			int Ordering(Type t) => t.GetCustomAttribute<Priority>()?.Rating ?? 0;
 
@@ -78,7 +73,7 @@ namespace Needle.Timeline
 				if (t.GetCustomAttribute<NoAutoSelect>() != null) continue;
 				// ignore custom clips implementing interpolator interface
 				if (typeof(ICustomClip).IsAssignableFrom(t)) continue;
-				if (attribute.Interpolator != null && t != attribute.Interpolator) continue;
+				if (expectedType != null && t != expectedType) continue;
 				try
 				{ 
 					interpolator = Activator.CreateInstance(t) as IInterpolator;
@@ -96,10 +91,10 @@ namespace Needle.Timeline
 				if (type.IsAbstract || type.IsInterface) continue;
 				if (typeof(ICustomClip).IsAssignableFrom(type)) continue;
 				
-				if (attribute.Interpolator != null)
+				if (expectedType != null)
 				{
 					// if the field has a specific interpolator defined and this is not it
-					if (type != attribute.Interpolator)
+					if (type != expectedType)
 						continue;
 				}
 				// if the interpolator is marked as not being used from here

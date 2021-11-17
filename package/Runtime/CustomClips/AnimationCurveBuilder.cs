@@ -74,6 +74,23 @@ namespace Needle.Timeline
 		public static string ToId(this ClipInfoViewModel vm, ICustomClip clip) => vm.Id + "_" + clip.Name;
 		public static string ToId(this ClipInfoViewModel vm, MemberInfo member) => vm.Id + "_" + member.Name;
 
+		public static ICustomClip Clone(ClipInfoViewModel viewModel, ICustomClip source)
+		{
+			var clip = CloneUtil.TryClone(source);
+			clip.Id = viewModel.ToId(clip);
+			if (clip is IHasInterpolator interpolatorTarget && source is IHasInterpolator interpolatorSource)
+			{
+				if (InterpolatorBuilder.TryFindInterpolator(
+					    clip.SupportedTypes.First(),
+					    out var interpolator,
+					    interpolatorSource.Interpolator.GetType()))
+					interpolatorTarget.Interpolator = interpolator;
+				else 
+					interpolatorTarget.Interpolator = new NoInterpolator();
+			}
+			return clip;
+		}
+		
 		public enum CreationResult
 		{
 			None = 0,
@@ -162,7 +179,8 @@ namespace Needle.Timeline
 
 			if (clip is IHasInterpolator i)
 			{
-				if (InterpolatorBuilder.TryFindInterpolator(attribute, data.MemberType, out var interpolator))
+				if (attribute.AllowInterpolation && InterpolatorBuilder.TryFindInterpolator(
+					    data.MemberType, out var interpolator, attribute.Interpolator))
 				{
 					// Debug.Log("Chose " + interpolator + ", " + data.Member.Name);
 					i.Interpolator = interpolator;
@@ -183,7 +201,6 @@ namespace Needle.Timeline
 			data.ViewModel.Register(handler, clip);
 			return CreationResult.Successful;
 		}
-
 
 		private static readonly Type[] animationCurveTypes =
 		{
@@ -256,17 +273,6 @@ namespace Needle.Timeline
 			Debug.LogError("Not implemented");
 			return CreationResult.Failed;
 #endif
-		}
-
-		private static List<Vector3> GetPointsList(int count)
-		{
-			var list = new List<Vector3>();
-			for (var i = 0; i < count; i++)
-			{
-				list.Add(UnityEngine.Random.insideUnitSphere);
-			}
-
-			return list;
 		}
 	}
 }

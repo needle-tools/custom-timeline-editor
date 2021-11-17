@@ -14,14 +14,15 @@ namespace Needle.Timeline
 		public override void OnCreate(TimelineClip clip, TrackAsset track, TimelineClip clonedFrom)
 		{
 			base.OnCreate(clip, track, clonedFrom);
-			Debug.Log("TODO: clone clips");
-			
-			
+			if (clonedFrom == null) return;
+
 			ClipInfoViewModel source = null;
+			const float maxTimeDifference = float.Epsilon;
 			foreach (var vm in ClipInfoViewModel.Instances)
 			{
-				const float TOLERANCE = float.Epsilon;
-				if (Math.Abs(vm.startTime - clonedFrom.start) < TOLERANCE && Math.Abs(vm.endTime - clonedFrom.end) < TOLERANCE) 
+				if (source != null) break;
+				if (Math.Abs(vm.startTime - clonedFrom.start) < maxTimeDifference 
+				    && Math.Abs(vm.endTime - clonedFrom.end) < maxTimeDifference) 
 					source = vm;
 			}
 			if(source != null)
@@ -29,7 +30,7 @@ namespace Needle.Timeline
 			
 		}
 
-		private static async void PopulateClip(ClipInfoViewModel source, TimelineClip createdClip)
+		private static void PopulateClip(ClipInfoViewModel source, TimelineClip createdClip)
 		{
 			ClipInfoViewModel created = null;
 			foreach (var vm in ClipInfoViewModel.Instances) 
@@ -43,11 +44,9 @@ namespace Needle.Timeline
 			for (var index = 0; index < source.clips.Count; index++)
 			{
 				var clip = source.clips[index];
-				// created.clips.Add(clip);
-				var clone = CloneUtil.TryClone(clip);
-				clone.Id = created.ToId(clone);
+				var clone = AnimationCurveBuilder.Clone(created, clip);
 				created.Replace(created.clips[index], clone);
-				created.HasUnsavedChanges = true;  
+				created.HasUnsavedChanges = true;
 			}
 		}
 	}

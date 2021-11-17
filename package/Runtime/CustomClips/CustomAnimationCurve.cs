@@ -11,6 +11,7 @@ namespace Needle.Timeline
 	public class CustomAnimationCurve<T> 
 		: ICustomClip<T>, IInterpolator<T>, IKeyframesProvider, IHasInterpolator, IHasEasing, ISerializationCallbackReceiver
 	{
+		[NoClone]
 		private IInterpolator _interpolator;
 		private readonly List<ICustomKeyframe<T>> _keyframes;
 		
@@ -47,7 +48,7 @@ namespace Needle.Timeline
 
 		public event Action<IRecordable> RecordingStateChanged;
 
-		[JsonIgnore]
+		[JsonIgnore, NoClone]
 		public IInterpolator Interpolator
 		{
 			get => _interpolator;

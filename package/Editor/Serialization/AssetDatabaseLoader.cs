@@ -43,7 +43,7 @@ namespace Needle.Timeline
 			{
 				if (sub is JsonContainer json && json.Id == id)
 				{
-					json.name = context.DisplayName ?? id;
+					json.name = GetName();
 					json.Id = id;
 					json.Content = (string)serializer.Serialize(@object);
 					json.hideFlags = Flags;
@@ -53,7 +53,7 @@ namespace Needle.Timeline
 				}
 			}
 			var container = ScriptableObject.CreateInstance<JsonContainer>();
-			container.name = context.DisplayName ?? id;
+			container.name = GetName();
 			container.Id = id;
 			container.Content = (string)serializer.Serialize(@object); 
 			container.hideFlags = Flags;
@@ -61,6 +61,8 @@ namespace Needle.Timeline
 			EditorUtility.SetDirty(asset);
 			SaveForRuntime(container, context.Asset);
 			return !string.IsNullOrEmpty(container.Content); 
+			
+			string GetName() => context.Clip.start + (context.DisplayName ?? id);
 		}
 
 		public bool Load(string id, ISerializationContext context, out object res)
