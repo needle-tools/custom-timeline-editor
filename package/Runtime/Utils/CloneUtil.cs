@@ -34,7 +34,8 @@ namespace Needle.Timeline
 				return null!;
 			}
 
-			if (value.GetType().IsValueType)
+			var type = value.GetType();
+			if (type.IsValueType)
 			{
 				return value;
 			}
@@ -44,8 +45,7 @@ namespace Needle.Timeline
 				object res = cloneable.Clone();
 				return res;
 			}
-
-
+			
 			if (value is ComputeBuffer buffer)
 			{
 				var copy = new ComputeBuffer(buffer.count, buffer.stride);
@@ -55,9 +55,11 @@ namespace Needle.Timeline
 				return copy;
 			}
 
+			if (type.GetCustomAttribute<NoClone>() != null) return null!;
+
 			if (value is IList col)
 			{
-				var clonedList = (IList)Activator.CreateInstance(value.GetType(), col);
+				var clonedList = (IList)Activator.CreateInstance(type, col);
 				var didCheckType = false;
 				for (var i = 0; i < clonedList.Count; i++)
 				{
@@ -75,7 +77,7 @@ namespace Needle.Timeline
 			}
 
 
-			var newInstance = Activator.CreateInstance(value.GetType());
+			var newInstance = Activator.CreateInstance(type);
 			if (newInstance != null)
 			{
 				if (TryCloneMembers(value, newInstance))
@@ -89,6 +91,7 @@ namespace Needle.Timeline
 		{
 			foreach (var field in source.GetType().GetFields(BindingFlags.Default | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
 			{
+				if (field.GetCustomAttribute<NoClone>() != null) continue;
 				var val = field.GetValue(source);
 				var type = val?.GetType();
 				if (type != null)

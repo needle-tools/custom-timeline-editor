@@ -71,7 +71,7 @@ namespace Needle.Timeline
 
 		public Type[] SupportedTypes { get; } = { typeof(T) };
 		
-		[JsonIgnore]
+		[JsonIgnore, NoClone]
 		public ClipInfoViewModel ViewModel { get; set; }
 
 		public T Interpolate(T v0, T v1, float t)
