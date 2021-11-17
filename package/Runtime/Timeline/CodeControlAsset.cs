@@ -12,6 +12,7 @@ namespace Needle.Timeline
 		[SerializeField] internal string id;
 		[SerializeField] private List<JsonContainer> clipData = new List<JsonContainer>();
 		internal readonly List<ClipInfoViewModel> viewModels = new List<ClipInfoViewModel>();
+		internal static event Action<CodeControlAsset> Deleted;
 		
 		public override Playable CreatePlayable(PlayableGraph graph, GameObject owner)
 		{
@@ -37,6 +38,12 @@ namespace Needle.Timeline
 			clipData.RemoveAll(c => !c);
 			if (clipData.Contains(container)) return;
 			clipData.Add(container);
+		}
+		
+
+		private void OnDestroy()
+		{
+			Deleted?.Invoke(this);
 		}
 	}
 }

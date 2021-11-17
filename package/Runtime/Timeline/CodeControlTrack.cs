@@ -36,6 +36,7 @@ namespace Needle.Timeline
 		// 	base.OnAfterTrackDeserialize();
 		// }
 
+
 		internal void Save()
 		{
 			// TODO: handle delete (remove serialized data)
@@ -95,21 +96,22 @@ namespace Needle.Timeline
 				asset.name = gameObject.name;
 				asset.viewModels?.RemoveAll(vm => !vm.IsValid);
 
-#if UNITY_EDITOR
-				Debug.Log("Create " + asset + ", " + viewModels.Count + ", " + AssetDatabase.GetAssetPath(asset), asset);
-#endif
-
 				var animationComponents = boundObject.GetComponents<IAnimated>();
 				if (animationComponents.Length <= 0) return Playable.Null;
 
 
 				#if UNITY_EDITOR
+				// TODO: use something else than the asset as a identifier for saving/loading data - it would be cool to be able to use animated data in other contexts (other timeline, other TrackAsset instances, other script instances) as well
 				AssetDatabase.TryGetGUIDAndLocalFileIdentifier(asset.GetInstanceID(), out var guid, out long _id);
 				var id = guid + "@" + _id;
 				asset.id = id;
 				#else
 				string id = asset.id;
 				#endif
+
+#if UNITY_EDITOR
+				Debug.Log("Create " + id, asset);
+#endif
 
 				// Debug.Log("<b>Create Playable</b> " + boundObject, timelineClip.asset);
 				timelineClip.CreateCurves(id);

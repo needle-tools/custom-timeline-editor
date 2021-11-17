@@ -9,12 +9,11 @@ namespace Needle.Timeline
 	[Priority(10)]
 	public class AssetDatabaseLoader : ILoader
 	{
-		// TODO: should be only visible during dev
-		internal HideFlags Flags = HideFlags.NotEditable;
+		private static readonly HideFlags Flags = HideFlags.NotEditable;
+		
 		
 		private NewtonsoftSerializer serializer;
 
-		
 		public AssetDatabaseLoader(ISerializer ser)
 		{
 			((ILoader)this).Serializer = ser as NewtonsoftSerializer;
@@ -48,6 +47,7 @@ namespace Needle.Timeline
 					json.Content = (string)serializer.Serialize(@object);
 					json.hideFlags = Flags;
 					EditorUtility.SetDirty(asset);
+					EditorUtility.SetDirty(json);
 					SaveForRuntime(json, context.Asset);
 					return !string.IsNullOrWhiteSpace(json.Content);
 				}
