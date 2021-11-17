@@ -98,10 +98,12 @@ namespace Needle.Timeline
 			switch (input.Stage)
 			{
 				case InputEventStage.Begin:
-					if (_didBegin) return false;
-					_didBegin = true;
-					_created.Clear();
-					_producedCount = 0;
+					if (!_didBegin)
+					{
+						_didBegin = true;
+						_created.Clear();
+						_producedCount = 0;
+					}
 					// _commands.Clear();
 					break;
 				case InputEventStage.Update:
@@ -370,11 +372,12 @@ namespace Needle.Timeline
 				if (toolContext.List?.Count <= 0) return false;
 				if (list != null)
 				{
+					var hash = list.GetHashCode();
 					BeforeModifyList();
 					for (var index = 0; index < list.Count; index++)
 					{
 						var value = list[index];
-						var context = new ModifyContext(value, index, 0);
+						var context = new ModifyContext(hash, value, index, 0, data.ClipHash);
 						var res = OnModifyValue(input, ref context, ref value);
 						if (res == ToolInputResult.AbortFurtherProcessing)
 							break;
@@ -417,6 +420,7 @@ namespace Needle.Timeline
 						matchingFields = instance.GetType().EnumerateFields();
 
 					var aborted = false;
+					var hash = list.GetHashCode();
 					BeforeModifyList();
 					for (var index = 0; index < list.Count; index++)
 					{
@@ -427,7 +431,7 @@ namespace Needle.Timeline
 						{
 							using (_modifyLoopFieldsMarker.Auto())
 							{
-								var context = new ModifyContext(entry, index, memberIndex);
+								var context = new ModifyContext(hash, entry, index, memberIndex, data.ClipHash);
 								memberIndex++;
 								var value = matchingField.GetValue(entry);
 								var res = OnModifyValue(input, ref context, ref value);
@@ -539,6 +543,13 @@ namespace Needle.Timeline
 
 	public struct ModifyContext
 	{
+		public readonly int ClipHash;
+		
+		/// <summary>
+		/// e.g. a the clip that is modified
+		/// </summary>
+		public readonly int TargetHash;
+		
 		/// <summary>
 		/// The owner of the original value (e.g. if modification happens on a field we need this)
 		/// </summary>
@@ -555,13 +566,15 @@ namespace Needle.Timeline
 		/// </summary>
 		public object? AdditionalData;
 
-		public ModifyContext(object target, int index, int memberIndex)
+		public ModifyContext(int targetHash, object target, int index, int memberIndex, int clipHash)
 		{
+			this.TargetHash = targetHash;
 			Object = target;
 			Weight = 1;
 			this.Index = index;
 			AdditionalData = null;
 			MemberIndex = memberIndex;
+			ClipHash = clipHash;
 		}
 	}
 

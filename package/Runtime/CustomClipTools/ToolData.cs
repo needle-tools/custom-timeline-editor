@@ -7,6 +7,7 @@ namespace Needle.Timeline
 	public readonly struct ToolData
 	{
 		public readonly ICustomClip Clip;
+		public readonly int ClipHash;
 		public readonly float Time;
 		
 		/// <summary>
@@ -24,6 +25,7 @@ namespace Needle.Timeline
 			Time = time;
 			TimelineContext = timelineContext;
 			CommandHandler = commandHandler;
+			ClipHash = Clip.GetHashCode();
 		}
 	}
 }

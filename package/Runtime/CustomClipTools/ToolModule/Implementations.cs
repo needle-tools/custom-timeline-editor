@@ -11,8 +11,8 @@ namespace Needle.Timeline
 	[Priority(100)]
 	public class SprayProducer : CoreToolModule
 	{
-		public SprayProducer() => AllowBinding = true; 
-		
+		public SprayProducer() => AllowBinding = true;
+
 		public float Radius = 1;
 		public int Max = 1000;
 		[Range(0, 1)] public float Offset = 1;
@@ -29,8 +29,8 @@ namespace Needle.Timeline
 			foreach (var kf in base.GetKeyframes(toolData))
 			{
 				if (IsCloseKeyframe(toolData, kf))
-					yield return kf; 
-				else 
+					yield return kf;
+				else
 					yield return CreateAndAddNewKeyframe(toolData, null);
 			}
 
@@ -42,7 +42,7 @@ namespace Needle.Timeline
 					if (IsCloseKeyframe(toolData, keyframe)) continue;
 					yield return keyframe;
 				}
-			} 
+			}
 		}
 
 		protected override IEnumerable<ProducedValue> OnProduceValues(InputData input, ProduceContext context)
@@ -89,17 +89,14 @@ namespace Needle.Timeline
 
 	public class Spreader : CoreToolModule
 	{
-		protected override IList<Type> SupportedTypes { get; } = new []{typeof(Vector3)};
+		protected override IList<Type> SupportedTypes { get; } = new[] { typeof(Vector3) };
 
 		public SpreadMode Mode;
-		
-		[Range(.1f, 10)]
-		public float Radius = 1;
-		[Range(-10,10)]
-		public float Strength = 1f;
-		[Range(0,1)]
-		public float Falloff;
-		
+
+		[Range(.1f, 10)] public float Radius = 1;
+		[Range(-10, 10)] public float Strength = 1f;
+		[Range(0, 1)] public float Falloff;
+
 		public enum SpreadMode
 		{
 			Center = 0,
@@ -134,7 +131,7 @@ namespace Needle.Timeline
 			var factor = 0.01f;
 			factor *= Strength;
 			if (input.Button == MouseButton.RightMouse) factor *= -1;
-			
+
 			switch (Mode)
 			{
 				case SpreadMode.Center:
@@ -148,6 +145,7 @@ namespace Needle.Timeline
 		}
 
 		private static List<Vector3> closestNeighbor = new List<Vector3>();
+
 		private void OnSpreadFromNeighbors(InputData input, List<CapturedModifyContext> captured, float factor)
 		{
 			closestNeighbor.Clear();
@@ -215,7 +213,7 @@ namespace Needle.Timeline
 			if (dir.ApproximatelyZeroLength()) dir = Random.insideUnitSphere;
 			if (Falloff > 0)
 			{
-				dir *= Mathf.Clamp01((1 - radiusDist01)/Falloff);
+				dir *= Mathf.Clamp01((1 - radiusDist01) / Falloff);
 			}
 			dir *= factor;
 			dir = Vector3.ClampMagnitude(dir, .1f);
@@ -224,26 +222,34 @@ namespace Needle.Timeline
 
 	public class DragPosition : CoreToolModule
 	{
-		[Range(0.01f, 10)]
-		public float Radius = 1;
-		[Range(0,1)]
-		public float Probability = 1f;
-		[Range(0,2)]
-		public float Strength = 1f;
-		[Range(0,1)]
-		public float Falloff = 1;
-		
+		[Range(0.01f, 10)] public float Radius = 1;
+		[Range(0, 1)] public float Probability = 1f;
+		[Range(0, 2)] public float Strength = 1f;
+		[Range(0, 1)] public float Falloff = 1;
+
 		// TODO: we should hide falloff and such when capture is on
 		public bool Capture = true;
 
-		private readonly List<ModificationIdentifier> captured = new List<ModificationIdentifier>();
+		private readonly Dictionary<int, List<ModificationIdentifier>> captured = new Dictionary<int, List<ModificationIdentifier>>();
 
 		protected override IList<Type> SupportedTypes { get; } = new[] { typeof(Vector3), typeof(Vector2) };
 
 		public override bool OnModify(InputData input, ref ToolData toolData)
 		{
-			if (input.Stage == InputEventStage.End && captured.Count > 0) captured.Clear();
+			if (input.Stage == InputEventStage.End)
+			{
+				GetList(toolData.ClipHash).Clear();
+			}
 			return base.OnModify(input, ref toolData);
+		}
+
+		private List<ModificationIdentifier> GetList(int hash)
+		{
+			if (captured.TryGetValue(hash, out var list))
+				return list;
+			list = new List<ModificationIdentifier>();
+			captured.Add(hash, list);
+			return list;
 		}
 
 		protected override ToolInputResult OnModifyValue(InputData input, ref ModifyContext context, ref object value)
@@ -253,18 +259,19 @@ namespace Needle.Timeline
 			if (!input.DeltaWorld.HasValue) return ToolInputResult.Failed;
 
 			var vec = (Vector3)value.Cast(typeof(Vector3));
-			
+
 			var dist = input.GetRadiusDistanceScreenSpace(Radius, vec);
 			var factor = Strength;
 			if (dist <= 1 || Capture)
 			{
 				var delta = input.DeltaWorld.Value;
-				
+
 				if (Capture)
 				{
+					var list = GetList(context.ClipHash);
 					if (input.Stage == InputEventStage.Begin && dist <= 1 && Random.value <= Probability)
-						captured.Add(new ModificationIdentifier(context));
-					else if (captured.Contains(context.Index, context.MemberIndex))
+						list.Add(new ModificationIdentifier(context));
+					else if (list.Contains(context.TargetHash, context.Index, context.MemberIndex))
 					{
 						// it is in the list, we can proceed :)
 					}
@@ -274,19 +281,19 @@ namespace Needle.Timeline
 				{
 					if (Falloff > 0)
 					{
-						factor = (1-dist.Value);
+						factor = (1 - dist.Value);
 						factor /= Falloff;
 						factor = Strength * Mathf.Clamp01(factor);
 					}
 					delta *= factor;
 				}
-				
+
 				vec += delta;
 				value = vec;
 				return ToolInputResult.Success;
 			}
-			
-			
+
+
 			return ToolInputResult.Failed;
 		}
 	}
@@ -313,15 +320,12 @@ namespace Needle.Timeline
 
 	public class ModifierModule : CoreToolModule, IWeighted
 	{
-		public ModifierModule() => AllowBinding = true; 
-		
-		[Range(.1f, 3)]
-		public float Radius = 1;
-		[Range(0,1)]
-		public float Probability = 1;
-		[Range(0,1)]
-		public float Weight = 1;
-		
+		public ModifierModule() => AllowBinding = true;
+
+		[Range(.1f, 3)] public float Radius = 1;
+		[Range(0, 1)] public float Probability = 1;
+		[Range(0, 1)] public float Weight = 1;
+
 		float IWeighted.Weight
 		{
 			get => Weight;
@@ -331,7 +335,7 @@ namespace Needle.Timeline
 		// public override bool CanModify(Type type) => true;
 
 		// TODO: how can we make sure we know what to return here
-		protected override IList<Type> SupportedTypes { get; } = 
+		protected override IList<Type> SupportedTypes { get; } =
 			new[] { typeof(Enum), typeof(Vector3), typeof(float), typeof(double), typeof(Color), typeof(int) };
 
 		private static ProfilerMarker modifierModuleMarker = new ProfilerMarker("ModifierModule.OnModify");
@@ -351,8 +355,8 @@ namespace Needle.Timeline
 					// if returned weight is not null assume it is valid if above 0
 					if (weight != null && weight.Value < 0) return ToolInputResult.Failed;
 				}
-				
-				if(weight == null)
+
+				if (weight == null)
 				{
 					var screenDistance = input.GetRadiusDistanceScreenSpace(Radius, pos.Value);
 					if (screenDistance == null || screenDistance > 1) return ToolInputResult.Failed;
@@ -363,10 +367,9 @@ namespace Needle.Timeline
 				return ToolInputResult.Success;
 			}
 		}
-
 	}
 
-	
+
 	// public class PaintColor : CoreToolModule
 	// {
 	// 	[Range(.1f, 10)]
@@ -481,7 +484,4 @@ namespace Needle.Timeline
 
 	// 	}
 	// }
-	
-	
-	
 }
