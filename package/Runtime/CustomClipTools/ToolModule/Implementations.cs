@@ -8,6 +8,7 @@ using Random = UnityEngine.Random;
 
 namespace Needle.Timeline
 {
+	[Priority(100)]
 	public class SprayProducer : CoreToolModule
 	{
 		public SprayProducer() => AllowBinding = true; 
@@ -28,7 +29,7 @@ namespace Needle.Timeline
 			foreach (var kf in base.GetKeyframes(toolData))
 			{
 				if (IsCloseKeyframe(toolData, kf))
-					yield return kf;
+					yield return kf; 
 				else 
 					yield return CreateAndAddNewKeyframe(toolData, null);
 			}
@@ -80,7 +81,7 @@ namespace Needle.Timeline
 			}
 			pos += Offset * input.WorldNormal.GetValueOrDefault() * Radius;
 			if (input.IsIn2DMode) pos.z = 0;
-			Debug.DrawLine(pos, pos + Vector3.up, Color.white, 1);
+			Debug.DrawLine(pos, pos + Vector3.up * .05f, Color.white, 1);
 			return pos;
 		}
 	}

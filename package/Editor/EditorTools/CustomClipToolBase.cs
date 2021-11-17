@@ -104,7 +104,25 @@ namespace Needle.Timeline
 			}
 		}
 		#endregion
-		
+
+
+		private void RegisterTargetEvents(ToolTarget t)
+		{
+			if (t.Clip == null) return;
+			t.Clip.RecordingStateChanged += OnRecordingStateChanged;
+		}
+
+		private void UnregisterTargetEvents(ToolTarget t)
+		{
+			if (t.Clip == null) return;
+			t.Clip.RecordingStateChanged -= OnRecordingStateChanged;
+		}
+
+		protected virtual void OnRecordingStateChanged(IRecordable obj)
+		{
+			
+		}
+
 		protected virtual void OnGetOrCreateSettings(ref ScriptableObject settings)
 		{
 		}

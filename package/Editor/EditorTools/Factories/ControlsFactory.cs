@@ -1,6 +1,7 @@
 ﻿#nullable enable
 using System;
 using System.Reflection;
+using System.Security.AccessControl;
 using Needle.Timeline.AssetBinding;
 using UnityEditor;
 using UnityEngine.UIElements;
@@ -50,95 +51,91 @@ namespace Needle.Timeline
 				res = null;
 				return false;
 			}
-
+			
 			PersistenceHelper.TryGetPreviousValue(field, out var currentValue);
-			var viewValue = new ViewValueProxy(currentValue);
+			var viewValue = new ViewValueProxy(field.Name, currentValue);
+			BindingsCache.Register(viewValue);
 			viewValue.ValueChanged += newValue =>
 			{
 				PersistenceHelper.OnValueChanged(field, newValue);
 			};
 			res = new ViewValueBindingController(field, viewValue, target.Clip);
 			res.ViewElement = res.BuildControl();
-			res.Init();
 			bindable.Bindings.Add(res);
 			return res.ViewElement != null;
 		}
 
-		public static IViewFieldBinding BuildControl(this FieldInfo field, object instance, VisualElement? target = null, bool? enabled = null)
+		public static IViewFieldBinding BuildControl(this FieldInfo field, object instance, 
+			bool? enabled = null)
 		{
 			var viewBinding = new FieldViewBinding(instance, field);
 			var controller = new ViewValueBindingController(field, viewBinding, instance as IRecordable);
 			if (enabled != null)
 				controller.Enabled = enabled.Value;
-			BuildControl(controller, target);
+			controller.ViewElement = BuildControl(controller);
+			if (controller.ViewElement == null) throw new Exception("Failed building control for " + field.FieldType);
 			return controller;
 		}
 
-		public static VisualElement BuildControl(this IViewFieldBinding binding, VisualElement? target = null)
+		public static VisualElement? BuildControl(this IViewFieldBinding binding)
 		{
+			if (!TryBuildControl(binding.ValueType, binding, out var control)) return null;
 			
-			if (TryBuildControl(binding.ValueType, binding, out var control))
+			Init();
+			if (controlAsset == null) throw new Exception("Failed loading control uxml layout");
+
+			var instance = controlAsset.CloneTree();
+			instance.styleSheets.Add(controlStyles);
+
+			var labelText = ObjectNames.NicifyVariableName(binding.Name); // CultureInfo.CurrentCulture.TextInfo.ToTitleCase(binding.Name);
+			var name = instance.Q<Label>(null, "control-label");
+			if (name != null)
+				name.text = labelText;
+
+			// try move the label out of the created control label and replace our uxml label with it
+			// we do this so we get the drag functionality for free (if an element has any)
+			var label = control.Q<Label>(null, "unity-label");
+			if (label != null)
 			{
-				Init();
-				var instance = controlAsset.CloneTree();
-				instance.styleSheets.Add(controlStyles);
-
-				var labelText = ObjectNames.NicifyVariableName(binding.Name); // CultureInfo.CurrentCulture.TextInfo.ToTitleCase(binding.Name);
-				var name = instance.Q<Label>(null, "control-label");
+				// label.RegisterCallback(new EventCallback<MouseManipulator>(e =>{}));
+				label.AddToClassList("control-label");
+				label.text = labelText;
 				if (name != null)
-					name.text = labelText;
-
-				// try move the label out of the created control label and replace our uxml label with it
-				// we do this so we get the drag functionality for free (if an element has any)
-				var label = control.Q<Label>(null, "unity-label");
-				if (label != null)
 				{
-					// label.RegisterCallback(new EventCallback<MouseManipulator>(e =>{}));
-					label.AddToClassList("control-label");
-					label.text = labelText;
-					if (name != null)
-					{
-						name.parent.Insert(name.parent.IndexOf(name), label);
-						name.RemoveFromHierarchy();
-					}
+					name.parent.Insert(name.parent.IndexOf(name), label);
+					name.RemoveFromHierarchy();
 				}
-				else label = name;
-				//
-				// if (typeof(int).IsAssignableFrom(binding.ValueType))
-				// {
-				// 	var dragger = (BaseFieldMouseDragger)new FieldMouseDragger<int>(control.Q<IntegerField>());
-				// 	
-				// }
-				
-				var controlContainer = instance.Q<VisualElement>(null, "control");
-				binding.ViewElement = control;
-				controlContainer.Add(control);
-
-
-				var toggle = instance.Q<Toggle>(null, "enabled");
-				toggle.RegisterValueChangedCallback(evt =>
-				{
-					binding.Enabled = evt.newValue;
-					UpdateViews(evt.newValue);
-				});
-				binding.EnabledChanged += UpdateViews;
-				UpdateViews(binding.Enabled);
-
-				void UpdateViews(bool enabled)
-				{
-					toggle.SetValueWithoutNotify(enabled);
-					controlContainer.SetEnabled(enabled);
-					label?.SetEnabled(enabled);
-				}
-
-				if (target != null)
-					target.Add(instance);
-				return instance;
 			}
+			else label = name;
+			//
+			// if (typeof(int).IsAssignableFrom(binding.ValueType))
+			// {
+			// 	var dragger = (BaseFieldMouseDragger)new FieldMouseDragger<int>(control.Q<IntegerField>());
+			// 	
+			// }
+				
+			var controlContainer = instance.Q<VisualElement>(null, "control");
+			binding.ViewElement = control;
+			controlContainer.Add(control);
 
-			var missingLabel = new Label("Missing " + binding.ValueType);
-			if (target != null) target.Add(missingLabel);
-			return missingLabel;
+
+			var toggle = instance.Q<Toggle>(null, "enabled");
+			toggle.RegisterValueChangedCallback(evt =>
+			{
+				binding.Enabled = evt.newValue;
+				UpdateViews(evt.newValue);
+			});
+			binding.EnabledChanged += UpdateViews;
+			UpdateViews(binding.Enabled);
+
+			void UpdateViews(bool enabled)
+			{
+				toggle.SetValueWithoutNotify(enabled);
+				controlContainer.SetEnabled(enabled);
+				label?.SetEnabled(enabled);
+			}
+			return instance;
+
 		}
 
 		private static readonly ImplementorsRegistry<IControlBuilder> builders = new ImplementorsRegistry<IControlBuilder>();

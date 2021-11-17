@@ -30,9 +30,9 @@ namespace Needle.Timeline
 		private readonly List<ModuleViewController> moduleViewControllers = new List<ModuleViewController>();
 
 
-		protected override void OnAddedTarget(ToolTarget _)
+		protected override void OnAddedTarget(ToolTarget t)
 		{
-			base.OnAddedTarget(_);
+			base.OnAddedTarget(t);
 			OnTargetsChanged();
 		}
 
@@ -42,10 +42,19 @@ namespace Needle.Timeline
 			OnTargetsChanged();
 		}
 
+		protected override void OnRecordingStateChanged(IRecordable obj)
+		{
+			foreach (var view in moduleViewControllers)
+			{
+				// view.OnTargetsChanged();
+			}
+		}
+
 		private void OnTargetsChanged()
 		{
 			foreach (var t in Targets)
 			{
+				if (t.Clip == null) continue;
 				foreach (var type in t.Clip.SupportedTypes)
 				{ 
 					ToolModuleRegistry.GetModulesSupportingType(type, buffer);

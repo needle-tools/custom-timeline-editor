@@ -5,6 +5,6 @@ namespace Needle.Timeline
 	public interface IRecordable
 	{
 		bool IsRecording { get; set; }
-		event Action<bool> RecordingStateChanged;
+		event Action<IRecordable> RecordingStateChanged;
 	}
 }

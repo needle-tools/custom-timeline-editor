@@ -57,17 +57,18 @@ namespace Needle.Timeline
 		{
 			if (!AllowBinding) return false;
 			if (weight <= 0) return false;
+			
 			var appliedAny = false;
 			using (_bindingMarker.Auto())
 			{
 				// Debug.Log(weight);
 				var bindings = ((IBindsFields)this).Bindings;
-				foreach (var field in bindings)
+				foreach (var bind in bindings)
 				{
-					if (!field.Enabled) continue;
-					if (member != null && !field.Equals(member)) continue;
+					if (!bind.Enabled) continue;
+					if (member != null && !bind.Equals(member)) continue;
 					appliedAny = true;
-					var viewValue = field.ViewValue.GetValue();
+					var viewValue = bind.ViewValue.GetValue();
 
 					if (viewValue != null)
 					{
@@ -75,11 +76,10 @@ namespace Needle.Timeline
 						if (TryGetInterpolatable(type, out var interpolatable))
 						{
 							if (interpolatable != null)
-								interpolatable.Interpolate(ref viewValue, field.GetValue(obj), viewValue, weight);
+								interpolatable.Interpolate(ref viewValue, bind.GetValue(obj), viewValue, weight);
 						}
 					}
-
-					field.SetValue(obj, viewValue);
+					bind.SetValue(obj, viewValue);
 				}
 			}
 			return appliedAny;
@@ -140,7 +140,7 @@ namespace Needle.Timeline
 		private bool didSearchRadius;
 		private FieldInfo? radiusField;
 
-		public float? Radius
+		public float? RadiusValue
 		{
 			get
 			{
@@ -149,7 +149,7 @@ namespace Needle.Timeline
 			}
 		}
 
-		protected virtual float GetRadius()
+		private float GetRadius()
 		{
 			if (radiusField != null) return (float)radiusField.GetValue(this);
 			if (didSearchRadius) return 0;

@@ -7,7 +7,7 @@ namespace Needle.Timeline.Tests
 		[Test]
 		public void GetValue()
 		{
-			var proxy = new ViewValueProxy(1);
+			var proxy = new ViewValueProxy("", 1);
 
 			var val = proxy.GetValue();
 
@@ -17,7 +17,7 @@ namespace Needle.Timeline.Tests
 		[Test]
 		public void SetValue()
 		{
-			var proxy = new ViewValueProxy(null);
+			var proxy = new ViewValueProxy("", null);
 
 			proxy.SetValue(100);
 
@@ -27,7 +27,7 @@ namespace Needle.Timeline.Tests
 		[Test]
 		public void RaiseChangeEvent()
 		{
-			var proxy = new ViewValueProxy(1);
+			var proxy = new ViewValueProxy("", 1);
 			var changed = false;
 			
 			proxy.ValueChanged += newValue =>

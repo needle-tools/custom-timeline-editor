@@ -12,6 +12,24 @@
       "source": "local",
       "dependencies": {}
     },
+    "com.needle.package-credentials": {
+      "version": "1.1.0",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.nuget.newtonsoft-json": "2.0.0"
+      },
+      "url": "https://packages.needle.tools"
+    },
+    "com.needle.package-tools": {
+      "version": "0.9.1-pre.2",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.nuget.mono-cecil": "1.10.1"
+      },
+      "url": "https://packages.needle.tools"
+    },
     "com.needle.selective-profiling": {
       "version": "file:../../..//modules/selective-profiling/package",
       "depth": 0,
@@ -101,7 +119,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.nuget.mono-cecil": {
-      "version": "1.10.1-preview.1",
+      "version": "1.10.1",
       "depth": 1,
       "source": "registry",
       "dependencies": {},

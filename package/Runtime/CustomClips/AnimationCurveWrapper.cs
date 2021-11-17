@@ -111,6 +111,6 @@ namespace Needle.Timeline
 		}
 
 		public bool IsRecording { get; set; }
-		public event Action<bool> RecordingStateChanged;
+		public event Action<IRecordable> RecordingStateChanged;
 	}
 }

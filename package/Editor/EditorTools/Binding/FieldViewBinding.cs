@@ -28,6 +28,9 @@ namespace Needle.Timeline
 			ValueChanged?.Invoke(newValue);
 		}
 
+		public string Name => field.Name;
+		public Type ValueType => field.FieldType;
+
 		public void SetValueWithoutNotify(object newValue)
 		{
 			field.SetValue(instance, newValue);

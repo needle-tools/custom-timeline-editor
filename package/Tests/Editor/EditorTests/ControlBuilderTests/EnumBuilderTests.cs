@@ -23,7 +23,7 @@ namespace Needle.Timeline.Tests
 		public void BuildPopup()
 		{
 			var builder = new EnumBuilder();
-			var handler = new ViewValueProxy(MyEnum.Opt1);
+			var handler = new ViewValueProxy("", MyEnum.Opt1);
 
 			var res = builder.Build(typeof(MyEnum), handler, null) as PopupField<string>;
 
@@ -36,7 +36,7 @@ namespace Needle.Timeline.Tests
 		public void ViewChangesModel()
 		{
 			var builder = new EnumBuilder();
-			var handler = new ViewValueProxy(MyEnum.Opt1);
+			var handler = new ViewValueProxy("", MyEnum.Opt1);
 
 			var res = builder.Build(typeof(MyEnum), handler, null) as PopupField<string>;
 
@@ -55,7 +55,7 @@ namespace Needle.Timeline.Tests
 		public void ModelChangesView()
 		{
 			var builder = new EnumBuilder();
-			var handler = new ViewValueProxy(MyEnum.Opt1);
+			var handler = new ViewValueProxy("", MyEnum.Opt1);
 			var parent = new VisualElement();
 
 			var res = builder.Build(typeof(MyEnum), handler, null) as PopupField<string>;

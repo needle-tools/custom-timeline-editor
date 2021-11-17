@@ -93,7 +93,7 @@ namespace Needle.Timeline
 		public override bool OnModify(InputData input, ref ToolData toolData)
 		{
 			this._toolData.input = input;
-			this._toolData._radius = Radius;
+			this._toolData._radius = RadiusValue;
 			
 			switch (input.Stage)
 			{

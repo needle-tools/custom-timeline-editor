@@ -16,6 +16,8 @@ namespace Needle.Timeline
 
 	public interface IViewValueHandler : IValueHandler
 	{
+		string Name { get; }
+		Type ValueType { get; }
 		void SetValueWithoutNotify(object newValue);
 		event Action<object> ValueChanged;
 	}
@@ -35,5 +37,6 @@ namespace Needle.Timeline
 		string Name { get; }
 		bool Equals(MemberInfo member);
 		bool Matches(MemberInfo member);
+		void SetField(FieldInfo field);
 	}
 }

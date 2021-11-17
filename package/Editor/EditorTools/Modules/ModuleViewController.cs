@@ -75,11 +75,12 @@ namespace Needle.Timeline
 				
 				if (!addedModuleField)
 				{
-					options.Add(new Label("Toggle at start doesnt do anything right now and will be removed"));
+					// options.Add(new Label("Toggle at start doesnt do anything right now and will be removed"));
 				}
 
 				addedModuleField = true;
-				field.BuildControl(Module, options, true);
+				var binding = field.BuildControl(Module, true);
+				options.Add(binding.ViewElement);
 			}
 			
 			if (Module is IBindsFields bindable && bindable.AllowBinding)
@@ -88,20 +89,20 @@ namespace Needle.Timeline
 				
 				foreach (var t in tool.Targets)
 				{
-					Foldout foldout = null;
 					
 					// bindingsContainer.Add(new Label(headerText));
+					if (t.Clip == null) continue;
 					foreach (var field in t.Clip.EnumerateFields())
-					{ 
+					{
+						// if (BindingsCache.TryGetFromCache(field, out var c))
+						// {
+						// 	options.Add(c.ViewElement);
+						// 	continue;
+						// }
+							
 						if (ControlsFactory.TryBuildBinding(field, t, bindable, out var handler))
 						{
-							if (foldout == null)
-							{
-								var headerText = ObjectNames.NicifyVariableName(t.Clip.Name);
-								foldout = new Foldout() { text = headerText }; 
-								options.Add(foldout);
-							}
-							foldout.Add(handler.ViewElement);
+							options.Add(handler.ViewElement);
 						}
 					}
 				}

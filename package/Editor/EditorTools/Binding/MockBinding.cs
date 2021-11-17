@@ -36,8 +36,10 @@ namespace Needle.Timeline
 			this.value = value;
 		}
 
-		public Type ValueType => type;
+		Type IViewValueHandler.ValueType => type;
 		public string Name => name;
+		public Type ValueType => type;
+		
 		public T GetCustomAttribute<T>() where T : Attribute => customAttributes.FirstOrDefault(a => a is T) as T;
 		
 		public bool Equals(MemberInfo member)
@@ -50,6 +52,12 @@ namespace Needle.Timeline
 			if (member is FieldInfo f)
 				return f.Name == name && f.FieldType == type;
 			return false;
+		}
+
+		public void SetField(FieldInfo field)
+		{
+			if (Matches(field)) return;
+			throw new Exception("Invalid assignment");
 		}
 
 		public object GetValue()

@@ -53,9 +53,15 @@ namespace Needle.Timeline
 			return false;
 		}
 
+		public void SetField(FieldInfo newField)
+		{
+			if (newField == this.field) return;
+			if (newField == null || !Matches(newField)) throw new Exception("Invalid field assignment");
+			this.field = newField;
+		}
 
-		private readonly FieldInfo field;
-		private readonly IRecordable? rec;
+		internal IRecordable? rec;
+		private FieldInfo field;
 		private bool enabled = false;
 
 		public ViewValueBindingController(FieldInfo field, IViewValueHandler view, IRecordable? rec)
@@ -63,19 +69,6 @@ namespace Needle.Timeline
 			this.field = field;
 			ViewValue = view;
 			this.rec = rec;
-			if (rec != null)
-				rec.RecordingStateChanged += OnRecordingChanged;
-		}
-
-		internal void Init()
-		{
-			if (rec != null)
-				OnRecordingChanged(rec.IsRecording);
-		}
-
-		private void OnRecordingChanged(bool obj)
-		{
-			ViewElement?.SetEnabled(obj);
 		}
 	}
 }
