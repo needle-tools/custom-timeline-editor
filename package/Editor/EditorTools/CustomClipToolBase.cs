@@ -18,7 +18,7 @@ namespace Needle.Timeline
 		#region ICustomClipTool
 		void ICustomClipTool.AddTarget(ClipInfoViewModel vm, ICustomClip clip)
 		{
-			Debug.Log("Add " + clip.Name + "@" + vm.startTime);
+			// Debug.Log("Add " + clip.Name + "@" + vm.startTime);
 			var t = new ToolTarget(vm, clip);
 			targets.Add(t);
 			UnregisterTargetEvents(t);
@@ -52,18 +52,18 @@ namespace Needle.Timeline
 
 		bool ICustomClipTool.HasClipTarget(Type clipType) => targets.Any(a => a.Clip.GetType() == clipType);
 
-		private Label debugLabel;
+		// private Label debugLabel;
 
 		void ICustomClipTool.Attach(VisualElement el)
 		{
-			debugLabel ??= new Label(GetType().Name);
-			el.Add(debugLabel);
+			// debugLabel ??= new Label(GetType().Name);
+			// el.Add(debugLabel);
 			OnAttach(el);
 		}
 
 		void ICustomClipTool.Detach(VisualElement el)
 		{
-			el.Remove(debugLabel);
+			// el.Remove(debugLabel);
 			OnDetach(el);
 		}
 

@@ -2,6 +2,7 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
 using UnityEditor;
+using UnityEditor.EditorTools;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -42,12 +43,12 @@ namespace Needle.Timeline
 		{
 			OnCreateContainerIfNecessary();
 
-			if (!_scenes.Contains(obj))
-			{
-				_scenes.Add(obj);
-				obj.rootVisualElement.style.flexDirection = FlexDirection.ColumnReverse;
-				obj.rootVisualElement.Add(_root);
-			}
+			// if (!_scenes.Contains(obj))
+			// {
+			// 	_scenes.Add(obj);
+			// 	obj.rootVisualElement.style.flexDirection = FlexDirection.ColumnReverse;
+			// 	obj.rootVisualElement.Add(_root);
+			// }
 		}
 
 
@@ -121,7 +122,8 @@ namespace Needle.Timeline
 					toolButton.AddManipulator(new ToolButtonManipulator(tool));
 					toolContainer.Add(toolButton);
 
-					_availableTools.Add(toolContainer);
+					// _availableTools.Add(toolContainer);
+					ToolsWindow.Root.Add(toolContainer);
 				}
 			}
 		}

@@ -22,7 +22,11 @@ namespace Needle.Timeline
 		{
 			base.OnAttach(element);
 			modulesContainer ??= new VisualElement();
-			element.Add(modulesContainer);
+			var style = modulesContainer.style;
+			style.flexDirection = FlexDirection.Row;
+			style.flexWrap = Wrap.Wrap;
+			// element.Add(modulesContainer);
+			ToolsWindow.Root.Add(modulesContainer);
 		}
 
 		private static readonly List<IToolModule> buffer = new List<IToolModule>();
@@ -107,6 +111,7 @@ namespace Needle.Timeline
 						e.SetActive(false);
 					}
 					entry.SetActive(!entry.IsActive);
+					if (entry.IsActive) ToolsHandler.Select(this);
 				});
 				button.text = ObjectNames.NicifyVariableName(meta?.Name ?? module.GetType().Name);
 				entry.Label = button;
