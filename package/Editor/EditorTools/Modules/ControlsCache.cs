@@ -1,30 +1,40 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace Needle.Timeline
 {
 	internal static class BindingsCache
 	{
-		internal static void Register(IViewValueHandler view)
+		internal static void Register(Type owner, IViewFieldBinding view)
 		{
-			if (!cached.Contains(view))
-				cached.Add(view);
+			if (owner == null) throw new Exception("Missing type");
+			if (!cache.ContainsKey(owner))
+			{
+				cache[owner] = new List<IViewFieldBinding>();
+			}
+			var list = cache[owner];
+			if(!list.Any(e => e.Matches(view.ValueType)))
+			   list.Add(view);
 		}
 
-		internal static bool TryGetFromCache(FieldInfo field, out IViewValueHandler controller)
+		private static readonly Dictionary<Type, List<IViewFieldBinding>> cache = new Dictionary<Type, List<IViewFieldBinding>>();
+
+		internal static bool TryGetFromCache(FieldInfo field, out IViewFieldBinding controller)
 		{
-			foreach (var ch in cached)
+			var type = field.DeclaringType;
+			if (type != null)
 			{
-				if (ch.Name == field.Name && ch.ValueType == field.FieldType)
+				if (cache.TryGetValue(type, out var list))
 				{
-					controller = ch;
-					return true;
+					controller = list.FirstOrDefault(e => e.Matches(field));
+					return controller != null;
 				}
 			}
 			controller = null;
 			return false;
 		}
 
-		private static readonly List<IViewValueHandler> cached = new List<IViewValueHandler>();
 	}
 }

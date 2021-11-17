@@ -30,8 +30,8 @@ namespace Needle.Timeline
 
 			options.style.display = new StyleEnum<DisplayStyle>(state ? StyleKeyword.Auto : StyleKeyword.None);
 			options.style.visibility = state ? Visibility.Visible : Visibility.Hidden;
-
-			// options.SetEnabled(state);
+			
+			OnBuildUI();
 		}
 
 		public ModuleViewController(VisualElement container, IToolModule module, ICustomClipTool tool)
@@ -42,7 +42,6 @@ namespace Needle.Timeline
 			options = new VisualElement();
 			container.Add(options);
 			bindingsContainer = new VisualElement();
-			OnBuildUI();
 		}
 
 		public bool Is(IToolModule mod)
@@ -83,25 +82,35 @@ namespace Needle.Timeline
 				options.Add(binding.ViewElement);
 			}
 			
-			if (Module is IBindsFields bindable && bindable.AllowBinding)
+			if (IsActive && Module is IBindsFields bindable && bindable.AllowBinding)
 			{
 				bindable.Bindings.Clear();
 				
 				foreach (var t in tool.Targets)
 				{
+					var clip = t.Clip;
+					if (clip == null) continue;
 					
-					// bindingsContainer.Add(new Label(headerText));
-					if (t.Clip == null) continue;
-					foreach (var field in t.Clip.EnumerateFields())
+					
+					foreach (var field in clip.EnumerateFields())
 					{
+						if (BindingsCache.TryGetFromCache(field, out var c))
+						{
+							// Debug.Log("RESOLVED FROM CACHE: " + c.GetHashCode() + ", " + this.Module);
+							bindable.Bindings.Add(c);
+							options.Add(c.ViewElement);
+							continue;
+						}
 						// if (BindingsCache.TryGetFromCache(field, out var c))
 						// {
 						// 	options.Add(c.ViewElement);
 						// 	continue;
 						// }
 							
-						if (ControlsFactory.TryBuildBinding(field, t, bindable, out var handler))
+						if (ControlsFactory.TryBuildBinding(field, clip, out var handler))
 						{
+							// Debug.Log("BUILT: " + handler.GetHashCode());
+							bindable.Bindings.Add(handler);
 							options.Add(handler.ViewElement);
 						}
 					}

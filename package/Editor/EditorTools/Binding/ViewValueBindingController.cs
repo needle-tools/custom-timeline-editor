@@ -39,6 +39,7 @@ namespace Needle.Timeline
 
 		public Type ValueType => field.FieldType;
 		public string Name => field.Name;
+		
 		public T GetCustomAttribute<T>() where T : Attribute => field.GetCustomAttribute<T>();
 
 		public bool Equals(MemberInfo member)
@@ -59,7 +60,7 @@ namespace Needle.Timeline
 			if (newField == null || !Matches(newField)) throw new Exception("Invalid field assignment");
 			this.field = newField;
 		}
-
+		
 		internal IRecordable? rec;
 		private FieldInfo field;
 		private bool enabled = false;

@@ -135,7 +135,7 @@ namespace Needle.Timeline
 
 	public class BlurModule : CoreToolModule, IWeighted
 	{
-		[Range(0, 1)] public float Radius = 1;
+		public float Radius = 1;
 
 		[Range(0, 1)] public float Weight = 1;
 

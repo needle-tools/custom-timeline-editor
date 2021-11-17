@@ -44,7 +44,7 @@ namespace Needle.Timeline
 		}
 
 
-		public static bool TryBuildBinding(FieldInfo field, ToolTarget target, IBindsFields bindable, out ViewValueBindingController? res)
+		public static bool TryBuildBinding(FieldInfo field, ICustomClip clip, out ViewValueBindingController? res)
 		{
 			if (field.IsStatic)
 			{
@@ -54,14 +54,13 @@ namespace Needle.Timeline
 			
 			PersistenceHelper.TryGetPreviousValue(field, out var currentValue);
 			var viewValue = new ViewValueProxy(field.Name, currentValue);
-			BindingsCache.Register(viewValue);
 			viewValue.ValueChanged += newValue =>
 			{
 				PersistenceHelper.OnValueChanged(field, newValue);
 			};
-			res = new ViewValueBindingController(field, viewValue, target.Clip);
+			res = new ViewValueBindingController(field, viewValue, clip);
 			res.ViewElement = res.BuildControl();
-			bindable.Bindings.Add(res);
+			BindingsCache.Register(field.DeclaringType, res);
 			return res.ViewElement != null;
 		}
 
