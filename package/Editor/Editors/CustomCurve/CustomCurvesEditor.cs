@@ -21,7 +21,7 @@ namespace Needle.Timeline.Editors.CustomCurve
 			customCurvesEditorHeader.OnDrawHeader(rect);
 		}
 
-		private object _dragging, _lastClicked;
+		private static object _dragging, _lastClicked;
 		private double _lastKeyframeClickedTime;
 		private readonly Color _keySelectedColor = new Color(1, 1, 0, .7f);
 		private readonly Color _normalColor = new Color(.8f, .8f, .8f, .4f);
@@ -30,9 +30,9 @@ namespace Needle.Timeline.Editors.CustomCurve
 		private ICustomClip _copyClip;
 
 		private bool _isMultiSelectDragging => _dragTrack == Track;
-		private Vector2 _startDragPoint;
-		private Rect _dragRect;
-		private TrackAsset _dragTrack;
+		private static Vector2 _startDragPoint;
+		private static Rect _dragRect;
+		private static TrackAsset _dragTrack;
 
 		private readonly List<KeyframeModifyTime> modifyTimeActions = new List<KeyframeModifyTime>();
 		private static readonly List<DeleteKeyframe> deletionList = new List<DeleteKeyframe>();
@@ -60,14 +60,17 @@ namespace Needle.Timeline.Editors.CustomCurve
 			switch (evtType)
 			{
 				case EventType.MouseDown:
-					GUIUtility.hotControl = controlId;
-					// first deselect
 					if (rect.Contains(mousePos))
 					{
-						if (_isMultiSelectDragging)
+						GUIUtility.hotControl = controlId;
+						// first deselect
+						if (rect.Contains(mousePos))
 						{
-							_dragTrack = Track;
-							KeyframeSelector.Deselect();
+							if (_isMultiSelectDragging)
+							{
+								_dragTrack = Track;
+								KeyframeSelector.Deselect();
+							}
 						}
 					}
 					break;
@@ -146,7 +149,7 @@ namespace Needle.Timeline.Editors.CustomCurve
 			switch (evtType)
 			{
 				case EventType.MouseDown:
-					if (!mouseDownOnKeyframe && !_isMultiSelectDragging)
+					if (!mouseDownOnKeyframe && !_isMultiSelectDragging && rect.Contains(mousePos))
 					{
 						_startDragPoint = Event.current.mousePosition;
 						_dragRect = Rect.zero;
