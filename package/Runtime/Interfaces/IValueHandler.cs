@@ -3,6 +3,8 @@ using System.Reflection;
 using JetBrains.Annotations;
 using UnityEngine.UIElements;
 
+#nullable enable
+
 namespace Needle.Timeline
 {
 	public interface IValueProvider
@@ -39,5 +41,6 @@ namespace Needle.Timeline
 		bool Equals(MemberInfo member);
 		bool Matches(MemberInfo member);
 		void SetField(FieldInfo field);
+		bool CanAssign(Type instanceType);
 	}
 }

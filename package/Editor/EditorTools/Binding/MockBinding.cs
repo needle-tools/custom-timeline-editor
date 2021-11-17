@@ -25,7 +25,7 @@ namespace Needle.Timeline
 		public event Action<bool> EnabledChanged;
 		public IViewValueHandler ViewValue => this;
 		public VisualElement ViewElement { get; set; }
-			
+		
 		public object GetValue(object instance)
 		{
 			return value;
@@ -59,6 +59,12 @@ namespace Needle.Timeline
 			if (Matches(field)) return;
 			throw new Exception("Invalid assignment");
 		}
+
+		public bool CanAssign(Type instanceType)
+		{
+			return true;
+		}
+
 
 		public object GetValue()
 		{

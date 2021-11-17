@@ -44,11 +44,11 @@ namespace Needle.Timeline
 		}
 
 
-		public static bool TryBuildBinding(FieldInfo field, ICustomClip clip, out ViewValueBindingController? res)
+		public static bool TryBuildBinding(FieldInfo field, ICustomClip clip, out ViewValueBindingController res)
 		{
 			if (field.IsStatic)
 			{
-				res = null;
+				res = null!;
 				return false;
 			}
 			

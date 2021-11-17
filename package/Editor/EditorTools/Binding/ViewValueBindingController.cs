@@ -37,6 +37,11 @@ namespace Needle.Timeline
 			field.SetValue(instance, value);
 		}
 
+		public bool CanAssign(Type instanceType)
+		{
+			return field.DeclaringType == instanceType;
+		}
+
 		public Type ValueType => field.FieldType;
 		public string Name => field.Name;
 		

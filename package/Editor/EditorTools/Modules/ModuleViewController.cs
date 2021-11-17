@@ -19,9 +19,8 @@ namespace Needle.Timeline
 		public bool IsActive => active;
 
 		private bool initOptions;
-		private readonly VisualElement options;
-		private readonly VisualElement bindingsContainer;
-		private readonly List<IViewFieldBinding> bindings = new List<IViewFieldBinding>();
+		private readonly ScrollView options;
+		private readonly Foldout foldout;
 
 		public void SetActive(bool state)
 		{
@@ -39,9 +38,10 @@ namespace Needle.Timeline
 			this.Module = module;
 			this.tool = tool;
 
-			options = new VisualElement();
+			options = new ScrollView();
 			container.Add(options);
-			bindingsContainer = new VisualElement();
+
+			foldout = new Foldout();
 		}
 
 		public bool Is(IToolModule mod)
@@ -85,6 +85,7 @@ namespace Needle.Timeline
 			if (IsActive && Module is IBindsFields bindable && bindable.AllowBinding)
 			{
 				bindable.Bindings.Clear();
+				options.Add(foldout);
 				
 				foreach (var t in tool.Targets)
 				{
@@ -98,7 +99,7 @@ namespace Needle.Timeline
 						{
 							// Debug.Log("RESOLVED FROM CACHE: " + c.GetHashCode() + ", " + this.Module);
 							bindable.Bindings.Add(c);
-							options.Add(c.ViewElement);
+							foldout.Add(c.ViewElement);
 							continue;
 						}
 						// if (BindingsCache.TryGetFromCache(field, out var c))
@@ -109,9 +110,9 @@ namespace Needle.Timeline
 							
 						if (ControlsFactory.TryBuildBinding(field, clip, out var handler))
 						{
-							// Debug.Log("BUILT: " + handler.GetHashCode());
+							Debug.Log("BUILT: " + handler.GetHashCode() + ", " + clip.Name + ":" + field.Name);
 							bindable.Bindings.Add(handler);
-							options.Add(handler.ViewElement);
+							foldout.Add(handler.ViewElement);
 						}
 					}
 				}

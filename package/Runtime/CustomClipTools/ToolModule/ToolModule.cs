@@ -63,21 +63,23 @@ namespace Needle.Timeline
 			{
 				// Debug.Log(weight);
 				var bindings = ((IBindsFields)this).Bindings;
+				var declaringType = obj.GetType();
 				foreach (var bind in bindings)
 				{
 					if (!bind.Enabled) continue;
-					if (member != null && !bind.Equals(member)) continue;
+					if (member != null && !bind.Equals(member))
+					{
+						continue;
+					}
+					if (!bind.CanAssign(declaringType)) continue;
 					appliedAny = true;
 					var viewValue = bind.ViewValue.GetValue();
 
-					if (viewValue != null)
+					var type = viewValue.GetType();
+					if (TryGetInterpolatable(type, out var interpolatable))
 					{
-						var type = viewValue.GetType();
-						if (TryGetInterpolatable(type, out var interpolatable))
-						{
-							if (interpolatable != null)
-								interpolatable.Interpolate(ref viewValue, bind.GetValue(obj), viewValue, weight);
-						}
+						if (interpolatable != null)
+							interpolatable.Interpolate(ref viewValue, bind.GetValue(obj), viewValue, weight);
 					}
 					bind.SetValue(obj, viewValue);
 				}
