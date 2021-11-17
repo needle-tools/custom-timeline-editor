@@ -23,7 +23,7 @@ namespace Needle.Timeline
 			{
 				if (value == defaultEasing) return;
 				defaultEasing = value;
-				Changed?.Invoke();
+				Changed?.Invoke(this);
 			}
 		}
 
@@ -55,9 +55,9 @@ namespace Needle.Timeline
 		
 		IEnumerable<ICustomKeyframe> IKeyframesProvider.Keyframes => _keyframes;
 		public IReadOnlyList<IReadonlyCustomKeyframe> Keyframes => _keyframes;
-		public event Action Changed;
+		public event Action<ICustomClip> Changed;
 		
-		void ICustomClip.RaiseChangedEvent() => Changed?.Invoke();
+		void ICustomClip.RaiseChangedEvent() => Changed?.Invoke(this);
 		
 		public ICustomKeyframe GetPrevious(float time)
 		{
@@ -173,7 +173,7 @@ namespace Needle.Timeline
 			keyframeAdded = true;
 			SortKeyframesIfNecessary();
 			RegisterKeyframeEvents(keyframe);
-			Changed?.Invoke();
+			Changed?.Invoke(this);
 			return true; 
 		}
 
@@ -184,7 +184,7 @@ namespace Needle.Timeline
 			if (_keyframes.Remove(keyframe))
 			{
 				UnregisterKeyframeEvents(keyframe);
-				Changed?.Invoke();
+				Changed?.Invoke(this);
 				return true;
 			}
 			return false;
@@ -223,19 +223,19 @@ namespace Needle.Timeline
 
 		private void OnKeyframeEasingChanged()
 		{
-			Changed?.Invoke();
+			Changed?.Invoke(this);
 		}
 
 		private void OnKeyframeValueChanged()
 		{
 			// Debug.Log("Keyframe changed");
-			Changed?.Invoke();
+			Changed?.Invoke(this);
 		}
 
 		private void OnKeyframeTimeChanged()
 		{
 			keyframesTimeChanged = true;
-			Changed?.Invoke();
+			Changed?.Invoke(this);
 		}
 
 

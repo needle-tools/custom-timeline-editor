@@ -103,29 +103,6 @@ namespace Needle.Timeline
 				if (res == CreationResult.Successful) return res;
 
 				res = CreateCustomAnimationCurve(attribute, data, context, out var clip);
-				if (clip != null)
-				{
-					void OnClipOnChanged()
-					{
-						if (!data.Track)
-						{
-							clip.Changed -= OnClipOnChanged;
-							return;
-						}
-						// Debug.Log("clip changed");
-#if UNITY_EDITOR
-						EditorUtility.SetDirty(data.Track);
-#endif
-						// TODO: figure out if we really need this
-						data.Track.dirtyCount = (data.Track.dirtyCount + 1) % uint.MaxValue;
-						data.Director.Evaluate();
-#if UNITY_EDITOR
-						TimelineWindowUtil.TryRepaint();
-#endif
-					}
-
-					clip.Changed += OnClipOnChanged;
-				}
 				return res;
 			}
 		}

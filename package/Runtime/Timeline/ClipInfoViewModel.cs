@@ -17,15 +17,16 @@ namespace Needle.Timeline
 		
 		public static event Action<ClipInfoViewModel> Created;
 
-		
+		public bool HasUnsavedChanges { get; private set; }
+
 		internal PlayableDirector director;
 		internal PlayableAsset asset;
 		internal TimelineClip TimelineClip => timelineClip;
 		internal bool failedLoading;
-		internal bool hasUnsavedChanges;
 
 		private readonly ClipInfoModel model;
 		private readonly TimelineClip timelineClip;
+		private readonly CodeControlTrack track;
 		
 		private ClipInfoViewModel()
 		{
@@ -33,18 +34,42 @@ namespace Needle.Timeline
 			Created?.Invoke(this);
 		}
 
-		public ClipInfoViewModel(string name, IAnimated script, ClipInfoModel model, TimelineClip timelineClip) : this()
+		public ClipInfoViewModel(CodeControlTrack track, string name, IAnimated script, ClipInfoModel model, TimelineClip timelineClip) : this()
 		{
+			this.track = track;
 			this.Name = name;
 			this.Script = script;
 			this.model = model;
 			this.timelineClip = timelineClip;
 		}
-
+		
 		internal void Register(IValueHandler handler, ICustomClip clip)
 		{
 			values.Add(handler);
 			clips.Add(clip);
+			clip.Changed += OnClipChanged;
+		}
+
+		private void OnClipChanged(ICustomClip clip)
+		{
+			if (!track)
+			{
+				Debug.LogError("Clip does not exist anymore");
+				clip.Changed -= OnClipChanged;
+				return;
+			}
+
+			HasUnsavedChanges = true;
+			
+#if UNITY_EDITOR
+			EditorUtility.SetDirty(track);
+#endif
+			// TODO: figure out if we really need this
+			track.dirtyCount = (track.dirtyCount + 1) % uint.MaxValue;
+			director.Evaluate();
+#if UNITY_EDITOR
+			TimelineWindowUtil.TryRepaint(); 
+#endif
 		}
 
 		internal void OnProcessedFrame(FrameInfo info)

@@ -10,7 +10,7 @@ namespace Needle.Timeline.Tests.CustomClips
 			var count = 0;
 			var clip = new CustomAnimationCurve<int>();
 			clip.Changed += OnEvent;
-			void OnEvent() => count += 1;
+			void OnEvent(ICustomClip _) => count += 1;
 
 			clip.Add(new CustomKeyframe<int>(0, 0));
 
@@ -29,7 +29,7 @@ namespace Needle.Timeline.Tests.CustomClips
 			var kf = new CustomKeyframe<int>(0, 0);
 			clip.Add(kf);
 			clip.Changed += OnEvent;
-			void OnEvent() => count += 1;
+			void OnEvent(ICustomClip _) => count += 1;
 
 			clip.Remove(kf);
 
@@ -44,7 +44,7 @@ namespace Needle.Timeline.Tests.CustomClips
 			var clip = new CustomAnimationCurve<int>();
 			clip.Add(kf);
 			clip.Changed += OnEvent;
-			void OnEvent() => count += 1;
+			void OnEvent(ICustomClip _) => count += 1;
 
 			kf.time += 10;
 
@@ -59,7 +59,7 @@ namespace Needle.Timeline.Tests.CustomClips
 			var clip = new CustomAnimationCurve<int>();
 			clip.Add(kf);
 			clip.Changed += OnEvent;
-			void OnEvent() => count += 1;
+			void OnEvent(ICustomClip _) => count += 1;
 
 			kf.value += 10;
 
@@ -75,7 +75,7 @@ namespace Needle.Timeline.Tests.CustomClips
 			clip.Add(kf);
 			clip.Remove(kf);
 			clip.Changed += OnEvent;
-			void OnEvent() => count += 1;
+			void OnEvent(ICustomClip _) => count += 1;
 
 			kf.value += 10;
 
@@ -91,7 +91,7 @@ namespace Needle.Timeline.Tests.CustomClips
 			clip.Add(kf);
 			clip.Remove(kf);
 			clip.Changed += OnEvent;
-			void OnEvent() => count += 1;
+			void OnEvent(ICustomClip _) => count += 1;
 
 			kf.time += 10;
 

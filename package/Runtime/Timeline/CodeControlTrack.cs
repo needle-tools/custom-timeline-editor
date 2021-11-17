@@ -40,9 +40,12 @@ namespace Needle.Timeline
 			// TODO: how can we prevent override by accident -> e.g. field name Point and point
 
 			var loader = LoadersRegistry.GetDefault();
+			if (loader == null) throw new Exception("Failed getting default loader");
 			foreach (var viewModel in viewModels)
 			{
 				if (!viewModel.IsValid) continue;
+				if (!viewModel.HasUnsavedChanges) continue;
+				Debug.Log("<b>SAVE</b> " + viewModel.Id + "@" + viewModel.startTime.ToString("0.00")); 
 				var context = new SerializationContext(viewModel.TimelineClip, viewModel.asset);
 				foreach (var clip in viewModel.clips)
 				{
@@ -160,7 +163,7 @@ namespace Needle.Timeline
 						existing = asset.viewModels.FirstOrDefault(GetExisting);
 
 					// Debug.Log("existing?? " + existing); 
-					var viewModel = existing ?? new ClipInfoViewModel(boundObject.name, script, model, timelineClip);
+					var viewModel = existing ?? new ClipInfoViewModel(this, boundObject.name, script, model, timelineClip);
 					viewModel.director = dir;
 					viewModel.asset = asset;
 					viewModel.Script = script;

@@ -66,7 +66,7 @@ namespace Needle.Timeline
 		}
 
 		#pragma warning disable CS0414
-		public event Action Changed;
+		public event Action<ICustomClip> Changed;
 		#pragma warning restore CS0414
 		
 		public IReadOnlyList<IReadonlyCustomKeyframe> Keyframes { get; }
@@ -88,7 +88,7 @@ namespace Needle.Timeline
 
 		void ICustomClip.RaiseChangedEvent()
 		{
-			Changed?.Invoke();
+			Changed?.Invoke(this);
 		}
 
 		object ICustomClip.Evaluate(float time)
