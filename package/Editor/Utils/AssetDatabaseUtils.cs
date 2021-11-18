@@ -18,8 +18,9 @@ namespace Needle.Timeline
 			if (string.IsNullOrEmpty(path)) return;
 			var assets = AssetDatabase.LoadAllAssetRepresentationsAtPath(path);
 			foreach (var subAsset in assets)
-			{ 
-				if (!AssetDatabase.IsSubAsset(subAsset)) continue;
+			{
+				if (!subAsset) continue;
+				if (!AssetDatabase.IsSubAsset(subAsset)) continue; 
 				if (delete != null && !delete(subAsset)) continue; 
 				Object.DestroyImmediate(subAsset, true);
 			}

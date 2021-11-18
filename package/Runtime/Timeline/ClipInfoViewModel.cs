@@ -136,7 +136,8 @@ namespace Needle.Timeline
 		public double ClipTime => clipTime;
 
 
-		private readonly List<(ICustomClip clip, IValueHandler handler, object value)> storedValues = new List<(ICustomClip clip, IValueHandler handler, object value)>();
+		private readonly List<(ICustomClip clip, IValueHandler handler, object value)> storedValues 
+			= new List<(ICustomClip clip, IValueHandler handler, object value)>();
 
 		internal void StoreEvaluatedResult(IValueHandler handler, ICustomClip clip, object value)
 		{
@@ -156,57 +157,14 @@ namespace Needle.Timeline
 		internal void RenderOnionSkin()
 		{
 			if (!IsValid) return;
-			if (!(Script is IOnionSkin onion)) return;
-			var time = (float)ClipTime;
-
-			var renderPrev = false;
-			for (var index = 0; index < clips.Count; index++)
-			{
-				var clip = clips[index];
-				var prev = default(IReadonlyCustomKeyframe);
-				foreach (var kf in clip.Keyframes)
-				{
-					var diff = kf.time - time; 
-					if (diff < 0 && diff < -Mathf.Epsilon)
-					{
-						prev = kf;
-					}
-					else if (kf.time >= time)
-					{
-						if (prev != null)
-						{
-							renderPrev = true;
-							values[index].SetValue(prev.value);
-							break;
-						}
-					}
-				}
-			}
-
-			if (renderPrev)
-				onion.RenderOnionSkin(new OnionData(-1));
-
-			var renderNext = false;
-			for (var index = 0; index < clips.Count; index++)
-			{
-				var clip = clips[index];
-				foreach (var kf in clip.Keyframes)
-				{
-					if (kf.time > time)
-					{
-						renderNext = true;
-						values[index].SetValue(kf.value);
-						break;
-					}
-				}
-			}
-			if (renderNext)
-				onion.RenderOnionSkin(new OnionData(1));
-
+			renderer ??= new OnionSkinRenderer(this);
+			renderer.Render();
 			foreach (var stored in storedValues)
 			{
 				stored.handler.SetValue(stored.value);
 			}
 		}
+
+		private OnionSkinRenderer renderer;
 	}
 }

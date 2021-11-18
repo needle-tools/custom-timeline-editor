@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Needle.Timeline.Models;
 using Unity.Profiling;
 using UnityEngine;
 using UnityEngine.Playables;
@@ -25,17 +26,6 @@ namespace Needle.Timeline
 		, ICanDrawInlineCurve
 #endif
 	{
-		// protected override void OnBeforeTrackSerialize()
-		// {
-		// 	Debug.Log("TODO: save state " + EditorUtility.IsDirty(this)); 
-		// 	base.OnBeforeTrackSerialize();
-		// } 
-		//
-		// protected override void OnAfterTrackDeserialize()
-		// {
-		// 	base.OnAfterTrackDeserialize();
-		// }
-
 
 		internal void Save()
 		{
@@ -54,6 +44,7 @@ namespace Needle.Timeline
 			TempFileLocationLoader.DeleteTempUnsavedChangesDirectory();
 		}
 		
+		[SerializeField] internal TrackModel model = new TrackModel();
 		[SerializeField, HideInInspector] internal uint dirtyCount;
 		[SerializeField, HideInInspector] private List<ClipInfoModel> clips = new List<ClipInfoModel>();
 		[NonSerialized] private readonly List<ClipInfoViewModel> viewModels = new List<ClipInfoViewModel>();
