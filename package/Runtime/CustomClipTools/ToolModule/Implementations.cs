@@ -13,7 +13,9 @@ namespace Needle.Timeline
 	{
 		public SprayProducer() => AllowBinding = true;
 
+		[PowerSlider(.1f, 20, 5)]
 		public float Radius = 1;
+		[Range(0,1000)]
 		public int Max = 1000;
 		[Range(0, 1)] public float Offset = 1;
 		public bool OnSurface = false;
@@ -277,7 +279,7 @@ namespace Needle.Timeline
 					else if (list.Contains(context.TargetHash, context.Index, context.MemberIndex, out id))
 					{
 						// it is in the list, we can proceed :)
-						delta *= CalculateFactor(id.Weight);
+						delta *= id.Weight;
 					}
 					else return ToolInputResult.Failed;
 				}
@@ -288,7 +290,7 @@ namespace Needle.Timeline
 
 				vec += delta;
 				value = vec;
-				return ToolInputResult.Success;
+				return ToolInputResult.Success; 
 			}
 
 
