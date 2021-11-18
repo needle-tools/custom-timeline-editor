@@ -14,6 +14,7 @@ namespace Needle.Timeline
 		private static StyleSheet? controlStyles;
 		private static VisualTreeAsset? toolsPanel;
 		private static StyleSheet? toolsPanelStyles;
+		private static readonly PersistenceHelper persistenceHelper = new PersistenceHelper("controls");
 
 		private static bool isInit;
 		private static void Init()
@@ -44,7 +45,7 @@ namespace Needle.Timeline
 		}
 
 
-		public static bool TryBuildBinding(FieldInfo field, ICustomClip clip, out ViewValueBindingController res)
+		public static bool TryBuildBinding(FieldInfo field, out ViewValueBindingController res)
 		{
 			if (field.IsStatic)
 			{
@@ -52,22 +53,28 @@ namespace Needle.Timeline
 				return false;
 			}
 			
-			PersistenceHelper.TryGetPreviousValue(field, out var currentValue);
+			persistenceHelper.TryGetPreviousState(field, out var currentValue);
 			var viewValue = new ViewValueProxy(field.Name, currentValue);
-			viewValue.ValueChanged += newValue =>
-			{
-				PersistenceHelper.OnValueChanged(field, newValue);
-			};
+			viewValue.ValueChanged += newValue => persistenceHelper.OnStateChanged(field, newValue);
 			res = new ViewValueBindingController(field, viewValue);
-			res.ViewElement = res.BuildControl();
+			res.ViewElement = res.BuildControl(); 
 			BindingsCache.Register(field.DeclaringType, res);
+
+			var controller = res;
+			if (persistenceHelper.TryGetPreviousState<bool>(res.Name, out var enabled))
+				res.Enabled = enabled;
+			res.EnabledChanged += en => persistenceHelper.OnStateChanged(controller.Name, en);
+			
 			return res.ViewElement != null;
 		}
 
 		public static IViewFieldBinding BuildControl(this FieldInfo field, object instance, 
 			bool? enabled = null)
 		{
+			if (persistenceHelper.TryGetPreviousState(field, out var currentValue))
+				field.SetValue(instance, currentValue);
 			var viewBinding = new FieldViewBinding(instance, field);
+			viewBinding.ValueChanged += newValue => persistenceHelper.OnStateChanged(field, newValue);
 			var controller = new ViewValueBindingController(field, viewBinding);
 			if (enabled != null)
 				controller.Enabled = enabled.Value;

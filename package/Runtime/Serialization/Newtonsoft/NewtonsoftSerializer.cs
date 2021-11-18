@@ -11,8 +11,8 @@ namespace Needle.Timeline.Serialization
 {
 	public class NewtonsoftSerializer : ISerializer
 	{
-		private static JsonSerializerSettings? _settings;
-		private static JsonSerializerSettings Settings
+		private JsonSerializerSettings? _settings;
+		public JsonSerializerSettings Settings
 		{
 			get
 			{
@@ -66,7 +66,7 @@ namespace Needle.Timeline.Serialization
 			var res = Deserialize(value, typeof(T));
 			if(res != null)
 				return (T)res;
-			return default!;
+			return default!; 
 		}
 
 		public object? Deserialize(object value, Type type)

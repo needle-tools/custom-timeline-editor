@@ -107,10 +107,10 @@ namespace Needle.Timeline
 						// 	continue;
 						// }
 							
-						if (ControlsFactory.TryBuildBinding(field, clip, out var handler))
+						if (ControlsFactory.TryBuildBinding(field, out var handler))
 						{
 							Debug.Log("BUILT: " + handler.GetHashCode() + ", " + clip.Name + ":" + field.Name);
-							bindable.Bindings.Add(handler);
+							bindable.Bindings.Add(handler); 
 							options.Add(handler.ViewElement);
 						}
 					}

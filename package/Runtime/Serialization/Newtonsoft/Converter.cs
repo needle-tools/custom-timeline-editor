@@ -109,15 +109,15 @@ namespace Needle.Timeline.Serialization
         public override bool CanConvert(Type objectType)
         {
             if (objectType == typeof(Color))
-            {
+            { 
                 return true;
             }
             return false;
         }
 
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, global::Newtonsoft.Json.JsonSerializer serializer)
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
-            var t = serializer.Deserialize(reader);
+            var t = serializer.Deserialize(reader); 
             if (t != null)
             {
                 var iv = JsonConvert.DeserializeObject<Color>(t.ToString());
@@ -126,7 +126,7 @@ namespace Needle.Timeline.Serialization
             return existingValue;
         }
 
-        public override void WriteJson(JsonWriter writer, object value, global::Newtonsoft.Json.JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
             Color v = (Color)value;
 

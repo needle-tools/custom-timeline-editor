@@ -36,7 +36,7 @@ namespace Needle.Timeline
 			this.value = value;
 		}
 
-		Type IViewValueHandler.ValueType => type;
+		Type? IViewValueHandler.ValueType => type;
 		public string Name => name;
 		public Type ValueType => type;
 		

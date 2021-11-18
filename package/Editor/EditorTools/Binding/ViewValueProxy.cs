@@ -1,14 +1,15 @@
-﻿using System;
+﻿#nullable enable
+using System;
 
 namespace Needle.Timeline
 {
 	public class ViewValueProxy : IViewValueHandler
 	{
 		private string _name;
-		private object _value;
-		private Type _type;
+		private object? _value;
+		private Type? _type;
 
-		public ViewValueProxy(string name, object value)
+		public ViewValueProxy(string name, object? value)
 		{
 			this._name = name;
 			this._value = value;
@@ -16,12 +17,12 @@ namespace Needle.Timeline
 				this._type = _value.GetType();
 		}
 
-		public object GetValue()
+		public object? GetValue()
 		{
 			return _value;
 		}
 
-		public void SetValue(object newValue)
+		public void SetValue(object? newValue)
 		{
 			if (newValue == _value) return;
 			_value = newValue;
@@ -31,13 +32,13 @@ namespace Needle.Timeline
 		}
 
 		public string Name => _name;
-		public Type ValueType => _type;
+		public Type? ValueType => _type;
 
-		public void SetValueWithoutNotify(object newValue)
+		public void SetValueWithoutNotify(object? newValue)
 		{
 			_value = newValue;
 		}
 
-		public event Action<object> ValueChanged;
+		public event Action<object?>? ValueChanged;
 	}
 }

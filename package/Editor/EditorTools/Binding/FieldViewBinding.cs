@@ -29,7 +29,7 @@ namespace Needle.Timeline
 		}
 
 		public string Name => field.Name;
-		public Type ValueType => field.FieldType;
+		public Type? ValueType => field.FieldType;
 
 		public void SetValueWithoutNotify(object newValue)
 		{

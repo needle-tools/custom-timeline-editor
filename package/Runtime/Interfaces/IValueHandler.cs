@@ -20,9 +20,9 @@ namespace Needle.Timeline
 	public interface IViewValueHandler : IValueHandler
 	{
 		string Name { get; }
-		Type ValueType { get; }
-		void SetValueWithoutNotify(object newValue);
-		event Action<object> ValueChanged;
+		Type? ValueType { get; }
+		void SetValueWithoutNotify(object? newValue);
+		event Action<object?> ValueChanged;
 	}
 
 	public interface IHasCustomAttributes
