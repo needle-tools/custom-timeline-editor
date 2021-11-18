@@ -56,15 +56,28 @@
 
 /* slider overflow */
 .control-container .overflow-min .unity-base-slider__dragger,
-.control-container .overflow-max .unity-base-slider__dragger{
-    background-color: rgb(200,100,0) !important;
-    border-color: rgb(200,100,0);
+.control-container .overflow-max .unity-base-slider__dragger
+{
+    background-color: rgb(250,150,0) !important;
+    border-color: rgb(125,110,50);
 }
 .control-container .overflow-min .unity-base-slider__tracker {
     background-image: url("./Textures/slider-overflow-min.png"); 
 }
 .control-container .overflow-max .unity-base-slider__tracker {
     background-image: url("./Textures/slider-overflow-max.png");
+}
+.control-container .overflow-min-high .unity-base-slider__dragger,
+.control-container .overflow-max-high .unity-base-slider__dragger
+{
+    background-color: rgb(230,0,50) !important;
+    border-color: rgb(140,80,20);
+}
+.control-container .overflow-min-high .unity-base-slider__tracker {
+    background-image: url("./Textures/slider-overflow-min-high.png");
+}
+.control-container .overflow-max-high .unity-base-slider__tracker {
+    background-image: url("./Textures/slider-overflow-max-high.png");
 }
 
 .control-container > .control > * {

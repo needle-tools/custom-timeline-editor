@@ -33,13 +33,16 @@ namespace Needle.Timeline
 			{
 				return Utils.MakeComposite(view, BuildSlider(powerSlider.min, powerSlider.max, viewValue, view, powerSlider.power));
 			}
-			
+
 
 			return view;
 		}
 
-		private static VisualElement BuildSlider(float min, float max, 
-			IValueProvider viewValue, FloatField view, float power = 1)
+		private static VisualElement BuildSlider(float min,
+			float max,
+			IViewValueHandler viewValue,
+			FloatField view,
+			float power = 1)
 		{
 			var isPowerSlider = Math.Abs(power - 1) > 0.01f && power != 0;
 			var slider = new Slider(min, max);
@@ -47,39 +50,53 @@ namespace Needle.Timeline
 			if (value != null)
 			{
 				var _val = (float)value;
-				if(isPowerSlider)
+				if (isPowerSlider)
 					_val = CalculatePowerValueInverse(_val, power, min, max);
 				slider.value = _val;
+				CheckSliderState(slider, view.value, min, max);
 			}
 			slider.RegisterValueChangedCallback(evt =>
 			{
 				var _val = evt.newValue;
-				if(isPowerSlider)
+				if (isPowerSlider)
 					_val = CalculatePowerValue(_val, power, min, max);
 				view.value = _val;
-				CheckSliderState( slider, view.value, min, max);
+				CheckSliderState(slider, view.value, min, max);
 			});
 			view.RegisterValueChangedCallback(evt =>
 			{
 				var _val = evt.newValue;
-				if(isPowerSlider)
+				if (isPowerSlider)
 					_val = CalculatePowerValueInverse(_val, power, min, max);
 				slider.SetValueWithoutNotify(_val);
-				CheckSliderState(slider, view.value, min, max); 
+				CheckSliderState(slider, view.value, min, max);
 			});
 			return slider;
 		}
 
 		private static void CheckSliderState(VisualElement slider, float value, float min, float max)
 		{
-			if (value < min) 
-				slider.AddToClassList("overflow-min");
-			else if (value > max) 
-				slider.AddToClassList("overflow-max");
-			else
+			slider.RemoveFromClassList("overflow-min");
+			slider.RemoveFromClassList("overflow-max");
+			slider.RemoveFromClassList("overflow-min-high");
+			slider.RemoveFromClassList("overflow-max-high");
+			const float highOverflowFactor = 3;
+			var range = Mathf.Abs(min - max); 
+			if (value < min)
 			{
-				slider.RemoveFromClassList("overflow-min");
-				slider.RemoveFromClassList("overflow-max");
+				var overflow = min - value;
+				if (overflow > highOverflowFactor * range)
+					slider.AddToClassList("overflow-min-high");
+				else
+					slider.AddToClassList("overflow-min");
+			}
+			else if (value > max)
+			{
+				var overflow = value - max;
+				if (overflow > highOverflowFactor * range)
+					slider.AddToClassList("overflow-max-high");
+				else
+					slider.AddToClassList("overflow-max");
 			}
 		}
 
@@ -87,7 +104,7 @@ namespace Needle.Timeline
 		{
 			var val01 = value.Remap(min, max, 0, 1);
 			val01 = Mathf.Pow(val01, power);
-			value = val01.Remap(0, 1, min, max); 
+			value = val01.Remap(0, 1, min, max);
 			return value;
 		}
 
