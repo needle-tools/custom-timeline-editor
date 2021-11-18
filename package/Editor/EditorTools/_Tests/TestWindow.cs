@@ -42,6 +42,7 @@ namespace Needle.Timeline
 			controls.Add(new MockBinding("hdr no alpha", Color.red, true, new ColorUsageAttribute(false, true)).BuildControl());
 			controls.Add(new MockBinding("weight", 1f).BuildControl());
 			controls.Add(new MockBinding("Weight Slider", 1f, true, new RangeAttribute(0,1)).BuildControl());
+			controls.Add(new MockBinding("Weight Slider ^5", .5f, true, new PowerSlider(0,1, 5)).BuildControl());
 			controls.Add(new MockBinding("pos2", new Vector2(1, 2)).BuildControl());
 			controls.Add(new MockBinding("position", new Vector3(1, 2, 3)).BuildControl());
 			controls.Add(new MockBinding("Point", new Vector4(1, 2, 3, 4)).BuildControl());
