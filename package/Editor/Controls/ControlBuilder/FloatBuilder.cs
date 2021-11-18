@@ -32,8 +32,9 @@ namespace Needle.Timeline
 					slider.value = (float)value;
 				slider.RegisterValueChangedCallback(evt =>
 				{
-					view.SetValueWithoutNotify(evt.newValue);
-					viewValue.SetValue(evt.newValue);
+					var val = evt.newValue;
+					view.SetValueWithoutNotify(val);
+					viewValue.SetValueWithoutNotify(val);
 				});
 				view.RegisterValueChangedCallback(evt =>
 				{

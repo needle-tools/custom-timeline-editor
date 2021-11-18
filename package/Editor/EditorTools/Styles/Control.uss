@@ -46,6 +46,7 @@
 }
 .control-container .composite-control .pre {
     min-width: 30px;
+    max-width: 20%;
     flex-grow: .1;
 }
 .control-container .composite-control .main {
