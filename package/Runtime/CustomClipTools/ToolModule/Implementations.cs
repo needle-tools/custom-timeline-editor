@@ -222,8 +222,8 @@ namespace Needle.Timeline
 
 	public class DragPosition : CoreToolModule
 	{
-		[Range(0.01f, 10)] public float Radius = 1;
-		[Range(0, 1)] public float Probability = 1f;
+		[PowerSlider(0.01f, 10, 2)] public float Radius = 1;
+		[PowerSlider(0, 1, 1)] public float Probability = 1f;
 		[Range(0, 2)] public float Strength = 1f;
 		[Range(0, 1)] public float Falloff = 0;
 
@@ -310,6 +310,7 @@ namespace Needle.Timeline
 
 	public class Eraser : CoreToolModule
 	{
+		[PowerSlider(.1f, 10, 2)]
 		public float Radius = 1;
 
 		protected override IList<Type> SupportedTypes { get; } = new[] { typeof(Vector3), typeof(Vector2) };
@@ -334,7 +335,7 @@ namespace Needle.Timeline
 
 		[Range(.1f, 3)] public float Radius = 1;
 		[Range(0, 1)] public float Probability = 1;
-		[Range(0, 1)] public float Weight = 1;
+		[PowerSlider(0, 1, 3)] public float Weight = 1;
 
 		float IWeighted.Weight
 		{
@@ -378,7 +379,7 @@ namespace Needle.Timeline
 					weight = 1 - screenDistance.Value;
 				}
 				if (weight == null) return ToolInputResult.Failed;
-				context.Weight = weight.Value * Mathf.Pow(Weight, 2);
+				context.Weight = weight.Value * Weight;
 				return ToolInputResult.Success;
 			}
 		}
