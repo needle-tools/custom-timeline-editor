@@ -41,9 +41,9 @@ namespace Needle.Timeline.Editors.CustomCurve
 			}
 
 			var evt = Event.current;
-			foreach (var clip in customCurvesEditor.EnumerateClips())
+			foreach (var timelineClip in customCurvesEditor.EnumerateClips())
 			{
-				if (!(clip.asset is CodeControlAsset code)) continue;
+				if (!(timelineClip.asset is CodeControlAsset code)) continue;
 				var row = 0;
 				foreach (var viewModel in code.viewModels)
 				{
@@ -51,8 +51,8 @@ namespace Needle.Timeline.Editors.CustomCurve
 					{
 						for (var index = 0; index < viewModel.clips.Count; index++)
 						{
-							var curves = viewModel.clips[index];
-							if (curves is AnimationCurveWrapper) continue;
+							var clip = viewModel.clips[index];
+							if (clip is AnimationCurveWrapper) continue;
 							var r = new Rect();
 							r.x = rect.x;
 							r.width = rect.width;
@@ -74,16 +74,22 @@ namespace Needle.Timeline.Editors.CustomCurve
 								{
 									var option = easingTypeOptions[i];
 									var type = easingTypes[i];
-									menu.AddItem(new GUIContent(option), curves.IsCurrentDefaultEasingType(type), () =>
+									var clipIndex = index;
+									menu.AddItem(new GUIContent(option), clip.IsCurrentDefaultEasingType(type), () =>
 									{
-										curves.SetEasing(type);
+										// apply easing to all clips
+										ForAllClips(clipIndex, c =>
+										{
+											if(c.GetType() == clip.GetType() && c.Name == clip.Name)
+												c.SetEasing(type);
+										});
 									});
 								}
 								menu.ShowAsContext();
 							}
 
 							float endingSpace = 0;
-							if (curves is IRecordable rec)
+							if (clip is IRecordable rec)
 							{
 								if (recordButtonStyle == null)
 								{
@@ -128,13 +134,13 @@ namespace Needle.Timeline.Editors.CustomCurve
 							tr.y -= 1.5f;
 							tr.x += 5;
 							tr.width = r.width * .5f;
-							GUI.Label(tr, new GUIContent(ObjectNames.NicifyVariableName(curves.Name), viewModel.Script.GetType().Name));
+							GUI.Label(tr, new GUIContent(ObjectNames.NicifyVariableName(clip.Name), viewModel.Script.GetType().Name));
 
 							tr.width = rect.width - 30;
 							tr.x += rect.x;
 							tr.x -= endingSpace;
 							builder.Clear();
-							StringHelper.GetGenericsString(curves.GetType(), builder);
+							StringHelper.GetGenericsString(clip.GetType(), builder);
 							GUI.Label(tr, builder.ToString(), typeStyle);
 							++row;
 						}
