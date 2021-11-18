@@ -57,7 +57,7 @@ namespace Needle.Timeline
 				if(isPowerSlider)
 					_val = CalculatePowerValue(_val, power, min, max);
 				view.value = _val;
-				CheckSliderState( slider, _val, min, max);
+				CheckSliderState( slider, view.value, min, max);
 			});
 			view.RegisterValueChangedCallback(evt =>
 			{
@@ -65,7 +65,7 @@ namespace Needle.Timeline
 				if(isPowerSlider)
 					_val = CalculatePowerValueInverse(_val, power, min, max);
 				slider.SetValueWithoutNotify(_val);
-				CheckSliderState(slider, _val, min, max); 
+				CheckSliderState(slider, view.value, min, max); 
 			});
 			return slider;
 		}
