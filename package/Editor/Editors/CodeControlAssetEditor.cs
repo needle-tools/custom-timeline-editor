@@ -14,7 +14,11 @@ namespace Needle.Timeline
 		public override void OnCreate(TimelineClip clip, TrackAsset track, TimelineClip clonedFrom)
 		{
 			base.OnCreate(clip, track, clonedFrom);
-			if (clonedFrom == null) return;
+			if (clonedFrom == null)
+			{
+				EditorApplication.delayCall += () => SyncViewModelState(track, clip);
+				return;
+			}
 
 			ClipInfoViewModel source = null;
 			const float maxTimeDifference = float.Epsilon;
@@ -27,7 +31,30 @@ namespace Needle.Timeline
 			}
 			if(source != null)
 				EditorApplication.delayCall += () => PopulateClip(source, clip);
-			
+		}
+
+		private static async void SyncViewModelState(TrackAsset track, TimelineClip clip)
+		{
+			await Task.Delay(10);
+			// TODO: move states like that OUT of clips, it should be serialized with the track
+			var vm = ClipInfoViewModel.Instances.FirstOrDefault(vm => vm.asset == clip.asset);
+			if (vm != null)
+			{
+				var anyOther = ClipInfoViewModel.Instances.FirstOrDefault(cm => cm != vm);
+				if (anyOther != null && vm.clips.Count == anyOther.clips.Count)
+				{
+					Debug.Log("FIXME: syncing recording states here but should actually be serialized with track");
+					for (var index = 0; index < vm.clips.Count; index++)
+					{
+						var c = vm.clips[index];
+						var other = anyOther.clips[index];
+						if (c is IRecordable r && other is IRecordable or)
+						{
+							r.IsRecording = or.IsRecording;
+						}
+					}
+				}
+			}
 		}
 
 		private static async void PopulateClip(ClipInfoViewModel source, TimelineClip createdClip)
