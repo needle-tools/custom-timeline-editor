@@ -47,14 +47,25 @@
 .control-container .composite-control .pre {
     min-width: 30px;
     max-width: 20%;
-    flex-grow: .1;
+    flex-grow: 1;
 }
 .control-container .composite-control .main {
 
     flex-grow: 1;
 }
 
-
+/* slider overflow */
+.control-container .overflow-min .unity-base-slider__dragger,
+.control-container .overflow-max .unity-base-slider__dragger{
+    background-color: rgb(200,100,0) !important;
+    border-color: rgb(200,100,0);
+}
+.control-container .overflow-min .unity-base-slider__tracker {
+    background-image: url("./Textures/slider-overflow-min.png"); 
+}
+.control-container .overflow-max .unity-base-slider__tracker {
+    background-image: url("./Textures/slider-overflow-max.png");
+}
 
 .control-container > .control > * {
     /*width: 100%;*/
@@ -64,3 +75,4 @@
 .control-container #unity-drag-container {
     /*max-width: 98%;*/
 }
+
