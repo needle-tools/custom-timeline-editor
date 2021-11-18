@@ -2,6 +2,7 @@
 using System.Linq;
 using Unity.Profiling;
 using UnityEditor;
+using UnityEngine;
 using UnityEngine.Playables;
 
 namespace Needle.Timeline
@@ -10,6 +11,8 @@ namespace Needle.Timeline
 	{
 		private readonly ProfilerMarker mixerMarker = new ProfilerMarker(nameof(CodeControlTrackMixer));
 		private readonly List<object> valuesToMix = new List<object>();
+
+		private static float fixedDeltaTime;
 
 		public override void ProcessFrame(Playable playable, FrameData info, object playerData)
 		{
@@ -82,6 +85,13 @@ namespace Needle.Timeline
 				}
 
 
+				// if (!Application.isPlaying)
+				// {
+				// 	var allowPhysicsUpdate = !Physics.autoSimulation;
+				// 	if(allowPhysicsUpdate)
+				// 		Physics.Simulate(Time.fixedDeltaTime);
+				// }
+				
 				var vm = behaviour.viewModels[viewModelIndex];
 				if (vm.IsValid)
 				{
@@ -89,9 +99,8 @@ namespace Needle.Timeline
 					if (graph.GetResolver() is PlayableDirector dir)
 					{
 						TimelineHooks.CheckStateChanged(dir);
-
-						frameInfo.Time = (float)dir.time;
-						vm.OnProcessedFrame(frameInfo);
+						var now = new FrameInfo((float)playable.GetTime(), info.deltaTime);
+						vm.OnProcessedFrame(now);
 					}
 					else
 					{
@@ -105,12 +114,10 @@ namespace Needle.Timeline
 		[DrawGizmo(GizmoType.NonSelected | GizmoType.Selected)]
 		private static void DrawGizmos(PlayableDirector component, GizmoType gizmoType)
 		{
-			if (CustomTimelineSettings.Instance.RenderOnionSkin == false) return;
-			
 			foreach (var vm in ClipInfoViewModel.ActiveInstances)
 			{
 				if(vm.IsValid)
-					vm.RenderOnionSkin();
+					vm.RenderDataPreview(CustomTimelineSettings.Instance.RenderOnionSkin);
 			}
 		}
 #endif

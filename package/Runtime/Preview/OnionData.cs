@@ -13,6 +13,13 @@ namespace Needle.Timeline
 			return Color.Lerp(col, ColorOnion, WeightOnion);
 		}
 
+		public void SetColor(Color color)
+		{
+#if UNITY_EDITOR
+			Gizmos.color = GetColor(color);
+#endif
+		}
+
 		public OnionData(int layer)
 		{
 			Layer = layer;

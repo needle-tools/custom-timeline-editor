@@ -26,6 +26,10 @@ namespace Needle.Timeline
 
 		public float DefaultBufferLenght = 2;
 
-		public bool RenderOnionSkin = true;
+		public bool RenderOnionSkin
+		{
+			get => GlobalState.GetBool(nameof(RenderOnionSkin), false);
+			set => GlobalState.SetBool(nameof(RenderOnionSkin), value);
+		}
 	}
 }

@@ -5,16 +5,18 @@
 		
 	}
 
-	public class FrameInfo
+	public readonly struct FrameInfo
 	{
-		public float Time { get; internal set; }
-		public float DeltaTime { get; internal set; }
+		public readonly float Time;
+		public readonly float DeltaTime;
 
 		public FrameInfo(float time, float deltaTime)
 		{
 			Time = time;
 			DeltaTime = deltaTime;
 		}
+
+		public static FrameInfo Now() => new FrameInfo(UnityEngine.Time.time, UnityEngine.Time.deltaTime);
 	}
 
 	public interface IAnimatedEvents

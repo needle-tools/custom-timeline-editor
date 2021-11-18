@@ -240,6 +240,7 @@ namespace Needle.Timeline
 
 		protected virtual IEnumerable<ICustomKeyframe?> GetKeyframes(ToolData toolData)
 		{
+			// TODO: allow to use selected keyframes being modified
 			var keyframe = toolData.Clip.GetClosest(toolData.Time);
 			yield return keyframe;
 		}

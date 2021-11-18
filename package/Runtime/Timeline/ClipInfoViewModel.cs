@@ -154,15 +154,20 @@ namespace Needle.Timeline
 			storedValues[index] = existing;
 		}
 
-		internal void RenderOnionSkin()
+		internal void RenderDataPreview(bool renderOnionskin)
 		{
 			if (!IsValid) return;
-			renderer ??= new OnionSkinRenderer(this);
-			renderer.Render();
-			foreach (var stored in storedValues)
+			if (renderOnionskin) 
 			{
-				stored.handler.SetValue(stored.value);
+				renderer ??= new OnionSkinRenderer(this);
+				renderer.Render();
+				foreach (var stored in storedValues)
+				{
+					stored.handler.SetValue(stored.value);
+				}
 			}
+			if (Script is IOnionSkin on)
+				on.RenderOnionSkin(OnionData.Default);
 		}
 
 		private OnionSkinRenderer renderer;
