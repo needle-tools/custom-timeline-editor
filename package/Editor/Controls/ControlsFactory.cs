@@ -70,7 +70,7 @@ namespace Needle.Timeline
 		}
 
 		public static IViewFieldBinding BuildControl(this FieldInfo field, object instance, 
-			bool? enabled = null)
+			bool? enabled = null, bool withCheckbox = true)
 		{
 			if (persistenceHelper.TryGetPreviousState(field, out var currentValue))
 				field.SetValue(instance, currentValue);
@@ -79,12 +79,12 @@ namespace Needle.Timeline
 			var controller = new ViewValueBindingController(field, viewBinding);
 			if (enabled != null)
 				controller.Enabled = enabled.Value;
-			controller.ViewElement = BuildControl(controller);
+			controller.ViewElement = BuildControl(controller, withCheckbox);
 			if (controller.ViewElement == null) throw new Exception("Failed building control for " + field.FieldType);
 			return controller;
 		}
 
-		public static VisualElement? BuildControl(this IViewFieldBinding binding)
+		public static VisualElement? BuildControl(this IViewFieldBinding binding, bool withCheckbox = true)
 		{
 			if (!TryBuildControl(binding.ValueType, binding, out var control)) return null;
 			Init();
@@ -125,6 +125,7 @@ namespace Needle.Timeline
 			controlContainer.Add(control);
 
 			var toggle = instance.Q<Toggle>(null, "enabled");
+			if (!withCheckbox) toggle.style.display = DisplayStyle.None;
 			toggle.RegisterValueChangedCallback(evt =>
 			{
 				binding.Enabled = evt.newValue;

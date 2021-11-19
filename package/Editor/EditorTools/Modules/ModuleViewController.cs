@@ -78,7 +78,7 @@ namespace Needle.Timeline
 				}
 
 				addedModuleField = true;
-				var binding = field.BuildControl(Module, true);
+				var binding = field.BuildControl(Module, true, false);
 				options.Add(binding.ViewElement);
 			}
 			
