@@ -96,6 +96,8 @@ namespace Needle.Timeline
 
 			if (_recreateUI)
 			{
+				ToolsWindow.Root.Clear();
+				
 				_recreateUI = false;
 				_availableTools.Clear();
 				foreach (var tool in ToolsHandler.ToolInstances)
