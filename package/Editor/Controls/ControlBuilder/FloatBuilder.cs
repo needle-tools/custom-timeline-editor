@@ -38,9 +38,7 @@ namespace Needle.Timeline
 			return view;
 		}
 
-		private static VisualElement BuildSlider(float min,
-			float max,
-			IViewValueHandler viewValue,
+		private static VisualElement BuildSlider(float min, float max, IViewValueHandler viewValue,
 			FloatField view,
 			float power = 1)
 		{
@@ -54,7 +52,7 @@ namespace Needle.Timeline
 				if (isPowerSlider)
 					_val = SliderUtils.CalculatePowerValueInverse(_val, power, min, max);
 				slider.value = _val;
-				slider.CheckOverflow(view.value, min, max);
+				slider.CheckOverflow(_val);
 			}
 			slider.RegisterValueChangedCallback(evt =>
 			{
@@ -62,7 +60,7 @@ namespace Needle.Timeline
 				if (isPowerSlider)
 					_val = SliderUtils.CalculatePowerValue(_val, power, min, max);
 				view.value = _val;
-				slider.CheckOverflow(view.value, min, max);
+				slider.CheckOverflow(_val);
 			});
 			view.RegisterValueChangedCallback(evt =>
 			{
@@ -70,7 +68,7 @@ namespace Needle.Timeline
 				if (isPowerSlider)
 					_val = SliderUtils.CalculatePowerValueInverse(_val, power, min, max);
 				slider.SetValueWithoutNotify(_val);
-				slider.CheckOverflow(view.value, min, max);
+				slider.CheckOverflow(_val);
 			});
 			return slider;
 		}

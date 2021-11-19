@@ -1,17 +1,22 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Needle.Timeline
 {
 	public static class SliderUtils
 	{
-		public static void CheckOverflow(this Slider slider, float value, float min, float max)
+		public static void CheckOverflow<T, U>(this T slider, U currentValue) 
+			where T : BaseSlider<U> where U : IComparable<U>
 		{
 			slider.RemoveFromClassList("overflow-min");
 			slider.RemoveFromClassList("overflow-max");
 			slider.RemoveFromClassList("overflow-min-high");
 			slider.RemoveFromClassList("overflow-max-high");
 			const float highOverflowFactor = 3;
+			var value = (float)currentValue.Cast(typeof(float));
+			var min = (float)slider.lowValue.Cast(typeof(float));
+			var max = (float)slider.highValue.Cast(typeof(float));
 			var range = Mathf.Abs(min - max); 
 			if (value < min)
 			{
