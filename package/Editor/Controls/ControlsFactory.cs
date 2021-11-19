@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Security.AccessControl;
 using Needle.Timeline.AssetBinding;
 using UnityEditor;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Needle.Timeline
@@ -86,7 +87,6 @@ namespace Needle.Timeline
 		public static VisualElement? BuildControl(this IViewFieldBinding binding)
 		{
 			if (!TryBuildControl(binding.ValueType, binding, out var control)) return null;
-			
 			Init();
 			if (controlAsset == null) throw new Exception("Failed loading control uxml layout");
 
@@ -113,6 +113,12 @@ namespace Needle.Timeline
 				}
 			}
 			else label = name;
+			
+			var tooltip = binding.GetCustomAttribute<TooltipAttribute>();
+			if (tooltip != null && label != null)
+			{
+				label.tooltip = tooltip.tooltip;
+			}
 				
 			var controlContainer = instance.Q<VisualElement>(null, "control");
 			binding.ViewElement = control;

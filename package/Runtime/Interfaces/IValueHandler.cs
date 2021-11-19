@@ -27,7 +27,7 @@ namespace Needle.Timeline
 
 	public interface IHasCustomAttributes
 	{
-		T GetCustomAttribute<T>() where T : Attribute;
+		T? GetCustomAttribute<T>() where T : Attribute;
 	}
 
 	public interface IViewFieldBinding : IEnabled, IHasCustomAttributes
