@@ -38,8 +38,14 @@ namespace Needle.Timeline
 
 		public static float CalculatePowerValue(float value, float power, float min, float max)
 		{
+			if (float.IsNaN(value))
+			{
+				value = 1;
+			}
 			var val01 = value.Remap(min, max, 0, 1);
-			val01 = Mathf.Pow(val01, power);
+			var wasNegative = val01 < 0;
+			val01 = Mathf.Pow(Mathf.Abs(val01), power);
+			if (wasNegative) val01 *= -1;
 			value = val01.Remap(0, 1, min, max);
 			return value;
 		}

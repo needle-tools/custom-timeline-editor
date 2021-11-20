@@ -49,10 +49,10 @@ namespace Needle.Timeline
 			if (value != null)
 			{
 				var _val = (float)value;
+				slider.CheckOverflow(_val); 
 				if (isPowerSlider)
 					_val = SliderUtils.CalculatePowerValueInverse(_val, power, min, max);
 				slider.value = _val;
-				slider.CheckOverflow(_val);
 			}
 			slider.RegisterValueChangedCallback(evt =>
 			{
@@ -65,10 +65,11 @@ namespace Needle.Timeline
 			view.RegisterValueChangedCallback(evt =>
 			{
 				var _val = evt.newValue;
+				// test before power rempa happens
+				slider.CheckOverflow(_val);
 				if (isPowerSlider)
 					_val = SliderUtils.CalculatePowerValueInverse(_val, power, min, max);
 				slider.SetValueWithoutNotify(_val);
-				slider.CheckOverflow(_val);
 			});
 			return slider;
 		}
