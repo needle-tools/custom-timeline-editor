@@ -32,8 +32,8 @@ namespace Needle.Timeline
 		private static readonly List<IToolModule> buffer = new List<IToolModule>();
 		private VisualElement modulesContainer;
 		private readonly List<ModuleViewController> moduleViewControllers = new List<ModuleViewController>();
-
-
+		private const string activeModuleKey = "active-module";
+		
 		protected override void OnAddedTarget(ToolTarget t)
 		{
 			base.OnAddedTarget(t);
@@ -102,7 +102,7 @@ namespace Needle.Timeline
 				entry = new ModuleViewController(modulesContainer, module, this);
 				moduleViewControllers.Add(entry);
 
-				Button button = null;
+				Button button = null; 
 				button = new Button(() =>
 				{
 					foreach (var e in moduleViewControllers)
@@ -111,12 +111,24 @@ namespace Needle.Timeline
 						e.SetActive(false);
 					}
 					entry.SetActive(!entry.IsActive);
-					if (entry.IsActive) ToolsHandler.Select(this);
+					if (entry.IsActive)
+					{
+						ToolsHandler.Select(this);
+						ToolsHandler.state.OnStateChanged(activeModuleKey, type.FullName);
+					} 
 				});
 				button.text = ObjectNames.NicifyVariableName(meta?.Name ?? module.GetType().Name);
 				entry.Label = button;
 				container.Add(button);
 				entry.SetActive(false);
+
+				if (ToolsHandler.state.TryGetPreviousState(activeModuleKey, out string typeName))
+				{
+					if (typeName == type.FullName)
+					{
+						entry.SetActive(true);
+					}
+				}
 			}
 		}
 

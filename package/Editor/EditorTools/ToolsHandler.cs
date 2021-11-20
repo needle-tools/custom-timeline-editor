@@ -46,6 +46,8 @@ namespace Needle.Timeline
 		{	
 			if (_selected.Contains(tool)) return;
 			_selected.Add(tool);
+			
+			state.OnStateChanged(activeToolKey, tool.GetType().FullName); 
 
 			var container = ToolsGUI.GetToolSettingsContainer();
 			#region Save added visual elements to be automatically removed on detach
@@ -120,6 +122,9 @@ namespace Needle.Timeline
 				}
 			}
 		}
+
+		internal static readonly PersistenceHelper state = new PersistenceHelper("tools");
+		internal const string activeToolKey = "selected-tool";
 
 		public static bool IsSelected(ICustomClipTool tool) => _selected.Contains(tool);
 
