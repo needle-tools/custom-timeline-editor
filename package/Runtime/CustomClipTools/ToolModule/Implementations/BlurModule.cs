@@ -5,7 +5,7 @@ using System.Reflection;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Needle.Timeline
+namespace Needle.Timeline.CustomClipTools.ToolModule.Implementations
 {
 	// public abstract class BaseMultiFieldModifier : CoreToolModule
 	// {

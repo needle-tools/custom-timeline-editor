@@ -10,6 +10,7 @@ namespace Needle.Timeline
 		
 		public Vector3? WorldPosition { get; private set; }
 		public Vector3? WorldNormal;
+		public Quaternion? ViewRotation { get; private set; }
 		public Vector3? LastWorldPosition;
 		
 		public Vector3? StartWorldPosition { get; private set; }
@@ -98,21 +99,21 @@ namespace Needle.Timeline
 				Modifiers = evt.modifiers;
 				DeltaWorld = null;
 				LastWorldPosition = WorldPosition;
+				var camera = Camera.current;
 				#if UNITY_EDITOR
-				var cur = Camera.current;
-				if (sceneView.camera == cur)
+				if (sceneView.camera == camera)
 				{ 
-					WorldPosition = PlaneUtils.GetPointOnCameraPlane(cur, sceneView.pivot, out _);
+					WorldPosition = PlaneUtils.GetPointOnCameraPlane(camera, sceneView.pivot, out _);
 					if (WorldPosition == null) WorldNormal = null;
-					else WorldNormal = (cur.transform.position - WorldPosition).Value.normalized;
+					else WorldNormal = (camera.transform.position - WorldPosition).Value.normalized;
 				}
 				else
 				#endif
 				{
-					var camera = Camera.current;
 					WorldPosition = PlaneUtils.GetPointInWorld(camera, out var normal);
 					WorldNormal = normal;
 				}
+				ViewRotation = camera.transform.rotation;
 				// Debug.DrawLine(WorldPosition.Value, WorldPosition.Value + WorldNormal.Value, Color.white, 1);
 				LastScreenPosition = ScreenPosition;
 				var sp = evt.GetCurrentMousePositionBottomTop();

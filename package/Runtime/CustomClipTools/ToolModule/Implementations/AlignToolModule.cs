@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Needle.Timeline.CustomClipTools.ToolModule
+namespace Needle.Timeline.CustomClipTools.ToolModule.Implementations
 {
 	public interface IHasDirection
 	{
