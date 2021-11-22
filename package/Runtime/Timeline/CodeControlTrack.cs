@@ -112,9 +112,9 @@ namespace Needle.Timeline
 				string id = asset.id;
 #endif
 
-#if UNITY_EDITOR
-				Debug.Log("Create " + asset.data, asset);
-#endif
+// #if UNITY_EDITOR
+// 				Debug.Log("Create " + asset.data, asset);
+// #endif
 
 				// Debug.Log("<b>Create Playable</b> " + boundObject, timelineClip.asset);
 				timelineClip.CreateCurves(id);

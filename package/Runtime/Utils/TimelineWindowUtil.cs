@@ -41,7 +41,7 @@ namespace Needle.Timeline
 						{
 							dir.time = lastTime;
 							TimelineHooks.CheckStateChanged(dir);
-							Debug.Log(dir.time);
+							// Debug.Log(dir.time);
 						}
 						dir.Evaluate();
 						IsInit?.Invoke();

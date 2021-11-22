@@ -22,10 +22,16 @@ namespace Needle.Timeline
 			
 			if (!asset.data || !EditorUtility.IsPersistent(asset.data))
 			{
-				// EditorGUILayout.HelpBox("Test", MessageType.Info);
-				if(GUILayout.Button("Save as asset", GUILayout.Height(30)))
+				if (asset.clipData != null && asset.clipData.Count > 0)
 				{
-					asset.SaveAsAsset();
+					EditorGUILayout.HelpBox("Your clip data is currently saved in the timeline track asset. Please upgrade to save the clip data as a standalone asset.", MessageType.Warning);
+					if(GUILayout.Button("Upgrade clip data to asset", GUILayout.Height(30)))
+					{
+						asset.ExportAsAsset();
+						asset.clipData.Clear();
+						asset.id = "";
+					}
+					GUILayout.Space(12);
 				}
 			}
 

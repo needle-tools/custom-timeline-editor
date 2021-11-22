@@ -11,6 +11,28 @@ namespace Needle.Timeline
 	[CustomTimelineEditor(typeof(CodeControlAsset))]
 	public class CodeControlAssetEditor : ClipEditor
 	{
+		public override ClipDrawOptions GetClipOptions(TimelineClip clip)
+		{
+			foreach (var vm in ClipInfoViewModel.Instances)
+			{
+				if (vm.TimelineClip == clip)
+				{
+					if (vm.asset is CodeControlAsset cc && cc.data)
+					{
+						clip.displayName = cc.data.name;
+					}
+					break;
+				}
+			}
+			return base.GetClipOptions(clip);
+		}
+
+		// public override void DrawBackground(TimelineClip clip, ClipBackgroundRegion region)
+		// {
+		// 	base.DrawBackground(clip, region);
+		// 	GUI.Label(region.position, "TEST");
+		// }
+
 		public override void OnCreate(TimelineClip clip, TrackAsset track, TimelineClip clonedFrom)
 		{
 			base.OnCreate(clip, track, clonedFrom);
