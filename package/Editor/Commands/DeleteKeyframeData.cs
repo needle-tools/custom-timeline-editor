@@ -5,17 +5,17 @@ namespace Needle.Timeline.Commands
 	public class DeleteTrackCommand : Command
 	{
 		private Object asset;
-		private JsonContainer jsonContainer;
+		private JsonContainer jsonContainer; 
 
 		public DeleteTrackCommand(Object asset, JsonContainer container)
 		{
 			this.asset = asset;
-			this.jsonContainer = container;
+			this.jsonContainer = container; 
 		}
 		
 		protected override void OnRedo()
 		{
-			
+			Debug.Log("REDO DELETION");
 		}
 
 		protected override void OnUndo()

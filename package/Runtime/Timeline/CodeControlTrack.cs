@@ -90,8 +90,7 @@ namespace Needle.Timeline
 				var animationComponents = boundObject.GetComponents<IAnimated>();
 				if (animationComponents.Length <= 0) return Playable.Null;
 
-
-				#if UNITY_EDITOR
+#if UNITY_EDITOR
 				// TODO: use something else than the asset as a identifier for saving/loading data - it would be cool to be able to use animated data in other contexts (other timeline, other TrackAsset instances, other script instances) as well
 				AssetDatabase.TryGetGUIDAndLocalFileIdentifier(asset.GetInstanceID(), out var guid, out long _id);
 				var id = guid + "@" + _id;
@@ -101,7 +100,7 @@ namespace Needle.Timeline
 				#endif
 
 #if UNITY_EDITOR
-				Debug.Log("Create " + id, asset);
+				Debug.Log("Create " + asset.data, asset);
 #endif
 
 				// Debug.Log("<b>Create Playable</b> " + boundObject, timelineClip.asset);

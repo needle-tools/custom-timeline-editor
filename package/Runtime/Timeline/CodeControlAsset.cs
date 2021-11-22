@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Playables;
 using UnityEngine.Timeline;
@@ -9,8 +10,9 @@ namespace Needle.Timeline
 	[Serializable]
 	public class CodeControlAsset : PlayableAsset, ITimelineClipAsset
 	{
+		[SerializeField] internal CodeControlAssetData data;
 		[SerializeField] internal string id;
-		[SerializeField] private List<JsonContainer> clipData = new List<JsonContainer>();
+		[SerializeField] internal List<JsonContainer> clipData = new List<JsonContainer>();
 		internal readonly List<ClipInfoViewModel> viewModels = new List<ClipInfoViewModel>();
 		internal static event Action<CodeControlAsset> Deleted;
 		

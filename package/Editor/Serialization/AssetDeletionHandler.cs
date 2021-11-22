@@ -13,7 +13,7 @@ namespace Needle.Timeline
 			CodeControlAsset.Deleted += OnDeleted;
 		}
 
-		private static List<Command> commands = new List<Command>();
+		private static readonly List<Command> commands = new List<Command>();
 
 		private static void OnDeleted(CodeControlAsset obj)
 		{
@@ -23,12 +23,12 @@ namespace Needle.Timeline
 			{
 				if (p is JsonContainer json)
 				{
-					if (json.Id.StartsWith(obj.id))
+					if (json.Id.StartsWith(obj.id)) 
 					{
 						Debug.Log("<b>DELETED</b> " + json.Id);
 						var deletion = new DeleteTrackCommand(obj, json){IsDone = true};
 						commands.Add(deletion);
-						EditorApplication.delayCall += RegisterCommands;
+						EditorApplication.delayCall += RegisterCommands; 
 						return true;
 					}
 				}

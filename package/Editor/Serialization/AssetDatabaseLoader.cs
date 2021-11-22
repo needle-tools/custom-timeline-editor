@@ -36,6 +36,14 @@ namespace Needle.Timeline
 			{
 				return false;
 			}
+
+			if (asset is CodeControlAsset codeAsset)
+			{
+				if (codeAsset.data)
+				{
+					Debug.Log("SAVE TO " + codeAsset.data);
+				}
+			}
 			
 			var objs = AssetDatabase.LoadAllAssetsAtPath(AssetDatabase.GetAssetPath(asset));
 			foreach (var sub in objs)
@@ -73,6 +81,15 @@ namespace Needle.Timeline
 				res = null;
 				return false;
 			}
+
+			if (asset is CodeControlAsset codeAsset)
+			{
+				if (codeAsset.data)
+				{
+					Debug.Log("LOAD FROM " + codeAsset.data);
+				}
+			}
+			
 			var objs = AssetDatabase.LoadAllAssetsAtPath(AssetDatabase.GetAssetPath(asset));
 			foreach (var obj in objs)
 			{
