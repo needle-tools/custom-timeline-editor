@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Needle.Timeline.Models;
 using Unity.Profiling;
+using UnityEditor.Profiling;
 using UnityEngine;
 using UnityEngine.Playables;
 using UnityEngine.Timeline;
@@ -26,7 +27,7 @@ namespace Needle.Timeline
 		, ICanDrawInlineCurve
 #endif
 	{
-
+		private readonly List<PlayableDirector> directorsChanged = new List<PlayableDirector>();
 		internal void Save()
 		{
 			// TODO: handle delete (remove serialized data)
@@ -38,12 +39,24 @@ namespace Needle.Timeline
 			{
 				if (!viewModel.IsValid) continue;
 				if (!viewModel.HasUnsavedChanges) continue;
-				viewModel.Save(loader);
+				if (viewModel.Save(loader))
+				{
+					if(!directorsChanged.Contains(viewModel.director))
+						directorsChanged.Add(viewModel.director);
+				}
 				viewModel.HasUnsavedChanges = false;
 			}
 			TempFileLocationLoader.DeleteTempUnsavedChangesDirectory();
+			if (directorsChanged.Count > 0)
+			{
+				Debug.Log("<b>SAVED</b>");
+#if UNITY_EDITOR
+				AssetDatabase.SaveAssets();
+#endif
+				foreach(var dir in directorsChanged) dir.RebuildGraph();
+			}
 		}
-		
+
 		[SerializeField] internal TrackModel model = new TrackModel();
 		[SerializeField, HideInInspector] internal uint dirtyCount;
 		[SerializeField, HideInInspector] private List<ClipInfoModel> clips = new List<ClipInfoModel>();
@@ -73,11 +86,11 @@ namespace Needle.Timeline
 				viewModels.RemoveAll(vm => !vm.IsValid);
 
 				var dir = gameObject.GetComponent<PlayableDirector>();
-				
-				#if UNITY_EDITOR
+
+#if UNITY_EDITOR
 				var assetPath = AssetDatabase.GetAssetPath(dir.playableAsset);
 				UnitySaveUtil.Register(this, assetPath);
-				#endif
+#endif
 
 				var boundObject = dir.GetGenericBinding(this) as MonoBehaviour;
 				if (!boundObject) return Playable.Null;
@@ -94,10 +107,10 @@ namespace Needle.Timeline
 				// TODO: use something else than the asset as a identifier for saving/loading data - it would be cool to be able to use animated data in other contexts (other timeline, other TrackAsset instances, other script instances) as well
 				AssetDatabase.TryGetGUIDAndLocalFileIdentifier(asset.GetInstanceID(), out var guid, out long _id);
 				var id = guid + "@" + _id;
-				asset.id = id;
-				#else
+				// asset.id
+#else
 				string id = asset.id;
-				#endif
+#endif
 
 #if UNITY_EDITOR
 				Debug.Log("Create " + asset.data, asset);
@@ -157,13 +170,16 @@ namespace Needle.Timeline
 					viewModel.Script = script;
 					if (existing != null)
 					{
-						// Debug.Log("VM exists: " + id);
-						continue;
+						if(!existing.RequiresReload)
+							continue;
+						viewModels.Remove(existing);
+						existing.Clear();
 					}
 					// Debug.Log("Add VM");
 					if (!asset.viewModels?.Contains(viewModel) ?? false)
 						asset.viewModels.Add(viewModel);
 					viewModels.Add(viewModel);
+					viewModel.RequiresReload = false;
 
 
 					var loader = new TempFileLocationLoader(LoadersRegistry.GetDefault());

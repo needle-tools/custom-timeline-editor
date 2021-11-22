@@ -17,7 +17,7 @@ namespace Needle.Timeline
 	{
 		public class Data
 		{
-			public string Id => ViewModel.ToId(Member);
+			public string Id => Member.Name;
 			public readonly CodeControlTrack Track;
 			public readonly CodeControlAsset TrackAsset;
 			public readonly PlayableDirector Director;
@@ -71,8 +71,8 @@ namespace Needle.Timeline
 			}
 		}
 
-		public static string ToId(this ClipInfoViewModel vm, ICustomClip clip) => vm.Id + "_" + clip.Name;
-		public static string ToId(this ClipInfoViewModel vm, MemberInfo member) => vm.Id + "_" + member.Name;
+		public static string ToId(this ClipInfoViewModel vm, ICustomClip clip) => clip.Name;
+		public static string ToId(this ClipInfoViewModel vm, MemberInfo member) => member.Name;
 
 		public static ICustomClip Clone(ClipInfoViewModel viewModel, ICustomClip source)
 		{
@@ -85,10 +85,10 @@ namespace Needle.Timeline
 					    out var interpolator,
 					    interpolatorSource.Interpolator.GetType()))
 					interpolatorTarget.Interpolator = interpolator;
-				else 
+				else  
 					interpolatorTarget.Interpolator = new NoInterpolator();
 			}
-			return clip;
+			return clip; 
 		}
 		
 		public enum CreationResult
@@ -125,7 +125,7 @@ namespace Needle.Timeline
 		}
 
 		private static CreationResult CreateCustomAnimationCurve([CanBeNull] AnimateAttribute attribute, Data data, Context context, out ICustomClip clip)
-		{
+		{ 
 			clip = default;
 			if (attribute == null) return CreationResult.NotMarked;
 			

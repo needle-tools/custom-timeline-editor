@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Needle.Timeline.Serialization;
 using UnityEditor;
 using UnityEngine;
@@ -33,75 +35,66 @@ namespace Needle.Timeline
 		{
 			var asset = context.Clip.asset;
 			if (!EditorUtility.IsPersistent(asset))
-			{
+			{ 
 				return false;
 			}
 
-			if (asset is CodeControlAsset codeAsset)
+			var json = (string)serializer.Serialize(@object);
+			if (asset is CodeControlAsset control)
 			{
-				if (codeAsset.data)
+				var dataAsset = control.data;
+				if (dataAsset)
 				{
-					Debug.Log("SAVE TO " + codeAsset.data);
+					dataAsset.ClipData ??= new List<JsonContainer>();
+					foreach (var e in dataAsset.ClipData)
+					{
+						if (e.Id == id)
+						{
+							Debug.Log("SAVE TO " + e, e);
+							e.name = GetName();
+							e.hideFlags = HideFlags.None;// HideFlags.NotEditable;
+							e.Content = json;
+							EditorUtility.SetDirty(e);
+						}
+					} 
+					EditorUtility.SetDirty(dataAsset);
 				}
+				return true;
 			}
-			
-			var objs = AssetDatabase.LoadAllAssetsAtPath(AssetDatabase.GetAssetPath(asset));
-			foreach (var sub in objs)
-			{
-				if (sub is JsonContainer json && json.Id == id)
-				{
-					json.name = GetName();
-					json.Id = id;
-					json.Content = (string)serializer.Serialize(@object);
-					json.hideFlags = Flags;
-					EditorUtility.SetDirty(asset);
-					EditorUtility.SetDirty(json);
-					SaveForRuntime(json, context.Asset);
-					return !string.IsNullOrWhiteSpace(json.Content);
-				}
-			}
-			var container = ScriptableObject.CreateInstance<JsonContainer>();
-			container.name = GetName();
-			container.Id = id;
-			container.Content = (string)serializer.Serialize(@object); 
-			container.hideFlags = Flags;
-			AssetDatabase.AddObjectToAsset(container, asset);
-			EditorUtility.SetDirty(asset);
-			SaveForRuntime(container, context.Asset);
-			return !string.IsNullOrEmpty(container.Content); 
-			
+			return false;
 			string GetName() => context.Clip.start.ToString("0.0") + "_" + (context.DisplayName ?? id);
 		}
 
 		public bool Load(string id, ISerializationContext context, out object res)
 		{
-			var asset = context.Clip.asset;
-			if (!EditorUtility.IsPersistent(asset))
-			{
-				res = null;
+			var asset = context.Clip.asset; 
+			if (!EditorUtility.IsPersistent(asset)) 
+			{  
+				res = null; 
 				return false;
 			}
-
-			if (asset is CodeControlAsset codeAsset)
-			{
-				if (codeAsset.data)
-				{
-					Debug.Log("LOAD FROM " + codeAsset.data);
-				}
-			}
 			
-			var objs = AssetDatabase.LoadAllAssetsAtPath(AssetDatabase.GetAssetPath(asset));
-			foreach (var obj in objs)
-			{
-				if (obj is JsonContainer c)
-				{ 
-					if (c.Id == id)
+			if (asset is CodeControlAsset control)
+			{  
+				var dataAsset = control.data; 
+				if (dataAsset)
+				{
+					dataAsset.ClipData ??= new List<JsonContainer>();
+					foreach (var e in dataAsset.ClipData)
 					{
-						var json = c.Content;
-						if (string.IsNullOrEmpty(json)) continue;
-						res = serializer.Deserialize(json, context.Type);
-						return res != null;
-					} 
+						e.hideFlags = HideFlags.None;
+						if (e.Id == id)
+						{  
+							var json = e.Content;
+							if (string.IsNullOrEmpty(json))
+							{
+								res = null;
+								return false; 
+							}
+							res = serializer.Deserialize(json, context.Type);
+							return res != null;
+						} 
+					}
 				}
 			}
 			res = null;
@@ -132,19 +125,19 @@ namespace Needle.Timeline
 		}
 
 
-		private void SaveForRuntime(JsonContainer container, PlayableAsset asset)
-		{
-			SaveForRuntime(container, asset as CodeControlAsset);
-		}
-
-		private void SaveForRuntime(JsonContainer container, CodeControlAsset asset)
-		{
-			if (!asset || !container)
-			{
-				Debug.LogError("Not saved for runtime");
-				return;
-			}
-			asset.AddOrUpdate(container);
-		}
+		// private void SaveForRuntime(JsonContainer container, PlayableAsset asset)
+		// {
+		// 	SaveForRuntime(container, asset as CodeControlAsset);
+		// }
+		//
+		// private void SaveForRuntime(JsonContainer container, CodeControlAsset asset)
+		// {
+		// 	if (!asset || !container)
+		// 	{
+		// 		Debug.LogError("Not saved for runtime");
+		// 		return;
+		// 	}
+		// 	asset.AddOrUpdate(container);
+		// }
 	}
 }

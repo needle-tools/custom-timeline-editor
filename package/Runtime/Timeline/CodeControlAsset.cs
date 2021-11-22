@@ -11,10 +11,12 @@ namespace Needle.Timeline
 	public class CodeControlAsset : PlayableAsset, ITimelineClipAsset
 	{
 		[SerializeField] internal CodeControlAssetData data;
-		[SerializeField] internal string id;
-		[SerializeField] internal List<JsonContainer> clipData = new List<JsonContainer>();
 		internal readonly List<ClipInfoViewModel> viewModels = new List<ClipInfoViewModel>();
 		internal static event Action<CodeControlAsset> Deleted;
+		
+		[Header("LEGACY")]
+		[SerializeField, Obsolete] internal string id;
+		[SerializeField, Obsolete] internal List<JsonContainer> clipData = new List<JsonContainer>();
 		
 		public override Playable CreatePlayable(PlayableGraph graph, GameObject owner)
 		{
@@ -28,19 +30,20 @@ namespace Needle.Timeline
 
 		internal JsonContainer TryFind(string clipId)
 		{
-			foreach (var e in clipData)
+			if (!data || data.ClipData == null) return null;
+			foreach (var e in data.ClipData)
 			{
 				if (e.Id == clipId) return e;
 			}
 			return null;
 		}
-
-		internal void AddOrUpdate(JsonContainer container)
-		{
-			clipData.RemoveAll(c => !c);
-			if (clipData.Contains(container)) return;
-			clipData.Add(container);
-		}
+		//
+		// internal void AddOrUpdate(JsonContainer container)
+		// {
+		// 	clipData.RemoveAll(c => !c);
+		// 	if (clipData.Contains(container)) return;
+		// 	clipData.Add(container);
+		// }
 		
 
 		private void OnDestroy()

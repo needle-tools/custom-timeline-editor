@@ -210,7 +210,7 @@ namespace Needle.Timeline
 		}
 
 		private void RegisterKeyframeEvents(ICustomKeyframe kf)
-		{
+		{ 
 			kf.TimeChanged += OnKeyframeTimeChanged;
 			kf.ValueChanged += OnKeyframeValueChanged;
 			kf.EasingChanged += OnKeyframeEasingChanged;
@@ -284,6 +284,10 @@ namespace Needle.Timeline
 
 		public void OnAfterDeserialize()
 		{
+			foreach (var kf in _keyframes)
+			{
+				RegisterKeyframeEvents(kf);
+			}
 		}
 	}
 }

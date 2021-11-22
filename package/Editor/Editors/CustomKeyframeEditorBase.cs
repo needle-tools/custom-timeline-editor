@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using UnityEditor;
 using UnityEngine;
@@ -29,7 +30,8 @@ namespace Needle.Timeline
 			{
 				var kf = selected.Keyframe;
 				// EditorGUILayout.LabelField(name);
-				kf.time = EditorGUILayout.FloatField("Time", kf.time);
+				var newTime = EditorGUILayout.FloatField("Time", kf.time);
+				if (Math.Abs(newTime - kf.time) > float.Epsilon) kf.time = newTime;
 				if (kf.value == null)
 				{
 					EditorGUILayout.LabelField("NULL");

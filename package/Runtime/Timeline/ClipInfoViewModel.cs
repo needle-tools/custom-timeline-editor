@@ -14,10 +14,25 @@ namespace Needle.Timeline
 		public static IReadOnlyList<ClipInfoViewModel> Instances => instances;
 		public static IEnumerable<ClipInfoViewModel> ActiveInstances => instances.Where(vm => vm.IsValid && vm.currentlyInClipTime && vm.timelineClip.asset);
 		private static readonly List<ClipInfoViewModel> instances = new List<ClipInfoViewModel>();
+
+		internal static void NotifyChanged(PlayableAsset asset)
+		{
+			var codeAsset = asset as CodeControlAsset;
+			if (!codeAsset) return;
+			var data = codeAsset.data;
+			foreach (var i in Instances)
+			{
+				if (i.asset == asset || i.asset is CodeControlAsset ca && ca.data == data)
+				{
+					i.RequiresReload = true;
+				}
+			}
+		}
 		
 		public static event Action<ClipInfoViewModel> Created;
 
 		public bool HasUnsavedChanges { get; internal set; }
+		internal bool RequiresReload { get; set; }
 
 		internal PlayableDirector director;
 		internal PlayableAsset asset;
@@ -43,25 +58,37 @@ namespace Needle.Timeline
 			this.timelineClip = timelineClip;
 		}
 
-		internal void Save(ILoader loader)
+		internal void Clear()
+		{
+			foreach (var c in clips) c.Changed -= OnClipChanged;
+			clips.Clear();
+			values.Clear();
+			storedValues.Clear();
+		}
+
+		internal bool Save(ILoader loader)
 		{
 			Debug.Log("<b>SAVE</b> " + Id + "@" + startTime.ToString("0.00")); 
 			var context = new SerializationContext(TimelineClip, asset);
+			var anySaved = false;
 			foreach (var clip in clips)
 			{
 				context.DisplayName = clip.Name;
-				loader.Save(clip.Id, context, clip);
+				anySaved |= loader.Save(clip.Id, context, clip);
 			}
+			if(anySaved) 
+				NotifyChanged(asset);
+			return anySaved;
 		}
 		
 		internal void Register(IValueHandler handler, ICustomClip clip)
 		{
-			values.Add(handler);
+			values.Add(handler); 
 			clips.Add(clip);
 			clip.Changed += OnClipChanged;
 		}
 
-		/// <summary>
+		/// <summary> 
 		/// Called e.g. when clips are cloned
 		/// </summary>
 		internal void Replace(ICustomClip oldClip, ICustomClip newClip)

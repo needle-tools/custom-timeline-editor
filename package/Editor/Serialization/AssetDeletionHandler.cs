@@ -42,7 +42,7 @@ namespace Needle.Timeline
 			var compound = commands.ToCompound("Deleted tracks");
 			commands.Clear();
 			Debug.Log("Register " + compound);
-			CustomUndo.Register(compound);
+			CustomUndo.Register(compound);  
 		}
 	}
 }
