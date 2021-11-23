@@ -52,7 +52,11 @@ namespace Needle.Timeline
 #if UNITY_EDITOR
 				AssetDatabase.SaveAssets();
 #endif
-				foreach(var dir in directorsChanged) dir.RebuildGraph();
+				foreach (var dir in directorsChanged)
+				{ 
+					if(dir)
+						dir.RebuildGraph(); 
+				}
 			}
 		}
 
