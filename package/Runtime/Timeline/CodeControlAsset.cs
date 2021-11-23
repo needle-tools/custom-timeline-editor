@@ -14,15 +14,16 @@ namespace Needle.Timeline
 		[SerializeField] internal CodeControlAssetData data; 
 		internal static event Action<CodeControlAsset> Deleted;
 
-		internal ClipInfoViewModel viewModel;
-		
-		[Header("LEGACY")]
-		[SerializeField, Obsolete] internal List<JsonContainer> clipData = new List<JsonContainer>();
+		internal List<ClipInfoViewModel> viewModels = new List<ClipInfoViewModel>();
+
+		[Header("LEGACY - dont use anymore")] [SerializeField, Obsolete]
+		internal List<JsonContainer> clipData;
 		
 		public override Playable CreatePlayable(PlayableGraph graph, GameObject owner)
 		{ 
 			var scriptPlayable = ScriptPlayable<CodeControlBehaviour>.Create(graph);
 			var b = scriptPlayable.GetBehaviour();
+			b.asset = this;
 			return scriptPlayable; 
 		}
 

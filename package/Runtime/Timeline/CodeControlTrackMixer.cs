@@ -24,7 +24,7 @@ namespace Needle.Timeline
 			// if not bound
 			if (behaviour == null) return;
 			var frameInfo = new FrameInfo((float)playable.GetTime(), info.deltaTime);
-			for (var viewModelIndex = 0; viewModelIndex < ClipInfoViewModel.Instances.Count; viewModelIndex++)
+			for (var viewModelIndex = 0; viewModelIndex < behaviour.asset.viewModels.Count; viewModelIndex++)
 			{
 				// var viewModel = behaviour.viewModels[viewModelIndex];
 				valuesToMix.Clear();
@@ -36,7 +36,7 @@ namespace Needle.Timeline
 
 					inputPlayable = (ScriptPlayable<CodeControlBehaviour>)playable.GetInput(i);
 					var b = inputPlayable.GetBehaviour();
-					var viewModel = ClipInfoViewModel.Instances[viewModelIndex];
+					var viewModel = b.asset.viewModels[viewModelIndex];
 					viewModel.Script.OnProcessFrame(frameInfo);
 
 					var soloing = ClipInfoViewModel.Instances.Where(s => s.Solo && s.IsValid && s.currentlyInClipTime);

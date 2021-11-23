@@ -173,7 +173,6 @@ namespace Needle.Timeline
 					viewModel.director = dir;
 					viewModel.asset = asset;
 					viewModel.Script = script;
-					asset.viewModel = viewModel;
 					if (existing != null)
 					{  
 						if(!existing.RequiresReload)
@@ -184,6 +183,7 @@ namespace Needle.Timeline
 					// Debug.Log("Add VM");
 					if (!ClipInfoViewModel.Instances?.Contains(viewModel) ?? false)
 						ClipInfoViewModel.Instances.Add(viewModel);
+					asset.viewModels.Add(viewModel);
 					viewModel.RequiresReload = false;
 
 
