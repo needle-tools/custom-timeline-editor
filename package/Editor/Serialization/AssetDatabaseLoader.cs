@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Needle.Timeline.Serialization;
 using UnityEditor;
@@ -45,24 +46,43 @@ namespace Needle.Timeline
 				var dataAsset = control.data;
 				if (dataAsset)
 				{
+					var saved = false;
 					dataAsset.ClipData ??= new List<JsonContainer>();
 					foreach (var e in dataAsset.ClipData)
 					{
 						if (e.Id == id)
 						{
+							saved = true;
 							Debug.Log("SAVE TO " + e, e);
 							e.name = GetName();
-							e.hideFlags = HideFlags.None;// HideFlags.NotEditable;
+							e.hideFlags = Flags;
 							e.Content = json;
 							EditorUtility.SetDirty(e);
+							EditorUtility.SetDirty(dataAsset);
 						}
-					} 
-					EditorUtility.SetDirty(dataAsset);
+					}
+
+					if (!saved)
+					{  
+						var newContainer = ScriptableObject.CreateInstance<JsonContainer>();
+						newContainer.Id = id;
+						newContainer.Content = json;
+						newContainer.name = GetName();
+						newContainer.hideFlags = Flags;
+						dataAsset.ClipData.Add(newContainer);
+						AssetDatabase.AddObjectToAsset(newContainer, dataAsset);
+						EditorUtility.SetDirty(dataAsset);
+						AssetDatabase.Refresh();
+						Debug.Log("SAVE TO " + newContainer + " as " + id, newContainer);
+					}
+
+					return true;
 				}
-				return true;
 			}
+			
+
 			return false;
-			string GetName() => context.Clip.start.ToString("0.0") + "_" + (context.DisplayName ?? id);
+			string GetName() => context.DisplayName ?? id;
 		}
 
 		public bool Load(string id, ISerializationContext context, out object res)
@@ -75,14 +95,14 @@ namespace Needle.Timeline
 			}
 			
 			if (asset is CodeControlAsset control)
-			{  
+			{    
 				var dataAsset = control.data; 
 				if (dataAsset)
 				{
 					dataAsset.ClipData ??= new List<JsonContainer>();
 					foreach (var e in dataAsset.ClipData)
 					{
-						e.hideFlags = HideFlags.None;
+						// e.hideFlags = Flags;
 						if (e.Id == id)
 						{  
 							var json = e.Content;
