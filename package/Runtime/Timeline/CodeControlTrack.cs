@@ -105,9 +105,12 @@ namespace Needle.Timeline
 
 #if UNITY_EDITOR
 				// TODO: use something else than the asset as a identifier for saving/loading data - it would be cool to be able to use animated data in other contexts (other timeline, other TrackAsset instances, other script instances) as well
-				AssetDatabase.TryGetGUIDAndLocalFileIdentifier(asset.GetInstanceID(), out var guid, out long _id);
-				var id = guid + "@" + _id;
-				// asset.id
+				if (asset && asset.data)
+				{
+					AssetDatabase.TryGetGUIDAndLocalFileIdentifier(asset.GetInstanceID(), out var guid, out long _id);
+					var id = guid + "@" + _id;
+					asset.id = id;
+				}
 #else
 				string id = asset.id;
 #endif
@@ -139,8 +142,8 @@ namespace Needle.Timeline
 						index = 0;
 						componentTypeIndices.Add((typeName, 0));
 					}
-					var modelId = id + "_" + typeName + "_" + index;
-
+					var modelId = $"{asset.id}_{typeName}_{index}";
+ 
 					var model = clips.FirstOrDefault(e => e.id == modelId);
 					if (model == null)
 					{

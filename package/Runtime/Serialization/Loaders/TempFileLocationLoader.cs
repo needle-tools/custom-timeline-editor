@@ -39,22 +39,31 @@ namespace Needle.Timeline
 			this.basePath = defaultTempSaveDirectory;
 		}
 
+		private string GetFilePath(string id, ISerializationContext context)
+		{
+			var path = basePath + "/" + id;
+			if (context.Asset is CodeControlAsset cc && cc.data)
+				path += "__" + cc.data.Id;
+			
+			return path + ".json";
+		}
+
 		public bool Save(string id, ISerializationContext context, object @object)
 		{
 			if (!Directory.Exists(basePath)) Directory.CreateDirectory(basePath);
 			var content = (string)serializer.Serialize(@object);
-			var path = basePath + "/" + id + ".json";
-			if (File.Exists(path)) File.Delete(path);
-			File.WriteAllText(path, content);
+			var path = GetFilePath(id, context);
+			if (File.Exists(path)) File.Delete(path);  
+			File.WriteAllText(path, content);  
 			return true;
 		}
 
 		public bool Load(string id, ISerializationContext context, out object obj)
 		{
-			var path = basePath + "/" + id + ".json";
+			var path = GetFilePath(id, context);
 			if (!string.IsNullOrEmpty(path) && File.Exists(path))
 			{
-				Debug.Log($"Load {context.DisplayName??id} from previously unsaved changes");
+				Debug.Log($"Load {id} from previously unsaved changes");
 				var json = File.ReadAllText(path);
 				// File.Delete(path);
 				if (!string.IsNullOrEmpty(json))

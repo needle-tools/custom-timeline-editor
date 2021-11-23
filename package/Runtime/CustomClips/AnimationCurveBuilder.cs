@@ -119,7 +119,7 @@ namespace Needle.Timeline
 				var res = CreateAnimationCurve(attribute, data);
 				if (res == CreationResult.Successful) return res;
 
-				res = CreateCustomAnimationCurve(attribute, data, context, out _);
+				res = CreateCustomAnimationCurve(attribute, data, context);
 				return res;
 			}
 		}
