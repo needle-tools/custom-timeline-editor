@@ -62,7 +62,7 @@ namespace Needle.Timeline
 					previousViewModels.Clear();
 					previousViewModels.AddRange(viewModels); 
 					viewModels.Clear();
-					foreach (var vm in previousViewModels) ClipInfoViewModel.Unregister(vm);
+					foreach (var vm in previousViewModels) vm.Unregister();
 				}   
 				else
 				{
@@ -72,7 +72,7 @@ namespace Needle.Timeline
 					{
 						viewModels.AddRange(previousViewModels);
 						previousViewModels.Clear();
-						foreach (var vm in viewModels) ClipInfoViewModel.Register(vm);
+						foreach (var vm in viewModels) vm.Register();
 					}
 				}
 			}  

@@ -177,12 +177,12 @@ namespace Needle.Timeline
 					{  
 						if(!existing.RequiresReload)
 							continue; 
-						ClipInfoViewModel.Unregister(existing);
+						existing.Unregister();
 						asset.viewModels.Remove(existing);
 						existing.Clear();
 					}
 					// Debug.Log("Add VM");
-					ClipInfoViewModel.Register(viewModel);
+					viewModel.Register();
 					if(!asset.viewModels.Contains(viewModel))
 						asset.viewModels.Add(viewModel);
 					viewModel.RequiresReload = false;

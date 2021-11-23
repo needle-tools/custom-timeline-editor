@@ -15,16 +15,8 @@ namespace Needle.Timeline
 		public static IEnumerable<ClipInfoViewModel> ActiveInstances => 
 			instances.Where(vm => vm.IsValid && vm.currentlyInClipTime && vm.timelineClip.asset);
 		private static readonly List<ClipInfoViewModel> instances = new List<ClipInfoViewModel>();
-
-		internal static void Register(ClipInfoViewModel vms)
-		{
-			if (!instances.Contains(vms)) instances.Add(vms);
-		}
-
-		internal static void Unregister(ClipInfoViewModel vm)
-		{
-			instances.Remove(vm);
-		}
+		public static event Action<ClipInfoViewModel> Added, Removed;
+		public static event Action<ClipInfoViewModel> Created;
 
 		internal static void RemoveInvalidInstances()
 		{
@@ -44,8 +36,22 @@ namespace Needle.Timeline
 				} 
 			}
 		}
+
+		internal void Register()
+		{
+			if (!instances.Contains(this))
+			{
+				instances.Add(this);
+				Added?.Invoke(this);
+			}
+		}
+
+		internal void Unregister()
+		{
+			var removed = instances.Remove(this);
+			if (removed) Removed?.Invoke(this);
+		}
 		
-		public static event Action<ClipInfoViewModel> Created;
 
 		public bool HasUnsavedChanges { get; internal set; }
 		internal bool RequiresReload { get; set; }
