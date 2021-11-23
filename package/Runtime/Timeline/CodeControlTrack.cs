@@ -6,6 +6,7 @@ using Needle.Timeline.Models;
 using Unity.Profiling;
 using UnityEngine;
 using UnityEngine.Playables;
+using UnityEngine.Serialization;
 using UnityEngine.Timeline;
 using UnityEngine.UIElements;
 using Object = UnityEngine.Object;
@@ -60,9 +61,13 @@ namespace Needle.Timeline
 			}
 		}
 
+		/// <summary>
+		/// the model for the track (todo: should contain recording state info)
+		/// </summary>
 		[SerializeField] internal TrackModel model = new TrackModel();
 		[SerializeField, HideInInspector] internal uint dirtyCount;
-		[SerializeField] private List<ClipInfoModel> clips = new List<ClipInfoModel>();
+		// TODO: these should probably be moved to clip assets
+		[FormerlySerializedAs("clips")] [SerializeField] private List<ClipInfoModel> clipModels = new List<ClipInfoModel>();
 
 		public bool CanDraw() => true;
 
@@ -85,6 +90,7 @@ namespace Needle.Timeline
 			using (CreateTrackMarker.Auto())
 			{
 				ClipInfoViewModel.RemoveInvalidInstances();
+				clipModels.RemoveAll(cm => !cm.clip);
 
 				var dir = gameObject.GetComponent<PlayableDirector>();
 
@@ -146,12 +152,12 @@ namespace Needle.Timeline
 					}
 					var modelId = $"{id}_{typeName}_{index}";
  
-					var model = clips.FirstOrDefault(e => e.id == modelId);
+					var model = clipModels.FirstOrDefault(e => e.id == modelId);
 					if (model == null)
 					{
 						// Debug.Log("Create Clip Model: " + modelId);
 						model = new ClipInfoModel(modelId, timelineClip.curves);
-						clips.Add(model);
+						clipModels.Add(model);
 					}
 
 					timelineClip.displayName = typeName;
