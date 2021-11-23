@@ -11,21 +11,26 @@ namespace Needle.Timeline
 {
 	public class ClipInfoViewModel : IReadClipTime
 	{
-		public static IReadOnlyList<ClipInfoViewModel> Instances => instances;
+		public static IList<ClipInfoViewModel> Instances => instances;
 		public static IEnumerable<ClipInfoViewModel> ActiveInstances => instances.Where(vm => vm.IsValid && vm.currentlyInClipTime && vm.timelineClip.asset);
 		private static readonly List<ClipInfoViewModel> instances = new List<ClipInfoViewModel>();
 
-		internal static void NotifyChanged(PlayableAsset asset)
+		internal static void RemoveInvalidInstances()
+		{
+			instances.RemoveAll(i => !i.IsValid);
+		}
+
+		private static void NotifyChanged(PlayableAsset asset)
 		{
 			var codeAsset = asset as CodeControlAsset;
 			if (!codeAsset) return;
-			var data = codeAsset.data;
+			var data = codeAsset.data; 
 			foreach (var i in Instances)
 			{
 				if (i.asset == asset || i.asset is CodeControlAsset ca && ca.data == data)
 				{
 					i.RequiresReload = true;
-				}
+				} 
 			}
 		}
 		
@@ -70,7 +75,7 @@ namespace Needle.Timeline
 		{
 			Debug.Log("<b>SAVE</b> " + Id + "@" + startTime.ToString("0.00")); 
 			var context = new SerializationContext(TimelineClip, asset);
-			var anySaved = false;
+			var anySaved = false; 
 			foreach (var clip in clips)
 			{
 				context.DisplayName = clip.Name;

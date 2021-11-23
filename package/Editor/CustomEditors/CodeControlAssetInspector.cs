@@ -40,7 +40,7 @@ namespace Needle.Timeline
 
 
 			
-			var viewModels = asset?.viewModels;
+			var viewModels = ClipInfoViewModel.Instances;
 			if (viewModels == null) return;
 
 			GUILayout.Space(10);

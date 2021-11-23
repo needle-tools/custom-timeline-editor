@@ -24,22 +24,22 @@ namespace Needle.Timeline
 			// if not bound
 			if (behaviour == null) return;
 			var frameInfo = new FrameInfo((float)playable.GetTime(), info.deltaTime);
-			for (var viewModelIndex = 0; viewModelIndex < behaviour.viewModels.Count; viewModelIndex++)
+			for (var viewModelIndex = 0; viewModelIndex < ClipInfoViewModel.Instances.Count; viewModelIndex++)
 			{
 				// var viewModel = behaviour.viewModels[viewModelIndex];
 				valuesToMix.Clear();
-
+ 
 				for (var i = 0; i < inputCount; i++)
 				{
 					var inputWeight = playable.GetInputWeight(i);
-					if (inputWeight <= 0.000001f) continue;
+					if (inputWeight <= 0.000001f) continue; 
 
 					inputPlayable = (ScriptPlayable<CodeControlBehaviour>)playable.GetInput(i);
 					var b = inputPlayable.GetBehaviour();
-					var viewModel = b.viewModels[viewModelIndex];
+					var viewModel = ClipInfoViewModel.Instances[viewModelIndex];
 					viewModel.Script.OnProcessFrame(frameInfo);
 
-					var soloing = b.viewModels.Where(s => s.Solo && s.IsValid && s.currentlyInClipTime);
+					var soloing = ClipInfoViewModel.Instances.Where(s => s.Solo && s.IsValid && s.currentlyInClipTime);
 					var anySolo = soloing.Any();
 
 					if (!viewModel.IsValid) continue;
@@ -92,9 +92,9 @@ namespace Needle.Timeline
 				// 		Physics.Simulate(Time.fixedDeltaTime);
 				// }
 				
-				var vm = behaviour.viewModels[viewModelIndex];
+				var vm = ClipInfoViewModel.Instances[viewModelIndex];
 				if (vm.IsValid)
-				{
+				{ 
 					var graph = playable.GetGraph();
 					if (graph.GetResolver() is PlayableDirector dir)
 					{

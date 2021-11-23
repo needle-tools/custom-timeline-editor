@@ -34,7 +34,7 @@ namespace Needle.Timeline
 
 			var loader = LoadersRegistry.GetDefault();
 			if (loader == null) throw new Exception("Failed getting default loader");
-			foreach (var viewModel in viewModels)
+			foreach (var viewModel in ClipInfoViewModel.Instances)
 			{
 				if (!viewModel.IsValid) continue;
 				if (!viewModel.HasUnsavedChanges) continue;
@@ -62,9 +62,7 @@ namespace Needle.Timeline
 
 		[SerializeField] internal TrackModel model = new TrackModel();
 		[SerializeField, HideInInspector] internal uint dirtyCount;
-		[SerializeField, HideInInspector] private List<ClipInfoModel> clips = new List<ClipInfoModel>();
-		[NonSerialized] private readonly List<ClipInfoViewModel> viewModels = new List<ClipInfoViewModel>();
-		internal IReadOnlyList<ClipInfoViewModel> ViewModels => viewModels;
+		[SerializeField] private List<ClipInfoModel> clips = new List<ClipInfoModel>();
 
 		public bool CanDraw() => true;
 
@@ -86,7 +84,7 @@ namespace Needle.Timeline
 		{
 			using (CreateTrackMarker.Auto())
 			{
-				viewModels.RemoveAll(vm => !vm.IsValid);
+				ClipInfoViewModel.RemoveInvalidInstances();
 
 				var dir = gameObject.GetComponent<PlayableDirector>();
 
@@ -101,7 +99,6 @@ namespace Needle.Timeline
 				var asset = timelineClip.asset as CodeControlAsset;
 				if (!asset) throw new NullReferenceException("Missing code control asset");
 				asset.name = gameObject.name;
-				asset.viewModels?.RemoveAll(vm => !vm.IsValid);
 
 				var animationComponents = boundObject.GetComponents<IAnimated>();
 				if (animationComponents.Length <= 0) return Playable.Null;
@@ -129,9 +126,10 @@ namespace Needle.Timeline
 				componentTypeIndices.Clear();
 				foreach (var script in animationComponents)
 				{
-					var type = script.GetType();
+					if (string.IsNullOrEmpty(id)) continue;
+					var type = script.GetType(); 
 					var typeName = type.Name;
-					var index = -1;
+					var index = -1; 
 					for (var i = 0; i < componentTypeIndices.Count; i++)
 					{
 						var ct = componentTypeIndices[i];
@@ -166,26 +164,26 @@ namespace Needle.Timeline
 						return false;
 					}
 
-					var existing = viewModels.FirstOrDefault(GetExisting);
-					if (existing == null && asset.viewModels != null)
-						existing = asset.viewModels.FirstOrDefault(GetExisting);
+					var existing = ClipInfoViewModel.Instances.FirstOrDefault(GetExisting);
+					if (existing == null && ClipInfoViewModel.Instances != null)
+						existing = ClipInfoViewModel.Instances.FirstOrDefault(GetExisting);
 
 					// Debug.Log("existing?? " + existing); 
 					var viewModel = existing ?? new ClipInfoViewModel(this, boundObject.name, script, model, timelineClip);
 					viewModel.director = dir;
 					viewModel.asset = asset;
 					viewModel.Script = script;
+					asset.viewModel = viewModel;
 					if (existing != null)
-					{
+					{  
 						if(!existing.RequiresReload)
 							continue;
-						viewModels.Remove(existing);
+						ClipInfoViewModel.Instances.Remove(existing);
 						existing.Clear();
 					}
 					// Debug.Log("Add VM");
-					if (!asset.viewModels?.Contains(viewModel) ?? false)
-						asset.viewModels.Add(viewModel);
-					viewModels.Add(viewModel);
+					if (!ClipInfoViewModel.Instances?.Contains(viewModel) ?? false)
+						ClipInfoViewModel.Instances.Add(viewModel);
 					viewModel.RequiresReload = false;
 
 

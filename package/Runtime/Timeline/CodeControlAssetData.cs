@@ -17,8 +17,8 @@ namespace Needle.Timeline
 			if (string.IsNullOrEmpty(Id))
 			{
 				if (AssetDatabase.TryGetGUIDAndLocalFileIdentifier(GetInstanceID(), out var guid, out long id))
-					Id = $"{guid}@{id}";
-			}
+					Id = $"{guid}@{id}"; 
+			}  
 #endif
 		}
 	}

@@ -45,7 +45,8 @@ namespace Needle.Timeline.Editors.CustomCurve
 			{
 				if (!(timelineClip.asset is CodeControlAsset code)) continue;
 				var row = 0;
-				foreach (var viewModel in code.viewModels)
+				var viewModel = code.viewModel;
+				// foreach (var viewModel in ClipInfoViewModel.Instances)
 				{
 					if (viewModel?.clips != null)
 					{
@@ -155,7 +156,8 @@ namespace Needle.Timeline.Editors.CustomCurve
 			foreach (var clip in customCurvesEditor.EnumerateClips())
 			{
 				if (!(clip.asset is CodeControlAsset code)) continue;
-				foreach (var viewModel in code.viewModels)
+				var viewModel = code.viewModel;
+				// foreach (var viewModel in ClipInfoViewModel.Instances)
 				{
 					if (!viewModel.IsValid) continue;
 					if (viewModel.clips.Count <= index) continue;
