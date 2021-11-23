@@ -124,9 +124,9 @@ namespace Needle.Timeline
 			}
 		}
 
-		private static CreationResult CreateCustomAnimationCurve([CanBeNull] AnimateAttribute attribute, Data data, Context context, out ICustomClip clip)
+		private static CreationResult CreateCustomAnimationCurve([CanBeNull] AnimateAttribute attribute, Data data, Context context)
 		{ 
-			clip = default;
+			var clip = default(ICustomClip);
 			if (attribute == null) return CreationResult.NotMarked;
 			
 			var curveType = typeof(CustomAnimationCurve<>).MakeGenericType(data.MemberType);

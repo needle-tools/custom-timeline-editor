@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Security.AccessControl;
 using UnityEditor;
+using UnityEditor.Experimental.GraphView;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -57,11 +58,12 @@ namespace Needle.Timeline
 		private void OnBuildUI()
 		{
 			options.Clear();
+			options.style.paddingTop = new StyleLength(new Length(10, LengthUnit.Pixel));
 			
-			options.Add(new Label(Module.GetType().Name)
-			{
-				style = { unityFontStyleAndWeight = FontStyle.Bold}
-			});
+			// options.Add(new Label(Module.GetType().Name)
+			// {
+			// 	style = { unityFontStyleAndWeight = FontStyle.Bold}
+			// });
 
 			var addedModuleField = false;
 			foreach (var field in Module.GetType().EnumerateFields())
@@ -85,7 +87,7 @@ namespace Needle.Timeline
 			if (IsActive && Module is IBindsFields bindable && bindable.AllowBinding)
 			{
 				bindable.Bindings.Clear();
-				options.Add(new VisualElement(){style = { height = 10}});
+				options.Add(new VisualElement(){style = { height = 20}});
 				
 				foreach (var t in tool.Targets)
 				{

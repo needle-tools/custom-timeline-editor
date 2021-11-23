@@ -10,12 +10,12 @@ namespace Needle.Timeline
 	[Serializable]
 	public class CodeControlAsset : PlayableAsset, ITimelineClipAsset
 	{
+		[SerializeField, HideInInspector] internal string id;
 		[SerializeField] internal CodeControlAssetData data;
 		internal readonly List<ClipInfoViewModel> viewModels = new List<ClipInfoViewModel>();
 		internal static event Action<CodeControlAsset> Deleted;
 		
 		[Header("LEGACY")]
-		[SerializeField, Obsolete] internal string id;
 		[SerializeField, Obsolete] internal List<JsonContainer> clipData = new List<JsonContainer>();
 		
 		public override Playable CreatePlayable(PlayableGraph graph, GameObject owner)
