@@ -36,6 +36,12 @@ namespace Needle.Timeline
 
 					inputPlayable = (ScriptPlayable<CodeControlBehaviour>)playable.GetInput(i);
 					var b = inputPlayable.GetBehaviour();
+					if (b.asset.viewModels == null || viewModelIndex >= b.asset.viewModels.Count)
+					{
+						// TODO: should set everything to null if no values exist?
+						// TODO: handle post extrapolate
+						continue;
+					}
 					var viewModel = b.asset.viewModels[viewModelIndex];
 					viewModel.Script.OnProcessFrame(frameInfo);
 
@@ -49,8 +55,8 @@ namespace Needle.Timeline
 
 					// Debug.Log(viewModel.Script + ", " + inputWeight + ", " + viewModel.clips.Count);
 					var length = (float)viewModel.director.duration;
-					var time = (float)viewModel.ToClipTime(playable
-						.GetTime()); //((playable.GetTime() - behaviour.viewModel.startTime) * behaviour.viewModel.timeScale);
+					var time = (float)viewModel.ToClipTime(playable.GetTime()); 
+					//((playable.GetTime() - behaviour.viewModel.startTime) * behaviour.viewModel.timeScale);
 					// Debug.Log(time.ToString("0.0") + ", " + length.ToString("0.0"));
 					// looping support:
 					time %= (length * (float)viewModel.timeScale);

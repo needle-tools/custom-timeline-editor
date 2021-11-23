@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using JetBrains.Annotations;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Playables;
@@ -14,6 +16,7 @@ namespace Needle.Timeline
 		[SerializeField] internal CodeControlAssetData data; 
 		internal static event Action<CodeControlAsset> Deleted;
 
+		private bool created;
 		internal List<ClipInfoViewModel> viewModels = new List<ClipInfoViewModel>();
 
 		[Header("LEGACY - dont use anymore")] [SerializeField, Obsolete]
@@ -24,6 +27,7 @@ namespace Needle.Timeline
 			var scriptPlayable = ScriptPlayable<CodeControlBehaviour>.Create(graph);
 			var b = scriptPlayable.GetBehaviour();
 			b.asset = this;
+			created = true;
 			return scriptPlayable; 
 		}
 
@@ -36,8 +40,48 @@ namespace Needle.Timeline
 			{ 
 				if (e.Id == clipId) return e;
 			}
-			return null;
+			return null; 
 		}
+
+		private CodeControlAssetData previousData;
+		[CanBeNull] private List<ClipInfoViewModel> previousViewModels;
+		
+		private void OnValidate()
+		{
+			if (!created)
+			{
+				previousData = data;
+				return; 
+			}
+			if (data != previousData)
+			{
+				// TODO: this is not complete - if we drop a clip asset that has no viewmodel been built it this wont work
+				// was removed
+				if (previousData && !data || (previousData && data))
+				{ 
+					Debug.Log("DATA REPLACED - TODO, handle creating view models"); 
+					previousViewModels ??= new List<ClipInfoViewModel>();
+					previousViewModels.Clear();
+					previousViewModels.AddRange(viewModels); 
+					viewModels.Clear();
+					foreach (var vm in previousViewModels) ClipInfoViewModel.Unregister(vm);
+				} 
+				else 
+				{
+					Debug.Log("DATA CHANGED"); 
+					viewModels.Clear();
+					if (previousViewModels != null)
+					{
+						viewModels.AddRange(previousViewModels);
+						previousViewModels.Clear();
+						foreach (var vm in viewModels) ClipInfoViewModel.Register(vm);
+					}
+				}
+			}  
+			 
+			previousData = data;
+		}
+
 		//
 		// internal void AddOrUpdate(JsonContainer container)
 		// {

@@ -33,6 +33,14 @@ namespace Needle.Timeline
 					}
 					GUILayout.Space(12);
 				}
+				else
+				{
+					if(GUILayout.Button("Create clip asset", GUILayout.Height(30)))
+					{
+						asset.CreateAndAssignDataAsset();
+					}
+					GUILayout.Space(12);
+				}
 			}
 
 			

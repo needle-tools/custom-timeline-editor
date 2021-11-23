@@ -11,9 +11,20 @@ namespace Needle.Timeline
 {
 	public class ClipInfoViewModel : IReadClipTime
 	{
-		public static IList<ClipInfoViewModel> Instances => instances;
-		public static IEnumerable<ClipInfoViewModel> ActiveInstances => instances.Where(vm => vm.IsValid && vm.currentlyInClipTime && vm.timelineClip.asset);
+		public static IReadOnlyList<ClipInfoViewModel> Instances => instances;
+		public static IEnumerable<ClipInfoViewModel> ActiveInstances => 
+			instances.Where(vm => vm.IsValid && vm.currentlyInClipTime && vm.timelineClip.asset);
 		private static readonly List<ClipInfoViewModel> instances = new List<ClipInfoViewModel>();
+
+		internal static void Register(ClipInfoViewModel vms)
+		{
+			if (!instances.Contains(vms)) instances.Add(vms);
+		}
+
+		internal static void Unregister(ClipInfoViewModel vm)
+		{
+			instances.Remove(vm);
+		}
 
 		internal static void RemoveInvalidInstances()
 		{
@@ -150,8 +161,8 @@ namespace Needle.Timeline
 			set => model.solo = value;
 		}
 
-		public bool IsValid => director;// && !failedLoading;
-		public string Name { get; set; }
+		public bool IsValid => director;
+		public string Name { get; set; } 
 		public string Id => model.id;
 		public IAnimated Script { get; internal set; }
 		public readonly List<IValueHandler> values = new List<IValueHandler>();

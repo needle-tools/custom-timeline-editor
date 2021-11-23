@@ -176,14 +176,15 @@ namespace Needle.Timeline
 					if (existing != null)
 					{  
 						if(!existing.RequiresReload)
-							continue;
-						ClipInfoViewModel.Instances.Remove(existing);
+							continue; 
+						ClipInfoViewModel.Unregister(existing);
+						asset.viewModels.Remove(existing);
 						existing.Clear();
 					}
 					// Debug.Log("Add VM");
-					if (!ClipInfoViewModel.Instances?.Contains(viewModel) ?? false)
-						ClipInfoViewModel.Instances.Add(viewModel);
-					asset.viewModels.Add(viewModel);
+					ClipInfoViewModel.Register(viewModel);
+					if(!asset.viewModels.Contains(viewModel))
+						asset.viewModels.Add(viewModel);
 					viewModel.RequiresReload = false;
 
 
