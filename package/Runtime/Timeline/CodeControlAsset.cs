@@ -55,21 +55,19 @@ namespace Needle.Timeline
 			}
 			if (data != previousData)
 			{
-				// TODO: this is not complete - if we drop a clip asset that has no viewmodel been built it this wont work
-				// was removed
 				if (previousData && !data || (previousData && data))
 				{ 
-					Debug.Log("DATA REPLACED - TODO, handle creating view models"); 
+					// Debug.Log("DATA REPLACED"); 
 					previousViewModels ??= new List<ClipInfoViewModel>();
 					previousViewModels.Clear();
 					previousViewModels.AddRange(viewModels); 
 					viewModels.Clear();
 					foreach (var vm in previousViewModels) ClipInfoViewModel.Unregister(vm);
-				} 
-				else 
+				}   
+				else
 				{
-					Debug.Log("DATA CHANGED"); 
-					viewModels.Clear();
+					// Debug.Log("DATA ADDED"); 
+					viewModels.Clear(); 
 					if (previousViewModels != null)
 					{
 						viewModels.AddRange(previousViewModels);
