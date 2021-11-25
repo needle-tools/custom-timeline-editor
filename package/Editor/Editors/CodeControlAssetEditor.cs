@@ -1,13 +1,22 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using UnityEditor;
+using UnityEditor.Graphs;
 using UnityEditor.Timeline;
 using UnityEngine;
 using UnityEngine.Timeline;
 
 namespace Needle.Timeline
 {
+	internal class TrackAssetEditorData
+	{
+		public readonly CodeControlAssetData Data;
+		public Color Color;
+		public TrackAssetEditorData(CodeControlAssetData data) => Data = data;
+	}
+	
 	[CustomTimelineEditor(typeof(CodeControlAsset))]
 	public class CodeControlAssetEditor : ClipEditor
 	{
@@ -27,11 +36,38 @@ namespace Needle.Timeline
 			return base.GetClipOptions(clip);
 		}
 
-		// public override void DrawBackground(TimelineClip clip, ClipBackgroundRegion region)
-		// {
-		// 	base.DrawBackground(clip, region);
-		// 	GUI.Label(region.position, "TEST");
-		// }
+		private readonly List<TrackAssetEditorData> editorData = new List<TrackAssetEditorData>();
+
+		public override void DrawBackground(TimelineClip clip, ClipBackgroundRegion region)
+		{
+			base.DrawBackground(clip, region);
+			if (clip.asset is CodeControlAsset asset)
+			{
+				var pc = GUI.color;
+				if (!asset.data)
+				{
+					GUI.color = new Color(1, 0, 0, .2f);
+				}
+				else 
+				{
+					var data = editorData.FirstOrDefault(t => t.Data == asset.data);
+					if (data == null)
+					{
+						var id = Mathf.Abs(asset.data.GetInstanceID())*.1f % 1f;
+						// try reserve red shade to clips without asset
+						if (id < 0.1f) id += .1f;
+						else if (id > 0.9f) id -= .1f;
+						var col = Color.HSVToRGB(id, .8f, .5f);
+						col.a = .1f;
+						data = new TrackAssetEditorData(asset.data);
+						data.Color = col;
+					}
+					GUI.color = data.Color;
+				}
+				GUI.DrawTexture(region.position, Texture2D.whiteTexture, ScaleMode.StretchToFill);
+				GUI.color = pc;
+			}
+		}
 
 		public override void OnCreate(TimelineClip clip, TrackAsset track, TimelineClip clonedFrom)
 		{
@@ -40,7 +76,7 @@ namespace Needle.Timeline
 			{
 				EditorApplication.delayCall += () => SyncViewModelState(track, clip);
 				return;
-			}
+			} 
 
 			ClipInfoViewModel source = null;
 			const float maxTimeDifference = float.Epsilon;
