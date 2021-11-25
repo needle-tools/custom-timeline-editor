@@ -179,6 +179,9 @@ namespace Needle.Timeline
 					viewModel.director = dir;
 					viewModel.asset = asset;
 					viewModel.Script = script;
+					viewModel.Register();
+					asset.AddViewModel(viewModel);
+					
 					if (existing != null)
 					{  
 						if(!existing.RequiresReload)
@@ -187,10 +190,7 @@ namespace Needle.Timeline
 						asset.viewModels.Remove(existing);
 						existing.Clear();
 					}
-					// Debug.Log("Add VM");
-					viewModel.Register();
-					if(!asset.viewModels.Contains(viewModel))
-						asset.viewModels.Add(viewModel);
+					
 					viewModel.RequiresReload = false;
 
 

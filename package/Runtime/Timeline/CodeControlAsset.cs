@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using JetBrains.Annotations;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.Playables;
 using UnityEngine.Timeline;
@@ -18,6 +16,12 @@ namespace Needle.Timeline
 
 		private bool created;
 		internal List<ClipInfoViewModel> viewModels = new List<ClipInfoViewModel>();
+
+		internal void AddViewModel(ClipInfoViewModel vm)
+		{
+			if (viewModels.Contains(vm)) return;
+			viewModels.Add(vm);
+		}
 
 		[Header("LEGACY - dont use anymore")] [SerializeField, Obsolete]
 		internal List<JsonContainer> clipData;
