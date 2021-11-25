@@ -123,6 +123,8 @@ namespace Needle.Timeline.Editors.CustomCurve
 					var row = 0;
 					foreach (var viewModel in code.viewModels)
 					{
+						if (!viewModel.IsValid) continue;
+						if (TimelineEditor.inspectedDirector != viewModel.director) continue;
 						if (viewModel?.clips == null) continue;
 						foreach (var clip in viewModel.clips)
 						{

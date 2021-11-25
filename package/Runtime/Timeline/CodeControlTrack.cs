@@ -66,8 +66,10 @@ namespace Needle.Timeline
 		/// </summary>
 		[SerializeField] internal TrackModel model = new TrackModel();
 		[SerializeField, HideInInspector] internal uint dirtyCount;
+		
 		// TODO: these should probably be moved to clip assets
-		[FormerlySerializedAs("clips")] [SerializeField] private List<ClipInfoModel> clipModels = new List<ClipInfoModel>();
+		[FormerlySerializedAs("clips")] [SerializeField] 
+		private List<ClipInfoModel> clipModels = new List<ClipInfoModel>();
 
 		public bool CanDraw() => true;
 

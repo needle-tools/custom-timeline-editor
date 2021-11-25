@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using UnityEngine;
@@ -10,9 +11,9 @@ namespace Needle.Timeline
 	[Serializable]
 	public class CodeControlAsset : PlayableAsset, ITimelineClipAsset
 	{
-		[SerializeField, HideInInspector] internal string id;
-		[SerializeField] internal CodeControlAssetData data; 
-		internal static event Action<CodeControlAsset> Deleted;
+		[SerializeField, HideInInspector] internal string? id;
+		[SerializeField] internal CodeControlAssetData? data; 
+		internal static event Action<CodeControlAsset>? Deleted;
 
 		private bool created;
 		internal List<ClipInfoViewModel> viewModels = new List<ClipInfoViewModel>();
@@ -31,7 +32,7 @@ namespace Needle.Timeline
 			var scriptPlayable = ScriptPlayable<CodeControlBehaviour>.Create(graph);
 			var b = scriptPlayable.GetBehaviour();
 			b.asset = this;
-			created = true;
+			created = true; 
 			return scriptPlayable; 
 		}
 

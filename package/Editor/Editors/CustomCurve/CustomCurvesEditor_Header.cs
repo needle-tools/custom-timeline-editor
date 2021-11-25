@@ -45,8 +45,10 @@ namespace Needle.Timeline.Editors.CustomCurve
 			{
 				if (!(timelineClip.asset is CodeControlAsset code)) continue;
 				var row = 0;
-				foreach (var viewModel in code.viewModels)
+				foreach (var viewModel in code.viewModels) 
 				{
+					if (!viewModel.IsValid) continue;
+					if (TimelineEditor.inspectedDirector != viewModel.director) continue;
 					if (viewModel?.clips != null)
 					{
 						for (var index = 0; index < viewModel.clips.Count; index++)
