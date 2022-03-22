@@ -107,7 +107,7 @@ namespace Needle.Timeline
 		{
 			values.Add(handler); 
 			clips.Add(clip);
-			clip.Changed += OnClipChanged;
+			clip.Changed += OnClipChanged; 
 		}
 
 		/// <summary> 

@@ -110,7 +110,7 @@ namespace Needle.Timeline
 				else
 				#endif
 				{
-					WorldPosition = PlaneUtils.GetPointInWorld(camera, out var normal);
+					WorldPosition = PlaneUtils.GetPointOnPlane(camera, out var normal);
 					WorldNormal = normal;
 				}
 				ViewRotation = camera.transform.rotation;

@@ -4,7 +4,7 @@ namespace Needle.Timeline
 {
 	public static class PlaneUtils
 	{
-		public static Vector3 GetPointInWorld(Camera cam, out Vector3 normal)
+		public static Vector3 GetPointOnPlane(Camera cam, out Vector3 normal)
 		{
 			var mp = GetMousePoint();
 			var ray = cam.ScreenPointToRay(mp);

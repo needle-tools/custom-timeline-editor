@@ -139,8 +139,21 @@ namespace Needle.Timeline
 			if (input.WorldPosition != null)
 			{
 				var renderActive = CanModify();
+				var pos = input.WorldPosition.Value;
 				Handles.color = renderActive ? normalColor : noInputColor;
-				Handles.DrawWireDisc(input.WorldPosition.Value, input.WorldNormal!.Value, GetRadius(), 1.2f);
+				Handles.DrawWireDisc(pos, input.WorldNormal!.Value, GetRadius(), 1.2f);
+
+				Gizmos.color = Color.gray;
+				var target = pos;
+				target.y = 0;
+				Gizmos.DrawLine(pos, target);
+				// target = pos;
+				// target.z = 0;
+				// Gizmos.DrawLine(pos, target);
+				// target = pos;
+				// target.x = 0;
+				// Gizmos.DrawLine(pos, target);
+
 				// Gizmos.color = Color.green;
 				// GizmoUtils.DrawArrow(input.WorldPosition.Value, input.WorldPosition.Value + input.WorldNormal.Value);
 				// Handles.DrawWireDisc(input.WorldPosition.Value, Camera.current.transform.forward, 1);
