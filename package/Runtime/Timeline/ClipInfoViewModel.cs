@@ -41,6 +41,7 @@ namespace Needle.Timeline
 		{
 			if (!instances.Contains(this))
 			{
+				Debug.Log("ADD ClipInfoViewModel to registry");
 				instances.Add(this);
 				Added?.Invoke(this);
 			}
@@ -49,7 +50,11 @@ namespace Needle.Timeline
 		internal void Unregister()
 		{
 			var removed = instances.Remove(this);
-			if (removed) Removed?.Invoke(this);
+			if (removed)
+			{
+				Debug.Log("REMOVE ClipInfoViewModel from registry");
+				Removed?.Invoke(this);
+			}
 		}
 		
 

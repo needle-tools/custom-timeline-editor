@@ -26,7 +26,8 @@ namespace Needle.Timeline
 			var frameInfo = new FrameInfo((float)playable.GetTime(), info.deltaTime);
 			for (var viewModelIndex = 0; viewModelIndex < behaviour.asset.viewModels.Count; viewModelIndex++)
 			{
-				// var viewModel = behaviour.viewModels[viewModelIndex];
+				var currentViewModel = behaviour.asset.viewModels[viewModelIndex];
+				
 				valuesToMix.Clear();
  
 				for (var i = 0; i < inputCount; i++)
@@ -97,21 +98,37 @@ namespace Needle.Timeline
 				// 	if(allowPhysicsUpdate)
 				// 		Physics.Simulate(Time.fixedDeltaTime);
 				// }
-				
-				var vm = ClipInfoViewModel.Instances[viewModelIndex];
-				if (vm.IsValid)
-				{ 
-					var graph = playable.GetGraph();
-					if (graph.GetResolver() is PlayableDirector dir)
-					{
-						TimelineHooks.CheckStateChanged(dir);
-						var now = new FrameInfo((float)playable.GetTime(), info.deltaTime);
-						vm.OnProcessedFrame(now);
+
+				if (viewModelIndex < ClipInfoViewModel.Instances.Count)
+				{
+					var vm = ClipInfoViewModel.Instances[viewModelIndex];
+					if (vm.IsValid)
+					{ 
+						var graph = playable.GetGraph();
+						if (graph.GetResolver() is PlayableDirector dir)
+						{
+							TimelineHooks.CheckStateChanged(dir);
+							var now = new FrameInfo((float)playable.GetTime(), info.deltaTime);
+							vm.OnProcessedFrame(now);
+						}
+						else
+						{
+							vm.OnProcessedFrame(frameInfo);
+						}
 					}
-					else
-					{
-						vm.OnProcessedFrame(frameInfo);
-					}
+				}
+				else
+				{
+					Debug.LogError("ViewModel is missing/unknown - this is a bug that needs to be fixed, most likely the director is also missing");
+					// if (!currentViewModel.director)
+					// {
+					// 	var graph = playable.GetGraph();
+					// 	if (graph.GetResolver() is PlayableDirector dir)
+					// 	{
+					// 		currentViewModel.director = dir;
+					// 		currentViewModel.Register();
+					// 	}
+					// }
 				}
 			}
 		}
