@@ -57,7 +57,7 @@ namespace Needle.Timeline
 		internal bool RequiresReload { get; set; }
 
 		internal PlayableDirector director;
-		internal PlayableAsset asset;
+		internal CodeControlAsset asset;
 		internal TimelineClip TimelineClip => timelineClip;
 		internal bool failedLoading;
 
@@ -184,6 +184,13 @@ namespace Needle.Timeline
 		public double ToClipTime(double time) => (time - startTime) * timeScale;
 		public double ClipTime => clipTime;
 
+		public bool SameAssetInstance(ClipInfoViewModel vm)
+		{
+			if (vm == this) return true;
+			if (!asset?.data) return false;
+			if (vm.asset?.data == asset.data) return true;
+			return false;
+		}
 
 		private readonly List<(ICustomClip clip, IValueHandler handler, object value)> storedValues 
 			= new List<(ICustomClip clip, IValueHandler handler, object value)>();

@@ -77,11 +77,14 @@ namespace Needle.Timeline.Editors.CustomCurve
 				case EventType.MouseUp:
 					for (var index = modifyTimeActions.Count - 1; index >= 0; index--)
 					{
-						var mod = modifyTimeActions[index];
-						mod.IsDone = true;
-						if (Mathf.Approximately(mod.keyframe.time, mod.previousTime))
+						var act = modifyTimeActions[index];
+						act.IsDone = true;
+						if (Mathf.Approximately(act.keyframe.time, act.previousTime))
 							modifyTimeActions.RemoveAt(index);
-						else mod.newTime = mod.keyframe.time;
+						else
+						{
+							act.newTime = act.keyframe.time;
+						}
 					}
 					if (modifyTimeActions.Count > 0)
 						CustomUndo.Register(modifyTimeActions.ToCompound("Modify Keyframe(s) time", true));
@@ -296,8 +299,7 @@ namespace Needle.Timeline.Editors.CustomCurve
 										foreach (var entry in KeyframeSelector.EnumerateSelected())
 										{
 											if (!canPerform) break;
-											if (!modifyTimeActions.Any(e => e.keyframe == entry))
-												modifyTimeActions.Add(new KeyframeModifyTime(entry));
+											CreateModifyKeyframeTimeActions(clip, entry, timeDelta);
 											entry.time += timeDelta;
 											Repaint();
 											UpdatePreview();
@@ -306,8 +308,7 @@ namespace Needle.Timeline.Editors.CustomCurve
 								}
 								else
 								{
-									if (!modifyTimeActions.Any(e => e.keyframe == kf))
-										modifyTimeActions.Add(new KeyframeModifyTime(keyframe));
+									CreateModifyKeyframeTimeActions(clip, keyframe, timeDelta);
 									keyframe.Select(clip);
 									keyframe.time += timeDelta;
 									if (kf.time < 0) keyframe.time = 0;
@@ -375,6 +376,45 @@ namespace Needle.Timeline.Editors.CustomCurve
 				}
 			}
 			return false;
+		}
+
+		private void CreateModifyKeyframeTimeActions(ICustomClip clip, ICustomKeyframe keyframe, float timeDelta)
+		{
+			if (!modifyTimeActions.Any(e => e.keyframe == keyframe))
+				modifyTimeActions.Add(new KeyframeModifyTime(keyframe));
+
+			// find view models that share the same data asset and modify time there as well
+			// references to the same should probably be saved on creation so we dont need to search
+			// but for now its ok. We should also do this for all actions on keyframes
+			// when they share the same asset
+			var track = Track.GetClips();
+			var done = false;
+			foreach (var timelineClip in track)
+			{
+				if (timelineClip.asset is CodeControlAsset code)
+				{
+					foreach (var view in code.viewModels)
+					{
+						if (done) break;
+						foreach (var other in view.clips)
+						{
+							if (other == clip)
+							{
+								done = true;
+								break;
+							}
+							if (other.Id == clip.Id)
+							{
+								var closest = other.GetClosest(keyframe.time);
+								if (!modifyTimeActions.Any(e => e.keyframe == closest))
+									modifyTimeActions.Add(new KeyframeModifyTime(closest));
+								closest.time = keyframe.time + timeDelta;
+								done = true;
+							}
+						}
+					}
+				}
+			}
 		}
 
 		private bool GetIsInKeyframeRect(Rect rect, TimelineClip timelineClip, IReadonlyCustomKeyframe kf, int row, out Rect keyframeRect)
