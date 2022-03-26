@@ -183,16 +183,24 @@ namespace Needle.Timeline
 					viewModel.Script = script;
 					
 					if (existing != null)
-					{  
-						if(!existing.RequiresReload)
-							continue; 
+					{
+						if (!existing.RequiresReload)
+						{
+							// RegisterViewModel();
+							continue;
+						} 
 						existing.Unregister();
 						asset.viewModels.Remove(existing);
 						existing.Clear();
 					}
+
+					void RegisterViewModel()
+					{
+						viewModel.Register();
+						asset.AddViewModel(viewModel);
+					}
 					
-					viewModel.Register();
-					asset.AddViewModel(viewModel);
+					RegisterViewModel();
 					viewModel.RequiresReload = false;
 
 
