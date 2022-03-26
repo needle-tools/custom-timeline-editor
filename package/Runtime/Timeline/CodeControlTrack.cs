@@ -181,8 +181,6 @@ namespace Needle.Timeline
 					viewModel.director = dir;
 					viewModel.asset = asset;
 					viewModel.Script = script;
-					viewModel.Register();
-					asset.AddViewModel(viewModel);
 					
 					if (existing != null)
 					{  
@@ -193,6 +191,8 @@ namespace Needle.Timeline
 						existing.Clear();
 					}
 					
+					viewModel.Register();
+					asset.AddViewModel(viewModel);
 					viewModel.RequiresReload = false;
 
 
