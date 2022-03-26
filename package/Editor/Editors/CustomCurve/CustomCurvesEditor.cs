@@ -388,19 +388,19 @@ namespace Needle.Timeline.Editors.CustomCurve
 			// but for now its ok. We should also do this for all actions on keyframes
 			// when they share the same asset
 			var track = Track.GetClips();
-			var done = false;
+			// var done = false;
 			foreach (var timelineClip in track)
 			{
 				if (timelineClip.asset is CodeControlAsset code)
 				{
 					foreach (var view in code.viewModels)
 					{
-						if (done) break;
+						// if (done) break;
 						foreach (var other in view.clips)
 						{
 							if (other == clip)
 							{
-								done = true;
+								// done = true;
 								break;
 							}
 							if (other.Id == clip.Id)
@@ -409,7 +409,7 @@ namespace Needle.Timeline.Editors.CustomCurve
 								if (!modifyTimeActions.Any(e => e.keyframe == closest))
 									modifyTimeActions.Add(new KeyframeModifyTime(closest));
 								closest.time = keyframe.time + timeDelta;
-								done = true;
+								// done = true;
 							}
 						}
 					}
