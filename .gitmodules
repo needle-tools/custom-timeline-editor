@@ -19,3 +19,6 @@
 [submodule "modules/custom-timeline-playground"]
 	path = modules/custom-timeline-playground
 	url = https://github.com/needle-tools/custom-timeline-playground
+[submodule "modules/com.unity.playablegraph-visualizer"]
+	path = modules/com.unity.playablegraph-visualizer
+	url = https://github.com/needle-tools/com.unity.playablegraph-visualizer.git
