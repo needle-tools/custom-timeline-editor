@@ -9,7 +9,7 @@ for use as input of generative animation and more*
 ### Features
 - Custom keyframes (keyframe and interpolate any collection of types)
 - Undo / Redo
-- C# to compute shader binding tools
+- C# to compute shader binding
 
 See [videos below](#videos)
 
