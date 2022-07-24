@@ -13,6 +13,11 @@ for use as input of generative animation and more*
 
 See [videos below](#videos)
 
+### State of the project
+This tool was originally developed to ease animating with code and give me some flexible and visual tools to control generative animation. It should be in a working state but still rough around the edges of e.g. UX, is not tested in production of any real project. Yet I think it can be useful and I hope to return to it one day to improve all the things that need attention (e.g. improving the UI and UX for the modular tools, fixing of bugs, improving performance, finish implementation of C# → compute binding).  
+
+That being said: please open issues if you have problems or contribute by opening a PR 🙏
+
 ### Getting started
 ![image](https://user-images.githubusercontent.com/5083203/180650806-a2d35a3f-3c0f-4e68-b542-0e7fa36179a9.png)
 1) Create a timeline, add a ``Code Control`` track to it. Right click in the control track to create a ``Control Track Asset`` (same as AnimationClip but for custom data, it can be re-used multiple times in a timeline or other timelines)
