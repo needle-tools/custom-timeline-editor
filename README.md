@@ -2,9 +2,7 @@
 
 
 # Custom Timeline Keyframes and Data Painter Tools
-*Custom keyframes for Unity's timeline allow for easy interpolation of any custom data type   
-including visual tools and a modular tooling system to creatively manipulate your data  
-for use as input of generative animation and more*
+*Custom keyframes for Unity's timeline allow for easy interpolation of any custom data type including visual tools and a modular tooling system to creatively manipulate your data for use as input of generative animation and more*
 
 ### Features
 - Custom keyframes (keyframe and interpolate any collection of types)
