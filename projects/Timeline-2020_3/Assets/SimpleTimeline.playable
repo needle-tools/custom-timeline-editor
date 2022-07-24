@@ -89,7 +89,7 @@ MonoBehaviour:
     m_PreExtrapolationMode: 0
     m_PostExtrapolationTime: Infinity
     m_PreExtrapolationTime: 0
-    m_DisplayName: SimpleSample
+    m_DisplayName: SimpleTimeline Clip1
   m_Markers:
     m_Objects: []
   model:
