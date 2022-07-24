@@ -8,6 +8,9 @@ for use as input of generative animation and more*
 
 Some examples for getting started can be found in [the playground repository](https://github.com/needle-tools/custom-timeline-playground)
 
+Dependencies: 
+- [needle timeline package fork](https://github.com/needle-tools/com.unity.timeline)
+- [needle custom undo package](https://github.com/needle-tools/Unity-Custom-Undo)
 
 https://user-images.githubusercontent.com/5083203/180649590-dbba6339-95a7-4f47-a475-72e630d6c3f5.mp4
 
