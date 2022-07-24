@@ -18,6 +18,10 @@ This tool was originally developed to ease animating with code and give me some 
 
 That being said: please open issues if you have problems or contribute by opening a PR 🙏
 
+#### Dependencies
+- [needle timeline package fork](https://github.com/needle-tools/com.unity.timeline)
+- [needle custom undo package](https://github.com/needle-tools/Unity-Custom-Undo)
+
 ### Getting started
 ![image](https://user-images.githubusercontent.com/5083203/180650806-a2d35a3f-3c0f-4e68-b542-0e7fa36179a9.png)
 1) Create a timeline, add a ``Code Control`` track to it. Right click in the control track to create a ``Control Track Asset`` (same as AnimationClip but for custom data, it can be re-used multiple times in a timeline or other timelines)
@@ -54,10 +58,6 @@ public class SimpleScript : Animated
 5) Open the curve views of the Control Track and click the record button for the field in your script, then start painting data.
 
 More examples for getting started can be found in [the playground repository](https://github.com/needle-tools/custom-timeline-playground)
-
-#### Dependencies
-- [needle timeline package fork](https://github.com/needle-tools/com.unity.timeline)
-- [needle custom undo package](https://github.com/needle-tools/Unity-Custom-Undo)
 
 https://user-images.githubusercontent.com/5083203/180649590-dbba6339-95a7-4f47-a475-72e630d6c3f5.mp4
 
