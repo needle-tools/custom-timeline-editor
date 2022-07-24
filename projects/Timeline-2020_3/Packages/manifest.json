@@ -3,8 +3,6 @@
     "com.needle.console": "file:../../../modules/needle-console/package",
     "com.needle.custom-undo-integration": "file:../../../modules/Unity-Custom-Undo/package",
     "com.needle.package-credentials": "1.1.0",
-    "com.needle.package-tools": "0.9.1-pre.2",
-    "com.needle.selective-profiling": "file:../../..//modules/selective-profiling/package",
     "com.needle.timeline-editor": "file:../../../package",
     "com.needle.transform-extensions": "file:../../../modules/transform-changed-helper/package",
     "com.unity.burst": "1.6.0",
