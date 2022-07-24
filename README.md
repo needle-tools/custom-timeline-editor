@@ -6,15 +6,52 @@
 including visual tools and a modular tooling system to creatively manipulate your data  
 for use as input of generative animation and more*
 
-Some examples for getting started can be found in [the playground repository](https://github.com/needle-tools/custom-timeline-playground)
+### Features
+- Custom keyframes (keyframe and interpolate any collection of types)
+- Undo / Redo
+- C# to compute shader binding tools
 
-Dependencies: 
+See [videos below]()
+
+### Getting started
+![image](https://user-images.githubusercontent.com/5083203/180650806-a2d35a3f-3c0f-4e68-b542-0e7fa36179a9.png)
+1) Create a timeline, add a ``Code Control`` track to it. Right click in the control track to create a ``Control Track Asset`` (same as AnimationClip but for custom data, it can be re-used multiple times in a timeline or other timelines)
+2) Create script that implements the ``IAnimated`` interface or derives from the ``Animated`` class:
+```csharp
+public class SimpleScript : Animated
+{
+    public class Point
+    {
+        public Vector3 Position;
+        public float Radius = .1f;
+    }
+    
+    [Animate]
+    public List<Point> MyList;
+
+    private void OnDrawGizmos()
+    {
+        if (MyList == null) return;
+        foreach (var pt in MyList)
+        {
+            Gizmos.DrawSphere(pt.Position, pt.Radius);
+        }
+    }
+}
+```
+3) Add the script to your control track
+4) Open the ``Tools/Timeline Tools`` window
+5) Open the curve views of the Control Track and click the record button for the field in your script, then start painting data.
+
+More examples for getting started can be found in [the playground repository](https://github.com/needle-tools/custom-timeline-playground)
+
+#### Dependencies
 - [needle timeline package fork](https://github.com/needle-tools/com.unity.timeline)
 - [needle custom undo package](https://github.com/needle-tools/Unity-Custom-Undo)
 
 https://user-images.githubusercontent.com/5083203/180649590-dbba6339-95a7-4f47-a475-72e630d6c3f5.mp4
 
-
+## Videos:
 
 #### Modular tooling system:
 https://user-images.githubusercontent.com/5083203/180649365-55a6b8c5-c20d-41ed-90da-bacc8730d91a.mp4
