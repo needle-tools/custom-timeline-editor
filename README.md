@@ -18,7 +18,7 @@ This tool was originally developed to ease animating with code and give me some 
 
 That being said: please open issues if you have problems or contribute by opening a PR 🙏
 
-#### Dependencies
+### Dependencies
 - [needle timeline package fork](https://github.com/needle-tools/com.unity.timeline)
 - [needle custom undo package](https://github.com/needle-tools/Unity-Custom-Undo)
 
