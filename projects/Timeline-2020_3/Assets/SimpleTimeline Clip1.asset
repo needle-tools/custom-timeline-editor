@@ -1,0 +1,145 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc4df81af81545e1984db029e0ace4ba, type: 3}
+  m_Name: SimpleTimeline Clip1
+  m_EditorClassIdentifier: 
+  Id: d82519030e4af21449ec38a782f776f4@11400000
+  ClipData:
+  - {fileID: 3697289249670952748}
+--- !u!114 &3697289249670952748
+MonoBehaviour:
+  m_ObjectHideFlags: 8
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: afd8025f9ecf4d5ea6f3229a74dbbb1c, type: 3}
+  m_Name: MyList
+  m_EditorClassIdentifier: 
+  <Id>k__BackingField: MyList
+  <Content>k__BackingField: '{"$type":"Needle.Timeline.CustomAnimationCurve`1[[System.Collections.Generic.List`1[[SimpleScript+Point,
+    AssetsAssembly]], mscorlib]], Needle.Timeline","DefaultEasing":{"$type":"Needle.Timeline.CurveEasing.QuadraticInOutEasing,
+    Needle.Timeline"},"Id":"MyList","Name":"MyList","DisplayName":"MyList","IsRecording":true,"Keyframes":{"$type":"System.Collections.Generic.List`1[[Needle.Timeline.ICustomKeyframe`1[[System.Collections.Generic.List`1[[SimpleScript+Point,
+    AssetsAssembly]], mscorlib]], Needle.Timeline]], mscorlib","$values":[{"$type":"Needle.Timeline.CustomKeyframe`1[[System.Collections.Generic.List`1[[SimpleScript+Point,
+    AssetsAssembly]], mscorlib]], Needle.Timeline","value":{"$type":"System.Collections.Generic.List`1[[SimpleScript+Point,
+    AssetsAssembly]], mscorlib","$values":[{"$type":"SimpleScript+Point, AssetsAssembly","Position":{"x":1.99313688,"y":-8.843296,"z":0.339103341},"Radius":0.410722077},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":3.29230452,"y":-7.59980249,"z":1.14339876},"Radius":0.4136862},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":1.37561059,"y":-10.7347488,"z":0.6424842},"Radius":0.407192856},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":0.3281957,"y":-7.35261059,"z":0.982208967},"Radius":0.4125186},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":0.9537811,"y":-10.70726,"z":1.68661976},"Radius":0.416406035},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":1.77414083,"y":-9.978176,"z":2.358354},"Radius":0.418439239},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":2.19180179,"y":-9.502768,"z":2.18646526},"Radius":0.419036835},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":-1.17698443,"y":-7.679047,"z":0.537467241},"Radius":0.412464619},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":-1.32945657,"y":-8.671221,"z":-0.912937164},"Radius":0.4009305},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":0.3273034,"y":-9.168927,"z":0.963801861},"Radius":0.418388456},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":0.777981162,"y":-7.10214043,"z":0.9380796},"Radius":0.408655941},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":3.524467,"y":-7.843393,"z":-2.20301986},"Radius":0.1},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":1.63758636,"y":-7.82619572,"z":-3.06618166},"Radius":0.1},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":1.610923,"y":-7.664434,"z":-2.196375},"Radius":0.1},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":5.52710724,"y":-10.8096695,"z":-1.478298},"Radius":0.1},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":3.38212347,"y":-8.196163,"z":-2.508086},"Radius":0.1},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":5.142146,"y":-8.132425,"z":1.58428144},"Radius":0.415057123},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":4.45797729,"y":-8.21509552,"z":0.251498222},"Radius":0.371806026},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":5.6661,"y":-8.339252,"z":-0.111225605},"Radius":0.226692125},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":4.82242775,"y":-12.0230827,"z":-1.67527962},"Radius":0.1},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":4.68065166,"y":-10.4801626,"z":1.447247},"Radius":0.368846059},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":6.35107327,"y":-9.062654,"z":-1.42884421},"Radius":0.1},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":6.98159361,"y":-12.2126913,"z":-2.48256},"Radius":0.1},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":5.8956275,"y":-9.521229,"z":0.84832716},"Radius":0.326329082},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":5.61786556,"y":-10.2160664,"z":0.201485157},"Radius":0.188763574},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":7.19387436,"y":-10.2681274,"z":-1.53645182},"Radius":0.1},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":3.91751146,"y":-11.29356,"z":-0.516236067},"Radius":0.141915366},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":4.514701,"y":-10.2849941,"z":3.01272035},"Radius":0.4019664},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":4.320932,"y":-12.4501905,"z":1.78694582},"Radius":0.139681667},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":3.1821425,"y":-9.647736,"z":1.54234111},"Radius":0.4158043},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":4.752875,"y":-10.42686,"z":2.14149427},"Radius":0.388741},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":3.854485,"y":-8.688054,"z":-2.54090166},"Radius":0.1},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":4.094509,"y":-7.327595,"z":-1.19896889},"Radius":0.1},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":3.35978651,"y":-7.561537,"z":-1.47496176},"Radius":0.100822546},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":3.1821475,"y":-10.6601887,"z":-2.62084484},"Radius":0.1},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":6.368338,"y":-7.51814365,"z":-1.28527117},"Radius":0.1},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":5.23658657,"y":-4.759321,"z":-1.48306441},"Radius":0.124382511},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":4.55002069,"y":-6.59861755,"z":-4.43041372},"Radius":0.390044034},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":3.49289322,"y":-5.51013,"z":-3.17151713},"Radius":0.262895435},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":6.71753359,"y":-4.36185265,"z":-3.88717747},"Radius":0.417780221},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":7.81821966,"y":-6.196189,"z":-2.71696115},"Radius":0.391072452},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":6.848062,"y":-7.88154745,"z":-3.18098116},"Radius":0.106396221},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":6.41793251,"y":-6.461751,"z":-3.57059431},"Radius":0.3911366},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":7.248394,"y":-9.391527,"z":-3.8576827},"Radius":0.1},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":6.5672307,"y":-6.62941,"z":-1.77392435},"Radius":0.128490835},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":7.48222637,"y":-6.67484,"z":-3.59417},"Radius":0.390081137},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":7.53595257,"y":-4.001774,"z":-3.75982022},"Radius":0.417919546},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":7.17428064,"y":-8.820508,"z":-4.361095},"Radius":0.1},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":8.443117,"y":-5.99406433,"z":-2.1135962},"Radius":0.3853541},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":9.552275,"y":-5.26512575,"z":-4.62447739},"Radius":0.412928253},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":8.56646,"y":-5.42217636,"z":-5.57092},"Radius":0.411708653},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":8.17967,"y":-8.78369,"z":-3.0505538},"Radius":0.1},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":10.2859945,"y":-8.716723,"z":-5.05790472},"Radius":0.1},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":9.204265,"y":-6.768128,"z":-1.85877681},"Radius":0.256585032},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":7.92436743,"y":-5.005871,"z":-2.854555},"Radius":0.416237473},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":10.5117149,"y":-5.490687,"z":-3.48942327},"Radius":0.4120033}]},"time":0.0,"easeInWeight":0.5,"easeOutWeight":0.5},{"$type":"Needle.Timeline.CustomKeyframe`1[[System.Collections.Generic.List`1[[SimpleScript+Point,
+    AssetsAssembly]], mscorlib]], Needle.Timeline","value":{"$type":"System.Collections.Generic.List`1[[SimpleScript+Point,
+    AssetsAssembly]], mscorlib","$values":[{"$type":"SimpleScript+Point, AssetsAssembly","Position":{"x":10.2515831,"y":-12.0978088,"z":-1.46368432},"Radius":0.405567527},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":12.1498766,"y":-15.2549906,"z":-0.9271097},"Radius":0.1},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":12.39638,"y":-14.3596621,"z":-1.38182569},"Radius":0.1},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":9.916549,"y":-15.8529053,"z":-1.090718},"Radius":0.1},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":10.494132,"y":-15.1960306,"z":-2.65907121},"Radius":0.1},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":13.1223774,"y":-11.9027863,"z":0.1628797},"Radius":0.103191875},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":13.5582581,"y":-12.7783813,"z":1.58270741},"Radius":0.1},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":14.5740576,"y":-12.8484764,"z":0.5701742},"Radius":0.1},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":12.9856768,"y":-13.1313572,"z":-1.88869071},"Radius":0.1},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":12.62343,"y":-12.6383934,"z":-1.76196814},"Radius":0.1},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":12.0713549,"y":-13.4371414,"z":-0.426918983},"Radius":0.100371674},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":13.59097,"y":-13.1260881,"z":-0.8104179},"Radius":0.1},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":12.330039,"y":-13.7738562,"z":-2.45408249},"Radius":0.1},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":15.68772,"y":-12.1218634,"z":-2.31754184},"Radius":0.1},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":13.0132608,"y":-11.2072153,"z":-4.71643448},"Radius":0.1},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":12.4944859,"y":-13.4001017,"z":-4.506328},"Radius":0.1},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":13.312746,"y":-9.694325,"z":-0.5490596},"Radius":0.399675041},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":14.5280247,"y":-9.522751,"z":-2.10908866},"Radius":0.1},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":11.8077888,"y":-12.8282642,"z":-1.61393285},"Radius":0.107416749},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":14.3666487,"y":-10.4869623,"z":-1.90056181},"Radius":0.1},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":13.3870745,"y":-10.5498095,"z":-5.196905},"Radius":0.1},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":11.2876225,"y":-11.0988092,"z":-2.63782454},"Radius":0.377790123},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":12.7197742,"y":-9.173547,"z":-5.06965542},"Radius":0.102104604},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":11.8819942,"y":-10.8759308,"z":-0.735843658},"Radius":0.405465275},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":10.44434,"y":-10.7211447,"z":-3.77128744},"Radius":0.469593078},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":10.8507261,"y":-14.2266474,"z":-1.45745635},"Radius":0.101744778},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":11.5835238,"y":-10.7417631,"z":-3.64095449},"Radius":0.255510956},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":11.5596333,"y":-14.2054234,"z":-3.1442554},"Radius":0.1},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":14.1695871,"y":-13.4882259,"z":-0.480301857},"Radius":0.1},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":9.117133,"y":-11.4151525,"z":-1.64762735},"Radius":0.419917136},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":11.1572037,"y":-10.3159637,"z":-1.12861443},"Radius":0.4212403},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":10.8404436,"y":-13.9031658,"z":1.67015576},"Radius":0.1},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":9.740817,"y":-11.6874342,"z":-2.543145},"Radius":0.4277635},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":8.984772,"y":-13.3189154,"z":-1.68466544},"Radius":0.3918249},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":10.08617,"y":-11.2185068,"z":-4.2218256},"Radius":0.5302286},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":13.0289469,"y":-12.65095,"z":-3.45759845},"Radius":0.1},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":11.3008947,"y":-12.4519548,"z":-3.59016228},"Radius":0.100217983},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":12.3548393,"y":-11.6374,"z":-1.71097994},"Radius":0.122336484},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":10.5979919,"y":-9.681214,"z":-3.07459426},"Radius":0.422076017},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":13.5913763,"y":-7.935383,"z":-5.12498236},"Radius":0.1},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":10.81576,"y":-10.5967379,"z":-5.13820457},"Radius":0.194633752},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":10.5852451,"y":-10.1869907,"z":-4.41303873},"Radius":0.3847171},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":10.3218393,"y":-6.43107462,"z":-4.38196325},"Radius":0.131966338},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":12.052475,"y":-9.566664,"z":-2.18158484},"Radius":0.41520685},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":12.0597944,"y":-7.70321465,"z":-6.97900772},"Radius":0.1},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":12.2632246,"y":-7.186322,"z":-2.506776},"Radius":0.3774537},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":11.0254021,"y":-9.694002,"z":-1.87592936},"Radius":0.420297027},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":10.8372049,"y":-7.163849,"z":-2.06799173},"Radius":0.416398048},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":9.982902,"y":-8.995622,"z":-6.140976},"Radius":0.190481678},{"$type":"SimpleScript+Point,
+    AssetsAssembly","Position":{"x":9.670887,"y":-8.136131,"z":-3.80125737},"Radius":0.4155356}]},"time":4.55,"easeInWeight":0.5,"easeOutWeight":0.5}]},"SupportedTypes":{"$type":"System.Type[],
+    mscorlib","$values":["System.Collections.Generic.List`1[[SimpleScript+Point,
+    AssetsAssembly, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], mscorlib,
+    Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"]}}'
