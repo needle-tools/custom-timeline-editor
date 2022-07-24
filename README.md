@@ -13,6 +13,15 @@ for use as input of generative animation and more*
 
 See [videos below](#videos)
 
+### State of the project
+This tool was originally developed to ease animating with code and give me some flexible and visual tools to control generative animation. It should be in a working state but still rough around the edges of e.g. UX, is not tested in production of any real project. Yet I think it can be useful and I hope to return to it one day to improve all the things that need attention (e.g. better documentation, improving the UI and UX for the modular tools, fixing of bugs, improving performance, finish implementation of C# → compute binding).  
+
+That being said: please open issues if you have problems or contribute by opening a PR 🙏
+
+### Dependencies
+- [needle timeline package fork](https://github.com/needle-tools/com.unity.timeline)
+- [needle custom undo package](https://github.com/needle-tools/Unity-Custom-Undo)
+
 ### Getting started
 ![image](https://user-images.githubusercontent.com/5083203/180650806-a2d35a3f-3c0f-4e68-b542-0e7fa36179a9.png)
 1) Create a timeline, add a ``Code Control`` track to it. Right click in the control track to create a ``Control Track Asset`` (same as AnimationClip but for custom data, it can be re-used multiple times in a timeline or other timelines)
@@ -20,15 +29,20 @@ See [videos below](#videos)
 ```csharp
 public class SimpleScript : Animated
 {
+    // Here is a custom type that you can control via timeline
     public class Point
-    {
+    {   
+        // a field named position will automatically be detected by the spray tool to be painted in 3d space
         public Vector3 Position;
+        // you may name fields as you like and add as many as you want. They will show up in the tool to be painted and individually manipulated
         public float Radius = .1f;
     }
     
+    // annotade any field that you want to animate via timeline with the Animate attribute:
     [Animate]
     public List<Point> MyList;
 
+    // this is just for the sake of visualizing the painted points:
     private void OnDrawGizmos()
     {
         if (MyList == null) return;
@@ -44,10 +58,6 @@ public class SimpleScript : Animated
 5) Open the curve views of the Control Track and click the record button for the field in your script, then start painting data.
 
 More examples for getting started can be found in [the playground repository](https://github.com/needle-tools/custom-timeline-playground)
-
-#### Dependencies
-- [needle timeline package fork](https://github.com/needle-tools/com.unity.timeline)
-- [needle custom undo package](https://github.com/needle-tools/Unity-Custom-Undo)
 
 https://user-images.githubusercontent.com/5083203/180649590-dbba6339-95a7-4f47-a475-72e630d6c3f5.mp4
 
