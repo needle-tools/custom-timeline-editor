@@ -25,15 +25,20 @@ That being said: please open issues if you have problems or contribute by openin
 ```csharp
 public class SimpleScript : Animated
 {
+    // Here is a custom type that you can control via timeline
     public class Point
-    {
+    {   
+        // a field named position will automatically be detected by the spray tool to be painted in 3d space
         public Vector3 Position;
+        // you may name fields as you like and add as many as you want. They will show up in the tool to be painted and individually manipulated
         public float Radius = .1f;
     }
     
+    // annotade any field that you want to animate via timeline with the Animate attribute:
     [Animate]
     public List<Point> MyList;
 
+    // this is just for the sake of visualizing the painted points:
     private void OnDrawGizmos()
     {
         if (MyList == null) return;
