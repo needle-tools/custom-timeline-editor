@@ -16,3 +16,4 @@ projects/*/Timeline/Clips
 projects/**/UserSettings
 package/Tests/**/.idea/*
 projects/*/builds
+**/RiderScriptEditorPersistedState.asset
