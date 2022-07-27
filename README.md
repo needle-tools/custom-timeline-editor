@@ -55,11 +55,13 @@ public class SimpleScript : Animated
 4) Open the ``Tools/Timeline Tools`` window
 5) Open the curve views of the Control Track and click the record button for the field in your script, then start painting data.
 
-More examples for getting started can be found in [the playground repository](https://github.com/needle-tools/custom-timeline-playground)
+### Samples
+A minimal sample is in ``projects/Timeline-2020_3/Assets``. More examples for getting started can be found in [the playground repository](https://github.com/needle-tools/custom-timeline-playground). Currently samples are messy from different versions and experimentation 🧪 and need to be updated. I'll try to cleanup and provide better samples soon. 
 
-https://user-images.githubusercontent.com/5083203/180649590-dbba6339-95a7-4f47-a475-72e630d6c3f5.mp4
 
 ## Videos:
+
+https://user-images.githubusercontent.com/5083203/180649590-dbba6339-95a7-4f47-a475-72e630d6c3f5.mp4
 
 #### Modular tooling system:
 https://user-images.githubusercontent.com/5083203/180649365-55a6b8c5-c20d-41ed-90da-bacc8730d91a.mp4
