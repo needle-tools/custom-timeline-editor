@@ -16,6 +16,10 @@ This tool was originally developed to ease animating with code and give me some 
 
 That being said: please [open issues](https://github.com/needle-tools/custom-timeline-editor/issues/new) if you have problems or contribute by [opening a PR](https://github.com/needle-tools/custom-timeline-editor/pulls) 🙏
 
+### Samples
+A minimal sample is in ``projects/Timeline-2020_3/Assets``. More examples for getting started can be found in [the playground repository](https://github.com/needle-tools/custom-timeline-playground). Currently samples are messy from different versions and experimentation 🧪 and need to be updated. I'll try to cleanup and provide better samples soon. 
+
+
 ### Dependencies
 - [needle timeline package fork](https://github.com/needle-tools/com.unity.timeline)
 - [needle custom undo package](https://github.com/needle-tools/Unity-Custom-Undo)
@@ -55,11 +59,8 @@ public class SimpleScript : Animated
 4) Open the ``Tools/Timeline Tools`` window
 5) Open the curve views of the Control Track and click the record button for the field in your script, then start painting data.
 
-### Samples
-A minimal sample is in ``projects/Timeline-2020_3/Assets``. More examples for getting started can be found in [the playground repository](https://github.com/needle-tools/custom-timeline-playground). Currently samples are messy from different versions and experimentation 🧪 and need to be updated. I'll try to cleanup and provide better samples soon. 
 
-
-## Videos:
+### Videos:
 
 https://user-images.githubusercontent.com/5083203/180649590-dbba6339-95a7-4f47-a475-72e630d6c3f5.mp4
 
