@@ -14,7 +14,7 @@ See [videos below](#videos)
 ### State of the project
 This tool was originally developed to ease animating with code and give me some flexible and visual tools to control generative animation. It should be in a working state but still rough around the edges of e.g. UX, is not tested in production of any real project. Yet I think it can be useful and I hope to return to it one day to improve all the things that need attention (e.g. better documentation, improving the UI and UX for the modular tools, fixing of bugs, improving performance, finish implementation of C# → compute binding).  
 
-That being said: please open issues if you have problems or contribute by opening a PR 🙏
+That being said: please [open issues](https://github.com/needle-tools/custom-timeline-editor/issues/new) if you have problems or contribute by opening a PR 🙏
 
 ### Dependencies
 - [needle timeline package fork](https://github.com/needle-tools/com.unity.timeline)
