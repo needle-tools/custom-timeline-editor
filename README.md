@@ -90,7 +90,7 @@ https://user-images.githubusercontent.com/5083203/180649073-1b795271-b152-454a-8
 #### Easy to integrate (e.g. controlling [keijiro's swarm](https://github.com/keijiro/Swarm))
 https://user-images.githubusercontent.com/5083203/180649232-48586913-b798-48ba-bc88-f593b08fbdad.mp4
 
-#### Works with compute + can automatically bind and dispatch C# members to ComputeShaders
+#### Works with compute + can automatically bind and dispatch C# members to ComputeShaders ([tweet](https://twitter.com/marcel_wiessler/status/1552793904742793216))
 
 https://user-images.githubusercontent.com/5083203/181651946-c203beb8-28bf-4013-8f59-32dad0f7d8dc.mp4
 
