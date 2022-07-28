@@ -27,13 +27,13 @@ namespace Needle.Timeline
 			for (var viewModelIndex = 0; viewModelIndex < behaviour.asset.viewModels.Count; viewModelIndex++)
 			{
 				var currentViewModel = behaviour.asset.viewModels[viewModelIndex];
-				
+
 				valuesToMix.Clear();
- 
+
 				for (var i = 0; i < inputCount; i++)
 				{
 					var inputWeight = playable.GetInputWeight(i);
-					if (inputWeight <= 0.000001f) continue; 
+					if (inputWeight <= 0.000001f) continue;
 
 					inputPlayable = (ScriptPlayable<CodeControlBehaviour>)playable.GetInput(i);
 					var b = inputPlayable.GetBehaviour();
@@ -56,7 +56,7 @@ namespace Needle.Timeline
 
 					// Debug.Log(viewModel.Script + ", " + inputWeight + ", " + viewModel.clips.Count);
 					var length = (float)viewModel.director.duration;
-					var time = (float)viewModel.ToClipTime(playable.GetTime()); 
+					var time = (float)viewModel.ToClipTime(playable.GetTime());
 					//((playable.GetTime() - behaviour.viewModel.startTime) * behaviour.viewModel.timeScale);
 					// Debug.Log(time.ToString("0.0") + ", " + length.ToString("0.0"));
 					// looping support:
@@ -79,13 +79,13 @@ namespace Needle.Timeline
 							var next = val;
 							var final = clip.Interpolate(prev, next, inputWeight);
 							viewModel.values[index].SetValue(final);
-							if(viewModel.Script is IOnionSkin)
+							if (viewModel.Script is IOnionSkin)
 								viewModel.StoreEvaluatedResult(viewModel.values[index], clip, final);
 						}
 						else
 						{
 							viewModel.values[index].SetValue(val);
-							if(viewModel.Script is IOnionSkin)
+							if (viewModel.Script is IOnionSkin)
 								viewModel.StoreEvaluatedResult(viewModel.values[index], clip, val);
 						}
 					}
@@ -103,7 +103,7 @@ namespace Needle.Timeline
 				{
 					var vm = ClipInfoViewModel.Instances[viewModelIndex];
 					if (vm.IsValid)
-					{ 
+					{
 						var graph = playable.GetGraph();
 						if (graph.GetResolver() is PlayableDirector dir)
 						{
@@ -145,7 +145,7 @@ namespace Needle.Timeline
 		{
 			foreach (var vm in ClipInfoViewModel.ActiveInstances)
 			{
-				if(vm.IsValid)
+				if (vm.IsValid)
 					vm.RenderDataPreview(CustomTimelineSettings.Instance.RenderOnionSkin);
 			}
 		}
