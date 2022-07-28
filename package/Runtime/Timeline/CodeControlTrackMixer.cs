@@ -119,7 +119,11 @@ namespace Needle.Timeline
 				}
 				else
 				{
-					Debug.LogError("ViewModel is missing/unknown - this is a bug that needs to be fixed, most likely the director is also missing");
+					if (!didPrintErrorAboutMissingViewModel)
+					{
+						didPrintErrorAboutMissingViewModel = true;
+						Debug.LogError("ViewModel is missing/unknown - this is a bug that needs to be fixed, most likely the director is also missing. FIXME");
+					}
 					// if (!currentViewModel.director)
 					// {
 					// 	var graph = playable.GetGraph();
@@ -132,6 +136,8 @@ namespace Needle.Timeline
 				}
 			}
 		}
+
+		private bool didPrintErrorAboutMissingViewModel = false;
 
 #if UNITY_EDITOR
 		[DrawGizmo(GizmoType.NonSelected | GizmoType.Selected)]

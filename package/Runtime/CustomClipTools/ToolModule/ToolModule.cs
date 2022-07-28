@@ -74,7 +74,7 @@ namespace Needle.Timeline
 					if (!bind.CanAssign(declaringType)) continue;
 					appliedAny = true;
 					var viewValue = bind.ViewValue.GetValue();
-
+					if (viewValue == null) continue;
 					var type = viewValue.GetType();
 					if (TryGetInterpolatable(type, out var interpolatable))
 					{
