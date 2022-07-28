@@ -94,7 +94,7 @@ MonoBehaviour:
     m_Objects: []
   model:
     recording: 
-  dirtyCount: 1454
+  dirtyCount: 4382
   clipModels:
   - id: c8a102c0e7d4ba94fa4ef4fa6d78a9fd@7492107016415189379_SimpleScript_0
     clip: {fileID: 504544468073947267}
