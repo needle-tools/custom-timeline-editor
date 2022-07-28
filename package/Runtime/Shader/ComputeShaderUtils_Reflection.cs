@@ -373,6 +373,9 @@ namespace Needle.Timeline
 			field.TypeName = typeName;
 			switch (typeName)
 			{
+				case "bool":
+					field.FieldType = typeof(bool);
+					break;
 				case "float":
 					field.FieldType = typeof(float);
 					break;

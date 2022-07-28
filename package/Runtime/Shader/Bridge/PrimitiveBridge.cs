@@ -4,6 +4,7 @@ using UnityEngine;
 namespace Needle.Timeline
 {
 	[ShaderBridge(
+		typeof(bool),
 		typeof(float),
 		typeof(Vector2),
 		typeof(Vector3),
@@ -25,6 +26,9 @@ namespace Needle.Timeline
 
 			switch (value)
 			{
+				case bool val:
+					shaderInfo.Shader.SetBool(shaderField.FieldName, val);
+					break;
 				case float val:
 					shaderInfo.Shader.SetFloat(shaderField.FieldName, val);
 					break;

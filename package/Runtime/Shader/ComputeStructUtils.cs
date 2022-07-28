@@ -70,6 +70,9 @@ namespace Needle.Timeline
 
 		private static int GetSize(Type type, int level)
 		{
+			if (type == typeof(bool))
+				return sizeof(bool);
+			
 			if (type == typeof(float))
 				return sizeof(float);
 			if (type == typeof(double))

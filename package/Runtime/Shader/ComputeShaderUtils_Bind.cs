@@ -41,7 +41,7 @@ namespace Needle.Timeline
 							}
 						}
 						var threads = k.Threads;
-						if (kernelGroupSize != null) 
+						if (kernelGroupSize != null)
 						{
 							var gs = kernelGroupSize.Value;
 							if (gs.x > 0)
@@ -103,24 +103,28 @@ namespace Needle.Timeline
 		private static bool IsSetImplicitly(ComputeShaderInfo info, ComputeShaderFieldInfo field)
 		{
 			if (BuiltinTypeNames.Any(e => e.fieldName == field.FieldName && e.typeName == field.TypeName))
-				return true; 
+				return true;
 			var isMaybeImplicitCount = field.FieldName.EndsWith("Count");
-			foreach(var other in info.Fields)
+			foreach (var other in info.Fields)
 			{
 				if (other == field) continue;
 				if (isMaybeImplicitCount && field.FieldName.StartsWith(other.FieldName))
 				{
 					if (other.FieldType == typeof(ComputeBuffer))
-						return true; 
-				} 
+						return true;
+				}
 			}
 			return false;
 		}
 
-		private static bool TryBind(ComputeShaderFieldInfo shaderField, FieldInfo typeField, ComputeShaderInfo shaderInfo, IResourceProvider resources, out ComputeShaderBinding binding)
+		private static bool TryBind(ComputeShaderFieldInfo shaderField,
+			FieldInfo typeField,
+			ComputeShaderInfo shaderInfo,
+			IResourceProvider resources,
+			out ComputeShaderBinding binding)
 		{
 			binding = null!;
-			
+
 			if (typeField.Name != shaderField.FieldName)
 			{
 				var mapping = typeField.GetCustomAttribute<ShaderField>();
@@ -168,7 +172,7 @@ namespace Needle.Timeline
 				}
 				else if (typeof(IList<Transform>).IsAssignableFrom(typeField.FieldType))
 				{
-					switch (shaderField.GenericTypeName) 
+					switch (shaderField.GenericTypeName)
 					{
 						case "float3":
 						case "float4":
@@ -177,7 +181,7 @@ namespace Needle.Timeline
 							break;
 					}
 				}
-				else 
+				else
 				{
 					stride = typeField.FieldType.GetStride();
 				}
