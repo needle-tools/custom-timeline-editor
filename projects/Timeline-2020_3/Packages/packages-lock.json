@@ -1,7 +1,14 @@
 {
   "dependencies": {
     "com.needle.console": {
-      "version": "file:../../../modules/needle-console/package",
+      "version": "2.3.11",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://packages.needle.tools"
+    },
+    "com.needle.custom-timeline-samples": {
+      "version": "file:../../../extras",
       "depth": 0,
       "source": "local",
       "dependencies": {}
@@ -29,12 +36,6 @@
         "com.unity.timeline": "",
         "com.unity.nuget.newtonsoft-json": "2.0.0"
       }
-    },
-    "com.needle.transform-extensions": {
-      "version": "file:../../../modules/transform-changed-helper/package",
-      "depth": 0,
-      "source": "local",
-      "dependencies": {}
     },
     "com.unity.burst": {
       "version": "1.6.0",

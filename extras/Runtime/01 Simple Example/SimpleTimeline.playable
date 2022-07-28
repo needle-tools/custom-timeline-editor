@@ -89,12 +89,12 @@ MonoBehaviour:
     m_PreExtrapolationMode: 0
     m_PostExtrapolationTime: Infinity
     m_PreExtrapolationTime: 0
-    m_DisplayName: SimpleScript
+    m_DisplayName: SimpleTimeline Clip1
   m_Markers:
     m_Objects: []
   model:
     recording: 
-  dirtyCount: 1086
+  dirtyCount: 1454
   clipModels:
   - id: c8a102c0e7d4ba94fa4ef4fa6d78a9fd@7492107016415189379_SimpleScript_0
     clip: {fileID: 504544468073947267}
@@ -181,7 +181,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 48f060644c554507a7ce922fce767b2e, type: 3}
-  m_Name: Timeline2
+  m_Name: Simple Timeline
   m_EditorClassIdentifier: 
   id: c8a102c0e7d4ba94fa4ef4fa6d78a9fd@7492107016415189379
   data: {fileID: 11400000, guid: d82519030e4af21449ec38a782f776f4, type: 2}

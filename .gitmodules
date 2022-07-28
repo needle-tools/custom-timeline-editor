@@ -4,12 +4,6 @@
 [submodule "modules/Unity-Custom-Undo"]
 	path = modules/Unity-Custom-Undo
 	url = https://github.com/needle-tools/Unity-Custom-Undo
-[submodule "modules/needle-console"]
-	path = modules/needle-console
-	url = https://github.com/needle-tools/needle-console
-[submodule "modules/transform-changed-helper"]
-	path = modules/transform-changed-helper
-	url = https://github.com/needle-tools/transform-changed-helper
 [submodule "modules/custom-timeline-playground"]
 	path = modules/custom-timeline-playground
 	url = https://github.com/needle-tools/custom-timeline-playground

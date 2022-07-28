@@ -36,5 +36,6 @@ namespace Needle.Timeline
 		{
 			base.OnTrackChanged(track);
 		}
+			
 	}
 }

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using Needle.Timeline;
 using UnityEngine;
 
-public class SimpleScript : Animated
+public class SimpleScript : MonoBehaviour, IAnimated
 {
     public class Point
     {

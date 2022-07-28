@@ -1,9 +1,11 @@
 {
   "name": "com.needle.timeline-editor",
-  "displayName": "Timeline Editor",
-  "version": "0.0.1-pre",
+  "displayName": "Needle Timeline Editor",
+  "version": "1.0.0-pre",
   "dependencies": {
     "com.unity.timeline": "",
     "com.unity.nuget.newtonsoft-json": "2.0.0"
-  }
+  },
+  "description": "Custom keyframes for Unity's timeline \ud83c\udf9e(interpolate lists of anything) with visual tools \ud83d\udd8cand more",
+  "type": "tool"
 }
