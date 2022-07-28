@@ -21,6 +21,10 @@ namespace Needle.Timeline
 					{
 						return (Vector3)field.GetValue(valueOwner);
 					}
+					if (field.FieldType == typeof(Vector2))
+					{
+						return (Vector3)field.GetValue(valueOwner).Cast(typeof(Vector3));
+					}
 				}
 			}
 			return null;
