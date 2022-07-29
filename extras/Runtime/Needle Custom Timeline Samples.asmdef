@@ -1,6 +1,6 @@
 {
     "name": "Needle.Custom-Timeline-Samples",
-    "rootNamespace": "Needle.Custom-Timeline.Samples",
+    "rootNamespace": "Needle.Timeline.Samples",
     "references": [
         "GUID:717e44f821bd3b74c9fc8e6d845c0a95"
     ],

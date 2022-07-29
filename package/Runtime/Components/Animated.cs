@@ -18,14 +18,14 @@ namespace Needle.Timeline
 		// 	InternalInit();
 		// }
 
-		private void OnEnable()
+		protected virtual void OnEnable()
 		{
 			didSearchFields = false;
 			InternalInit();
 			ComputeShaderUtils.ComputeShaderChanged += OnShaderChanged;
 		}
 
-		private void OnDisable()
+		protected virtual void OnDisable()
 		{
 			ComputeShaderUtils.ComputeShaderChanged -= OnShaderChanged;
 		}
@@ -166,32 +166,18 @@ namespace Needle.Timeline
 
 				if (!didDispatchAny)
 				{
-					// dispatch default
+					// dispatch default if noe specific kernel info is provided
 					for (var index = 0; index < shaderInfos.Count; index++)
 					{
 						var shader = shaderInfos[index];
 						if (shader == null) continue;
 						this.SetTime(shader.Shader);
-						// bindings.Clear();
-						// shader.Bind(GetType(), bindings, resources);
-
-						Vector3Int? kernelSize = null;
-						foreach (var field in bindings)
-						{
-							if (!typeof(Texture).IsAssignableFrom(field.Field.FieldType)) continue;
-							var info = field.Field.GetCustomAttribute<TextureInfo>();
-							if (info == null) continue;
-							if (info.Width > 0 && info.Height > 0)
-							{
-								kernelSize = new Vector3Int(info.Width, info.Height, info.Depth);
-								break;
-							}
-						}
-
+						
+						Vector3Int? kernelSize = GetFullscreenKernelSize();
 						foreach (var k in shader.Kernels)
 						{
 							BeforeDispatch();
-							Debug.Log("Dispatch " + k.Name);
+							// Debug.Log("Dispatch " + k.Name + "; " + kernelSize);
 							shader.Dispatch(this, k.Index, bindings, kernelSize);
 						}
 					}
@@ -222,7 +208,11 @@ namespace Needle.Timeline
 
 		private bool DispatchNow(DispatchInfo info)
 		{
-			if (!info.IsValid) return false;
+			if (!info.IsValid)
+			{
+				Debug.LogWarning("Dispatch not valid: " + info);
+				return false;
+			}
 			var foundKernel = false;
 			for (var index = 0; index < shaderInfos.Count; index++)
 			{
@@ -240,20 +230,17 @@ namespace Needle.Timeline
 				// bindings.Clear();
 				// shader.Bind(GetType(), bindings, resources);
 
-
-				// if (AllowAutoThreadGroupSize() && info.GroupsX == null && info.GroupsY == null && info.GroupsZ == null)
-				// {
-				// 	foreach (var field in shader.Fields)
-				// 	{
-				// 		if (field.Kernels?.Any(x => x.Index == kernel.Index) ?? false)
-				// 		{
-				// 			if (typeof(Texture2D).IsAssignableFrom(field.FieldType))
-				// 			{
-				// 				
-				// 			}
-				// 		}
-				// 	}
-				// }
+				if (AllowAutoThreadGroupSize(info) && info.GroupsX == null && info.GroupsY == null && info.GroupsZ == null)
+				{
+					var fullscreen = GetFullscreenKernelSize();
+					if (fullscreen != null)
+					{
+						var val = fullscreen.Value;
+						info.GroupsX = val.x;
+						info.GroupsY = val.y;
+						info.GroupsZ = val.z;
+					}
+				}
 
 				shader.Dispatch(this, kernel.Index, bindings,
 					new Vector3Int(info.GroupsX.GetValueOrDefault(), info.GroupsY.GetValueOrDefault(), info.GroupsZ.GetValueOrDefault()));
@@ -270,6 +257,21 @@ namespace Needle.Timeline
 			return foundKernel;
 		}
 
+		private Vector3Int? GetFullscreenKernelSize()
+		{
+			foreach (var field in bindings)
+			{
+				if (!typeof(Texture).IsAssignableFrom(field.Field.FieldType)) continue;
+				var info = field.Field.GetCustomAttribute<TextureInfo>();
+				if (info == null) continue;
+				if (info.Width > 0 && info.Height > 0)
+				{
+					return new Vector3Int(info.Width, info.Height, info.Depth);
+				}
+			}
+			return null;
+		}
+
 		public struct DispatchInfo
 		{
 			public string? ShaderName;
@@ -280,9 +282,14 @@ namespace Needle.Timeline
 			public int? GroupsZ;
 
 			public bool IsValid => KernelIndex != null || KernelName != null;
+
+			public override string ToString()
+			{
+				return ShaderName + " @ " + KernelName + "/" + KernelIndex + " [" + GroupsX + "," + GroupsY + "," + GroupsZ + "]";
+			}
 		}
 
-		// protected virtual bool AllowAutoThreadGroupSize() => true;
+		protected virtual bool AllowAutoThreadGroupSize(DispatchInfo dispatchInfo) => true;
 
 		protected virtual IEnumerable<DispatchInfo> OnDispatch()
 		{
