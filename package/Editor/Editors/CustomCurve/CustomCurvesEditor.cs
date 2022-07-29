@@ -64,9 +64,11 @@ namespace Needle.Timeline.Editors.CustomCurve
 				case EventType.KeyDown:
 					switch (evt.keyCode)
 					{
+						case KeyCode.LeftArrow:
 						case KeyCode.A:
 							NextOrPrevKeyframe(-1);
 							break;
+						case KeyCode.RightArrow:
 						case KeyCode.D:
 							NextOrPrevKeyframe(1);
 							break;
