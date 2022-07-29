@@ -16,6 +16,7 @@ namespace Needle.Timeline
 		bool Remove(ICustomKeyframe kf);
 		event Action<ICustomClip> Changed;
 		IReadOnlyList<IReadonlyCustomKeyframe> Keyframes { get; }
+		ICustomKeyframe GetNext(float time);
 		ICustomKeyframe GetPrevious(float time);
 		ICustomKeyframe GetClosest(float time);
 		Type[] SupportedTypes { get; }

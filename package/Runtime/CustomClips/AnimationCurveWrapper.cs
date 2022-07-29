@@ -72,7 +72,12 @@ namespace Needle.Timeline
 		#pragma warning restore CS0414
 		
 		public IReadOnlyList<IReadonlyCustomKeyframe> Keyframes { get; }
-		
+
+		public ICustomKeyframe GetNext(float time)
+		{
+			return null;
+		}
+
 		public ICustomKeyframe GetPrevious(float time)
 		{
 			return null;

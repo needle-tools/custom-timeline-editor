@@ -60,7 +60,12 @@ namespace Needle.Timeline
 		public event Action<ICustomClip> Changed;
 		
 		void ICustomClip.RaiseChangedEvent() => Changed?.Invoke(this);
-		
+
+		public ICustomKeyframe GetNext(float time)
+		{
+			return FindKeyframe(time, false, true);
+		}
+
 		public ICustomKeyframe GetPrevious(float time)
 		{
 			return FindKeyframe(time, true);
@@ -241,13 +246,14 @@ namespace Needle.Timeline
 		}
 
 
-		private ICustomKeyframe FindKeyframe(float time, bool onlyPrevious)
+		private ICustomKeyframe FindKeyframe(float time, bool onlyPrevious = false, bool onlyNext = false)
 		{
 			ICustomKeyframe closest = default;
 			var closestDelta = double.MaxValue;
 			foreach (var kf in _keyframes)
 			{
 				if (onlyPrevious && kf.time > time) continue;
+				if (onlyNext && kf.time < time) continue;
 				var delta = Mathf.Abs(time - kf.time);
 				if (delta < closestDelta)
 				{

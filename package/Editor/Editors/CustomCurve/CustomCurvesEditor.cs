@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using Needle.Timeline.Commands;
@@ -7,6 +8,7 @@ using Needle.Timeline.CurveEasing;
 using UnityEditor;
 using UnityEditor.Timeline;
 using UnityEngine;
+using UnityEngine.Playables;
 using UnityEngine.Timeline;
 
 namespace Needle.Timeline.Editors.CustomCurve
@@ -56,9 +58,21 @@ namespace Needle.Timeline.Editors.CustomCurve
 			var evt = Event.current;
 			var evtType = evt.GetTypeForControl(controlId);
 			var mousePos = Event.current.mousePosition;
-
+			
 			switch (evtType)
 			{
+				case EventType.KeyDown:
+					switch (evt.keyCode)
+					{
+						case KeyCode.A:
+							NextOrPrevKeyframe(-1);
+							break;
+						case KeyCode.D:
+							NextOrPrevKeyframe(1);
+							break;
+					}
+					break;
+				
 				case EventType.MouseDown:
 					if (rect.Contains(mousePos))
 					{
@@ -374,6 +388,65 @@ namespace Needle.Timeline.Editors.CustomCurve
 							break;
 					}
 				}
+			}
+			return false;
+		}
+
+		private bool NextOrPrevKeyframe(int direction)
+		{
+			if (direction == 0) return false;
+			var closestDifference = float.MaxValue;
+			var closestDirectorTime = 0f;
+			ICustomKeyframe closest  = default;
+			PlayableDirector director = default;
+			foreach (var timelineClip in EnumerateClips())
+			{
+				if (timelineClip.asset is CodeControlAsset code)
+				{
+					foreach (var vm in code.viewModels)
+					{
+						var currentTime = (float)vm.clipTime;
+						foreach (var st in vm.clips)
+						{
+							if (direction > 0)
+							{
+								var candidate = st.GetNext(currentTime + .001f);
+								if (candidate != null)
+								{
+									var diff = Mathf.Abs(candidate.time - currentTime);
+									if (closest == null || diff < closestDifference)
+									{
+										closest = candidate;
+										closestDifference = diff;
+										director = vm.director;
+										closestDirectorTime = (float)(candidate.time / vm.timeScale + vm.startTime);
+									}
+								}
+							}
+							else if (direction < 0)
+							{
+								var candidate = st.GetPrevious(currentTime - .001f);
+								if (candidate != null)
+								{
+									var diff = Mathf.Abs(candidate.time - currentTime);
+									if (closest == null || diff < closestDifference)
+									{
+										closest = candidate;
+										closestDifference = diff;
+										director = vm.director;
+										closestDirectorTime = (float)(candidate.time / vm.timeScale + vm.startTime);
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			if (director)
+			{
+				CustomUndo.Register(new TimelineModifyTime(director, closestDirectorTime));
+				UpdatePreview();
+				return true;
 			}
 			return false;
 		}
