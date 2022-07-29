@@ -29,7 +29,7 @@ namespace Needle.Timeline
 			ToolsWindow.Root.Add(modulesContainer);
 		}
 
-		private static readonly List<IToolModule> buffer = new List<IToolModule>();
+		private static readonly List<IToolModule> availableTools = new List<IToolModule>();
 		private VisualElement modulesContainer;
 		private readonly List<ModuleViewController> moduleViewControllers = new List<ModuleViewController>();
 		private const string activeModuleKey = "active-module";
@@ -61,20 +61,20 @@ namespace Needle.Timeline
 				if (t.Clip == null) continue;
 				foreach (var type in t.Clip.SupportedTypes)
 				{ 
-					ToolModuleRegistry.GetModulesSupportingType(type, buffer);
+					ToolModuleRegistry.GetModulesSupportingType(type, availableTools);
 					BuildModuleToolsUI();
 
 					if (typeof(ICollection).IsAssignableFrom(type) && type.IsGenericType)
 					{
 						var contentType = type.GetGenericArguments().First();
-						ToolModuleRegistry.GetModulesSupportingType(contentType, buffer);
+						ToolModuleRegistry.GetModulesSupportingType(contentType, availableTools);
 						BuildModuleToolsUI();
 					}
 				}
 
 				foreach (var field in t.Clip.EnumerateFields())
 				{
-					ToolModuleRegistry.GetModulesSupportingType(field.FieldType, buffer);
+					ToolModuleRegistry.GetModulesSupportingType(field.FieldType, availableTools);
 					BuildModuleToolsUI();
 				}
 			}
@@ -87,9 +87,9 @@ namespace Needle.Timeline
 
 		private void BuildModuleToolsUI()
 		{
-			if (buffer.Count <= 0) return;
+			if (availableTools.Count <= 0) return;
 
-			foreach (var module in buffer)
+			foreach (var module in availableTools)
 			{
 				var entry = moduleViewControllers.FirstOrDefault(e => e.Is(module));
 				if (entry != null) continue;

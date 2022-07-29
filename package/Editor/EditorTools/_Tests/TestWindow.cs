@@ -6,7 +6,7 @@ namespace Needle.Timeline
 {
 	internal class TestWindow : EditorWindow
 	{
-		[MenuItem("Tools/Timeline Tool TestWindow")]
+		[MenuItem("Needle/Timeline/Internal/Timeline Tool TestWindow")]
 		private static void Open()
 		{
 			if (HasOpenInstances<TestWindow>())

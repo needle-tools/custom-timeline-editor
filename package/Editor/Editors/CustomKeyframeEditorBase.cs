@@ -23,11 +23,13 @@ namespace Needle.Timeline
 			}
 		}
 
-		private static StringBuilder _stringBuilder = new StringBuilder();
+		private static readonly StringBuilder _stringBuilder = new StringBuilder();
 		internal static void DrawDefaultInspector(SelectedKeyframe selected)
 		{
 			if (selected.Keyframe != null)
 			{
+				EditorGUILayout.HelpBox("Tip: You can double click a keyframe to jump to the keyframe time.", MessageType.None);
+				
 				var kf = selected.Keyframe;
 				// EditorGUILayout.LabelField(name);
 				var newTime = EditorGUILayout.FloatField("Time", kf.time);
