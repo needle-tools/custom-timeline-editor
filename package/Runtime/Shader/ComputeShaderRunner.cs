@@ -116,6 +116,7 @@ namespace Needle.Timeline
 
 		public void Dispose()
 		{
+			shader.StopWatching();
 			resources.Dispose();
 		}
 
@@ -147,6 +148,7 @@ namespace Needle.Timeline
 				info.Bind(targetType, bindings, resources);
 				shader.StartWatching(() => group = null);
 				FindDefaultKernelCounts(target, info, bindings, defaultDispatchCounts);
+				Debug.Log("Did bind " + shader.name);
 			}
 			return group.GetValueOrDefault();
 		}

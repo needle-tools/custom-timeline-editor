@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Needle.Timeline.Samples
@@ -6,22 +7,17 @@ namespace Needle.Timeline.Samples
 	[ExecuteAlways]
 	public class ComputeBindingV2 : MonoBehaviour
 	{
+		private ComputeShaderRunner runner;
+		
 		public ComputeShader Shader;
-		[TextureInfo(512, 512)] public RenderTexture Result;
-
+		[TextureInfo(512, 512)] 
+		public RenderTexture Result;
 		public Color MyColor;
 
-		[Header("Visualization")] public Renderer Renderer;
+		private void OnEnable() => CreateRunner();
+		private void OnValidate() => CreateRunner();
 
-		private ComputeShaderRunner runner;
-
-		private void OnEnable()
-		{
-			runner?.Dispose();
-			runner = new ComputeShaderRunner(this, Shader);
-		}
-
-		private void OnValidate()
+		private void CreateRunner()
 		{
 			runner?.Dispose();
 			runner = new ComputeShaderRunner(this, Shader);
@@ -30,6 +26,15 @@ namespace Needle.Timeline.Samples
 		private void Update()
 		{
 			runner.DispatchAll();
+			ShowTexture();
+		}
+		
+		
+
+		[Header("Visualization")] public Renderer Renderer;
+
+		private void ShowTexture()
+		{
 			if (Renderer?.sharedMaterial)
 				Renderer.sharedMaterial.mainTexture = Result;
 		}

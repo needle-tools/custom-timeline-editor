@@ -3,9 +3,17 @@
 float4 MyColor;
 RWTexture2D<float4> Result;
 
+// StructuredBuffer<float2> SomePoints;
 
 [numthreads(8,8,1)]
 void DrawBackground (uint3 id : SV_DispatchThreadID)
-{
+{ 
+    uint width, height;
+    Result.GetDimensions(width, height);
+    float2 uv = float2(id.x, id.y) / float2(width, height);
+    float factor = max(uv.x, uv.y); 
+    MyColor.x *= factor;
+    MyColor.y *= factor;
+    // MyColor.a *= uv.x * uv.y;
     Result[id.xy] = MyColor;
 }

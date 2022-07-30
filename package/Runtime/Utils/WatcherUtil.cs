@@ -7,6 +7,7 @@ using Object = UnityEngine.Object;
 
 namespace Needle.Timeline
 {
+	[InitializeOnLoad]
 	internal static class UpdateWatcherUtil
 	{
 		internal static void Register(Object obj, Action callback)
@@ -27,6 +28,17 @@ namespace Needle.Timeline
 		}
 
 		private static readonly List<(string id, Action callback)> watchList = new List<(string id, Action callback)>();
+
+		static UpdateWatcherUtil()
+		{
+			watchList.Clear();
+		}
+
+		[RuntimeInitializeOnLoadMethod]
+		private static void Init()
+		{
+			watchList.Clear();
+		}
 
 		private static string GetId(Object obj)
 		{
