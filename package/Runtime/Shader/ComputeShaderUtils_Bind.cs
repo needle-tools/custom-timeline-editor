@@ -24,8 +24,10 @@ namespace Needle.Timeline
 				shaderInfo.PrintErrorOnce();
 				return false;
 			}
+			var index = 0;
 			foreach (var k in shaderInfo.Kernels)
 			{
+				var i = index++;
 				if (k.Index == kernelIndex)
 				{
 					if (!shaderInfo.Shader.HasKernel(k.Name))
@@ -36,7 +38,7 @@ namespace Needle.Timeline
 					{
 						foreach (var b in bindings)
 						{
-							if (b.ShaderField.Kernels?.Any(x => x.Name == k.Name) ?? false)
+							if (b.ShaderField.TryFindUsage(k, out var usage) && usage != UsageType.Unknown)
 							{
 								if (!b.SetValue(instance, kernelIndex))
 								{
