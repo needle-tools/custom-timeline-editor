@@ -30,7 +30,7 @@ MonoBehaviour:
   <Id>k__BackingField: MyList
   <Content>k__BackingField: '{"$type":"Needle.Timeline.CustomAnimationCurve`1[[System.Collections.Generic.List`1[[SimpleScript+Point,
     Needle.Custom-Timeline-Samples]], mscorlib]], Needle.Timeline","DefaultEasing":{"$type":"Needle.Timeline.CurveEasing.QuadraticInOutEasing,
-    Needle.Timeline"},"Id":"MyList","Name":"MyList","DisplayName":"MyList","IsRecording":true,"Keyframes":{"$type":"System.Collections.Generic.List`1[[Needle.Timeline.ICustomKeyframe`1[[System.Collections.Generic.List`1[[SimpleScript+Point,
+    Needle.Timeline"},"Id":"MyList","Name":"MyList","DisplayName":"MyList","IsRecording":false,"Keyframes":{"$type":"System.Collections.Generic.List`1[[Needle.Timeline.ICustomKeyframe`1[[System.Collections.Generic.List`1[[SimpleScript+Point,
     Needle.Custom-Timeline-Samples]], mscorlib]], Needle.Timeline]], mscorlib","$values":[{"$type":"Needle.Timeline.CustomKeyframe`1[[System.Collections.Generic.List`1[[SimpleScript+Point,
     Needle.Custom-Timeline-Samples]], mscorlib]], Needle.Timeline","value":{"$type":"System.Collections.Generic.List`1[[SimpleScript+Point,
     Needle.Custom-Timeline-Samples]], mscorlib","$values":[{"$type":"SimpleScript+Point,
@@ -197,7 +197,7 @@ MonoBehaviour:
     Needle.Custom-Timeline-Samples","Position":{"x":6.619799,"y":-5.63558865,"z":0.7410382},"Radius":0.55592984,"Color":{"r":0.9755649,"g":0.824528158,"b":0.51157546,"a":1.0}},{"$type":"SimpleScript+Point,
     Needle.Custom-Timeline-Samples","Position":{"x":5.85298824,"y":-4.411113,"z":2.35237026},"Radius":0.6097703,"Color":{"r":1.0,"g":0.7423867,"b":0.031879928,"a":1.0}},{"$type":"SimpleScript+Point,
     Needle.Custom-Timeline-Samples","Position":{"x":5.05042,"y":-4.67201471,"z":2.30976343},"Radius":0.568048537,"Color":{"r":1.0,"g":0.759920061,"b":0.121918917,"a":1.0}},{"$type":"SimpleScript+Point,
-    Needle.Custom-Timeline-Samples","Position":{"x":5.49476528,"y":-6.50607157,"z":1.95312548},"Radius":0.541506469,"Color":{"r":0.968247354,"g":0.855491757,"b":0.511579454,"a":1.0}}]},"time":1.460902,"easeInWeight":0.5,"easeOutWeight":0.5},{"$type":"Needle.Timeline.CustomKeyframe`1[[System.Collections.Generic.List`1[[SimpleScript+Point,
+    Needle.Custom-Timeline-Samples","Position":{"x":5.49476528,"y":-6.50607157,"z":1.95312548},"Radius":0.541506469,"Color":{"r":0.968247354,"g":0.855491757,"b":0.511579454,"a":1.0}}]},"time":1.758004,"easeInWeight":0.5,"easeOutWeight":0.5},{"$type":"Needle.Timeline.CustomKeyframe`1[[System.Collections.Generic.List`1[[SimpleScript+Point,
     Needle.Custom-Timeline-Samples]], mscorlib]], Needle.Timeline","value":{"$type":"System.Collections.Generic.List`1[[SimpleScript+Point,
     Needle.Custom-Timeline-Samples]], mscorlib","$values":[{"$type":"SimpleScript+Point,
     Needle.Custom-Timeline-Samples","Position":{"x":12.5178194,"y":-6.073255,"z":-2.14702916},"Radius":0.13,"Color":{"r":0.976794064,"g":1.0,"b":0.0791809857,"a":1.0}},{"$type":"SimpleScript+Point,

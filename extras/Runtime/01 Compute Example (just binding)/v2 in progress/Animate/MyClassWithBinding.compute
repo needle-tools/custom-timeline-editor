@@ -1,0 +1,32 @@
+#pragma kernel DrawBackground
+#pragma kernel DrawPoints
+
+RWTexture2D<float4> Result;
+
+StructuredBuffer<float2> Points;
+
+// idea: add markup to indicate which fields should be used to determine the compute dispatch count
+// e.g. x: Result.width or x: Result.width, y: Result.height, z: Points.count
+
+// alternative: can we infer the usage of e.g. using id.z as the index for the points to automatically dispatch z width Point.count?
+
+
+[numthreads(8,8,8)]
+void DrawBackground(uint3 id : SV_DispatchThreadID)
+{
+    Result[id.xy] = float4(0,0,1,1);
+}
+
+[numthreads(8,8,8)]
+void DrawPoints(uint3 id : SV_DispatchThreadID)
+{
+    uint width, height;
+    Result.GetDimensions(width, height);
+    float2 uv = float2(id.x, id.y) / float2(width, height);
+    uv -= .5;
+    
+    float2 pt = Points[id.z];
+    float dist = distance(uv, pt);
+    if (dist < .03)
+        Result[id.xy] = 1;
+}

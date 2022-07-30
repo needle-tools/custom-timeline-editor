@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
 
@@ -15,10 +16,18 @@ namespace Needle.Timeline.ResourceProviders
 		void DisposeBuffer(string id);
 	}
 
+	public enum GrowStrategy
+	{
+		NoGrowing = 0,
+		Exact = 1,
+		Double = 2
+	}
+
 	public class DefaultComputeBufferProvider : IComputeBufferProvider
 	{
 		private readonly Dictionary<string, ComputeBuffer> cache = new Dictionary<string, ComputeBuffer>();
-		public bool MaxCount = true;
+
+		public GrowStrategy GrowStrategy { get; set; } = GrowStrategy.Double;
 
 		public void ClearCaches()
 		{
@@ -30,7 +39,23 @@ namespace Needle.Timeline.ResourceProviders
 			if (cache.TryGetValue(id, out var buffer))
 			{
 				var bufferCount = buffer?.IsValid() ?? false ? buffer.count : -1; 
-				desc.Size = MaxCount ? Mathf.Max(desc.Size, bufferCount) : desc.Size;
+				if(bufferCount < desc.Size)
+				{
+					switch (GrowStrategy)
+					{
+						case GrowStrategy.Exact:
+							desc.Size = Mathf.Max(desc.Size, bufferCount);
+							break;
+						case GrowStrategy.Double:
+							while(bufferCount < desc.Size) bufferCount *= 2;
+							desc.Size = bufferCount;
+							break;
+					}
+				}
+				// dont shrink the buffer
+				if (GrowStrategy != GrowStrategy.NoGrowing)
+					desc.Size = bufferCount;
+				
 				buffer = ComputeBufferUtils.SafeCreate(ref buffer, desc);
 				cache[id] = buffer;
 			}

@@ -86,7 +86,7 @@ namespace Needle.Timeline
 				buffer.SafeDispose();
 				buffer = new ComputeBuffer(desc.Size, desc.Stride, desc.Type, desc.Mode);
 				buffer.name = desc.Name;
-				Debug.Log("Create ComputeBuffer, size=" + desc.Size + ", stride=" + desc.Stride);
+				Debug.Log($"Create ComputeBuffer {desc.Name}, size={desc.Size}, stride={desc.Stride}");
 			}
 			if (desc.CounterValue != null)
 				buffer.SetCounterValue(desc.CounterValue.Value);

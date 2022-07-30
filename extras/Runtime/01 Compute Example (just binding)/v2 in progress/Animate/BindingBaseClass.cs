@@ -1,35 +1,39 @@
-﻿using System;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Needle.Timeline.Samples
 {
 	[ExecuteAlways]
-	public class ComputeBindingV2 : MonoBehaviour
+	public class BindingBaseClass : MonoBehaviour
 	{
-		private ComputeShaderRunner runner;
+		private ComputeShaderRunner _runner;
 		
+		// The shader to use
 		public ComputeShader Shader;
+		
+		// the output
 		[TextureInfo(512, 512)] 
 		public RenderTexture Result;
-		public Color MyColor;
 
 		private void OnEnable() => CreateRunner();
 		private void OnValidate() => CreateRunner();
 
 		private void CreateRunner()
 		{
-			runner?.Dispose();
-			runner = new ComputeShaderRunner(this, Shader);
+			_runner?.Dispose();
+			if (Shader) _runner = new ComputeShaderRunner(this, Shader);
 		}
 
 		private void Update()
 		{
-			runner.DispatchAll();
+			if (_runner == null) return;
+			OnDispatch(_runner);
 			ShowTexture();
 		}
-		
-		
+
+		protected virtual void OnDispatch(ComputeShaderRunner runner)
+		{
+			_runner.RunAll();
+		}
 
 		[Header("Visualization")] public Renderer Renderer;
 
@@ -40,3 +44,4 @@ namespace Needle.Timeline.Samples
 		}
 	}
 }
+

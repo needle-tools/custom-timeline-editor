@@ -11,9 +11,9 @@ void DrawBackground (uint3 id : SV_DispatchThreadID)
     uint width, height;
     Result.GetDimensions(width, height);
     float2 uv = float2(id.x, id.y) / float2(width, height);
-    float factor = max(uv.x, uv.y); 
-    MyColor.x *= factor;
-    MyColor.y *= factor;
+    // float factor = max(uv.x, uv.y); 
+    MyColor *= uv.x;
+    // MyColor.y *= uv.x;
     // MyColor.a *= uv.x * uv.y;
     Result[id.xy] = MyColor;
 }

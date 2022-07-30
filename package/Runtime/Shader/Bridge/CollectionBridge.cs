@@ -44,6 +44,7 @@ namespace Needle.Timeline
 			var shaderInfo = context.ShaderInfo;
 			var value = field.GetValue(instance);
 			var desc = new ComputeBufferDescription();
+			desc.Name = shaderField.FieldName;
 			desc.Stride = shaderField.Stride;
 			desc.Type = shaderField.RandomWrite.GetValueOrDefault() ? ComputeBufferType.Structured : ComputeBufferType.Default;
 

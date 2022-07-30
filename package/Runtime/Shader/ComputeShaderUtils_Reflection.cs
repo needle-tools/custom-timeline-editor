@@ -151,6 +151,7 @@ namespace Needle.Timeline
 		/// How the field is used in a kernel
 		/// </summary>
 		public List<UsageType>? KernelUsages;
+		// TODO: this should probably also include info about the component that was access. e.g. which kernel index we use to access it so we can make better default dispatch assumptions (e.g. we know id.xy are used to write to the output texture and id.z is used to read from some buffer)
 
 		public string FilePath;
 
