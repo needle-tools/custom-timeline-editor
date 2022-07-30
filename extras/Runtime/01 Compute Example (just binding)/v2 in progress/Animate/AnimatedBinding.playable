@@ -130,7 +130,7 @@ MonoBehaviour:
     m_Objects: []
   model:
     recording: 
-  dirtyCount: 2010
+  dirtyCount: 6298
   clipModels:
   - id: 799a3b291250271418b9529a613a38bf@3600532216028581281_MyClassWithBinding_0
     clip: {fileID: 7366371223984959188}
