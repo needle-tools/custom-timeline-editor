@@ -59,6 +59,15 @@ namespace Needle.Timeline
 			}
 		}
 
+		private bool didPrintError;
+		internal void PrintErrorOnce()
+		{
+			if (!HasError) return;
+			if (didPrintError) return;
+			didPrintError = true;
+			Debug.LogError(Error);
+		}
+
 		public bool HasError
 		{
 			get

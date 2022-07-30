@@ -21,13 +21,17 @@ namespace Needle.Timeline
 		{
 			if (shaderInfo.HasError)
 			{
-				Debug.LogError(shaderInfo.Error);
+				shaderInfo.PrintErrorOnce();
 				return false;
 			}
 			foreach (var k in shaderInfo.Kernels)
 			{
 				if (k.Index == kernelIndex)
 				{
+					if (!shaderInfo.Shader.HasKernel(k.Name))
+					{
+						return false;
+					}
 					if (bindings != null && bindings.Count > 0)
 					{
 						foreach (var b in bindings)
