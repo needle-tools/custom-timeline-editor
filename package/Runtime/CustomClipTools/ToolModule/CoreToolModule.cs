@@ -340,7 +340,6 @@ namespace Needle.Timeline
 						ThrowHelper.Throw("Failed creating instance of " + toolContext.ContentType + ", Module: " + this);
 				}
 
-
 				if(instance != null)
 					ApplyBinding(instance, res.Weight);
 
@@ -360,10 +359,18 @@ namespace Needle.Timeline
 				}
 				if (instance is IToolEvents init) 
 					init.OnToolEvent(ToolStage.BasicValuesSet, _toolData);
+
+				
 				if (toolContext.List != null)
 				{
+					// if you are trying to paint a vec3 for a vec2 list for example:
+					if (instance != null && toolContext.ContentType != null && instance.GetType() != toolContext.ContentType)
+					{
+						instance = instance.Cast(toolContext.ContentType);
+					}
 					toolContext.List.Add(instance);
 				}
+				
 				++_producedCount;
 				didProduceValue = true;
 				if (instance is IToolEvents)
