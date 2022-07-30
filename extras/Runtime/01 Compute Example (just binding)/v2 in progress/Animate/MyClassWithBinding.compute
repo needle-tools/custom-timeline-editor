@@ -1,15 +1,16 @@
 #pragma kernel DrawBackground
 #pragma kernel DrawPoints
 
-RWTexture2D<float4> Result;
-
 struct Point
 {
     float2 Position;
     float4 Color;
 };
 
+
+RWTexture2D<float4> Result;
 StructuredBuffer<Point> Points;
+
 
 [numthreads(8,8,8)]
 void DrawBackground(uint3 id : SV_DispatchThreadID)

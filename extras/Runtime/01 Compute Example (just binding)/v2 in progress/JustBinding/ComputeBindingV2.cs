@@ -5,16 +5,19 @@ using UnityEngine;
 namespace Needle.Timeline.Samples
 {
 	[ExecuteAlways]
-	public class ComputeBindingV2 : ComputeShaderRunnerUnityComponent
+	public class ComputeBindingV2 : MonoBehaviour
 	{
-		[TextureInfo(512, 512)] public RenderTexture Result;
+		public ComputeShader Shader;
+		
+		[TextureInfo(512, 512)] 
+		public RenderTexture Result;
 		public Color MyColor;
 
-		[Header("Visualization")] public Renderer Renderer;
+		public Renderer Renderer;
 
-		protected override void Update()
+		private void Update()
 		{
-			base.Update();
+			Shader.Run(this, "DrawBackground", 0, 0, 0);
 			if (Renderer?.sharedMaterial)
 				Renderer.sharedMaterial.mainTexture = Result;
 		}
