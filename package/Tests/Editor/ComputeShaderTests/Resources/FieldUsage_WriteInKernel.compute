@@ -1,0 +1,9 @@
+﻿#pragma kernel CSMain
+
+float3 testField;
+
+[numthreads(8,1,1)]
+void CSMain(uint3 id : SV_DispatchThreadID)
+{
+    testField = float3(1,0,0);
+}

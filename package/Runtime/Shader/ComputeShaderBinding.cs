@@ -7,6 +7,9 @@ using UnityEngine;
 
 namespace Needle.Timeline
 {
+	/// <summary>
+	/// Responsible for setting the c# values to the shader via a binding bridge 
+	/// </summary>
 	public class ComputeShaderBinding : IBindingContext
 	{
 		public object Instance { get; set; }
@@ -34,7 +37,7 @@ namespace Needle.Timeline
 			return bridge?.SetValue(this) ?? false;
 		}
 
-		public object? GetValue()
+		public object? GetValue(object instance)
 		{
 			if (typeof(IList).IsAssignableFrom(Field.FieldType))
 			{
@@ -48,7 +51,7 @@ namespace Needle.Timeline
 				buffer.GetData(arr, 0, 0, list.Count);
 				return arr;
 			}
-			return null;
+			return Field.GetValue(instance);
 		}
 	}
 }

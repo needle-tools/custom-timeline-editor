@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Needle.Timeline
 {
@@ -69,6 +71,28 @@ namespace Needle.Timeline
 			if (tx <= 0 || ty <= 0 || tz <= 0) return false;
 			shader.Dispatch(kernel, (int)tx, (int)ty, (int)tz);
 			return true;
+		}
+		
+		public static Vector3Int? TryGetKernelCountFor(object obj)
+		{
+			if (obj == null || (obj as Object) == false)
+			{
+				return null;
+			}
+			switch (obj)
+			{
+				case IList element:
+					return new Vector3Int(element.Count, 1, 1);
+				case ComputeBuffer element:
+					return new Vector3Int(element.count, 1, 1);
+				case RenderTexture element:
+					return new Vector3Int(element.width, element.height, element.depth);
+				case Texture2D element:
+					return new Vector3Int(element.width, element.height, 1);
+				case Texture3D element:
+					return new Vector3Int(element.width, element.height, element.depth);
+			}
+			return null;
 		}
 	}
 }

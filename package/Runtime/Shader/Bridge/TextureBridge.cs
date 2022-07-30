@@ -48,26 +48,36 @@ namespace Needle.Timeline
 				                  || renderTex && (renderTex.width != info.Width || renderTex.height != info.Height || renderTex.enableRandomWrite != shaderField.RandomWrite)
 				                  )
 				{
-					GraphicsFormat? graphicsFormat = info.GraphicsFormat;
-					if ((int)graphicsFormat == 0)
+					
+					var type = value?.GetType();
+					if (type == typeof(Texture2D) || type == typeof(Texture3D))
 					{
-						if ((int)info.TextureFormat != 0)
-							graphicsFormat = GraphicsFormatUtility.GetGraphicsFormat(info.TextureFormat, false);
-						else
-						{
-							if (shaderField.GenericTypeName == null)
-								throw new Exception("Failed finding generic type: " + shaderField.FieldName);
-							graphicsFormat = GetFormat(shaderField.GenericTypeName);
-						}
+						Debug.LogError("Can not create type: " + type);
 					}
+					else
+					{
+						GraphicsFormat? graphicsFormat = info.GraphicsFormat;
+						if ((int)graphicsFormat == 0)
+						{
+							if ((int)info.TextureFormat != 0)
+								graphicsFormat = GraphicsFormatUtility.GetGraphicsFormat(info.TextureFormat, false);
+							else
+							{
+								if (shaderField.GenericTypeName == null)
+									throw new Exception("Failed finding generic type: " + shaderField.FieldName);
+								graphicsFormat = GetFormat(shaderField.GenericTypeName);
+							}
+						}
 
-					var desc = info.ToRenderTextureDescription();
-					desc.Name = field.Name;
-					desc.RandomAccess = shaderField.RandomWrite.GetValueOrDefault();
-					desc.GraphicsFormat = graphicsFormat;
-					var rt = context.Resources.RenderTextureProvider.GetTexture(field.Name, desc);
-					value = tex = rt;
-					field.SetValue(context.Instance, value);
+						var desc = info.ToRenderTextureDescription();
+						desc.Name = field.Name;
+						desc.RandomAccess = shaderField.RandomWrite.GetValueOrDefault();
+						desc.GraphicsFormat = graphicsFormat;
+						var rt = context.Resources.RenderTextureProvider.GetTexture(field.Name, desc);
+						value = tex = rt;
+						field.SetValue(context.Instance, value);
+					}
+					
 				}
 			}
 

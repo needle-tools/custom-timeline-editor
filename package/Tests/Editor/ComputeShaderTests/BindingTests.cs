@@ -79,7 +79,7 @@ namespace Needle.Timeline.Tests.Bind_ComputeShaderTests
 			Assert.AreEqual(1, list.Count);
 
 			shaderInfo.Dispatch(source, 0, list);
-			var val = list[0].GetValue() as Array;
+			var val = list[0].GetValue(source) as Array;
 			Assert.NotNull(val);
 			Assert.AreEqual(43,val.GetValue(0));
 		}

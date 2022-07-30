@@ -111,6 +111,14 @@ namespace Needle.Timeline
 		}
 	}
 
+	[Flags]
+	public enum UsageType
+	{
+		Unknown = 0,
+		Write = 1,
+		Read = 2
+	}
+
 	[Serializable]
 	public class ComputeShaderFieldInfo
 	{
@@ -130,6 +138,11 @@ namespace Needle.Timeline
 		// TODO: currently we only check in kernel methods if the field is used
 		public List<ComputeShaderKernelInfo>? Kernels;
 
+		/// <summary>
+		/// How the field is used in a kernel
+		/// </summary>
+		public List<UsageType>? KernelUsages;
+
 		public string FilePath;
 
 		public override string ToString()
@@ -140,6 +153,55 @@ namespace Needle.Timeline
 			if (GenericTypeName != null) res += ", GenericTypeName=" + GenericTypeName;
 			if (Kernels != null) res += ", Used in Kernels: " + string.Join(", ", Kernels.Select(k => k.Name));
 			return res;
+		}
+
+		public bool TryFindUsage(ComputeShaderKernelInfo kernel, out UsageType usage)
+		{
+			if (KernelUsages == null)
+			{
+				usage = default;
+				return false;
+			}
+			var index = Kernels?.IndexOf(kernel);
+			if (Kernels == null || index < 0 || index == null)
+			{
+				usage = default;
+				return false;
+			}
+			usage = KernelUsages[index.Value];
+			return true;
+		}
+
+		internal void OnUsageFound(string line, ComputeShaderKernelInfo kernel, bool isInCommentBlock)
+		{
+			Kernels ??= new List<ComputeShaderKernelInfo>();
+			KernelUsages ??= new List<UsageType>();
+			var index = Kernels.IndexOf(kernel);
+			if (index < 0)
+			{
+				index = Kernels.Count;
+				Kernels.Add(kernel);
+				KernelUsages.Add(UsageType.Unknown);
+			}
+			if (!isInCommentBlock)
+			{
+				var commentIndex = line.IndexOf("//", StringComparison.Ordinal);
+				var assignmentIndex = line.IndexOf("=", StringComparison.Ordinal);
+				var nameIndex = line.IndexOf(FieldName, StringComparison.Ordinal);
+				// this may fail for e.g.
+				// "someField = 123 // myShaderField = 5"
+				// being parsed as reading
+				// where a user has the assignment written in a comment behind the actual code
+				if (assignmentIndex >= 0 && (commentIndex == -1 || commentIndex > assignmentIndex))
+				{
+					var usage = KernelUsages[index];
+					// if the field name is on the left side of the assignment, it is used as a write
+					if (nameIndex < assignmentIndex) usage |= UsageType.Write;
+					// otherwise we know it's being read from
+					else usage |= UsageType.Read;
+					KernelUsages[index] = usage;
+				}
+			}
 		}
 	}
 
@@ -302,9 +364,7 @@ namespace Needle.Timeline
 								if (!charBeforeIsOk) continue;
 								var charAfterIsOk = i == line.Length - 1 || allowedSurroundingVariableName.Contains(line[i + field.FieldName.Length]);
 								if (!charAfterIsOk) continue;
-								field.Kernels ??= new List<ComputeShaderKernelInfo>();
-								if (!field.Kernels.Contains(currentKernelMethod))
-									field.Kernels.Add(currentKernelMethod);
+								field.OnUsageFound(line, currentKernelMethod, false);
 								break;
 							}
 						}
