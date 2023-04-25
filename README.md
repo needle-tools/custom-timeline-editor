@@ -4,6 +4,8 @@
 # Custom Timeline Keyframes and Data Painter Tools
 *Custom keyframes for Unity's timeline allow for easy interpolation of any custom data type including visual tools and a modular tooling system to creatively manipulate your data for use as input of generative animation and more*
 
+https://user-images.githubusercontent.com/5083203/180649590-dbba6339-95a7-4f47-a475-72e630d6c3f5.mp4
+
 ### Features
 - Custom keyframes (keyframe and interpolate any collection of types)
 - Undo / Redo
@@ -61,8 +63,6 @@ public class SimpleScript : Animated
 
 
 ### Videos:
-
-https://user-images.githubusercontent.com/5083203/180649590-dbba6339-95a7-4f47-a475-72e630d6c3f5.mp4
 
 #### Modular tooling system [[tweet](https://twitter.com/marcel_wiessler/status/1461283048113291268)]:
 https://user-images.githubusercontent.com/5083203/180649365-55a6b8c5-c20d-41ed-90da-bacc8730d91a.mp4
